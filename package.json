@@ -9,15 +9,27 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@chakra-ui/react": "^3.16.1",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/material": "^7.0.2",
+    "@supabase/supabase-js": "^2.49.4",
+    "axios": "^1.9.0",
+    "bootstrap": "^5.3.5",
+    "cloudinary": "^2.6.0",
+    "daisyui": "^5.0.30",
+    "next": "15.3.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "next": "15.3.1"
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
+    "@eslint/eslintrc": "^3",
+    "@shadcn/ui": "^0.0.4",
+    "@tailwindcss/postcss": "^4.1.4",
     "eslint": "^9",
     "eslint-config-next": "15.3.1",
-    "@eslint/eslintrc": "^3"
+    "tailwindcss": "^4.1.4"
   }
 }

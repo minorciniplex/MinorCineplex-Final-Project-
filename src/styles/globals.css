@@ -1,8 +1,117 @@
-@import "tailwindcss";
+@import "tailwindcss/preflight";
+@tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #101525;
+  --foreground: #ededed;
+  /* Base grays */
+  --base-gray-0:   #070C1B;
+  --base-gray-100: #21263F;
+  --base-gray-200: #565F7E;
+  --base-gray-300: #8B93B0;
+  --base-gray-400: #C8CEDD;
+  --base-white:    #FFFFFF;
+
+  /* Brand colors */
+  --brand-blue-100: #4E7BEE;
+  --brand-blue-200: #1E29A8;
+  --brand-blue-300: #0C1580;
+  --brand-green:    #00A372;
+  --brand-red:      #E5364B;
+
+  /* Font family */
+  --font-family-condensed: 'Roboto Condensed', sans-serif;
+
+  /* Breakpoints */
+  --mobile: 375px;    /* mobile ขึ้นต้นที่ 375px */
+  --tablet: 768px;    /* iPad ขึ้นต้นที่ 768px */
+  --desktop: 1024px;  /* Desktop ขึ้นต้นที่ 1024px */
+}
+
+@layer utilities {
+  /* Headlines */
+  .headline-1 {
+    font-family: --font-family-condensed;
+    font-weight: 700;
+    font-size: 56px;
+  }
+
+  .headline-2 {
+    font-family: --font-family-condensed;
+    font-weight: 700;
+    font-size: 36px;
+  }
+
+  .headline-3 {
+    font-family: --font-family-condensed;
+    font-weight: 700;
+    font-size: 24px;
+  }
+
+  .headline-4 {
+    font-family: --font-family-condensed;
+    font-weight: 700;
+    font-size: 20px;
+  }
+
+  /* Body */
+  .body-1-medium {
+    font-family: --font-family-condensed;
+    font-weight: 700;
+    font-size: 16px;
+  }
+
+  .body-1-regular {
+    font-family: --font-family-condensed;
+    font-weight: 400;
+    font-size: 16px;
+  }
+
+  .body-2-medium {
+    font-family: --font-family-condensed;
+    font-weight: 500;
+    font-size: 14px;
+  }
+
+  .body-2-regular {
+    font-family: --font-family-condensed;
+    font-weight: 400;
+    font-size: 14px;
+  }
+
+  .body-3 {
+    font-family: --font-family-condensed;
+    font-weight: 400;
+    font-size: 12px;
+  }
+
+  /* Responsive utilities */
+  @media (min-width: 375px) {
+    .sm\:show {
+      display: block;
+    }
+    .sm\:hide {
+      display: none;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .md\:show {
+      display: block;
+    }
+    .md\:hide {
+      display: none;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .lg\:show {
+      display: block;
+    }
+    .lg\:hide {
+      display: none;
+    }
+  }
 }
 
 @theme inline {
@@ -14,7 +123,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #101525;
     --foreground: #ededed;
   }
 }
@@ -22,5 +131,27 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-family-condensed);
 }
+
+/* ตัวอย่างการใช้งานสี */
+.text-brand-blue {
+  color: var(--brand-blue-100);
+}
+
+.bg-base-gray {
+  background-color: var(--base-gray-100);
+}
+
+.border-brand-green {
+  border-color: var(--brand-green);
+}
+
+/* <!-- แสดงเฉพาะบน mobile --> */
+/* <div class="md:hide">แสดงเฉพาะ Mobile</div>
+
+<!-- แสดงเฉพาะบน tablet -->
+<div class="sm:hide lg:hide">แสดงเฉพาะ Tablet</div>
+
+<!-- แสดงเฉพาะบน desktop -->
+<div class="sm:hide md:hide lg:show">แสดงเฉพาะ Desktop</div> */

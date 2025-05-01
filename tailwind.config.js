@@ -27,7 +27,7 @@ module.exports = {
            'brand-red': 'var(--brand-red)',
          },
          fontFamily: {
-           sans: ['Roboto Condensed', 'sans-serif'],
+           condensed: ['Roboto Condensed', 'sans-serif'],
          },
          screens: {
            'sm': '375px',

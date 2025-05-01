@@ -1,9 +1,14 @@
-@import "tailwindcss/preflight";
-@tailwind utilities;
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;500;700&display=swap');
+
+/* Import Tailwind */
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
 
 :root {
   --background: #101525;
-  --foreground: #ededed;
+  --foreground: #ffffff;
   /* Base grays */
   --base-gray-0:   #070C1B;
   --base-gray-100: #21263F;
@@ -28,63 +33,78 @@
   --desktop: 1024px;  /* Desktop ขึ้นต้นที่ 1024px */
 }
 
+/* Base styles */
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: 'Roboto Condensed', sans-serif;
+}
+
+/* Component classes */
+.headline-1 {
+  font-family: 'Roboto Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 3.5rem;
+  line-height: 4rem
+}
+
+.headline-2 {
+  font-family: 'Roboto Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 2.25rem;
+  line-height: 2.75rem
+}
+
+.headline-3 {
+  font-family: 'Roboto Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 1.5rem;
+  line-height: 1.875rem
+}
+
+.headline-4 {
+  font-family: 'Roboto Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1.625rem
+}
+
+.body-1-regular {
+  font-family: 'Roboto Condensed', sans-serif;
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.5rem
+}
+
+.body-1-medium {
+  font-family: 'Roboto Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1.5rem
+}
+
+.body-2-regular {
+  font-family: 'Roboto Condensed', sans-serif;
+  font-weight: 400;
+  font-size: 0.875rem;
+  line-height: 1.25rem
+}
+
+.body-2-medium {
+  font-family: 'Roboto Condensed', sans-serif;
+  font-weight: 500;
+  font-size: 0.875rem;
+  line-height: 1.25rem
+}
+
+.body-3 {
+  font-family: 'Roboto Condensed', sans-serif;
+  font-weight: 400;
+  font-size: 0.75rem;
+  line-height: 1.125rem
+}
+
 @layer utilities {
-  /* Headlines */
-  .headline-1 {
-    font-family: --font-family-condensed;
-    font-weight: 700;
-    font-size: 56px;
-  }
-
-  .headline-2 {
-    font-family: --font-family-condensed;
-    font-weight: 700;
-    font-size: 36px;
-  }
-
-  .headline-3 {
-    font-family: --font-family-condensed;
-    font-weight: 700;
-    font-size: 24px;
-  }
-
-  .headline-4 {
-    font-family: --font-family-condensed;
-    font-weight: 700;
-    font-size: 20px;
-  }
-
-  /* Body */
-  .body-1-medium {
-    font-family: --font-family-condensed;
-    font-weight: 700;
-    font-size: 16px;
-  }
-
-  .body-1-regular {
-    font-family: --font-family-condensed;
-    font-weight: 400;
-    font-size: 16px;
-  }
-
-  .body-2-medium {
-    font-family: --font-family-condensed;
-    font-weight: 500;
-    font-size: 14px;
-  }
-
-  .body-2-regular {
-    font-family: --font-family-condensed;
-    font-weight: 400;
-    font-size: 14px;
-  }
-
-  .body-3 {
-    font-family: --font-family-condensed;
-    font-weight: 400;
-    font-size: 12px;
-  }
-
   /* Responsive utilities */
   @media (min-width: 375px) {
     .sm\:show {
@@ -124,14 +144,8 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #101525;
-    --foreground: #ededed;
+    --foreground: #ffffff;
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-family-condensed);
 }
 
 /* ตัวอย่างการใช้งานสี */

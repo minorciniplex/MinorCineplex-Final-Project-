@@ -1,8 +1,14 @@
+import React from 'react';
+import NavbarByCinema from "./sections/NavbarByCinema/NavbarByCinema";
+import BannerByCinema from "./sections/BannerByCinema/BannerByCinema";
 
-export default function Home() {
+const HomeLanding = () => {
   return (
-    <div className="headline-1 text-center">
-      <h1>This is Home Landing Page</h1>
-    </div>
+    <main className="min-h-screen bg-[#0F1117]">
+      <NavbarByCinema />
+      <BannerByCinema />
+    </main>
   );
-}
+};
+
+export default HomeLanding;

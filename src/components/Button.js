@@ -16,17 +16,17 @@ const Button = ({
   const getVariantClasses = () => {
     switch (variant) {
       case 'primary':
-        return 'w-[123px] h-[48px] px-[40px] py-[12px] rounded-[4px] gap-1.5 border-none bg-brand-blue-100 hover:bg-brand-blue-200 active:bg-brand-blue-300 text-white body-1-medium cursor-pointer focus:outline-none focus:ring-0 focus-visible:outline-none';
+        return 'w-[123px] h-[48px] px-[40px] py-[12px] rounded-[4px] gap-1.5 border-none bg-brand-blue-100 hover:bg-brand-blue-200 active:bg-brand-blue-300 text-white body-1-medium cursor-pointer focus:outline-none focus:ring-0 focus-visible:outline-none flex items-center justify-center';
       case 'secondary':
-        return 'w-[123px] h-[48px] px-[40px] py-[12px] rounded-[4px] gap-1.5 border-[1px] hover:bg-base-gray-300 hover:border-none active:bg-base-gray-200 active:border-none text-white body-1-medium cursor-pointer focus:outline-none focus:ring-0 focus-visible:outline-none';
+        return 'w-[123px] h-[48px] px-[40px] py-[12px] rounded-[4px] gap-1.5 border-[1px] hover:bg-base-gray-300 hover:border-none active:bg-base-gray-200 active:border-none text-white body-1-medium cursor-pointer focus:outline-none focus:ring-0 focus-visible:outline-none flex items-center justify-center';
       case 'outline':
-        return 'w-[123px] h-[48px] px-[40px] py-[12px] rounded-[4px] gap-1.5 border-2 border-brand-blue-100 text-brand-blue-100 hover:bg-brand-blue-100/10 active:bg-brand-blue-100/20 cursor-pointer focus:outline-none focus:ring-0 focus-visible:outline-none';
+        return 'w-[123px] h-[48px] px-[40px] py-[12px] rounded-[4px] gap-1.5 border-2 border-brand-blue-100 text-brand-blue-100 hover:bg-brand-blue-100/10 active:bg-brand-blue-100/20 cursor-pointer focus:outline-none focus:ring-0 focus-visible:outline-none flex items-center justify-center';
       case 'danger':
-        return 'w-[123px] h-[48px] px-[40px] py-[12px] rounded-[4px] gap-1.5 border-none bg-brand-red hover:bg-red-600 active:bg-red-700 text-white cursor-pointer focus:outline-none focus:ring-0 focus-visible:outline-none';
+        return 'w-[123px] h-[48px] px-[40px] py-[12px] rounded-[4px] gap-1.5 border-none bg-brand-red hover:bg-red-600 active:bg-red-700 text-white cursor-pointer focus:outline-none focus:ring-0 focus-visible:outline-none flex items-center justify-center';
       case 'success':
-        return 'w-[123px] h-[48px] px-[40px] py-[12px] rounded-[4px] gap-1.5 border-none bg-brand-green hover:bg-green-600 active:bg-green-700 text-white cursor-pointer focus:outline-none focus:ring-0 focus-visible:outline-none';
+        return 'w-[123px] h-[48px] px-[40px] py-[12px] rounded-[4px] gap-1.5 border-none bg-brand-green hover:bg-green-600 active:bg-green-700 text-white cursor-pointer focus:outline-none focus:ring-0 focus-visible:outline-none flex items-center justify-center';
       default:
-        return 'w-[123px] h-[48px] px-[40px] py-[12px] rounded-[4px] gap-1.5 border-none bg-brand-blue-100 hover:bg-brand-blue-200 active:bg-brand-blue-300 text-white cursor-pointer focus:outline-none focus:ring-0 focus-visible:outline-none';
+        return 'w-[123px] h-[48px] px-[40px] py-[12px] rounded-[4px] gap-1.5 border-none bg-brand-blue-100 hover:bg-brand-blue-200 active:bg-brand-blue-300 text-white cursor-pointer focus:outline-none focus:ring-0 focus-visible:outline-none flex items-center justify-center';
     }
   };
 

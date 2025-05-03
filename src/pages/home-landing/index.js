@@ -24,14 +24,6 @@ const HomeLanding = () => {
 
   return (
     <main className="min-h-screen bg-background overflow-x-hidden">
-=======
-import AnnouncementPopup from '../../components/AnnouncementPopup';
-import { FrameByCinema } from "./sections/FrameByCenima/FrameByCenima";
-
-const HomeLanding = () => {
-  return (
-    <main className="min-h-screen bg-[#0F1117]">
->>>>>>> 75104f9 (feat(homelanding) add AnnouncementPopup feature)
       <AnnouncementPopup />
       <Navbar />
       <BannerByCinema onSearch={handleSearch} />

@@ -1,7 +1,7 @@
 import React from 'react';
 import Button from '../../components/Button';
 
-export default function Home() {
+export default function manual() {
   return (
     <div className="min-h-screen bg-background p-4 sm:p-6 md:p-8">
       <div className="container mx-auto max-w-7xl">

@@ -11,9 +11,10 @@ const NavbarByCinema = () => {
           <Image 
             src="/assets/images/logo.png"
             alt="Logo" 
-            width={38}
-            height={44.5}
+            fill
+            sizes="38px"
             className="absolute top-[1.72px] left-[2px]"
+            style={{ objectFit: 'contain' }}
             priority
           />
         </div>

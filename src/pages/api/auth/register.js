@@ -1,4 +1,4 @@
-import { supabase } from "@/utils/supabase";
+import { supabase } from "@/utils/supabase.js";
 
 export default async function handler(req, res) {
   if (req.method === "POST") {
@@ -6,6 +6,16 @@ export default async function handler(req, res) {
 
     if (!name || !email || !password) {
       return res.status(400).json({ error: "All fields are required." });
+    }
+
+    if (password.length < 6) {
+      return res
+        .status(400)
+        .json({ error: "Password must be at least 6 characters long." });
+    }
+
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      return res.status(400).json({ error: "Email is invalid." });
     }
 
     const { data: signUpData, error } = await supabase.auth.signUp({

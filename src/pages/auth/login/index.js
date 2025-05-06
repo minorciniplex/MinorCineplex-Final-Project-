@@ -34,7 +34,7 @@ export default function Login() {
         setError({ email: "", password: "" });
         setResError("");
         setLoading(false);
-        console.log(response);
+        console.log("login success");
         router.push("/home");
       }
     } catch (error) {

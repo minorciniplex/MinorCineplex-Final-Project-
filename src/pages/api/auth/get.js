@@ -1,8 +1,6 @@
 import { createSupabaseServerClient } from "@/utils/supabaseCookie";
-
 export default async function handler(req, res) {
-
-    const supabase = createSupabaseServerClient(req, res);
+    const supabase = createSupabaseServerClient( req, res );
     if (req.method === "GET") {
         try {
             const { data, error } = await supabase

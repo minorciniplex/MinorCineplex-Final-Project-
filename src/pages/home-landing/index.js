@@ -26,6 +26,7 @@ const HomeLanding = () => {
     <main className="min-h-screen bg-background overflow-x-hidden">
 =======
 import AnnouncementPopup from '../../components/AnnouncementPopup';
+import { FrameByCinema } from "./sections/FrameByCenima/FrameByCenima";
 
 const HomeLanding = () => {
   return (

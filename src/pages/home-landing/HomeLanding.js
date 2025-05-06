@@ -15,7 +15,7 @@ const HomeLandingDefault = () => {
   ];
 
   return (
-    <div className="relative w-full bg-basebg" data-model-id="4551:13165">
+    <div className="relative w-full">
       <div className="w-full">
         <NavbarByCinema />
         <BannerByCinema />

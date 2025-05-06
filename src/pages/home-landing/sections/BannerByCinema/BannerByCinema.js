@@ -4,33 +4,9 @@ import Button from '@/components/Button';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import SearchIcon from '@mui/icons-material/Search';
+import { movieFilters } from '@/data/movies';
 
 const BannerByCinema = ({
-  movies = [
-    { id: 'movie1', name: 'Wonka' },
-    { id: 'movie2', name: 'The Beekeeper' },
-    { id: 'movie3', name: 'Migration' },
-    { id: 'movie4', name: 'Anyone But You' }
-  ],
-  languages = [
-    { id: 'th', name: 'ไทย' },
-    { id: 'en', name: 'English' },
-    { id: 'jp', name: '日本語' },
-    { id: 'kr', name: '한국어' }
-  ],
-  genres = [
-    { id: 'action', name: 'Action' },
-    { id: 'comedy', name: 'Comedy' },
-    { id: 'drama', name: 'Drama' },
-    { id: 'horror', name: 'Horror' },
-    { id: 'romance', name: 'Romance' }
-  ],
-  cities = [
-    { id: 'bkk', name: 'กรุงเทพมหานคร' },
-    { id: 'cnx', name: 'เชียงใหม่' },
-    { id: 'pkt', name: 'ภูเก็ต' },
-    { id: 'kk', name: 'ขอนแก่น' }
-  ],
   onSearch = (filters) => console.log('Search filters:', filters),
   bannerImage = '/assets/images/banner.jpg'
 }) => {
@@ -90,7 +66,7 @@ const BannerByCinema = ({
               className="w-[267px] h-[48px] bg-base-gray-100 text-base-gray-300 body-2-regular pt-[12px] pr-[12px] pb-[12px] pl-[16px] rounded-[4px] gap-[4px] border-[1px] border-base-gray-200 outline-none cursor-pointer hover:bg-[#252944] transition-colors appearance-none"
             >
               <option value="">Movie</option>
-              {movies.map(movie => (
+              {movieFilters.movies.map(movie => (
                 <option key={movie.id} value={movie.id}>
                   {movie.name}
                 </option>
@@ -107,7 +83,7 @@ const BannerByCinema = ({
               className="w-[177.25px] h-[48px] bg-base-gray-100 text-base-gray-300 body-2-regular pt-[12px] pr-[12px] pb-[12px] pl-[16px] rounded-[4px] gap-[4px] border-[1px] border-base-gray-200 outline-none cursor-pointer hover:bg-[#252944] transition-colors appearance-none"
             >
               <option value="">Language</option>
-              {languages.map(lang => (
+              {movieFilters.languages.map(lang => (
                 <option key={lang.id} value={lang.id}>
                   {lang.name}
                 </option>
@@ -124,7 +100,7 @@ const BannerByCinema = ({
               className="w-[177.25px] h-[48px] bg-base-gray-100 text-base-gray-300 body-2-regular pt-[12px] pr-[12px] pb-[12px] pl-[16px] rounded-[4px] gap-[4px] border-[1px] border-base-gray-200 outline-none cursor-pointer hover:bg-[#252944] transition-colors appearance-none"
             >
               <option value="">Genre</option>
-              {genres.map(genre => (
+              {movieFilters.genres.map(genre => (
                 <option key={genre.id} value={genre.id}>
                   {genre.name}
                 </option>
@@ -141,7 +117,7 @@ const BannerByCinema = ({
               className="w-[177.25px] h-[48px] bg-base-gray-100 text-base-gray-300 body-2-regular pt-[12px] pr-[12px] pb-[12px] pl-[16px] rounded-[4px] gap-[4px] border-[1px] border-base-gray-200 outline-none cursor-pointer hover:bg-[#252944] transition-colors appearance-none"
             >
               <option value="">City</option>
-              {cities.map(city => (
+              {movieFilters.cities.map(city => (
                 <option key={city.id} value={city.id}>
                   {city.name}
                 </option>

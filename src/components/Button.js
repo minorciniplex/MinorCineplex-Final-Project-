@@ -17,6 +17,8 @@ const Button = ({
     switch (variant) {
       case 'primary':
         return 'w-[123px] h-[48px] px-[40px] py-[12px] rounded-[4px] gap-1.5 border-none bg-brand-blue-100 hover:bg-brand-blue-200 active:bg-brand-blue-300 text-white body-1-medium cursor-pointer focus:outline-none focus:ring-0 focus-visible:outline-none flex items-center justify-center';
+      case 'ghost':
+        return 'px-4 py-2 border-none bg-transparent hover:bg-transparent text-white cursor-pointer focus:outline-none focus:ring-0 focus-visible:outline-none flex items-center justify-center';
       case 'secondary':
         return 'w-[123px] h-[48px] px-[40px] py-[12px] rounded-[4px] gap-1.5 border-[1px] hover:bg-base-gray-300 hover:border-none active:bg-base-gray-200 active:border-none text-white body-1-medium cursor-pointer focus:outline-none focus:ring-0 focus-visible:outline-none flex items-center justify-center';
       case 'outline':
@@ -74,7 +76,7 @@ const Button = ({
 
 Button.propTypes = {
   children: PropTypes.node.isRequired,
-  variant: PropTypes.oneOf(['primary', 'secondary', 'outline', 'danger', 'success']),
+  variant: PropTypes.oneOf(['primary', 'secondary', 'outline', 'danger', 'success', 'ghost']),
   size: PropTypes.oneOf(['small', 'medium', 'large']),
   fullWidth: PropTypes.bool,
   disabled: PropTypes.bool,

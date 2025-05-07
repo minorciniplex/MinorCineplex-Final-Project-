@@ -5,6 +5,7 @@ import { Card, CardContent } from "../../components/ui/card";
 import { BannerByCinema } from "./sections/BannerByCinema";
 import { FrameByCinema } from "./sections/FrameByAnima/FrameByAnima";
 import { NavbarByCinema } from "./sections/NavbarByCinema";
+import FooterSection from "./sections/FooterSection/FooterSection";
 
 const HomeLandingDefault = () => {
   // Location permission options data
@@ -60,49 +61,7 @@ const HomeLandingDefault = () => {
 
       <FrameByCinema />
 
-      <footer className="w-full h-[200px] bg-basegray-0 flex items-center justify-center">
-        <div className="relative w-[188px] h-[85px]">
-          <div className="relative w-[172px] h-[78px] top-[5px] left-[9px]">
-            <div className="absolute w-[170px] h-[50px] top-0 left-0">
-              <img
-                className="w-[31px] h-[41px] left-[139px] absolute top-[9px]"
-                alt="Vector"
-                src="/vector-4.svg"
-              />
-              <img
-                className="w-8 h-[41px] left-[103px] absolute top-[9px]"
-                alt="Vector"
-                src="/vector-3.svg"
-              />
-              <img
-                className="w-[29px] h-[41px] left-[67px] absolute top-[9px]"
-                alt="Vector"
-                src="/vector-5.svg"
-              />
-              <img
-                className="w-2.5 h-[41px] left-[50px] absolute top-[9px]"
-                alt="Vector"
-                src="/vector.svg"
-              />
-              <div className="absolute w-[43px] h-[50px] top-0 left-0">
-                <img
-                  className="w-[43px] h-[42px] left-0 absolute top-[9px]"
-                  alt="Vector"
-                  src="/vector-1.svg"
-                />
-                <img
-                  className="absolute w-3 h-[9px] top-0 left-4"
-                  alt="Polygon"
-                  src="/polygon-1.svg"
-                />
-              </div>
-            </div>
-            <div className="absolute top-[54px] left-0 [font-family:'Roboto_Condensed',Helvetica] font-normal text-white text-base text-center tracking-[5.60px] leading-6 whitespace-nowrap">
-              C I N E P L E X
-            </div>
-          </div>
-        </div>
-      </footer>
+      <FooterSection />
     </div>
   );
 };

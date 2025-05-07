@@ -139,7 +139,7 @@ const BannerByCinema = ({
           </div>
 
           <div className="flex items-center gap-4 ml-3">
-            <Button className="w-[72px] h-[48px]" onClick={handleSearch}>
+            <Button className="!w-[72px] !h-[48px] !rounded-[4px] !px-0" onClick={handleSearch}>
               <SearchIcon className="w-[24px] h-[24px]" />
             </Button>
           </div>

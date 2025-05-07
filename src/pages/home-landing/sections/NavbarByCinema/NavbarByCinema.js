@@ -39,7 +39,7 @@ const NavbarByCinema = () => {
 
                     <Button
                          variant="secondary"
-                         className=""
+                         className="!w-[123px] !h-[48px] !rounded-[4px] !px-0"
                          onClick={handleRegister}
                     >
                          Register

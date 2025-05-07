@@ -7,6 +7,7 @@ import { Separator } from "../../../../components/ui/separator";
 import { Tabs, TabsList, TabsTrigger } from "../../../../components/ui/tabs";
 import { nowShowingMovies, comingSoonMovies } from "@/data/movies";
 import { coupons } from "@/data/coupons";
+import CouponCard from "@/components/Coupon/CouponCard";
 
 export const FrameByCinema = () => {
   const sectionRef = useRef(null);
@@ -42,11 +43,10 @@ export const FrameByCinema = () => {
           <button
             key={i}
             onClick={() => handlePageChange(i)}
-            className={`w-8 h-8 flex items-center justify-center ${
-              currentPage === i
-                ? "bg-base-gray-200 text-basewhite rounded"
-                : "text-base-gray-300 hover:text-basewhite"
-            }`}
+            className={`w-8 h-8 flex items-center justify-center ${currentPage === i
+              ? "bg-base-gray-200 text-basewhite rounded"
+              : "text-base-gray-300 hover:text-basewhite"
+              }`}
           >
             {i}
           </button>
@@ -61,11 +61,10 @@ export const FrameByCinema = () => {
             <button
               key={i}
               onClick={() => handlePageChange(i)}
-              className={`w-8 h-8 flex items-center justify-center ${
-                currentPage === i
-                  ? "bg-base-gray-200 text-basewhite rounded"
-                  : "text-base-gray-300 hover:text-basewhite"
-              }`}
+              className={`w-8 h-8 flex items-center justify-center ${currentPage === i
+                ? "bg-base-gray-200 text-basewhite rounded"
+                : "text-base-gray-300 hover:text-basewhite"
+                }`}
             >
               {i}
             </button>
@@ -98,11 +97,10 @@ export const FrameByCinema = () => {
             <button
               key={i}
               onClick={() => handlePageChange(i)}
-              className={`w-8 h-8 flex items-center justify-center ${
-                currentPage === i
-                  ? "bg-base-gray-200 text-basewhite rounded"
-                  : "text-base-gray-300 hover:text-basewhite"
-              }`}
+              className={`w-8 h-8 flex items-center justify-center ${currentPage === i
+                ? "bg-base-gray-200 text-basewhite rounded"
+                : "text-base-gray-300 hover:text-basewhite"
+                }`}
             >
               {i}
             </button>
@@ -125,11 +123,10 @@ export const FrameByCinema = () => {
             <button
               key={i}
               onClick={() => handlePageChange(i)}
-              className={`w-8 h-8 flex items-center justify-center ${
-                currentPage === i
-                  ? "bg-base-gray-200 text-basewhite rounded"
-                  : "text-base-gray-300 hover:text-basewhite"
-              }`}
+              className={`w-8 h-8 flex items-center justify-center ${currentPage === i
+                ? "bg-base-gray-200 text-basewhite rounded"
+                : "text-base-gray-300 hover:text-basewhite"
+                }`}
             >
               {i}
             </button>
@@ -216,21 +213,19 @@ export const FrameByCinema = () => {
         <div className="flex flex-row items-center gap-6 w-full">
           <button
             onClick={() => setActiveTab("now-showing")}
-            className={`flex flex-col items-start p-1 transition-all duration-500 ease-in-out hover:text-basewhite ${
-              activeTab === "now-showing" 
-                ? "text-basewhite border-b-2 border-base-gray-200" 
-                : "text-base-gray-300"
-            } text-2xl font-bold`}
+            className={`flex flex-col items-start p-1 transition-all duration-500 ease-in-out hover:text-basewhite ${activeTab === "now-showing"
+              ? "text-basewhite border-b-2 border-base-gray-200"
+              : "text-base-gray-300"
+              } text-2xl font-bold`}
           >
             Now showing
           </button>
           <button
             onClick={() => setActiveTab("coming-soon")}
-            className={`flex flex-col items-start px-2 py-1 transition-all duration-500 ease-in-out hover:text-basewhite ${
-              activeTab === "coming-soon" 
-                ? "text-basewhite border-b-2 border-base-gray-200" 
-                : "text-base-gray-300"
-            } text-2xl font-bold`}
+            className={`flex flex-col items-start px-2 py-1 transition-all duration-500 ease-in-out hover:text-basewhite ${activeTab === "coming-soon"
+              ? "text-basewhite border-b-2 border-base-gray-200"
+              : "text-base-gray-300"
+              } text-2xl font-bold`}
           >
             Coming soon
           </button>
@@ -240,90 +235,90 @@ export const FrameByCinema = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 w-full">
           {activeTab === "now-showing"
             ? nowShowingMovies.slice(startIndex, endIndex).map((movie) => (
-                <div key={movie.id} className="flex flex-col items-start gap-4 group cursor-pointer">
-                  <div
-                    className="w-[285px] h-[416px] rounded bg-cover bg-center transition-transform duration-300 group-hover:scale-105"
-                    style={{ backgroundImage: `url(${movie.poster})` }}
-                  />
+              <div key={movie.id} className="flex flex-col items-start gap-4 group cursor-pointer">
+                <div
+                  className="w-[285px] h-[416px] rounded bg-cover bg-center transition-transform duration-300 group-hover:scale-105"
+                  style={{ backgroundImage: `url(${movie.poster})` }}
+                />
 
-                  <div className="flex flex-col items-start w-full">
-                    <div className="flex items-center justify-between w-full">
-                      <span className="text-base-gray-300 body-2-regular flex items-center">
-                        {movie.date}
-                      </span>
-                      <div className="flex items-center">
-                        <StarFillIcon className="w-4 h-4 fill-[#4E7BEE] text-[#4E7BEE]" />
-                        <span className="text-base-gray-300 body-2-regular ml-1 flex items-center">
-                          {movie.rating}
-                        </span>
-                      </div>
-                    </div>
-
-                    <h3 className="text-basewhite headline-4 font-bold group-hover:text-brandblue-100 transition-colors duration-200 truncate max-w-[285px]">
-                      {movie.title}
-                    </h3>
-                  </div>
-
-                  <div className="flex flex-wrap items-start gap-2">
-                    {movie.genres.map((genre, index) => (
-                      <span
-                        key={index}
-                        className="px-3 py-1.5 bg-base-gray-100 text-base-gray-300 body-2-regular text-[length:var(--body-2-regular-font-size)] leading-[var(--body-2-regular-line-height)] tracking-[var(--body-2-regular-letter-spacing)] [font-style:var(--body-2-regular-font-style)] rounded "
-                      >
-                        {genre}
-                      </span>
-                    ))}
-                    <span className="px-3 py-1.5 bg-base-gray-100 text-base-gray-300 body-2-regular text-[length:var(--body-2-medium-font-size)] leading-[var(--body-2-medium-line-height)] tracking-[var(--body-2-medium-letter-spacing)] [font-style:var(--body-2-medium-font-style)] rounded ">
-                      {movie.language}
+                <div className="flex flex-col items-start w-full">
+                  <div className="flex items-center justify-between w-full">
+                    <span className="text-base-gray-300 body-2-regular flex items-center">
+                      {movie.date}
                     </span>
+                    <div className="flex items-center">
+                      <StarFillIcon className="w-4 h-4 fill-[#4E7BEE] text-[#4E7BEE]" />
+                      <span className="text-base-gray-300 body-2-regular ml-1 flex items-center">
+                        {movie.rating}
+                      </span>
+                    </div>
                   </div>
+
+                  <h3 className="text-basewhite headline-4 font-bold group-hover:text-brandblue-100 transition-colors duration-200 truncate max-w-[285px]">
+                    {movie.title}
+                  </h3>
                 </div>
-              ))
+
+                <div className="flex flex-wrap items-start gap-2">
+                  {movie.genres.map((genre, index) => (
+                    <span
+                      key={index}
+                      className="px-3 py-1.5 bg-base-gray-100 text-base-gray-300 body-2-regular text-[length:var(--body-2-regular-font-size)] leading-[var(--body-2-regular-line-height)] tracking-[var(--body-2-regular-letter-spacing)] [font-style:var(--body-2-regular-font-style)] rounded "
+                    >
+                      {genre}
+                    </span>
+                  ))}
+                  <span className="px-3 py-1.5 bg-base-gray-100 text-base-gray-300 body-2-regular text-[length:var(--body-2-medium-font-size)] leading-[var(--body-2-medium-line-height)] tracking-[var(--body-2-medium-letter-spacing)] [font-style:var(--body-2-medium-font-style)] rounded ">
+                    {movie.language}
+                  </span>
+                </div>
+              </div>
+            ))
             : comingSoonMovies.slice(startIndex, endIndex).map((movie) => (
-                <div key={movie.id} className="flex flex-col items-start gap-4 group cursor-pointer">
-                  <div
-                    className="w-[285px] h-[416px] rounded bg-cover bg-center transition-transform duration-300 group-hover:scale-105"
-                    style={{ backgroundImage: `url(${movie.poster})` }}
-                  />
+              <div key={movie.id} className="flex flex-col items-start gap-4 group cursor-pointer">
+                <div
+                  className="w-[285px] h-[416px] rounded bg-cover bg-center transition-transform duration-300 group-hover:scale-105"
+                  style={{ backgroundImage: `url(${movie.poster})` }}
+                />
 
-                  <div className="flex flex-col items-start w-full">
-                    <div className="flex items-center justify-between w-full">
-                      <span className="text-base-gray-300 body-2-regular flex items-center">
-                        {movie.date}
-                      </span>
-                      <div className="flex items-center">
-                        <StarFillIcon className="w-4 h-4 fill-[#4E7BEE] text-[#4E7BEE]" />
-                        <span className="text-base-gray-300 body-2-regular ml-1 flex items-center">
-                          {movie.rating}
-                        </span>
-                      </div>
-                    </div>
-
-                    <h3 className="text-basewhite headline-4 font-bold group-hover:text-brandblue-100 transition-colors duration-200 truncate max-w-[285px]">
-                      {movie.title}
-                    </h3>
-                  </div>
-
-                  <div className="flex flex-wrap items-start gap-2">
-                    {movie.genres.map((genre, index) => (
-                      <span
-                        key={index}
-                        className="px-3 py-1.5 bg-base-gray-100 text-base-gray-300 body-2-regular text-[length:var(--body-2-regular-font-size)] leading-[var(--body-2-regular-line-height)] tracking-[var(--body-2-regular-letter-spacing)] [font-style:var(--body-2-regular-font-style)] rounded "
-                      >
-                        {genre}
-                      </span>
-                    ))}
-                    <span className="px-3 py-1.5 bg-base-gray-100 text-base-gray-300 body-2-regular text-[length:var(--body-2-medium-font-size)] leading-[var(--body-2-medium-line-height)] tracking-[var(--body-2-medium-letter-spacing)] [font-style:var(--body-2-medium-font-style)] rounded ">
-                      {movie.language}
+                <div className="flex flex-col items-start w-full">
+                  <div className="flex items-center justify-between w-full">
+                    <span className="text-base-gray-300 body-2-regular flex items-center">
+                      {movie.date}
                     </span>
+                    <div className="flex items-center">
+                      <StarFillIcon className="w-4 h-4 fill-[#4E7BEE] text-[#4E7BEE]" />
+                      <span className="text-base-gray-300 body-2-regular ml-1 flex items-center">
+                        {movie.rating}
+                      </span>
+                    </div>
                   </div>
+
+                  <h3 className="text-basewhite headline-4 font-bold group-hover:text-brandblue-100 transition-colors duration-200 truncate max-w-[285px]">
+                    {movie.title}
+                  </h3>
                 </div>
-              ))}
+
+                <div className="flex flex-wrap items-start gap-2">
+                  {movie.genres.map((genre, index) => (
+                    <span
+                      key={index}
+                      className="px-3 py-1.5 bg-base-gray-100 text-base-gray-300 body-2-regular text-[length:var(--body-2-regular-font-size)] leading-[var(--body-2-regular-line-height)] tracking-[var(--body-2-regular-letter-spacing)] [font-style:var(--body-2-regular-font-style)] rounded "
+                    >
+                      {genre}
+                    </span>
+                  ))}
+                  <span className="px-3 py-1.5 bg-base-gray-100 text-base-gray-300 body-2-regular text-[length:var(--body-2-medium-font-size)] leading-[var(--body-2-medium-line-height)] tracking-[var(--body-2-medium-letter-spacing)] [font-style:var(--body-2-medium-font-style)] rounded ">
+                    {movie.language}
+                  </span>
+                </div>
+              </div>
+            ))}
         </div>
 
         {/* Pagination */}
         <div className="flex items-center gap-2 pagination">
-          <button 
+          <button
             onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
             className="w-8 h-8 flex items-center justify-center text-base-gray-300 hover:text-basewhite"
             disabled={currentPage === 1}
@@ -331,7 +326,7 @@ export const FrameByCinema = () => {
             &lt;
           </button>
           {renderPageNumbers()}
-          <button 
+          <button
             onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
             className="w-8 h-8 flex items-center justify-center text-base-gray-300 hover:text-basewhite"
             disabled={currentPage === totalPages}
@@ -344,86 +339,57 @@ export const FrameByCinema = () => {
       {/* Special Coupons Section */}
       <div className="flex flex-col items-center gap-10 px-[120px] py-20 w-full max-w-[1440px] mx-auto">
         <div className="flex items-baseline justify-between w-full">
-          <h2 className="text-basewhite font-headline-2 text-[length:var(--headline-2-font-size)] leading-[var(--headline-2-line-height)] tracking-[var(--headline-2-letter-spacing)] [font-style:var(--headline-2-font-style)]">
+          <h2 className="text-basewhite headline-2 text-[length:var(--headline-2-font-size)] leading-[var(--headline-2-line-height)] tracking-[var(--headline-2-letter-spacing)] [font-style:var(--headline-2-font-style)]">
             Special coupons
           </h2>
 
-          <button className="text-basewhite font-bold text-base leading-6 underline [font-family:'Roboto_Condensed',Helvetica] p-0 hover:text-brandblue-100 transition-colors duration-200">
+          <button className="text-basewhite body-1-medium text-base leading-6 underline [font-family:'Roboto_Condensed',Helvetica] p-0 hover:text-brandblue-100 transition-colors duration-200">
             View all
           </button>
         </div>
 
-        <div className="flex flex-wrap gap-5">
-          {coupons.map((coupon) => (
-            <div
-              key={coupon.id}
-              className="flex flex-col items-start justify-center rounded-lg overflow-hidden bg-transparent group cursor-pointer"
-            >
-              <div
-                className="w-[285px] h-[285px] bg-cover bg-center transition-transform duration-300 group-hover:scale-105"
-                style={{ backgroundImage: `url(${coupon.image})` }}
-              />
-
-              <div className="flex flex-col h-48 items-start justify-between pt-4 pb-6 px-6 w-full bg-basegray-0">
-                <div className="flex items-start gap-4 w-full">
-                  <div className="flex flex-col items-start gap-2 flex-1">
-                    <h3 className="text-basewhite font-headline-4 text-[length:var(--headline-4-font-size)] leading-[var(--headline-4-line-height)] tracking-[var(--headline-4-letter-spacing)] [font-style:var(--headline-4-font-style)] group-hover:text-brandblue-100 transition-colors duration-200">
-                      {coupon.title}
-                    </h3>
-
-                    <div className="flex items-start gap-4 w-full">
-                      <span className="text-basegray-300 font-body-2-regular text-[length:var(--body-2-regular-font-size)] leading-[var(--body-2-regular-line-height)] tracking-[var(--body-2-regular-letter-spacing)] [font-style:var(--body-2-regular-font-style)]">
-                        Valid until
-                      </span>
-                      <span className="text-basegray-400 font-body-2-medium text-[length:var(--body-2-medium-font-size)] leading-[var(--body-2-medium-line-height)] tracking-[var(--body-2-medium-letter-spacing)] [font-style:var(--body-2-medium-font-style)] flex-1">
-                        {coupon.validUntil}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <button className="w-full px-10 py-3 bg-brandblue-100 rounded text-basewhite font-body-1-medium text-[length:var(--body-1-medium-font-size)] leading-[var(--body-1-medium-line-height)] tracking-[var(--body-1-medium-letter-spacing)] [font-style:var(--body-1-medium-font-style)] hover:bg-brandblue-200 transition-colors duration-200">
-                  Get coupon
-                </button>
-              </div>
-            </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+          {coupons.slice(0, 4).map((coupon) => (
+            <CouponCard key={coupon.id} coupon={coupon} />
           ))}
         </div>
       </div>
 
       {/* All Cinemas Section */}
       <div className="flex flex-col items-center gap-10 px-[120px] py-20 w-full max-w-[1440px] mx-auto">
-        <div className="flex items-baseline justify-between w-full">
-          <h2 className="text-basewhite font-headline-2 text-[length:var(--headline-2-font-size)] leading-[var(--headline-2-line-height)] tracking-[var(--headline-2-letter-spacing)] [font-style:var(--headline-2-font-style)]">
+        <div className="flex items-center justify-between w-full">
+          <h2 className="text-basewhite headline-2 ">
             All cinemas
           </h2>
 
-          <div className="flex gap-2 bg-basegray-100 rounded p-1">
+          <div className="flex gap-2 bg-[#23253a] rounded-[8px] p-2">
             <button
+              className={`flex items-center gap-2 px-6 py-2 rounded-[6px] font-bold transition ${viewMode === "browse-by-city"
+                  ? "bg-[#434665] text-white shadow"
+                  : "bg-transparent text-[#8B93B0] hover:bg-[#35385a]"
+                }`}
               onClick={() => setViewMode("browse-by-city")}
-              className={`inline-flex items-center gap-2 px-4 py-2 transition-colors duration-200 ${
-                viewMode === "browse-by-city" ? "bg-basegray-200" : "bg-basegray-100 hover:bg-basegray-200"
-              } rounded`}
             >
-              <img
-                className="w-6 h-6"
-                alt="Done round light"
-                src="/assets/images/icons/done-round-light.svg"
-              />
-              <span className="text-basegray-400 font-body-1-medium text-[length:var(--body-1-medium-font-size)] text-center tracking-[var(--body-1-medium-letter-spacing)] leading-[var(--body-1-medium-line-height)] [font-style:var(--body-1-medium-font-style)]">
-                Browse by City
-              </span>
+              {viewMode === "browse-by-city" && (
+                <svg className="w-4 h-4 text-brandblue-100" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+              )}
+              Browse by City
             </button>
-
             <button
+              className={`flex items-center gap-2 px-6 py-2 rounded-[6px] font-bold transition ${viewMode === "nearest-locations"
+                  ? "bg-[#434665] text-white shadow"
+                  : "bg-transparent text-[#8B93B0] hover:bg-[#35385a]"
+                }`}
               onClick={() => setViewMode("nearest-locations")}
-              className={`inline-flex items-center gap-3 px-4 py-2 transition-colors duration-200 ${
-                viewMode === "nearest-locations" ? "bg-basegray-200" : "bg-basegray-100 hover:bg-basegray-200"
-              } rounded`}
             >
-              <span className="text-basegray-400 font-body-1-medium text-[length:var(--body-1-medium-font-size)] text-center tracking-[var(--body-1-medium-letter-spacing)] leading-[var(--body-1-medium-line-height)] [font-style:var(--body-1-medium-font-style)]">
-                Nearest Locations First
-              </span>
+              {viewMode === "nearest-locations" && (
+                <svg className="w-4 h-4 text-brandblue-100" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+              )}
+              Nearest Locations First
             </button>
           </div>
         </div>
@@ -468,5 +434,5 @@ export const FrameByCinema = () => {
       </div>
     </section>
   );
-}; 
+};
 

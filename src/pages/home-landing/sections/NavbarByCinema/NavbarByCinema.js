@@ -14,9 +14,16 @@ const NavbarByCinema = () => {
           router.push("/auth/register");
      };
 
+     const handleLogoClick = () => {
+          router.push("/home-landing"); // กลับไปหน้าแรก
+     };
+
      return (
           <header className="flex w-full h-20 items-center justify-between px-20 py-0 bg-[#00000033] border-b border-base-gray-100 backdrop-blur-[7.5px] backdrop-brightness-[100%] [-webkit-backdrop-filter:blur(7.5px)_brightness(100%)] fixed top-0 z-50">
-               <div className="relative w-[42px] h-12">
+               <div 
+                    className="relative w-[42px] h-12 cursor-pointer" 
+                    onClick={handleLogoClick}
+               >
                     <div className="relative w-[38px] h-[45px] top-[1.72px] left-[2px]">
                          <Image
                               src="/assets/images/logo.png"

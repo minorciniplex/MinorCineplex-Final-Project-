@@ -8,6 +8,7 @@ import { Tabs, TabsList, TabsTrigger } from "../../../../components/ui/tabs";
 import { nowShowingMovies, comingSoonMovies } from "@/data/movies";
 import { coupons } from "@/data/coupons";
 import CouponCard from "@/components/Coupon/CouponCard";
+import FmdGoodIcon from '@mui/icons-material/FmdGood';
 
 export const FrameByCinema = () => {
   const sectionRef = useRef(null);
@@ -362,9 +363,9 @@ export const FrameByCinema = () => {
             All cinemas
           </h2>
 
-          <div className="flex gap-2 bg-[#23253a] rounded-[8px] p-2">
+          <div className="w-[380px] h-[48px] flex gap-2 bg-base-gray-100 rounded-[4px] p-[4px]">
             <button
-              className={`flex items-center gap-2 px-6 py-2 rounded-[6px] font-bold transition ${viewMode === "browse-by-city"
+              className={`flex items-center gap-2 px-6 py-2 rounded-[4px] font-bold transition ${viewMode === "browse-by-city"
                   ? "bg-[#434665] text-white shadow"
                   : "bg-transparent text-[#8B93B0] hover:bg-[#35385a]"
                 }`}
@@ -378,7 +379,7 @@ export const FrameByCinema = () => {
               Browse by City
             </button>
             <button
-              className={`flex items-center gap-2 px-6 py-2 rounded-[6px] font-bold transition ${viewMode === "nearest-locations"
+              className={`flex items-center gap-2 px-6 py-2 rounded-[4px] font-bold transition ${viewMode === "nearest-locations"
                   ? "bg-[#434665] text-white shadow"
                   : "bg-transparent text-[#8B93B0] hover:bg-[#35385a]"
                 }`}
@@ -397,7 +398,7 @@ export const FrameByCinema = () => {
         <div className="flex flex-col items-start gap-4 md:gap-6 w-full">
           {cinemasByCity.map((cityGroup, index) => (
             <div key={index} className="flex flex-col items-start gap-6 w-full">
-              <h3 className="text-basegray-300 font-headline-3 text-[length:var(--headline-3-font-size)] tracking-[var(--headline-3-letter-spacing)] leading-[var(--headline-3-line-height)] [font-style:var(--headline-3-font-style)]">
+              <h3 className="text-base-gray-300 headline-3 text-[length:var(--headline-3-font-size)] tracking-[var(--headline-3-letter-spacing)] leading-[var(--headline-3-line-height)] [font-style:var(--headline-3-font-style)]">
                 {cityGroup.city}
               </h3>
 
@@ -405,23 +406,17 @@ export const FrameByCinema = () => {
                 {cityGroup.cinemas.map((cinema) => (
                   <div
                     key={cinema.id}
-                    className="flex items-center gap-4 p-4 w-[590px] bg-transparent border border-solid border-[#21253e] rounded cursor-pointer hover:border-brandblue-100 transition-colors duration-200 group"
+                    className="flex items-center gap-4 p-4 w-full max-w-[590px] min-h-[90px] bg-transparent border border-base-gray-100 rounded-[4px] cursor-pointer hover:border-brandblue-100 transition-colors duration-200 group"
                   >
-                    <div className="w-[52px] h-[52px] bg-basegray-100 rounded-[99px] flex items-center justify-center">
-                      <div className="relative w-8 h-8">
-                        <img
-                          className="absolute w-[19px] h-[21px] top-[5px] left-[7px]"
-                          alt="Subtract"
-                          src="/assets/images/icons/subtract.svg"
-                        />
-                      </div>
+                    <div className="w-[52px] h-[52px] flex items-center justify-center rounded-full bg-[#21263F]">
+                      <FmdGoodIcon style={{ color: '#4E7BEE', fontSize: 24 }} />
                     </div>
 
                     <div className="flex flex-col items-start justify-center gap-1 flex-1">
-                      <h4 className="text-basewhite font-headline-3 text-[length:var(--headline-3-font-size)] tracking-[var(--headline-3-letter-spacing)] leading-[var(--headline-3-line-height)] [font-style:var(--headline-3-font-style)] w-full group-hover:text-brandblue-100 transition-colors duration-200">
+                      <h4 className="text-basewhite  headline-3  group-hover:text-brandblue-100 transition-colors duration-200">
                         {cinema.name}
                       </h4>
-                      <p className="text-basegray-300 text-base leading-6 [font-family:'Roboto_Condensed',Helvetica] font-normal tracking-[0] w-full">
+                      <p className="text-base-gray-300 text-body-2-regular">
                         {cinema.address}
                       </p>
                     </div>

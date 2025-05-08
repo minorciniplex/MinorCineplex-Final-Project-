@@ -14,7 +14,7 @@ export default function CinemaDetailCard({ cinemaId }) {
         // Fetch cinema details from our API endpoint
         const response = await axios.get(`/api/cinemas/detail?id=${cinemaId}`);
         setCinema(response.data?.data);
-        console.log(response.data?.data);
+
       } catch (err) {
         setError("Failed to load cinema details");
         console.error(err);

@@ -1,6 +1,7 @@
 import { useRouter } from "next/router";
 import CinemaDetailCard from "@/components/CinemaDetailCard";
 import DateSelector from "@/components/DateSelector";
+import Image from "next/image";
 
 export default function CinemaPage() {
   const router = useRouter();
@@ -15,7 +16,8 @@ export default function CinemaPage() {
     <main>
       <div className="relative w-full h-[580px] overflow-hidden">
         {/* Background image */}
-        <img
+        <Image
+          fill
           src="/images/cinema/hero-bg-movie.jpg"
           alt="Cinema background"
           className="absolute inset-0 w-full h-full object-cover z-0"

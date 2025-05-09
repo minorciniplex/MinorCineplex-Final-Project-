@@ -212,8 +212,8 @@ export const FrameByCinema = () => {
   return (
     <section ref={sectionRef} className="flex flex-col w-full">
       {/* Now Showing Section */}
-      <div className="flex flex-col items-center gap-10 px-[120px] py-20 w-full max-w-[1440px] mx-auto">
-        <div className="flex gap-4 w-full">
+      <div className="flex flex-col items-center gap-4 md:gap-10 px-4 md:px-[120px] py-4 md:py-20 w-full max-w-full md:max-w-[1440px] mx-auto">
+        <div className="flex flex-row items-center gap-6 w-full">
           <button
             onClick={() => setActiveTab("now-showing")}
             className={`flex flex-col items-start p-1 transition-all duration-500 ease-in-out hover:text-basewhite ${
@@ -222,7 +222,7 @@ export const FrameByCinema = () => {
                 : "text-base-gray-300"
             } text-2xl font-bold`}
           >
-            <span>Now showing</span>
+            Now showing
           </button>
           <button
             onClick={() => setActiveTab("coming-soon")}
@@ -232,12 +232,12 @@ export const FrameByCinema = () => {
                 : "text-base-gray-300"
             } text-2xl font-bold`}
           >
-            <span>Coming soon</span>
+            Coming soon
           </button>
         </div>
 
         {/* Movie Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 w-full">
           {activeTab === "now-showing"
             ? nowShowingMovies.slice(startIndex, endIndex).map((movie) => (
                 <div key={movie.id} className="flex flex-col items-start gap-4 group cursor-pointer">
@@ -428,14 +428,14 @@ export const FrameByCinema = () => {
           </div>
         </div>
 
-        <div className="flex flex-col items-center gap-10 w-full">
+        <div className="flex flex-col items-start gap-4 md:gap-6 w-full">
           {cinemasByCity.map((cityGroup, index) => (
             <div key={index} className="flex flex-col items-start gap-6 w-full">
               <h3 className="text-basegray-300 font-headline-3 text-[length:var(--headline-3-font-size)] tracking-[var(--headline-3-letter-spacing)] leading-[var(--headline-3-line-height)] [font-style:var(--headline-3-font-style)]">
                 {cityGroup.city}
               </h3>
 
-              <div className="flex flex-wrap gap-5 w-full">
+              <div className="flex flex-col gap-4 md:flex-wrap md:flex-row md:gap-5 w-full">
                 {cityGroup.cinemas.map((cinema) => (
                   <div
                     key={cinema.id}

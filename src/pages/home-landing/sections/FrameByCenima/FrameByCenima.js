@@ -155,37 +155,31 @@ export const FrameByCinema = () => {
   }, [activeTab]);
 
   return (
-    <section ref={sectionRef} className="flex flex-col w-full mt-20">
+    <section ref={sectionRef} className="flex flex-col w-full mt-[180px] md:mt-20">
       {/* Now Showing Section */}
-      <div className="flex flex-col items-center gap-10 px-[120px] py-20 w-full max-w-[1440px] mx-auto">
-        <div className="flex gap-4 w-full">
+      <div className="flex flex-col items-center gap-4 md:gap-10 px-4 md:px-[120px] py-4 md:py-20 w-full max-w-full md:max-w-[1440px] mx-auto">
+        <div className="flex flex-row items-center gap-6 w-full">
           <button
             onClick={() => setActiveTab("now-showing")}
-            className={`flex flex-col items-start p-1 transition-all duration-500 ease-in-out hover:text-basewhite ${activeTab === "now-showing"
-              ? "text-basewhite border-b-2 border-base-gray-200"
-              : "text-base-gray-300"
-              } text-2xl font-bold`}
+            className={`pb-1 transition-all duration-500 ease-in-out font-bold text-lg md:text-2xl ${activeTab === "now-showing" ? "text-white border-b-2 border-base-gray-200" : "text-base-gray-400"}`}
           >
-            <span>Now showing</span>
+            Now showing
           </button>
           <button
             onClick={() => setActiveTab("coming-soon")}
-            className={`flex flex-col items-start px-2 py-1 transition-all duration-500 ease-in-out hover:text-basewhite ${activeTab === "coming-soon"
-              ? "text-basewhite border-b-2 border-base-gray-200"
-              : "text-base-gray-300"
-              } text-2xl font-bold`}
+            className={`pb-1 transition-all duration-500 ease-in-out font-bold text-lg md:text-2xl ${activeTab === "coming-soon" ? "text-white border-b-2 border-base-gray-200" : "text-base-gray-400"}`}
           >
-            <span>Coming soon</span>
+            Coming soon
           </button>
         </div>
 
         {/* Movie Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 w-full">
           {activeTab === "now-showing"
             ? nowShowingMovies.slice(startIndex, endIndex).map((movie) => (
-              <div key={movie.id} className="flex flex-col items-start gap-4 group cursor-pointer">
+              <div key={movie.id} className="flex flex-col items-start gap-3 md:gap-4 group cursor-pointer">
                 <div
-                  className="w-[285px] h-[416px] rounded bg-cover bg-center transition-transform duration-300 group-hover:scale-105"
+                  className="w-[150px] h-[225px] md:w-[285px] md:h-[416px] rounded-[8px] bg-cover bg-center shadow-md mx-auto transition-transform duration-300 group-hover:scale-105"
                   style={{ backgroundImage: `url(${movie.poster})` }}
                 />
 
@@ -202,7 +196,7 @@ export const FrameByCinema = () => {
                     </div>
                   </div>
 
-                  <h3 className="text-basewhite headline-4 font-bold group-hover:text-brandblue-100 transition-colors duration-200 truncate max-w-[285px]">
+                  <h3 className="text-basewhite font-bold truncate max-w-full md:headline-4 group-hover:text-brandblue-100 transition-colors duration-200">
                     {movie.title}
                   </h3>
                 </div>
@@ -223,9 +217,9 @@ export const FrameByCinema = () => {
               </div>
             ))
             : comingSoonMovies.slice(startIndex, endIndex).map((movie) => (
-              <div key={movie.id} className="flex flex-col items-start gap-4 group cursor-pointer">
+              <div key={movie.id} className="flex flex-col items-start gap-3 md:gap-4 group cursor-pointer">
                 <div
-                  className="w-[285px] h-[416px] rounded bg-cover bg-center transition-transform duration-300 group-hover:scale-105"
+                  className="w-[150px] h-[225px] md:w-[285px] md:h-[416px] rounded-[8px] bg-cover bg-center shadow-md mx-auto transition-transform duration-300 group-hover:scale-105"
                   style={{ backgroundImage: `url(${movie.poster})` }}
                 />
 
@@ -242,7 +236,7 @@ export const FrameByCinema = () => {
                     </div>
                   </div>
 
-                  <h3 className="text-basewhite headline-4 font-bold group-hover:text-brandblue-100 transition-colors duration-200 truncate max-w-[285px]">
+                  <h3 className="text-basewhite font-bold truncate max-w-full md:headline-4 group-hover:text-brandblue-100 transition-colors duration-200">
                     {movie.title}
                   </h3>
                 </div>
@@ -265,7 +259,7 @@ export const FrameByCinema = () => {
         </div>
 
         {/* Pagination */}
-        <div className="flex items-center gap-2 pagination">
+        <div className="flex items-center gap-2 pagination mt-5 md:mt-5">
           <button
             onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
             className="w-8 h-8 flex items-center justify-center text-base-gray-300 hover:text-basewhite"
@@ -285,18 +279,13 @@ export const FrameByCinema = () => {
       </div>
 
       {/* Special Coupons Section */}
-      <div className="flex flex-col items-center gap-10 px-[120px] py-20 w-full max-w-[1440px] mx-auto">
-        <div className="flex items-baseline justify-between w-full">
-          <h2 className="text-basewhite headline-2 text-[length:var(--headline-2-font-size)] leading-[var(--headline-2-line-height)] tracking-[var(--headline-2-letter-spacing)] [font-style:var(--headline-2-font-style)]">
-            Special coupons
-          </h2>
-
-          <button className="text-basewhite body-1-medium text-base leading-6 underline [font-family:'Roboto_Condensed',Helvetica] p-0 hover:text-brandblue-100 transition-colors duration-200">
-            View all
-          </button>
+      <div className="flex flex-col items-center gap-4 md:gap-10 px-4 md:px-[120px] py-4 md:py-20 w-full max-w-full md:max-w-[1440px] mx-auto">
+        <div className="flex items-center justify-between w-full flex-row gap-2 md:gap-0 mb-2">
+          <h2 className="headline-2 md:headline-2 ">Special coupons</h2>
+          <button className="text-basewhite underline body-1-medium md:body-1-medium p-0 hover:text-brandblue-100 transition-colors duration-200 whitespace-nowrap">View all</button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-2 mt-4 md:mt-0 md:grid-cols-4 gap-4 md:gap-5 w-full">
           {coupons.slice(0, 4).map((coupon) => (
             <CouponCard key={coupon.id} coupon={coupon} />
           ))}
@@ -304,15 +293,13 @@ export const FrameByCinema = () => {
       </div>
 
       {/* All Cinemas Section */}
-      <div className="flex flex-col items-center gap-10 px-[120px] py-20 w-full max-w-[1440px] mx-auto">
-        <div className="flex items-center justify-between w-full">
-          <h2 className="text-basewhite headline-2 ">
-            All cinemas
-          </h2>
+      <div className="flex flex-col items-center gap-4 md:gap-10 px-4 md:px-[120px] py-4 md:py-20 w-full max-w-full md:max-w-[1440px] mx-auto">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between w-full gap-3 md:gap-0">
+          <h2 className="text-base-white headline-2 text-left pl-0 md: prose-headline-2 ">All cinemas</h2>
 
-          <div className="w-[380px] h-[48px] flex gap-2 bg-base-gray-100 rounded-[4px] p-[4px]">
+          <div className="w-full h-[44px] flex gap-1 bg-base-gray-100 rounded-[4px] p-1 mt-2 md:w-[380px] md:h-[48px] md:mt-0">
             <button
-              className={`flex items-center gap-2 px-6 py-2 rounded-[4px] font-bold transition ${viewMode === "browse-by-city"
+              className={`flex-1 flex items-center justify-center gap-1 px-0 py-2 rounded-[4px] font-bold transition text-xs md:text-base h-full ${viewMode === "browse-by-city"
                   ? "bg-[#434665] text-white shadow"
                   : "bg-transparent text-[#8B93B0] hover:bg-[#35385a]"
                 }`}
@@ -326,7 +313,7 @@ export const FrameByCinema = () => {
               Browse by City
             </button>
             <button
-              className={`flex items-center gap-2 px-6 py-2 rounded-[4px] font-bold transition ${viewMode === "nearest-locations"
+              className={`flex-1 flex items-center justify-center gap-1 px-0 py-2 rounded-[4px] font-bold transition text-xs md:text-base h-full ${viewMode === "nearest-locations"
                   ? "bg-[#434665] text-white shadow"
                   : "bg-transparent text-[#8B93B0] hover:bg-[#35385a]"
                 }`}
@@ -342,28 +329,28 @@ export const FrameByCinema = () => {
           </div>
         </div>
 
-        <div className="flex flex-col items-center gap-10 w-full">
+        <div className="flex flex-col items-start gap-4 md:gap-6 w-full">
           {cinemasByCity.map((cityGroup, index) => (
             <div key={index} className="flex flex-col items-start gap-6 w-full">
-              <h3 className="text-base-gray-300 headline-3 text-[length:var(--headline-3-font-size)] tracking-[var(--headline-3-letter-spacing)] leading-[var(--headline-3-line-height)] [font-style:var(--headline-3-font-style)]">
+              <h3 className="text-base-gray-300 headline-3 text-base md:headline-3 tracking-[var(--headline-3-letter-spacing)] leading-[var(--headline-3-line-height)] [font-style:var(--headline-3-font-style)]">
                 {cityGroup.city}
               </h3>
 
-              <div className="flex flex-wrap gap-5 w-full">
+              <div className="flex flex-col gap-4 md:flex-wrap md:flex-row md:gap-5 w-full">
                 {cityGroup.cinemas.map((cinema) => (
                   <div
                     key={cinema.id}
-                    className="flex items-center gap-4 p-4 w-full max-w-[590px] min-h-[90px] bg-transparent border border-base-gray-100 rounded-[4px] cursor-pointer hover:border-brandblue-100 transition-colors duration-200 group"
+                    className="w-full h-[120px] max-w-[344px] mx-auto  p-4 border border-base-gray-100 rounded-[4px] flex items-center gap-4 mb-2 md:mb-0 md:p-4 md:rounded-[4px] md:bg-transparent md:max-w-[590px] md:border md:border-base-gray-100 cursor-pointer hover:border-brandblue-100 transition-colors duration-200 group md:mx-0"
                   >
-                    <div className="w-[52px] h-[52px] flex items-center justify-center rounded-full bg-[#21263F]">
-                      <FmdGoodIcon style={{ color: '#4E7BEE', fontSize: 24 }} />
+                    <div className="w-[40px] h-[40px] md:w-[52px] md:h-[52px] flex items-center justify-center rounded-full bg-[#21263F]">
+                      <FmdGoodIcon style={{ color: '#4E7BEE', fontSize: 20 }} />
                     </div>
 
                     <div className="flex flex-col items-start justify-center gap-1 flex-1">
-                      <h4 className="text-basewhite  headline-3  group-hover:text-brandblue-100 transition-colors duration-200">
+                      <h4 className="text-basewhite headline-3 md:headline-3 group-hover:text-brandblue-100 transition-colors duration-200">
                         {cinema.name}
                       </h4>
-                      <p className="text-base-gray-300 text-body-2-regular">
+                      <p className=" body-2-regular text-base-gray-300 text-sm md:body-2-regular">
                         {cinema.address}
                       </p>
                     </div>

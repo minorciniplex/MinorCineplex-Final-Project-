@@ -31,7 +31,10 @@
     "daisyui": "^5.0.30",
     "date-fns": "^4.1.0",
     "lucide-react": "^0.508.0",
+<<<<<<< HEAD
     "geolib": "^3.3.4",
+=======
+>>>>>>> 0994649 (feat: movies-detail component and api movies-detail)
     "next": "15.3.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

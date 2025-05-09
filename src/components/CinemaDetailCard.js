@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import axios from "axios";
 
 export default function CinemaDetailCard({ cinemaId }) {
@@ -53,10 +54,12 @@ export default function CinemaDetailCard({ cinemaId }) {
         <div className="w-full max-w-5xl overflow-hidden rounded-lg shadow-lg bg-[#070C1BB2] bg-opacity-70 text-white flex flex-col md:flex-row">
           {/* Left side with cinema image */}
           <div className="md:w-1/3">
-            <div className="h-64">
-              <img
+            <div className="h-64 relative">
+              <Image
                 src={cinema.pic_url}
                 alt={cinema.name}
+                fill
+                priority
                 className="object-cover w-full h-full rounded-t-lg md:rounded-l-lg md:rounded-t-none"
               />
             </div>

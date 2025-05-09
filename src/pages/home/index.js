@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import { useEffect } from "react";
 import Link from "next/link";
 
+
 export default function Home() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -14,28 +15,27 @@ export default function Home() {
 
   useEffect(() => {
     checkAuthStatus();
-   /*  if(!isLoggedIn) {
+    /*  if(!isLoggedIn) {
       notLogin()
     }
     else if (isLoggedIn) {
       login()
     } */
 
-
-    console.log(user); 
+    console.log(user);
   }, [isLoggedIn]);
 
   const checkAuthStatus = async () => {
     try {
       // เรียก API เพื่อเช็คว่าผู้ใช้ login อยู่มั้ย
-      const res = await axios.get("/api/auth/status", /* {
+      const res = await axios.get(
+        "/api/auth/status" /* {
         withCredentials: true,
-      } */);
+      } */
+      );
       if (res.data.loggedIn) {
         setIsLoggedIn(true);
         setUser(res.data.userId);
-        
-        
       } else {
         setIsLoggedIn(false);
       }
@@ -48,20 +48,20 @@ export default function Home() {
   const handleCheackAuthStatus = async () => {
     try {
       // เรียก API เพื่อเช็คว่าผู้ใช้ login อยู่มั้ย
-      const res = await axios.get("/api/auth/status", /* {
+      const res = await axios.get(
+        "/api/auth/status" /* {
         withCredentials: true,
-      } */);
+      } */
+      );
       if (res.data.loggedIn) {
-        alert("Logged In")
-        
+        alert("Logged In");
       } else {
-        alert("Not Logged In")
+        alert("Not Logged In");
       }
     } catch (err) {
       console.error("Error checking auth status:", err);
-      
     }
-  }
+  };
 
   const handleLogout = async () => {
     try {
@@ -78,10 +78,6 @@ export default function Home() {
 
       console.log("Logout successful");
       setIsLoggedIn(false);
-
-      
-      
-      
     } catch (err) {
       console.error("Logout failed:", err);
       alert("เกิดข้อผิดพลาดในการออกจากระบบ");
@@ -90,28 +86,25 @@ export default function Home() {
     }
   };
 
-  const notLogin = async() => {
+  const notLogin = async () => {
     try {
-      const res = await axios.get("/api/auth/get")
-      setNotLoginPicture(res.data.data.poster_url)
-      console.log("notLoginPicture", res.data.data.poster_url)
-    }
-    catch (err) {
+      const res = await axios.get("/api/auth/get");
+      setNotLoginPicture(res.data.data.poster_url);
+      console.log("notLoginPicture", res.data.data.poster_url);
+    } catch (err) {
       console.error("Error fetching picture:", err);
     }
-  }
+  };
 
-  const login = async() => {
+  const login = async () => {
     try {
-      const res = await axios.get("/api/auth/get-cookies")
-      setLoginPicture(res.data.data.poster_url)
-      console.log("loginPicture", res.data.data.poster_url)
-      
-    }
-    catch (err) {
+      const res = await axios.get("/api/auth/get-cookies");
+      setLoginPicture(res.data.data.poster_url);
+      console.log("loginPicture", res.data.data.poster_url);
+    } catch (err) {
       console.error("Error fetching picture:", err);
     }
-  }
+  };
 
   return (
     <>
@@ -127,26 +120,36 @@ export default function Home() {
         <Link href="/auth/login" className="btn btn-primary mt-4">
           Login
         </Link>
-        <br/>
-        <button className="btn btn-primary mt-4"
-        onClick={() => {
-          checkAuthStatus();
-          {isLoggedIn ? login() : notLogin()}
-        }}>
+        <br />
+        <button
+          className="btn btn-primary mt-4"
+          onClick={() => {
+            checkAuthStatus();
+            {
+              isLoggedIn ? login() : notLogin();
+            }
+          }}
+        >
           get
-          </button>
-        <br/>
-        <button className="btn btn-primary mt-4"
-        onClick={handleCheackAuthStatus}>
+        </button>
+        <br />
+        <button
+          className="btn btn-primary mt-4"
+          onClick={handleCheackAuthStatus}
+        >
           check auth status
-          </button>
-      
+        </button>
+
         <img
           src={isLoggedIn ? loginPicture : notLoginPicture}
           className="w-1/2 h-auto mx-auto mt-4"
         />
       </div>
-      {isLoggedIn ? <p className="text-3xl">Logged In</p> : <p className="text-3xl">Not Logged In</p>}
+      {isLoggedIn ? (
+        <p className="text-3xl">Logged In</p>
+      ) : (
+        <p className="text-3xl">Not Logged In</p>
+      )}
     </>
   );
 }

@@ -9,7 +9,7 @@ const Input = React.forwardRef(({ className, type, ...props }, ref) => {
       type={type}
       placeholder="Search cinema"
       className={cn(
-        "w-full py-3 pl-4 bg-[--base-gray-100] text-[--base-gray-300] border border-[--base-gray-200] rounded-sm focus:outline-none focus:border-[--base-gray-200] focus:ring-0 focus-visible:outline-none",
+        "w-full py-3 pl-4 bg-[#21263F] text-[#8B93B0] border border-[#565F7E] rounded-sm focus:outline-none focus:border-[#565F7E] focus:ring-0 focus-visible:outline-none",
         
         className
       )}

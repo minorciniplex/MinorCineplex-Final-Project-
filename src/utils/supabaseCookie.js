@@ -1,5 +1,4 @@
 import { createServerClient } from '@supabase/ssr'
-
 const isProd = process.env.NODE_ENV === 'production'
 
 const createCookieString = (key, value, options = {}) => {

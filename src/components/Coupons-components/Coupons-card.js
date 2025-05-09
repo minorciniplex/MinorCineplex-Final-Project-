@@ -2,7 +2,7 @@ import { useRouter } from 'next/navigation';
 import { useStatus } from '@/context/StatusContext';
 import axios from 'axios';
 import { useState, useEffect } from 'react';
-
+import { Loading } from '../ui/loading';
 function CouponsCard({ coupon_id, image, title, end_date }) {
   const router = useRouter();
   const { isLoggedIn, user, loading } = useStatus();
@@ -56,10 +56,11 @@ function CouponsCard({ coupon_id, image, title, end_date }) {
   }, [user]);
 
   if (loading) {
-    return <p>กำลังโหลด...</p>;
+    return <Loading />;
   }
 
   return (
+    
     <div className="flex flex-col gap-4">
       <img
         className="w-[285px] h-[285px] object-cover rounded-md cursor-pointer"
@@ -84,7 +85,7 @@ function CouponsCard({ coupon_id, image, title, end_date }) {
       {!isClaimed ? (
         <button
           className="bg-brand-blue-100 text-white px-4 py-2 rounded-md hover:bg-[#070C1B] transition-colors duration-200"
-          onClick={() => isLoggedIn ? handleClaimCoupon(coupon_id) : router.push('/login')}
+          onClick={() => isLoggedIn ? handleClaimCoupon(coupon_id) : router.push('/api/auth/login')}
         >
           รับคูปอง
         </button>

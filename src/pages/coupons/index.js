@@ -1,8 +1,8 @@
-import axios from "axios";
+
 import CouponsCard from "@/components/Coupons-components/Coupons-card";
 import { useStatus } from "@/context/StatusContext";
 import { useFetchCoupon } from "@/context/fecthCouponContext";
-
+import CategoryBar from "@/components/Coupons-components/category-bar";
 export default function Coupons() {
     const { coupons, loading } = useFetchCoupon();
     const { isLoggedIn, user } = useStatus();
@@ -20,6 +20,7 @@ export default function Coupons() {
     return (
         <div className="container mx-auto px-4 py-8">
             <h1 className="text-3xl font-bold mb-8">คูปองทั้งหมด</h1>
+            <CategoryBar />
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {coupons?.map((coupon) => (
                     <CouponsCard 

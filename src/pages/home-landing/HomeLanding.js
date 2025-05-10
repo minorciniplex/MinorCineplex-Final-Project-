@@ -1,7 +1,7 @@
 import React from "react";
-import { BannerByCinema } from "./sections/BannerByCinema";
-import { FrameByCinema } from "./sections/FrameByAnima/FrameByAnima";
-import { NavbarByCinema } from "./sections/NavbarByCinema";
+import BannerByCinema from "./sections/BannerByCinema/BannerByCinema";
+import FrameByCinema from "./sections/FrameByCinema/FrameByCinema";
+import NavbarByCinema from "./sections/NavbarByCinema/NavbarByCinema";
 import FooterSection from "./sections/FooterSection/FooterSection";
 
 const HomeLandingDefault = () => {

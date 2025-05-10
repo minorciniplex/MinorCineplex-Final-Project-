@@ -11,7 +11,7 @@ import { cinemasByCity } from "@/data/cinemas";
 import CouponCard from "@/components/Coupon/CouponCard";
 import FmdGoodIcon from '@mui/icons-material/FmdGood';
 
-export const FrameByCinema = () => {
+const FrameByCinema = () => {
   const sectionRef = useRef(null);
   const [activeTab, setActiveTab] = useState("now-showing");
   const [viewMode, setViewMode] = useState("browse-by-city");
@@ -365,3 +365,4 @@ export const FrameByCinema = () => {
   );
 };
 
+export default FrameByCinema;

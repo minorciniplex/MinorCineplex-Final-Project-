@@ -5,11 +5,11 @@ import Button from "../../../../components/Button";
 import { Card, CardContent } from "../../../../components/ui/card";
 import { Separator } from "../../../../components/ui/separator";
 import { Tabs, TabsList, TabsTrigger } from "../../../../components/ui/tabs";
-import { nowShowingMovies, comingSoonMovies } from "@/data/movies";
 import { coupons } from "@/data/coupons";
 import { cinemasByCity } from "@/data/cinemas";
 import CouponCard from "@/components/Coupon/CouponCard";
 import FmdGoodIcon from '@mui/icons-material/FmdGood';
+import { supabase } from "@/utils/supabase";
 
 const FrameByCinema = () => {
   const sectionRef = useRef(null);
@@ -17,12 +17,32 @@ const FrameByCinema = () => {
   const [viewMode, setViewMode] = useState("browse-by-city");
   const [currentPage, setCurrentPage] = useState(1);
   const moviesPerPage = 8;
+  const [nowShowingMovies, setNowShowingMovies] = useState([]);
+  const [comingSoonMovies, setComingSoonMovies] = useState([]);
 
-  // คำนวณจำนวนหน้าทั้งหมด
+  useEffect(() => {
+    async function fetchMovies() {
+      const today = new Date().toISOString().split('T')[0];
+      // Now showing
+      let { data: nowShowing } = await supabase
+        .from('movies')
+        .select('*')
+        .lte('release_date', today)
+        .order('release_date', { ascending: true });
+      setNowShowingMovies(nowShowing || []);
+      // Coming soon
+      let { data: comingSoon } = await supabase
+        .from('movies')
+        .select('*')
+        .gt('release_date', today)
+        .order('release_date', { ascending: true });
+      setComingSoonMovies(comingSoon || []);
+    }
+    fetchMovies();
+  }, []);
+
   const totalMovies = activeTab === "now-showing" ? nowShowingMovies.length : comingSoonMovies.length;
   const totalPages = Math.ceil(totalMovies / moviesPerPage);
-
-  // คำนวณ index เริ่มต้นและสิ้นสุดของหนังที่จะแสดง
   const startIndex = (currentPage - 1) * moviesPerPage;
   const endIndex = startIndex + moviesPerPage;
 
@@ -175,87 +195,97 @@ const FrameByCinema = () => {
 
         {/* Movie Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 w-full">
-          {activeTab === "now-showing"
-            ? nowShowingMovies.slice(startIndex, endIndex).map((movie) => (
-              <div key={movie.id} className="flex flex-col items-start gap-3 md:gap-4 group cursor-pointer">
-                <div
-                  className="w-[150px] h-[225px] md:w-[285px] md:h-[416px] rounded-[8px] bg-cover bg-center shadow-md mx-auto transition-transform duration-300 group-hover:scale-105"
-                  style={{ backgroundImage: `url(${movie.poster})` }}
-                />
+          {(activeTab === "now-showing"
+            ? nowShowingMovies
+            : comingSoonMovies
+          )?.slice(startIndex, endIndex).map((movie) => (
+            <div key={movie.movie_id || movie.id} className="flex flex-col items-start gap-3 md:gap-4 group cursor-pointer">
+              <div
+                className="w-[150px] h-[225px] md:w-[285px] md:h-[416px] rounded-[8px] bg-cover bg-center shadow-md mx-auto transition-transform duration-300 group-hover:scale-105"
+                style={{ backgroundImage: `url(${movie.poster_url || movie.poster})` }}
+              />
 
-                <div className="flex flex-col items-start w-full">
-                  <div className="flex items-center justify-between w-full">
-                    <span className="text-base-gray-300 body-2-regular flex items-center">
-                      {movie.date}
+              <div className="flex flex-col items-start w-full">
+                <div className="flex items-center justify-between w-full">
+                  <span className="text-base-gray-300 body-2-regular flex items-center">
+                    {movie.release_date || movie.date}
+                  </span>
+                  <div className="flex items-center">
+                    <StarFillIcon className="w-4 h-4 fill-[#4E7BEE] text-[#4E7BEE]" />
+                    <span className="text-base-gray-300 body-2-regular ml-1 flex items-center">
+                      {movie.rating}
                     </span>
-                    <div className="flex items-center">
-                      <StarFillIcon className="w-4 h-4 fill-[#4E7BEE] text-[#4E7BEE]" />
-                      <span className="text-base-gray-300 body-2-regular ml-1 flex items-center">
-                        {movie.rating}
-                      </span>
-                    </div>
                   </div>
-
-                  <h3 className="text-basewhite font-bold truncate max-w-full md:headline-4 group-hover:text-brandblue-100 transition-colors duration-200">
-                    {movie.title}
-                  </h3>
                 </div>
 
-                <div className="flex flex-wrap items-start gap-2">
-                  {movie.genres.map((genre, index) => (
+                <h3 className="text-basewhite font-bold truncate max-w-full md:headline-4 group-hover:text-brandblue-100 transition-colors duration-200">
+                  {movie.title}
+                </h3>
+              </div>
+
+              <div className="flex flex-wrap items-start gap-2">
+                {(() => {
+                  let genres = movie.genres;
+                  if (typeof genres === "string") {
+                    genres = genres
+                      .replace(/[{}]/g, '')
+                      .split(',')
+                      .map(s => s.replace(/"/g, '').trim())
+                      .filter(Boolean);
+                  }
+                  return Array.isArray(genres) && genres.map((genre, index) => (
                     <span
                       key={index}
                       className="px-3 py-1.5 bg-base-gray-100 text-base-gray-300 body-2-regular text-[length:var(--body-2-regular-font-size)] leading-[var(--body-2-regular-line-height)] tracking-[var(--body-2-regular-letter-spacing)] [font-style:var(--body-2-regular-font-style)] rounded "
                     >
                       {genre}
                     </span>
-                  ))}
-                  <span className="px-3 py-1.5 bg-base-gray-100 text-base-gray-300 body-2-regular text-[length:var(--body-2-medium-font-size)] leading-[var(--body-2-medium-line-height)] tracking-[var(--body-2-medium-letter-spacing)] [font-style:var(--body-2-medium-font-style)] rounded ">
-                    {movie.language}
-                  </span>
-                </div>
+                  ));
+                })()}
+                {/* Language Badge */}
+                {(() => {
+                  // Mapping ภาษาเป็นตัวย่อมาตรฐาน
+                  const langMap = {
+                    English: 'EN',
+                    Thai: 'TH',
+                    Japan: 'JP',
+                    Japanese: 'JP',
+                    Chinese: 'CN',
+                    Mandarin: 'CN',
+                    Korean: 'KR',
+                    French: 'FR',
+                    German: 'DE',
+                    Spanish: 'ES',
+                    Italian: 'IT',
+                    Russian: 'RU',
+                    Arabic: 'AR',
+                    Hindi: 'HI',
+                    Vietnamese: 'VI',
+                    Malay: 'MY',
+                    Indonesian: 'ID',
+                    Filipino: 'PH',
+                  };
+                  const orig = movie.original_language;
+                  const origShort = langMap[orig] || (orig ? orig.slice(0,2).toUpperCase() : null);
+                  const subs = Array.isArray(movie.subtitle_languages) ? movie.subtitle_languages : [];
+                  const badgeClass = "flex justify-center items-center min-w-[41px] min-h-[32px] px-2 py-1 bg-base-gray-100 text-base-gray-400 font-medium rounded-md";
+                  // ถ้า original เป็น EN และ subs มี TH
+                  if (origShort === 'EN' && subs.includes('Thai')) {
+                    return <span className={badgeClass}>TH/EN</span>;
+                  }
+                  // ถ้า original เป็น TH และ subs มี EN
+                  if (origShort === 'TH' && subs.includes('English')) {
+                    return <span className={badgeClass}>EN/TH</span>;
+                  }
+                  // ถ้า original เป็นภาษาอื่น
+                  if (origShort) {
+                    return <span className={badgeClass}>{origShort}</span>;
+                  }
+                  return null;
+                })()}
               </div>
-            ))
-            : comingSoonMovies.slice(startIndex, endIndex).map((movie) => (
-              <div key={movie.id} className="flex flex-col items-start gap-3 md:gap-4 group cursor-pointer">
-                <div
-                  className="w-[150px] h-[225px] md:w-[285px] md:h-[416px] rounded-[8px] bg-cover bg-center shadow-md mx-auto transition-transform duration-300 group-hover:scale-105"
-                  style={{ backgroundImage: `url(${movie.poster})` }}
-                />
-
-                <div className="flex flex-col items-start w-full">
-                  <div className="flex items-center justify-between w-full">
-                    <span className="text-base-gray-300 body-2-regular flex items-center">
-                      {movie.date}
-                    </span>
-                    <div className="flex items-center">
-                      <StarFillIcon className="w-4 h-4 fill-[#4E7BEE] text-[#4E7BEE]" />
-                      <span className="text-base-gray-300 body-2-regular ml-1 flex items-center">
-                        {movie.rating}
-                      </span>
-                    </div>
-                  </div>
-
-                  <h3 className="text-basewhite font-bold truncate max-w-full md:headline-4 group-hover:text-brandblue-100 transition-colors duration-200">
-                    {movie.title}
-                  </h3>
-                </div>
-
-                <div className="flex flex-wrap items-start gap-2">
-                  {movie.genres.map((genre, index) => (
-                    <span
-                      key={index}
-                      className="px-3 py-1.5 bg-base-gray-100 text-base-gray-300 body-2-regular text-[length:var(--body-2-regular-font-size)] leading-[var(--body-2-regular-line-height)] tracking-[var(--body-2-regular-letter-spacing)] [font-style:var(--body-2-regular-font-style)] rounded "
-                    >
-                      {genre}
-                    </span>
-                  ))}
-                  <span className="px-3 py-1.5 bg-base-gray-100 text-base-gray-300 body-2-regular text-[length:var(--body-2-medium-font-size)] leading-[var(--body-2-medium-line-height)] tracking-[var(--body-2-medium-letter-spacing)] [font-style:var(--body-2-medium-font-style)] rounded ">
-                    {movie.language}
-                  </span>
-                </div>
-              </div>
-            ))}
+            </div>
+          ))}
         </div>
 
         {/* Pagination */}

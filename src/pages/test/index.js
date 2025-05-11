@@ -6,12 +6,15 @@ export default function Test() {
   const [isLoggedIn, setIsLoggedIn] = useState(null);
   const [user, setUser] = useState(null);
   const [isCouponClaimed, setIsCouponClaimed] = useState(false);
+  const [couponOwner, setCouponOwner] = useState([]);
+  const [str, setStr] = useState("");
 
   // ดึงข้อมูลคูปองทั้งหมดจาก API
   const fetchCoupons = async () => {
     try {
       const response = await axios.get("/api/test/fetch-coupon");
       setCoupons(response.data.data);
+      setCouponOwner(response.data.data); // ตั้งค่า owner_name ของคูปองแรก
     } catch (error) {
       console.error("Error fetching coupons:", error);
     }
@@ -49,27 +52,56 @@ export default function Test() {
     }
   };
 
-  /*     const checkUserCoupon = async (couponId) => {
+  const fetchConponOwner = async (ownerId) => {
     try {
-      const res = await axios.post('/api/test/check-coupon', {
-        user_id: user?.id,
-        coupon_id: couponId,
-      });
-
-    } catch (err) {
-      console.error('Error checking user coupon:', err);
+      const response = await axios.get(
+        `/api/test/fetch-coupon-owner?ownerId=${ownerId}`
+      );
+      setCoupons(response.data.data);
+    } catch (error) {
+      console.error("Error fetching coupon owner:", error);
     }
-  }; */
+  };
+
+const checkUserCoupon = async (couponId) => {
+  try {
+    const response = await axios.get(`/api/test/check-coupon?coupon_id=${couponId}`);
+    setIsCouponClaimed(response.data.claimed);
+  } catch (error) {
+    console.error("Error checking user coupon:", error);
+  }
+};
+
+  
+
+ 
 
   // ดึงข้อมูลคูปองและเช็คสถานะการล็อกอิน
   useEffect(() => {
     fetchCoupons();
     checkAuthStatus();
+    checkUserCoupon(coupons.coupon_id);
     /* checkUserCoupon(); */
   }, []);
 
   return (
     <div>
+
+      
+      <button
+        className="bg-slate-500 w-40 h-16"
+        onClick={() => fetchCoupons()}
+        >ทั้งหมด</button>
+        {couponOwner?.map((coupon) => (
+          <button
+            key={coupon.coupon_id}
+            className="bg-slate-500 w-40 h-16"
+            onClick={() => fetchConponOwner(coupon.owner_name)}
+          >
+            {coupon.owner_name}
+          </button>
+        ))}
+
       {isLoggedIn ? (
         <h1 className="text-3xl font-bold underline">Welcome back!</h1>
       ) : (

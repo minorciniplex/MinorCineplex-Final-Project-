@@ -37,7 +37,7 @@ export default function Login() {
         setResError("");
         setLoading(false);
         console.log("login success");
-        router.push("/home");
+        router.push("/home-landing");
       }
     } catch (error) {
       if (error.response) {

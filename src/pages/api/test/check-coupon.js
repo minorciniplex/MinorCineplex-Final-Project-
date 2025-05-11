@@ -12,13 +12,13 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: "Unauthorized: Please login first." });
   }
 
-  if (req.method !== "POST") {
+  if (req.method !== "GET") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { user_id, coupon_id } = req.body;
+  const {coupon_id} = req.query.coupon_id
 
-  if (!user_id || !coupon_id) {
+  if (!user.id || !coupon_id) {
     return res.status(400).json({ error: "Missing user_id or coupon_id" });
   }
 
@@ -26,7 +26,7 @@ export default async function handler(req, res) {
     const { data: existingCoupon, error: checkError } = await supabase
       .from("user_coupons")
       .select("*")
-      .eq("user_id", user_id)
+      .eq("user_id", user.id)
       .eq("coupon_id", coupon_id)
       .single();
 

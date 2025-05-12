@@ -26,20 +26,20 @@ export default async function handler(req, res) {
 
     try {
         // ❌ Check if already exists
-       const { data: existing, error: checkError } = await supabase
-  .from("user_coupons")
-  .select("*")
-  .eq("user_id", userId)
-  .eq("coupon_id", couponId);
+        const { data: existing, error: checkError } = await supabase
+            .from("user_coupons")
+            .select("*")
+            .eq("user_id", userId)
+            .eq("coupon_id", couponId);
 
-if (checkError) {
-  console.error("Error checking existing coupon:", checkError);
-  return res.status(500).json({ error: "1 Server Error" });
-}
+        if (checkError) {
+            console.error("Error checking existing coupon:", checkError);
+            return res.status(500).json({ error: "1 Server Error" });
+        }
 
-if (existing.length > 0) {
-  return res.status(400).json({ error: "Coupon already claimed" });
-}
+        if (existing.length > 0) {
+            return res.status(400).json({ error: "Coupon already claimed" });
+        }
 
         // ✅ Insert new coupon
         const { data, error } = await supabase
@@ -53,13 +53,14 @@ if (existing.length > 0) {
 
         if (error) {
             console.error("Error inserting data:", error);
-            return res.status(500).json({ error: " 2Server Error" });
+            return res.status(500).json({ error: "2 Server Error" });
         }
 
-        return res.status(200).json("Coupon claimed successfully");
+        // ถ้าการเคลมสำเร็จ ส่งข้อความว่าเคลมสำเร็จ
+        return res.status(200).json({ success: true, message: "Coupon claimed successfully" });
 
     } catch (error) {
         console.error("Error in POST handler:", error);
-        return res.status(500).json({ error: " 3Server Error" });
+        return res.status(500).json({ error: "3 Server Error" });
     }
 }

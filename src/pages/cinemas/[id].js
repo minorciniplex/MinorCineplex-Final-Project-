@@ -1,16 +1,36 @@
 import { useRouter } from "next/router";
-import CinemaDetailCard from "@/components/CinemaDetailCard";
+import { useState, useEffect } from "react";
+import CinemaDetailCard from "@/components/Cinemas/CinemaDetailCard";
 import DateSelector from "@/components/DateSelector";
+import ShowtimeCard from "@/components/Cinemas/ShowtimeCard";
 import Image from "next/image";
 
 export default function CinemaPage() {
   const router = useRouter();
+  const [selectedDate, setSelectedDate] = useState(null);
   const { id } = router.query;
 
   const handleDateSelect = (date) => {
-    console.log("Selected date:", date);
-    // Fetch showtimes for the selected date
+    setSelectedDate(date);
   };
+
+  // Use effect to handle initial page load when router isn't ready yet
+  const [isRouterReady, setIsRouterReady] = useState(false);
+
+  useEffect(() => {
+    if (router.isReady) {
+      setIsRouterReady(true);
+    }
+  }, [router.isReady]);
+
+  // Don't render content that depends on router query until router is ready
+  if (!isRouterReady) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
 
   return (
     <main>
@@ -29,23 +49,14 @@ export default function CinemaPage() {
       {/* Date Selector */}
       <DateSelector onDateSelect={handleDateSelect} />
 
-      {/* Main Content */}
-      <div className="container mx-auto px-4 py-12">
-        <h2 className="text-2xl font-bold mb-6">Now Showing</h2>
-
-        {/* Movies grid would go here */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Movie cards would go here */}
-          <div className="bg-gray-100 p-4 rounded-lg h-64 flex items-center justify-center">
-            Movie card placeholder
-          </div>
-          <div className="bg-gray-100 p-4 rounded-lg h-64 flex items-center justify-center">
-            Movie card placeholder
-          </div>
-          <div className="bg-gray-100 p-4 rounded-lg h-64 flex items-center justify-center">
-            Movie card placeholder
-          </div>
-        </div>
+      {/* Showtime Cards */}
+      <div className="py-[80px] px-[120px]">
+      {id && (
+        <ShowtimeCard
+          cinemaId={id}
+          date={selectedDate ? selectedDate.fullDate : null}
+        />
+      )}
       </div>
     </main>
   );

@@ -9,6 +9,8 @@ export default function CinemaDetailCard({ cinemaId }) {
 
   useEffect(() => {
     async function fetchCinemaDetails() {
+      if (!cinemaId) return;
+      
       try {
         setIsLoading(true);
 

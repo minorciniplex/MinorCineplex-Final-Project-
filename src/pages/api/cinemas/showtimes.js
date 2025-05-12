@@ -12,12 +12,12 @@ const isValidUUID = (uuid) =>
 export default async function handler(req, res) {
   const supabase = createSupabaseServerClient(req, res);
 
-  const { cinemaId, date, title } = req.query;
+  const { cinemaId, date } = req.query;
 
   // ✅ Validation
-  if (!cinemaId || !date || !title) {
+  if (!cinemaId || !date ) {
     return res.status(400).json({
-      error: "Missing required query parameters: cinemaId, date, and title",
+      error: "Missing required query parameters: cinemaId, date",
     });
   }
 
@@ -65,7 +65,6 @@ export default async function handler(req, res) {
         )
         .eq("screens.cinemas.cinema_id", cinemaId)
         .eq("date", date)
-        .eq("movies.title", title)
         .order("start_time");
 
       if (error) {
@@ -88,7 +87,7 @@ export default async function handler(req, res) {
           .join(", "),
         language_code: item.movies.movie_languages
           .map((l) => l.languages.code)
-          .join(", "),
+          .join("/ "),
         movie_id: item.movies.movie_id,
         screen_number: item.screens.screen_number,
         start_time: item.start_time,

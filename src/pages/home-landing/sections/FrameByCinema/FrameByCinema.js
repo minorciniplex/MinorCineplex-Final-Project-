@@ -11,7 +11,7 @@ import CouponCard from "@/components/Coupon/CouponCard";
 import FmdGoodIcon from '@mui/icons-material/FmdGood';
 import { supabase } from "@/utils/supabase";
 
-const FrameByCinema = () => {
+export const FrameByCinema = ({ filters }) => {
   const sectionRef = useRef(null);
   const [activeTab, setActiveTab] = useState("now-showing");
   const [viewMode, setViewMode] = useState("browse-by-city");
@@ -20,26 +20,54 @@ const FrameByCinema = () => {
   const [nowShowingMovies, setNowShowingMovies] = useState([]);
   const [comingSoonMovies, setComingSoonMovies] = useState([]);
 
+  // ฟังก์ชันสร้าง query ตาม filter
+  const buildQuery = (baseQuery, filters, isNowShowing) => {
+    let query = baseQuery;
+    if (filters) {
+      if (filters.movie) query = query.eq('movie_id', filters.movie);
+      if (filters.language) query = query.eq('original_language', filters.language);
+      if (filters.genre) query = query.contains('genres', [filters.genre]);
+      if (filters.releaseDate) query = query.eq('release_date', filters.releaseDate);
+    }
+    return query;
+  };
+
   useEffect(() => {
     async function fetchMovies() {
       const today = new Date().toISOString().split('T')[0];
       // Now showing
-      let { data: nowShowing } = await supabase
+      let baseNowShowing = supabase
         .from('movies')
         .select('*')
         .lte('release_date', today)
         .order('release_date', { ascending: true });
+      let nowShowingQuery = buildQuery(baseNowShowing, filters, true);
+      let { data: nowShowing } = await nowShowingQuery;
       setNowShowingMovies(nowShowing || []);
       // Coming soon
-      let { data: comingSoon } = await supabase
+      let baseComingSoon = supabase
         .from('movies')
         .select('*')
         .gt('release_date', today)
         .order('release_date', { ascending: true });
+      let comingSoonQuery = buildQuery(baseComingSoon, filters, false);
+      let { data: comingSoon } = await comingSoonQuery;
       setComingSoonMovies(comingSoon || []);
     }
     fetchMovies();
-  }, []);
+  }, [filters]);
+
+  // เพิ่ม useEffect สำหรับสลับ tab อัตโนมัติเมื่อค้นหา
+  useEffect(() => {
+    if (filters) {
+      if (nowShowingMovies.length === 0 && comingSoonMovies.length > 0) {
+        setActiveTab("coming-soon");
+      } else if (nowShowingMovies.length > 0) {
+        setActiveTab("now-showing");
+      }
+    }
+    // eslint-disable-next-line
+  }, [nowShowingMovies, comingSoonMovies]);
 
   const totalMovies = activeTab === "now-showing" ? nowShowingMovies.length : comingSoonMovies.length;
   const totalPages = Math.ceil(totalMovies / moviesPerPage);
@@ -198,94 +226,103 @@ const FrameByCinema = () => {
           {(activeTab === "now-showing"
             ? nowShowingMovies
             : comingSoonMovies
-          )?.slice(startIndex, endIndex).map((movie) => (
-            <div key={movie.movie_id || movie.id} className="flex flex-col items-start gap-3 md:gap-4 group cursor-pointer">
-              <div
-                className="w-[150px] h-[225px] md:w-[285px] md:h-[416px] rounded-[8px] bg-cover bg-center shadow-md mx-auto transition-transform duration-300 group-hover:scale-105"
-                style={{ backgroundImage: `url(${movie.poster_url || movie.poster})` }}
-              />
+          )?.slice(startIndex, endIndex).length === 0 ? (
+            <div className="col-span-full text-center text-base-gray-400 py-10">
+              ไม่พบข้อมูลหนังที่ค้นหา
+            </div>
+          ) : (
+            (activeTab === "now-showing"
+              ? nowShowingMovies
+              : comingSoonMovies
+            )?.slice(startIndex, endIndex).map((movie) => (
+              <div key={movie.movie_id || movie.id} className="flex flex-col items-start gap-3 md:gap-4 group cursor-pointer">
+                <div
+                  className="w-[150px] h-[225px] md:w-[285px] md:h-[416px] rounded-[8px] bg-cover bg-center shadow-md mx-auto transition-transform duration-300 group-hover:scale-105"
+                  style={{ backgroundImage: `url(${movie.poster_url || movie.poster})` }}
+                />
 
-              <div className="flex flex-col items-start w-full">
-                <div className="flex items-center justify-between w-full">
-                  <span className="text-base-gray-300 body-2-regular flex items-center">
-                    {movie.release_date || movie.date}
-                  </span>
-                  <div className="flex items-center">
-                    <StarFillIcon className="w-4 h-4 fill-[#4E7BEE] text-[#4E7BEE]" />
-                    <span className="text-base-gray-300 body-2-regular ml-1 flex items-center">
-                      {movie.rating}
+                <div className="flex flex-col items-start w-full">
+                  <div className="flex items-center justify-between w-full">
+                    <span className="text-base-gray-300 body-2-regular flex items-center">
+                      {movie.release_date || movie.date}
                     </span>
+                    <div className="flex items-center">
+                      <StarFillIcon className="w-4 h-4 fill-[#4E7BEE] text-[#4E7BEE]" />
+                      <span className="text-base-gray-300 body-2-regular ml-1 flex items-center">
+                        {movie.rating}
+                      </span>
+                    </div>
                   </div>
+
+                  <h3 className="text-basewhite font-bold truncate max-w-full md:headline-4 group-hover:text-brandblue-100 transition-colors duration-200">
+                    {movie.title}
+                  </h3>
                 </div>
 
-                <h3 className="text-basewhite font-bold truncate max-w-full md:headline-4 group-hover:text-brandblue-100 transition-colors duration-200">
-                  {movie.title}
-                </h3>
+                <div className="flex flex-wrap items-start gap-2">
+                  {(() => {
+                    let genres = movie.genres;
+                    if (typeof genres === "string") {
+                      genres = genres
+                        .replace(/[{}]/g, '')
+                        .split(',')
+                        .map(s => s.replace(/"/g, '').trim())
+                        .filter(Boolean);
+                    }
+                    return Array.isArray(genres) && genres.map((genre, index) => (
+                      <span
+                        key={index}
+                        className="px-3 py-1.5 bg-base-gray-100 text-base-gray-300 body-2-regular text-[length:var(--body-2-regular-font-size)] leading-[var(--body-2-regular-line-height)] tracking-[var(--body-2-regular-letter-spacing)] [font-style:var(--body-2-regular-font-style)] rounded "
+                      >
+                        {genre}
+                      </span>
+                    ));
+                  })()}
+                  {/* Language Badge */}
+                  {(() => {
+                    // Mapping ภาษาเป็นตัวย่อมาตรฐาน
+                    const langMap = {
+                      English: 'EN',
+                      Thai: 'TH',
+                      Japan: 'JP',
+                      Japanese: 'JP',
+                      Chinese: 'CN',
+                      Mandarin: 'CN',
+                      Korean: 'KR',
+                      French: 'FR',
+                      German: 'DE',
+                      Spanish: 'ES',
+                      Italian: 'IT',
+                      Russian: 'RU',
+                      Arabic: 'AR',
+                      Hindi: 'HI',
+                      Vietnamese: 'VI',
+                      Malay: 'MY',
+                      Indonesian: 'ID',
+                      Filipino: 'PH',
+                    };
+                    const orig = movie.original_language;
+                    const origShort = langMap[orig] || (orig ? orig.slice(0,2).toUpperCase() : null);
+                    const subs = Array.isArray(movie.subtitle_languages) ? movie.subtitle_languages : [];
+                    const badgeClass = "flex justify-center items-center min-w-[41px] min-h-[32px] px-2 py-1 bg-base-gray-100 text-base-gray-400 font-medium rounded-md";
+                    // ถ้า original เป็น EN และ subs มี TH
+                    if (origShort === 'EN' && subs.includes('Thai')) {
+                      return <span className={badgeClass}>TH/EN</span>;
+                    }
+                    // ถ้า original เป็น TH และ subs มี EN
+                    if (origShort === 'TH' && subs.includes('English')) {
+                      return <span className={badgeClass}>EN/TH</span>;
+                    }
+                    // ถ้า original เป็นภาษาอื่น
+                    if (origShort) {
+                      return <span className={badgeClass}>{origShort}</span>;
+                    }
+                    return null;
+                  })()}
+                </div>
               </div>
-
-              <div className="flex flex-wrap items-start gap-2">
-                {(() => {
-                  let genres = movie.genres;
-                  if (typeof genres === "string") {
-                    genres = genres
-                      .replace(/[{}]/g, '')
-                      .split(',')
-                      .map(s => s.replace(/"/g, '').trim())
-                      .filter(Boolean);
-                  }
-                  return Array.isArray(genres) && genres.map((genre, index) => (
-                    <span
-                      key={index}
-                      className="px-3 py-1.5 bg-base-gray-100 text-base-gray-300 body-2-regular text-[length:var(--body-2-regular-font-size)] leading-[var(--body-2-regular-line-height)] tracking-[var(--body-2-regular-letter-spacing)] [font-style:var(--body-2-regular-font-style)] rounded "
-                    >
-                      {genre}
-                    </span>
-                  ));
-                })()}
-                {/* Language Badge */}
-                {(() => {
-                  // Mapping ภาษาเป็นตัวย่อมาตรฐาน
-                  const langMap = {
-                    English: 'EN',
-                    Thai: 'TH',
-                    Japan: 'JP',
-                    Japanese: 'JP',
-                    Chinese: 'CN',
-                    Mandarin: 'CN',
-                    Korean: 'KR',
-                    French: 'FR',
-                    German: 'DE',
-                    Spanish: 'ES',
-                    Italian: 'IT',
-                    Russian: 'RU',
-                    Arabic: 'AR',
-                    Hindi: 'HI',
-                    Vietnamese: 'VI',
-                    Malay: 'MY',
-                    Indonesian: 'ID',
-                    Filipino: 'PH',
-                  };
-                  const orig = movie.original_language;
-                  const origShort = langMap[orig] || (orig ? orig.slice(0,2).toUpperCase() : null);
-                  const subs = Array.isArray(movie.subtitle_languages) ? movie.subtitle_languages : [];
-                  const badgeClass = "flex justify-center items-center min-w-[41px] min-h-[32px] px-2 py-1 bg-base-gray-100 text-base-gray-400 font-medium rounded-md";
-                  // ถ้า original เป็น EN และ subs มี TH
-                  if (origShort === 'EN' && subs.includes('Thai')) {
-                    return <span className={badgeClass}>TH/EN</span>;
-                  }
-                  // ถ้า original เป็น TH และ subs มี EN
-                  if (origShort === 'TH' && subs.includes('English')) {
-                    return <span className={badgeClass}>EN/TH</span>;
-                  }
-                  // ถ้า original เป็นภาษาอื่น
-                  if (origShort) {
-                    return <span className={badgeClass}>{origShort}</span>;
-                  }
-                  return null;
-                })()}
-              </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
 
         {/* Pagination */}

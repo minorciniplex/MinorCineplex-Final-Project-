@@ -19,6 +19,8 @@ export const FrameByCinema = ({ filters }) => {
   const moviesPerPage = 8;
   const [nowShowingMovies, setNowShowingMovies] = useState([]);
   const [comingSoonMovies, setComingSoonMovies] = useState([]);
+  const [movieGenresMap, setMovieGenresMap] = useState({});
+  const [movieLangMap, setMovieLangMap] = useState({});
 
   // ฟังก์ชันสร้าง query ตาม filter
   const buildQuery = (baseQuery, filters, isNowShowing) => {
@@ -35,24 +37,97 @@ export const FrameByCinema = ({ filters }) => {
   useEffect(() => {
     async function fetchMovies() {
       const today = new Date().toISOString().split('T')[0];
-      // Now showing
+      let filteredMovieIds = null;
+      if (filters && filters.city) {
+        const { data: cinemas } = await supabase
+          .from('cinemas')
+          .select('cinema_id')
+          .eq('province', filters.city);
+        const cinemaIds = cinemas ? cinemas.map(c => c.cinema_id) : [];
+        const { data: screens } = await supabase
+          .from('screens')
+          .select('screen_id')
+          .in('cinema_id', cinemaIds);
+        const screenIds = screens ? screens.map(s => s.screen_id) : [];
+        let showtimeQuery = supabase
+          .from('showtimes')
+          .select('movie_id, date');
+        if (screenIds.length > 0) showtimeQuery = showtimeQuery.in('screen_id', screenIds);
+        if (filters.releaseDate) showtimeQuery = showtimeQuery.eq('date', filters.releaseDate);
+        const { data: showtimes } = await showtimeQuery;
+        filteredMovieIds = showtimes ? Array.from(new Set(showtimes.map(st => st.movie_id))) : [];
+      }
       let baseNowShowing = supabase
         .from('movies')
         .select('*')
         .lte('release_date', today)
         .order('release_date', { ascending: true });
-      let nowShowingQuery = buildQuery(baseNowShowing, filters, true);
-      let { data: nowShowing } = await nowShowingQuery;
-      setNowShowingMovies(nowShowing || []);
-      // Coming soon
       let baseComingSoon = supabase
         .from('movies')
         .select('*')
         .gt('release_date', today)
         .order('release_date', { ascending: true });
+      const buildQuery = (baseQuery, filters, isNowShowing) => {
+        let query = baseQuery;
+        if (filters) {
+          if (filters.movie) query = query.eq('movie_id', filters.movie);
+          if (filters.language) query = query.eq('original_language', filters.language);
+          if (filters.genre) query = query.contains('genres', [filters.genre]);
+          if (filters.releaseDate && !filters.city) query = query.eq('release_date', filters.releaseDate);
+        }
+        return query;
+      };
+      let nowShowingQuery = buildQuery(baseNowShowing, filters, true);
       let comingSoonQuery = buildQuery(baseComingSoon, filters, false);
+      let { data: nowShowing } = await nowShowingQuery;
       let { data: comingSoon } = await comingSoonQuery;
+      if (filteredMovieIds) {
+        nowShowing = (nowShowing || []).filter(m => filteredMovieIds.includes(m.movie_id));
+        comingSoon = (comingSoon || []).filter(m => filteredMovieIds.includes(m.movie_id));
+      }
+      setNowShowingMovies(nowShowing || []);
       setComingSoonMovies(comingSoon || []);
+
+      // ดึง genres ของหนังทั้งหมด
+      const allMovieIds = [
+        ...(nowShowing || []).map(m => m.movie_id),
+        ...(comingSoon || []).map(m => m.movie_id)
+      ];
+      if (allMovieIds.length > 0) {
+        // ดึง genre mapping
+        const { data: genreMappings } = await supabase
+          .from('movie_genre_mapping')
+          .select('movie_id, genre_id')
+          .in('movie_id', allMovieIds);
+        const { data: genres } = await supabase
+          .from('movie_genres')
+          .select('genre_id, name');
+        const genresMap = {};
+        genreMappings?.forEach(({ movie_id, genre_id }) => {
+          if (!genresMap[movie_id]) genresMap[movie_id] = [];
+          const genre = genres.find(g => g.genre_id === genre_id);
+          if (genre) genresMap[movie_id].push(genre.name);
+        });
+        setMovieGenresMap(genresMap);
+        // ดึง language mapping
+        const { data: langMappings } = await supabase
+          .from('movie_languages')
+          .select('movie_id, language_id, language_type')
+          .in('movie_id', allMovieIds);
+        const { data: languages } = await supabase
+          .from('languages')
+          .select('language_id, code, name');
+        const langMap = {};
+        langMappings?.forEach(({ movie_id, language_id, language_type }) => {
+          if (!langMap[movie_id]) langMap[movie_id] = [];
+          const lang = languages.find(l => l.language_id === language_id);
+          if (lang) langMap[movie_id].push({ code: lang.code, type: language_type });
+        });
+        setMovieLangMap(langMap);
+      } else {
+        setMovieGenresMap({});
+        setMovieLangMap({});
+      }
     }
     fetchMovies();
   }, [filters]);
@@ -260,65 +335,24 @@ export const FrameByCinema = ({ filters }) => {
                 </div>
 
                 <div className="flex flex-wrap items-start gap-2">
-                  {(() => {
-                    let genres = movie.genres;
-                    if (typeof genres === "string") {
-                      genres = genres
-                        .replace(/[{}]/g, '')
-                        .split(',')
-                        .map(s => s.replace(/"/g, '').trim())
-                        .filter(Boolean);
-                    }
-                    return Array.isArray(genres) && genres.map((genre, index) => (
-                      <span
-                        key={index}
-                        className="px-3 py-1.5 bg-base-gray-100 text-base-gray-300 body-2-regular text-[length:var(--body-2-regular-font-size)] leading-[var(--body-2-regular-line-height)] tracking-[var(--body-2-regular-letter-spacing)] [font-style:var(--body-2-regular-font-style)] rounded "
-                      >
-                        {genre}
-                      </span>
-                    ));
-                  })()}
-                  {/* Language Badge */}
-                  {(() => {
-                    // Mapping ภาษาเป็นตัวย่อมาตรฐาน
-                    const langMap = {
-                      English: 'EN',
-                      Thai: 'TH',
-                      Japan: 'JP',
-                      Japanese: 'JP',
-                      Chinese: 'CN',
-                      Mandarin: 'CN',
-                      Korean: 'KR',
-                      French: 'FR',
-                      German: 'DE',
-                      Spanish: 'ES',
-                      Italian: 'IT',
-                      Russian: 'RU',
-                      Arabic: 'AR',
-                      Hindi: 'HI',
-                      Vietnamese: 'VI',
-                      Malay: 'MY',
-                      Indonesian: 'ID',
-                      Filipino: 'PH',
-                    };
-                    const orig = movie.original_language;
-                    const origShort = langMap[orig] || (orig ? orig.slice(0,2).toUpperCase() : null);
-                    const subs = Array.isArray(movie.subtitle_languages) ? movie.subtitle_languages : [];
-                    const badgeClass = "flex justify-center items-center min-w-[41px] min-h-[32px] px-2 py-1 bg-base-gray-100 text-base-gray-400 font-medium rounded-md";
-                    // ถ้า original เป็น EN และ subs มี TH
-                    if (origShort === 'EN' && subs.includes('Thai')) {
-                      return <span className={badgeClass}>TH/EN</span>;
-                    }
-                    // ถ้า original เป็น TH และ subs มี EN
-                    if (origShort === 'TH' && subs.includes('English')) {
-                      return <span className={badgeClass}>EN/TH</span>;
-                    }
-                    // ถ้า original เป็นภาษาอื่น
-                    if (origShort) {
-                      return <span className={badgeClass}>{origShort}</span>;
-                    }
-                    return null;
-                  })()}
+                  {/* Genres */}
+                  {movieGenresMap[movie.movie_id]?.map((genre, idx) => (
+                    <span
+                      key={idx}
+                      className="px-3 py-1.5 bg-base-gray-100 text-base-gray-300 body-2-regular rounded"
+                    >
+                      {genre}
+                    </span>
+                  ))}
+                  {/* Languages */}
+                  {movieLangMap[movie.movie_id]?.map((lang, idx) => (
+                    <span
+                      key={idx}
+                      className="px-3 py-1.5 bg-base-gray-100 text-base-gray-400 font-medium rounded"
+                    >
+                      {lang.code}{lang.type === 'dubbed' ? '/DUB' : ''}
+                    </span>
+                  ))}
                 </div>
               </div>
             ))

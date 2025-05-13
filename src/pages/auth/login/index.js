@@ -1,8 +1,9 @@
+import React, { useState } from "react";
 import Link from "next/link";
-import { use, useState } from "react";
+import { use } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
-
+import Navbar from "@/components/Navbar/Navbar";
 import { Loading } from "@/components/ui/loading";
 import { useStatus } from "@/context/StatusContext";
 import { useEffect } from "react";
@@ -88,7 +89,7 @@ export default function Login() {
 
   return (
     <>
-      <Navbar />
+      <NavbarByCinema />
       <div className="min-h-screen flex items-center justify-center px-4">
         {loading ? (
           <Loading />
@@ -174,6 +175,6 @@ export default function Login() {
           </form>
         )}
       </div>
-    </>
+    </div>
   );
 }

@@ -1,10 +1,10 @@
 import { Star as StarFillIcon } from "lucide-react";
 import React, { useState, useEffect, useRef } from "react";
-import { Badge } from "../../../../components/ui/badge";
-import Button from "../../../../components/Button";
-import { Card, CardContent } from "../../../../components/ui/card";
-import { Separator } from "../../../../components/ui/separator";
-import { Tabs, TabsList, TabsTrigger } from "../../../../components/ui/tabs";
+import { Badge } from "../../ui/badge";
+import Button from "../../Button";
+import { Card, CardContent } from "../../ui/card";
+import { Separator } from "../../ui/separator";
+import { Tabs, TabsList, TabsTrigger } from "../../ui/tabs";
 import { coupons } from "@/data/coupons";
 import { cinemasByCity } from "@/data/cinemas";
 import CouponCard from "@/components/Coupon/CouponCard";
@@ -421,7 +421,7 @@ export const FrameByCinema = ({ filters }) => {
                   {/* Genres */}
                   {movieGenresMap[movie.movie_id]?.map((genre, idx) => (
                     <span
-                      key={idx}
+                      key={movie.movie_id + '-' + genre}
                       className="px-3 py-1.5 bg-base-gray-100 text-base-gray-300 body-2-regular rounded"
                     >
                       {genre}
@@ -430,7 +430,7 @@ export const FrameByCinema = ({ filters }) => {
                   {/* Languages */}
                   {movieLangMap[movie.movie_id]?.map((lang, idx) => (
                     <span
-                      key={idx}
+                      key={movie.movie_id + '-' + lang.code + '-' + lang.type}
                       className="px-3 py-1.5 bg-base-gray-100 text-base-gray-400 font-medium rounded"
                     >
                       {lang.code}{lang.type === 'dubbed' ? '/DUB' : ''}
@@ -477,7 +477,7 @@ export const FrameByCinema = ({ filters }) => {
           ) : (
             coupons.slice(0, 4).map((coupon) => (
               <CouponCard
-                key={coupon.id}
+                key={coupon.id || coupon.code || coupon.title}
                 coupon={{
                   ...coupon,
                   valid_until: coupon.end_date,
@@ -502,7 +502,7 @@ export const FrameByCinema = ({ filters }) => {
               onClick={() => setViewMode("browse-by-city")}
             >
               {viewMode === "browse-by-city" && (
-                <svg className="w-4 h-4 text-brandblue-100" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-brandblue-100" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
               )}
@@ -516,7 +516,7 @@ export const FrameByCinema = ({ filters }) => {
               onClick={() => setViewMode("nearest-locations")}
             >
               {viewMode === "nearest-locations" && (
-                <svg className="w-4 h-4 text-brandblue-100" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-brandblue-100" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
               )}

@@ -29,6 +29,7 @@ export const FrameByCinema = ({ filters }) => {
   const [locationError, setLocationError] = useState(null);
   const [coupons, setCoupons] = useState([]);
   const router = useRouter();
+  const [loading, setLoading] = useState(true);
 
   // ฟังก์ชันสร้าง query ตาม filter
   const buildQuery = (baseQuery, filters, isNowShowing) => {
@@ -44,6 +45,7 @@ export const FrameByCinema = ({ filters }) => {
 
   useEffect(() => {
     async function fetchMovies() {
+      setLoading(true);
       const today = new Date().toISOString().split('T')[0];
       let filteredMovieIds = null;
       if (filters && filters.city) {
@@ -136,6 +138,7 @@ export const FrameByCinema = ({ filters }) => {
         setMovieGenresMap({});
         setMovieLangMap({});
       }
+      setLoading(false);
     }
     fetchMovies();
   }, [filters]);
@@ -381,64 +384,94 @@ export const FrameByCinema = ({ filters }) => {
 
         {/* Movie Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 w-full">
-          {(activeTab === "now-showing"
-            ? nowShowingMovies
-            : comingSoonMovies
-          )?.slice(startIndex, endIndex).length === 0 ? (
+          {loading ? (
             <div className="col-span-full text-center text-base-gray-400 py-10">
-              ไม่พบข้อมูลหนังที่ค้นหา
+              Loading...
             </div>
           ) : (
             (activeTab === "now-showing"
-            ? nowShowingMovies
-            : comingSoonMovies
-          )?.slice(startIndex, endIndex).map((movie) => (
-            <div key={movie.movie_id || movie.id} className="flex flex-col items-start gap-3 md:gap-4 group cursor-pointer">
-              <div
-                className="w-[150px] h-[225px] md:w-[285px] md:h-[416px] rounded-[8px] bg-cover bg-center shadow-md mx-auto transition-transform duration-300 group-hover:scale-105"
-                style={{ backgroundImage: `url(${movie.poster_url || movie.poster})` }}
-              />
-
-              <div className="flex flex-col items-start w-full">
-                <div className="flex items-center justify-between w-full">
-                  <span className="text-base-gray-300 body-2-regular flex items-center">
-                    {movie.release_date || movie.date}
-                  </span>
-                  <div className="flex items-center">
-                    <StarFillIcon className="w-4 h-4 fill-[#4E7BEE] text-[#4E7BEE]" />
-                    <span className="text-base-gray-300 body-2-regular ml-1 flex items-center">
-                      {movie.rating}
-                    </span>
+              ? nowShowingMovies
+              : comingSoonMovies
+            )?.slice(startIndex, endIndex).length === 0 ? (
+              <div className="col-span-full text-center text-base-gray-400 py-10">
+                No movies found.
+              </div>
+            ) : (
+              (activeTab === "now-showing"
+                ? nowShowingMovies
+                : comingSoonMovies
+              )?.slice(startIndex, endIndex).map((movie) => (
+                <div key={movie.movie_id || movie.id} className="flex flex-col items-start gap-3 md:gap-4 group cursor-pointer">
+                  <div
+                    className="w-[150px] h-[225px] md:w-[285px] md:h-[416px] rounded-[8px] bg-cover bg-center shadow-md mx-auto transition-transform duration-300 group-hover:scale-105"
+                    style={{ backgroundImage: `url(${movie.poster_url || movie.poster})` }}
+                  />
+                  <div className="flex flex-col items-start w-full">
+                    <div className="flex items-center justify-between w-full">
+                      <span className="text-base-gray-300 body-2-regular flex items-center">
+                        {movie.release_date || movie.date}
+                      </span>
+                      <div className="flex items-center">
+                        <StarFillIcon className="w-4 h-4 fill-[#4E7BEE] text-[#4E7BEE]" />
+                        <span className="text-base-gray-300 body-2-regular ml-1 flex items-center">
+                          {movie.rating}
+                        </span>
+                      </div>
+                    </div>
+                    <h3 className="text-basewhite font-bold truncate max-w-full md:headline-4 group-hover:text-brandblue-100 transition-colors duration-200">
+                      {movie.title}
+                    </h3>
+                  </div>
+                  <div className="flex flex-wrap items-start gap-2">
+                    {/* Genres */}
+                    {movieGenresMap[movie.movie_id]?.map((genre, idx) => (
+                      <span
+                        key={movie.movie_id + '-' + genre}
+                        className="px-3 py-1.5 bg-base-gray-100 text-base-gray-300 body-2-regular rounded"
+                      >
+                        {genre}
+                      </span>
+                    ))}
+                    {/* Languages */}
+                    {(() => {
+                      const langs = movieLangMap[movie.movie_id] || [];
+                      const original = langs.find(l => l.type === "original");
+                      const dubbed = langs.find(l => l.type === "dubbed");
+                      if (dubbed && original) {
+                        return (
+                          <span
+                            key={movie.movie_id + '-' + original.code + '-dubbed'}
+                            className="px-3 py-1.5 bg-base-gray-100 text-base-gray-400 body-2-regular rounded"
+                          >
+                            TH/{original.code}
+                          </span>
+                        );
+                      } else if (original) {
+                        return (
+                          <span
+                            key={movie.movie_id + '-' + original.code + '-original'}
+                            className="px-3 py-1.5 bg-base-gray-100 text-base-gray-400 body-2-regular rounded"
+                          >
+                            {original.code}
+                          </span>
+                        );
+                      } else if (dubbed) {
+                        return (
+                          <span
+                            key={movie.movie_id + '-' + dubbed.code + '-dubbedonly'}
+                            className="px-3 py-1.5 bg-base-gray-100 text-base-gray-300 body-2-regular rounded"
+                          >
+                            {dubbed.code}
+                          </span>
+                        );
+                      } else {
+                        return null;
+                      }
+                    })()}
                   </div>
                 </div>
-
-                <h3 className="text-basewhite font-bold truncate max-w-full md:headline-4 group-hover:text-brandblue-100 transition-colors duration-200">
-                  {movie.title}
-                </h3>
-              </div>
-
-              <div className="flex flex-wrap items-start gap-2">
-                  {/* Genres */}
-                  {movieGenresMap[movie.movie_id]?.map((genre, idx) => (
-                    <span
-                      key={movie.movie_id + '-' + genre}
-                      className="px-3 py-1.5 bg-base-gray-100 text-base-gray-300 body-2-regular rounded"
-                    >
-                      {genre}
-                    </span>
-                  ))}
-                  {/* Languages */}
-                  {movieLangMap[movie.movie_id]?.map((lang, idx) => (
-                    <span
-                      key={movie.movie_id + '-' + lang.code + '-' + lang.type}
-                      className="px-3 py-1.5 bg-base-gray-100 text-base-gray-400 font-medium rounded"
-                    >
-                      {lang.code}{lang.type === 'dubbed' ? '/DUB' : ''}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            ))
+              ))
+            )
           )}
         </div>
 

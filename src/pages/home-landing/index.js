@@ -4,6 +4,7 @@ import BannerByCinema from "./sections/BannerByCinema/BannerByCinema";
 import AnnouncementPopup from "../../components/AnnouncementPopup";
 import FrameByCinema from "./sections/FrameByCinema/FrameByCinema";
 import FooterSection from "./sections/FooterSection/FooterSection";
+import Head from 'next/head';
 import Navbar from '@/components/Navbar/Navbar';
 
 const HomeLanding = () => {
@@ -25,8 +26,8 @@ const HomeLanding = () => {
     <main className="min-h-screen bg-background overflow-x-hidden">
       <AnnouncementPopup />
       <NavbarByCinema />
-      <BannerByCinema />
-      <FrameByCinema />
+      <BannerByCinema onSearch={handleSearch} />
+      <FrameByCinema filters={searchFilters} />
       <FooterSection />
     </main>
   );

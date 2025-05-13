@@ -23,7 +23,7 @@ const NavbarByCinema = () => {
      };
 
      return (
-          <header className="flex w-full max-w-[375px] mx-auto h-12 px-4 border-b border-[#21263F] bg-black/20 justify-between items-center fixed top-0 z-50 md:w-full md:max-w-none md:h-20 md:px-20 md:bg-[#00000033] md:border-base-gray-100 md:backdrop-blur-[7.5px] md:backdrop-brightness-[100%] md:[-webkit-backdrop-filter:blur(7.5px)_brightness(100%)]">
+          <header className="flex w-full h-12 px-4 border-b border-[#21263F] bg-black/20 justify-between items-center fixed top-0 z-50 md:w-full md:max-w-none md:h-20 md:px-20 md:bg-[#00000033] md:border-base-gray-100 md:backdrop-blur-[7.5px] md:backdrop-brightness-[100%] md:[-webkit-backdrop-filter:blur(7.5px)_brightness(100%)]">
                <div 
                     className="relative w-[28px] h-[32px] md:w-[42px] md:h-12 cursor-pointer" 
                     onClick={handleLogoClick}

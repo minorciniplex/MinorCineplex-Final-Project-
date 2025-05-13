@@ -10,6 +10,8 @@ import { cinemasByCity } from "@/data/cinemas";
 import CouponCard from "@/components/Coupon/CouponCard";
 import FmdGoodIcon from '@mui/icons-material/FmdGood';
 import { supabase } from "@/utils/supabase";
+import { getDistance } from 'geolib';
+import { useRouter } from "next/router";
 
 export const FrameByCinema = ({ filters }) => {
   const sectionRef = useRef(null);
@@ -21,6 +23,12 @@ export const FrameByCinema = ({ filters }) => {
   const [comingSoonMovies, setComingSoonMovies] = useState([]);
   const [movieGenresMap, setMovieGenresMap] = useState({});
   const [movieLangMap, setMovieLangMap] = useState({});
+  const [allCinemasByProvince, setAllCinemasByProvince] = useState({});
+  const [userLocation, setUserLocation] = useState(null);
+  const [nearestCinemas, setNearestCinemas] = useState([]);
+  const [locationError, setLocationError] = useState(null);
+  const [coupons, setCoupons] = useState([]);
+  const router = useRouter();
 
   // ฟังก์ชันสร้าง query ตาม filter
   const buildQuery = (baseQuery, filters, isNowShowing) => {
@@ -277,6 +285,81 @@ export const FrameByCinema = ({ filters }) => {
     setCurrentPage(1);
   }, [activeTab]);
 
+  // ดึงข้อมูลโรงหนังทั้งหมดและจัดกลุ่มตามจังหวัด
+  useEffect(() => {
+    async function fetchCinemas() {
+      const { data: cinemas } = await supabase
+        .from('cinemas')
+        .select('*');
+      const grouped = {};
+      cinemas?.forEach(cinema => {
+        if (!grouped[cinema.province]) grouped[cinema.province] = [];
+        grouped[cinema.province].push(cinema);
+      });
+      setAllCinemasByProvince(grouped);
+    }
+    fetchCinemas();
+  }, []);
+
+  // ขอ location เมื่อเลือกโหมด Nearest Locations
+  useEffect(() => {
+    if (viewMode === 'nearest-locations') {
+      if (!userLocation) {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              setUserLocation({
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude
+              });
+              setLocationError(null);
+            },
+            (error) => {
+              setLocationError('ไม่สามารถเข้าถึงตำแหน่งของคุณได้');
+            }
+          );
+        } else {
+          setLocationError('เบราว์เซอร์ของคุณไม่รองรับการขอตำแหน่ง');
+        }
+      }
+    }
+  }, [viewMode]);
+
+  // ดึงโรงหนังที่ใกล้ที่สุดเมื่อมี userLocation
+  useEffect(() => {
+    async function fetchNearestCinemas() {
+      const { data: cinemas } = await supabase.from('cinemas').select('*');
+      if (userLocation && cinemas) {
+        const cinemasWithDistance = cinemas.map(cinema => ({
+          ...cinema,
+          distance: getDistance(
+            { latitude: userLocation.latitude, longitude: userLocation.longitude },
+            { latitude: cinema.latitude, longitude: cinema.longitude }
+          )
+        }));
+        const sorted = cinemasWithDistance.sort((a, b) => a.distance - b.distance);
+        setNearestCinemas(sorted);
+      }
+    }
+    if (userLocation && viewMode === 'nearest-locations') {
+      fetchNearestCinemas();
+    }
+  }, [viewMode, userLocation]);
+
+  useEffect(() => {
+    async function fetchCoupons() {
+      const today = new Date().toISOString().slice(0, 10);
+      const { data, error } = await supabase
+        .from('coupons')
+        .select('*')
+        .eq('status', 'active')
+        .gte('end_date', today)
+        .order('created_at', { ascending: false });
+      if (!error) setCoupons(data || []);
+    }
+    fetchCoupons();
+  }, []);
+
   return (
     <section ref={sectionRef} className="flex flex-col w-full mt-[180px] md:mt-20">
       {/* Now Showing Section */}
@@ -307,34 +390,34 @@ export const FrameByCinema = ({ filters }) => {
             </div>
           ) : (
             (activeTab === "now-showing"
-              ? nowShowingMovies
-              : comingSoonMovies
-            )?.slice(startIndex, endIndex).map((movie) => (
-              <div key={movie.movie_id || movie.id} className="flex flex-col items-start gap-3 md:gap-4 group cursor-pointer">
-                <div
-                  className="w-[150px] h-[225px] md:w-[285px] md:h-[416px] rounded-[8px] bg-cover bg-center shadow-md mx-auto transition-transform duration-300 group-hover:scale-105"
-                  style={{ backgroundImage: `url(${movie.poster_url || movie.poster})` }}
-                />
+            ? nowShowingMovies
+            : comingSoonMovies
+          )?.slice(startIndex, endIndex).map((movie) => (
+            <div key={movie.movie_id || movie.id} className="flex flex-col items-start gap-3 md:gap-4 group cursor-pointer">
+              <div
+                className="w-[150px] h-[225px] md:w-[285px] md:h-[416px] rounded-[8px] bg-cover bg-center shadow-md mx-auto transition-transform duration-300 group-hover:scale-105"
+                style={{ backgroundImage: `url(${movie.poster_url || movie.poster})` }}
+              />
 
-                <div className="flex flex-col items-start w-full">
-                  <div className="flex items-center justify-between w-full">
-                    <span className="text-base-gray-300 body-2-regular flex items-center">
-                      {movie.release_date || movie.date}
+              <div className="flex flex-col items-start w-full">
+                <div className="flex items-center justify-between w-full">
+                  <span className="text-base-gray-300 body-2-regular flex items-center">
+                    {movie.release_date || movie.date}
+                  </span>
+                  <div className="flex items-center">
+                    <StarFillIcon className="w-4 h-4 fill-[#4E7BEE] text-[#4E7BEE]" />
+                    <span className="text-base-gray-300 body-2-regular ml-1 flex items-center">
+                      {movie.rating}
                     </span>
-                    <div className="flex items-center">
-                      <StarFillIcon className="w-4 h-4 fill-[#4E7BEE] text-[#4E7BEE]" />
-                      <span className="text-base-gray-300 body-2-regular ml-1 flex items-center">
-                        {movie.rating}
-                      </span>
-                    </div>
                   </div>
-
-                  <h3 className="text-basewhite font-bold truncate max-w-full md:headline-4 group-hover:text-brandblue-100 transition-colors duration-200">
-                    {movie.title}
-                  </h3>
                 </div>
 
-                <div className="flex flex-wrap items-start gap-2">
+                <h3 className="text-basewhite font-bold truncate max-w-full md:headline-4 group-hover:text-brandblue-100 transition-colors duration-200">
+                  {movie.title}
+                </h3>
+              </div>
+
+              <div className="flex flex-wrap items-start gap-2">
                   {/* Genres */}
                   {movieGenresMap[movie.movie_id]?.map((genre, idx) => (
                     <span
@@ -383,13 +466,26 @@ export const FrameByCinema = ({ filters }) => {
       <div className="flex flex-col items-center gap-4 md:gap-10 px-4 md:px-[120px] py-4 md:py-20 w-full max-w-full md:max-w-[1440px] mx-auto">
         <div className="flex items-center justify-between w-full flex-row gap-2 md:gap-0 mb-2">
           <h2 className="headline-2 md:headline-2 ">Special coupons</h2>
-          <button className="text-basewhite underline body-1-medium md:body-1-medium p-0 hover:text-brandblue-100 transition-colors duration-200 whitespace-nowrap">View all</button>
+          <button className="text-basewhite underline body-1-medium md:body-1-medium p-0 hover:text-brandblue-100 transition-colors duration-200 whitespace-nowrap" onClick={() => router.push('/coupons')}>View all</button>
         </div>
 
         <div className="grid grid-cols-2 mt-4 md:mt-0 md:grid-cols-4 gap-4 md:gap-5 w-full">
-          {coupons.slice(0, 4).map((coupon) => (
-            <CouponCard key={coupon.id} coupon={coupon} />
-          ))}
+          {coupons.length === 0 ? (
+            <div className="col-span-full text-center text-base-gray-400 py-10">
+              ไม่พบคูปอง
+            </div>
+          ) : (
+            coupons.slice(0, 4).map((coupon) => (
+              <CouponCard
+                key={coupon.id}
+                coupon={{
+                  ...coupon,
+                  valid_until: coupon.end_date,
+                  image_url: coupon.image
+                }}
+              />
+            ))
+          )}
         </div>
       </div>
 
@@ -397,7 +493,6 @@ export const FrameByCinema = ({ filters }) => {
       <div className="flex flex-col items-center gap-4 md:gap-10 px-4 md:px-[120px] py-4 md:py-20 w-full max-w-full md:max-w-[1440px] mx-auto">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between w-full gap-3 md:gap-0">
           <h2 className="text-base-white headline-2 text-left pl-0 md: prose-headline-2 ">All cinemas</h2>
-
           <div className="w-full h-[44px] flex gap-1 bg-base-gray-100 rounded-[4px] p-1 mt-2 md:w-[380px] md:h-[48px] md:mt-0">
             <button
               className={`flex-1 flex items-center justify-center gap-1 px-0 py-2 rounded-[4px] font-bold transition text-xs md:text-base h-full ${viewMode === "browse-by-city"
@@ -431,22 +526,56 @@ export const FrameByCinema = ({ filters }) => {
         </div>
 
         <div className="flex flex-col items-start gap-4 md:gap-6 w-full">
-          {cinemasByCity.map((cityGroup, index) => (
-            <div key={index} className="flex flex-col items-start gap-6 w-full">
+          {viewMode === 'browse-by-city' ? (
+            Object.entries(allCinemasByProvince)
+              .sort((a, b) => b[1].length - a[1].length)
+              .map(([province, cinemas]) => (
+                <div key={province} className="flex flex-col items-start gap-6 w-full">
               <h3 className="text-base-gray-300 headline-3 text-base md:headline-3 tracking-[var(--headline-3-letter-spacing)] leading-[var(--headline-3-line-height)] [font-style:var(--headline-3-font-style)]">
-                {cityGroup.city}
+                    {province}
               </h3>
-
               <div className="flex flex-col gap-4 md:flex-wrap md:flex-row md:gap-5 w-full">
-                {cityGroup.cinemas.map((cinema) => (
+                    {cinemas.map((cinema) => (
+                      <div
+                        key={cinema.cinema_id}
+                        className="w-full h-[120px] max-w-[344px] mx-auto  p-4 border border-base-gray-100 rounded-[4px] flex items-center gap-4 mb-2 md:mb-0 md:p-4 md:rounded-[4px] md:bg-transparent md:max-w-[590px] md:border md:border-base-gray-100 cursor-pointer hover:border-brandblue-100 transition-colors duration-200 group md:mx-0"
+                      >
+                        <div className="w-[40px] h-[40px] md:w-[52px] md:h-[52px] flex items-center justify-center rounded-full bg-[#21263F]">
+                          <FmdGoodIcon style={{ color: '#4E7BEE', fontSize: 20 }} />
+                        </div>
+                        <div className="flex flex-col items-start justify-center gap-1 flex-1">
+                          <h4 className="text-basewhite headline-3 md:headline-3 group-hover:text-brandblue-100 transition-colors duration-200">
+                            {cinema.name}
+                          </h4>
+                          <p className=" body-2-regular text-base-gray-300 text-sm md:body-2-regular">
+                            {cinema.address}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))
+          ) : (
+            <div className="flex flex-col gap-4 w-full">
+              {locationError && (
+                <div className="text-base-gray-400 py-4">{locationError}</div>
+              )}
+              {!locationError && !userLocation && (
+                <div className="text-base-gray-400 py-4">กำลังขอตำแหน่งของคุณ...</div>
+              )}
+              {!locationError && userLocation && nearestCinemas.length === 0 && (
+                <div className="text-base-gray-400 py-4">ไม่พบข้อมูลโรงหนัง</div>
+              )}
+              {!locationError && userLocation && nearestCinemas.length > 0 && (
+                nearestCinemas.map((cinema) => (
                   <div
-                    key={cinema.id}
+                    key={cinema.cinema_id}
                     className="w-full h-[120px] max-w-[344px] mx-auto  p-4 border border-base-gray-100 rounded-[4px] flex items-center gap-4 mb-2 md:mb-0 md:p-4 md:rounded-[4px] md:bg-transparent md:max-w-[590px] md:border md:border-base-gray-100 cursor-pointer hover:border-brandblue-100 transition-colors duration-200 group md:mx-0"
                   >
                     <div className="w-[40px] h-[40px] md:w-[52px] md:h-[52px] flex items-center justify-center rounded-full bg-[#21263F]">
                       <FmdGoodIcon style={{ color: '#4E7BEE', fontSize: 20 }} />
                     </div>
-
                     <div className="flex flex-col items-start justify-center gap-1 flex-1">
                       <h4 className="text-basewhite headline-3 md:headline-3 group-hover:text-brandblue-100 transition-colors duration-200">
                         {cinema.name}
@@ -454,12 +583,13 @@ export const FrameByCinema = ({ filters }) => {
                       <p className=" body-2-regular text-base-gray-300 text-sm md:body-2-regular">
                         {cinema.address}
                       </p>
+                      <span className="text-brandblue-100 text-xs mt-1">{cinema.distance.toLocaleString()} meters</span>
                     </div>
                   </div>
-                ))}
-              </div>
+                ))
+              )}
             </div>
-          ))}
+          )}
         </div>
       </div>
     </section>

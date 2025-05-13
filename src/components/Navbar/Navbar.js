@@ -13,10 +13,6 @@ import NavbarLoading from "./NavbarLoading";
 const Navbar = () => {
      
         const { isLoggedIn, loading } = useStatus();
-
-
-   
-
      return (
      <>
         

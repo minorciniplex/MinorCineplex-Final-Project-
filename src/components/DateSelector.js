@@ -96,8 +96,11 @@ export default function DateSelector({ onDateSelect }) {
           <ChevronLeft className="h-5 w-5" />
         </Button>
       )}
-      <div className="flex justify-center items-center p-4 md:py-4 md:px-10">
+      {/* ⬇️ Outer container for padding/alignment */}
+      <div className="flex justify-center items-center p-4 md:py-4 md:px-10 ">
+        {/* ⬇️ Bordered scroll container box */}
         <div className="w-[100vw] md:w-[80vw] overflow-hidden">
+          {/* ⬇️ Actual horizontal scrolling area inside the border box */}
           <div
             ref={scrollContainerRef}
             className="flex gap-2 overflow-x-auto scrollbar-hide scroll-smooth"

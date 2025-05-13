@@ -1,8 +1,10 @@
 import { useRouter } from "next/router";
-import { useState, useEffect } from "react";
+import { useCallback, useState, useEffect } from "react";
 import CinemaDetailCard from "@/components/Cinemas/CinemaDetailCard";
 import DateSelector from "@/components/DateSelector";
 import ShowtimeCard from "@/components/Cinemas/ShowtimeCard";
+import Navbar from "@/components/Navbar/Navbar";
+import FooterSection from "../../pages/home-landing/sections/FooterSection/FooterSection"
 import Image from "next/image";
 
 export default function CinemaPage() {
@@ -10,9 +12,9 @@ export default function CinemaPage() {
   const [selectedDate, setSelectedDate] = useState(null);
   const { id } = router.query;
 
-  const handleDateSelect = (date) => {
-    setSelectedDate(date);
-  };
+  const handleDateSelect = useCallback((date) => {
+  setSelectedDate(date);
+}, []);
 
   // Use effect to handle initial page load when router isn't ready yet
   const [isRouterReady, setIsRouterReady] = useState(false);
@@ -34,7 +36,8 @@ export default function CinemaPage() {
 
   return (
     <main>
-      <div className="relative w-full h-[580px] overflow-hidden">
+      <div className="hidden md:block relative w-full h-[580px] overflow-hidden">
+        <Navbar />
         {/* Background image */}
         <Image
           fill
@@ -46,18 +49,28 @@ export default function CinemaPage() {
         {id && <CinemaDetailCard cinemaId={id} />}
       </div>
 
+      {/* Mobile Navbar */}
+      <div className="md:hidden bg-[#00000033] mb-2">
+      <Navbar />
+      </div>
+
+      {/* Mobile CinemaDetailCard */}
+      <div className="md:hidden">
+      {id && <CinemaDetailCard cinemaId={id}/>}
+      </div>
+  
       {/* Date Selector */}
       <DateSelector onDateSelect={handleDateSelect} />
 
-      {/* Showtime Cards */}
-      <div className="py-[80px] px-[120px]">
+      {/* Showtime Cards */}    
       {id && (
         <ShowtimeCard
           cinemaId={id}
-          date={selectedDate ? selectedDate.fullDate : null}
+          date={selectedDate ? selectedDate : null}
         />
       )}
-      </div>
+
+      <FooterSection />
     </main>
   );
 }

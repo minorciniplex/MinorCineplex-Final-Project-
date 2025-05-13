@@ -1,10 +1,9 @@
 import Link from "next/link";
-import NavbarByCinema from "../../home-landing/sections/NavbarByCinema/NavbarByCinema";
-
+import Navbar from "@/components/Navbar/Navbar";
 export default function RegisterSuccess() {
   return (
     <>
-      <NavbarByCinema />
+      <Navbar />
       <main className="min-h-screen flex items-center justify-center px-4 ">
         <section className="w-full max-w-md text-white text-center flex flex-col items-center space-y-8">
           <div className="w-24 h-24 bg-brand-green rounded-full flex items-center justify-center">

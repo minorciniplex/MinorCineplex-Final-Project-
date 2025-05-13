@@ -2,7 +2,7 @@ import Link from "next/link";
 import { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
-import NavbarByCinema from "../../home-landing/sections/NavbarByCinema/NavbarByCinema";
+import Navbar from "@/components/Navbar/Navbar";
 import { Loading } from "@/components/ui/loading";
 
 export default function Register() {
@@ -76,7 +76,7 @@ export default function Register() {
 
   return (
     <>
-      <NavbarByCinema />
+      <Navbar/>
       <div className="min-h-screen flex items-center justify-center px-4">
         {loading ? (
           <Loading />

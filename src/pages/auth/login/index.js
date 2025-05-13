@@ -1,16 +1,26 @@
 import Link from "next/link";
-import { useState } from "react";
+import { use, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
 import NavbarByCinema from "../../home-landing/sections/NavbarByCinema/NavbarByCinema";
 import { Loading } from "@/components/ui/loading";
+import { useStatus } from "@/context/StatusContext";
+import { useEffect } from "react";
 
 export default function Login() {
+  const {isLoggedIn, checkAuthStatus} = useStatus();
   const [form, setForm] = useState({
     email: "",
     password: "",
     remember: false,
   });
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      router.push("/home-landing");
+    }
+  }, [isLoggedIn]);
+
   const [error, setError] = useState({
     email: "",
     password: "",
@@ -37,7 +47,8 @@ export default function Login() {
         setResError("");
         setLoading(false);
         console.log("login success");
-        router.push("/home");
+        await checkAuthStatus();
+        router.push("/home-landing");
       }
     } catch (error) {
       if (error.response) {

@@ -71,7 +71,7 @@ const NavbarWithOutLogin = () => {
                {/* Mobile Menu Overlay */}
                {menuOpen && (
                  <div className="fixed left-0 right-0 top-12 z-[9999] w-full min-h-[176px] flex items-start justify-center">
-                   <div className="w-[375px] h-[200px] max-w-full mx-auto rounded-none rounded-b-[16px] border-b border-[#21263F] bg-black/40 backdrop-blur-[15px] pt-6 pr-4 pb-6 pl-4 flex flex-col items-center justify-center gap-6">
+                   <div className="w-full h-[200px] max-w-full mx-auto rounded-none rounded-b-[16px] border-b border-[#21263F] bg-black/40 backdrop-blur-[15px] pt-6 pr-4 pb-6 pl-4 flex flex-col items-center justify-center gap-6">
                      <Button
                        variant="ghost"
                        className="text-base-gray-400 w-full justify-center body-2-regular"

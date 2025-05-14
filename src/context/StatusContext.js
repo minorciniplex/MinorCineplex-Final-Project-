@@ -8,8 +8,8 @@ export function StatusProvider({ children }) {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
-
-      const checkAuthStatus = async () => {
+    useEffect(() => {
+        const checkAuthStatus = async () => {
             try {
                 const res = await axios.get("/api/auth/status");
                 if (res.data.loggedIn) {
@@ -28,18 +28,13 @@ export function StatusProvider({ children }) {
             }
         };
 
-    useEffect(() => {
-      
-
         checkAuthStatus();
     }, []);
 
     const value = {
         isLoggedIn,
         user,
-        loading,
-        checkAuthStatus,
-        
+        loading
     };
 
     return (

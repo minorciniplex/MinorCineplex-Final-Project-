@@ -28,7 +28,7 @@ export default async function handler(req, res) {
         return res.status(500).json({ message: 'Missing Supabase project reference' })
       }
       
-   
+
     
     // รายชื่อ cookie ที่ต้องลบโดยใช้ชื่อที่ถูกต้อง
     const cookiesToClear = [

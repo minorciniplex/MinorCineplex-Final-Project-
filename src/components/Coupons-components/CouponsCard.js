@@ -5,6 +5,7 @@ import { Loading } from '../ui/loading';
 import CouponButton from './CouponButton';
 import CouponAlert from './CouponAlert';
 import { useState } from 'react';
+import Image from 'next/image';
 
 function formatDate(dateString) {
   const date = new Date(dateString);
@@ -29,7 +30,7 @@ function CouponsCard({ coupon_id, image, title, end_date }) {
     <div className="w-full max-w-xs sm:max-w-sm md:w-[285px] md:h-[477px] sm:h-[337px] sm:w-[180px] bg-[#070C1B] flex flex-col items-start justify-between rounded-[8px] shadow-lg overflow-hidden mx-auto p-0 ">
       
       
-      <img
+      <Image
         className="
           w-full
           h-[160px]         
@@ -40,6 +41,8 @@ function CouponsCard({ coupon_id, image, title, end_date }) {
         "
         src={image}
         alt={title}
+        width={285}
+        height={285}
         onClick={() => router.push(`/coupons/viewcoupon/${coupon_id}`)}
       />
       <div className="flex flex-col flex-1 w-full px-3 pt-3 pb-2 md:px-4 md:pt-4">

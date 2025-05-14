@@ -24,7 +24,7 @@ export default function CouponAlert({ open, onClose }) {
         &times;
       </button>
       <strong className="font-semibold">Coupon Claimed!</strong>
-      <span className="text-sm">You can find it in the 'My Coupons' menu</span>
+      <span className="text-sm">You can find it in the &lsquo;My Coupons&rsquo; menu</span>
     </div>
   );
 }

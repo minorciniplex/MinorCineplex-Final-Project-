@@ -2,6 +2,7 @@ import { useRouter } from 'next/navigation';
 import { useStatus } from '@/context/StatusContext';
 import { useCouponClaim } from '@/hooks/useCouponClaim';
 import { Loading } from '../ui/loading';
+import CouponButton from './CouponButton';
 
 function CouponsCard({ coupon_id, image, title, end_date }) {
   const router = useRouter();
@@ -31,21 +32,12 @@ function CouponsCard({ coupon_id, image, title, end_date }) {
         <p>วันที่หมดอายุ: {end_date}</p>
       </div>
 
-      {!isClaimed ? (
-        <button
-          className="bg-brand-blue-100 text-white px-4 py-2 rounded-md hover:bg-[#070C1B] transition-colors duration-200"
-          onClick={() => isLoggedIn ? handleClaimCoupon() : router.push('/auth/login')}
-        >
-          รับคูปอง
-        </button>
-      ) : (
-        <button
-          className="bg-gray-300 text-white px-4 py-2 rounded-md cursor-default"
-          onClick={() => router.push(`/coupons/viewcoupon/${coupon_id}`)}
-        >
-          view detail 
-        </button>
-      )}
+      <CouponButton
+        isClaimed={isClaimed}
+        isLoggedIn={isLoggedIn}
+        couponId={coupon_id}
+        handleClaimCoupon={handleClaimCoupon}
+      />
     </div>
   );
 }

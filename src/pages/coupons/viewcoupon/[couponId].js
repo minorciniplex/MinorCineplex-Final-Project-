@@ -1,12 +1,17 @@
 import axios from 'axios';
 import {useState, useEffect} from 'react';
 import { useRouter } from 'next/router';
+import CouponButton from '@/components/Coupons-components/CouponButton';
+import { useStatus } from '@/context/StatusContext';
+import { useCouponClaim } from '@/hooks/useCouponClaim';
 
 export default function Viewcoupon() {
     const router = useRouter();
     const {couponId} = router.query;
     const [data, setData] = useState(null);
-    console.log(data);
+    const { isLoggedIn } = useStatus();
+    const { isClaimed, handleClaimCoupon } = useCouponClaim(couponId);
+
     const fetchCoupon = async () => {
         try {
             const response = await axios.get(`/api/coupons/get-coupons-id?coupon_id=${couponId}`);
@@ -34,6 +39,12 @@ export default function Viewcoupon() {
                 <p>{data.min_purchase}</p>
                 <p>{data.start_date}</p>
                 <p>{data.end_date}</p>
+                <CouponButton
+                    isClaimed={isClaimed}
+                    isLoggedIn={isLoggedIn}
+                    couponId={couponId}
+                    handleClaimCoupon={handleClaimCoupon}
+                />
                 </div>
             ) : (
                 <p>กำลังโหลด...</p>

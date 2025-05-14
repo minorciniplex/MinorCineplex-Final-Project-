@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { Loading } from "@/components/ui/loading";
 import { StatusProvider } from '@/context/StatusContext';
 import { FetchCouponProvider } from '@/context/fecthCouponContext';
-
 export default function App({ Component, pageProps }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -37,7 +36,7 @@ export default function App({ Component, pageProps }) {
         <Loading />
       ) : (
         <StatusProvider>
-          <FetchCouponProvider>
+          <FetchCouponProvider> 
             <Component {...pageProps} />
           </FetchCouponProvider>
         </StatusProvider>

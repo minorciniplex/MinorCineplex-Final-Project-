@@ -1,12 +1,12 @@
+import React, { useState } from "react";
 import Link from "next/link";
-import { use, useState } from "react";
+import { use } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
-
+import Navbar from "@/components/Navbar/Navbar";
 import { Loading } from "@/components/ui/loading";
 import { useStatus } from "@/context/StatusContext";
 import { useEffect } from "react";
-import Navbar from "@/components/Navbar/Navbar";
 
 export default function Login() {
   const {isLoggedIn, checkAuthStatus} = useStatus();

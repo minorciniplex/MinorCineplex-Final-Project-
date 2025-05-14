@@ -7,19 +7,35 @@ import FmdGoodIcon from '@mui/icons-material/FmdGood';
 const AnnouncementPopup = () => {
   const [isVisible, setIsVisible] = useState(false);
 
-  const locationOptions = [
-    "Allow while visiting the site",
-    "Allow this time",
-    "Never allow",
-  ];
-
   useEffect(() => {
-    // ตรวจสอบว่าเคยเห็น popup หรือยัง
     const hasSeenAnnouncement = localStorage.getItem('hasSeenAnnouncement');
-    if (!hasSeenAnnouncement) {
+    if (hasSeenAnnouncement === 'true') {
+      setIsVisible(false);
+    } else {
       setIsVisible(true);
     }
   }, []);
+
+  const handleAllowLocation = () => {
+    setIsVisible(false);
+    localStorage.setItem('hasSeenAnnouncement', 'true');
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          // สามารถนำตำแหน่งไปใช้งานต่อได้ที่นี่
+          // ตัวอย่าง: console.log(position.coords.latitude, position.coords.longitude);
+        },
+        (error) => {
+          // handle error ได้ที่นี่ (ถ้าต้องการ)
+        }
+      );
+    }
+  };
+
+  const handleNeverAllow = () => {
+    setIsVisible(false);
+    localStorage.setItem('hasSeenAnnouncement', 'true');
+  };
 
   const handleClose = () => {
     setIsVisible(false);
@@ -29,7 +45,7 @@ const AnnouncementPopup = () => {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] pointer-events-none">
+    <div className="fixed inset-0 z-[9999]">
       <Card className="absolute top-8 left-7 w-[359px] h-[336px] bg-[#1a1b20] rounded-2xl border-none pointer-events-auto">
         <CardContent className="flex flex-col items-start gap-4 p-4 h-full">
           {/* Header Section */}
@@ -60,15 +76,24 @@ const AnnouncementPopup = () => {
 
           {/* Buttons */}
           <div className="flex flex-col gap-2 w-full">
-            {locationOptions.map((option, index) => (
-              <button
-                key={index}
-                onClick={handleClose}
-                className="w-full py-3.5 px-4 bg-[#323237] hover:bg-[#3a3a3f] rounded-full text-[#C6C6CC] text-base font-medium transition-colors"
-              >
-                {option}
-              </button>
-            ))}
+            <button
+              onClick={handleAllowLocation}
+              className="w-full py-3.5 px-4 bg-[#323237] hover:bg-[#3a3a3f] rounded-full text-[#C6C6CC] text-base font-medium transition-colors"
+            >
+              Allow while visiting the site
+            </button>
+            <button
+              onClick={handleAllowLocation}
+              className="w-full py-3.5 px-4 bg-[#323237] hover:bg-[#3a3a3f] rounded-full text-[#C6C6CC] text-base font-medium transition-colors"
+            >
+              Allow this time
+            </button>
+            <button
+              onClick={handleNeverAllow}
+              className="w-full py-3.5 px-4 bg-[#323237] hover:bg-[#3a3a3f] rounded-full text-[#C6C6CC] text-base font-medium transition-colors"
+            >
+              Never allow
+            </button>
           </div>
         </CardContent>
       </Card>

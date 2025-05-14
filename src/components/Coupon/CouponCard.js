@@ -11,12 +11,21 @@ const CouponCard = ({ coupon }) => {
   return (
     <div
       key={coupon.id}
-      className="w-full max-w-[343px] md:w-[285px] md:h-[477px] bg-[#070C1B] flex flex-col items-start justify-center rounded-[8px] shadow-md overflow-hidden group cursor-pointer mx-auto"
+      className="w-full bg-[#070C1B] flex flex-col items-start justify-center rounded-[8px] shadow-md overflow-hidden group cursor-pointer"
     >
       <div
-        className="w-full h-[160px] md:w-[285px] md:h-[285px] bg-cover bg-center transition-transform duration-300 group-hover:scale-105"
-        style={{ backgroundImage: `url(${coupon.image})` }}
-      />
+        className="w-full h-[160px] md:w-[285px] md:h-[285px] bg-cover bg-center transition-transform duration-300 group-hover:scale-105 flex items-center justify-center"
+      >
+        {coupon.image_url ? (
+          <img
+            src={coupon.image_url}
+            alt={coupon.title}
+            className="object-cover w-full h-full"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-gray-500 bg-base-gray-100">No Image</div>
+        )}
+      </div>
 
       <div className="flex flex-col items-start justify-between pt-3 pb-4 px-4 md:pt-4 md:pb-6 md:px-6 w-full bg-basegray-0 flex-1">
         <div className="flex flex-col gap-2 w-full flex-1">
@@ -29,7 +38,7 @@ const CouponCard = ({ coupon }) => {
               Valid until
             </span>
             <span className="text-base-gray-400 md:body-2-medium flex-1 truncate">
-              {coupon.validUntil}
+              {coupon.valid_until}
             </span>
           </div>
         </div>

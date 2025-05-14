@@ -34,7 +34,7 @@ export default function Viewcoupon() {
   return (
     <div className="w-full min-h-screen flex flex-col items-center bg-[#101525]">
       <Navbar />
-      <div className="flex flex-col items-center justify-center w-full min-h-[calc(100vh-120px)] py-10 px-2 md:px-0">
+      <div className="flex flex-col items-center justify-center w-full min-h-[calc(100vh-120px)] py-10 px-2 md:px-0 pt-[80px]">
         {data ? (
           <div className="flex flex-col md:flex-row gap-8 w-full max-w-5xl rounded-xl  p-6 md:p-10 ">
             {/* Image Section */}

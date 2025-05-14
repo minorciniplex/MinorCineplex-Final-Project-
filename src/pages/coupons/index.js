@@ -6,13 +6,26 @@ import { useState } from "react";
 import axios from "axios";
 import Navbar from "@/components/Navbar/Navbar";
 import FooterSection from "../home-landing/sections/FooterSection/FooterSection";
+import Pagination from "@/components/Pagination";
 
 export default function Coupons() {
     const { coupons, loading } = useFetchCoupon();
     const { isLoggedIn, user } = useStatus();
     const [couponOwnersId, setCouponOwnersId] = useState([]);
- 
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 8; // 4 รายการต่อบรรทัด x 2 บรรทัด
+    const totalPages = Math.ceil(coupons?.length / itemsPerPage) || 1;
     
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+    };
+
+    // คำนวณ coupons ที่จะแสดงในหน้าปัจจุบัน
+    const getCurrentPageCoupons = () => {
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        return coupons?.slice(startIndex, endIndex) || [];
+    };
 
     if (loading) {
         return (
@@ -33,17 +46,26 @@ export default function Coupons() {
             </div>
 
             <div className="w-full max-w-[1440px] mx-auto flex-grow flex flex-col px-4 md:px-[40px] lg:px-[120px] pt-0 pb-[80px] gap-[40px]">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 justify-items-center gap-x-[24px] gap-y-[40px] w-full">
-                    {coupons?.map((coupon) => (
-                        <CouponsCard 
-                            key={coupon.coupon_id}
-                            coupon_id={coupon.coupon_id}
-                            image={coupon.image}
-                            title={coupon.title}
-                            end_date={coupon.end_date}
-                            onClaimCoupon={() => handleClaimCoupon(coupon.coupon_id)}
+                <div className="flex flex-col gap-[40px]">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 justify-items-center gap-x-[24px] gap-y-[40px] w-full">
+                        {getCurrentPageCoupons().map((coupon) => (
+                            <CouponsCard 
+                                key={coupon.coupon_id}
+                                coupon_id={coupon.coupon_id}
+                                image={coupon.image}
+                                title={coupon.title}
+                                end_date={coupon.end_date}
+                                onClaimCoupon={() => handleClaimCoupon(coupon.coupon_id)}
+                            />
+                        ))}
+                    </div>
+                    <div className="flex justify-center mt-4">
+                        <Pagination
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            onPageChange={handlePageChange}
                         />
-                    ))}
+                    </div>
                 </div>
             </div>
 

@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import CouponButton from "@/components/Coupons-components/CouponButton";
+import CouponButton from "@/components/coupons-components/CouponButton";
 import { useStatus } from "@/context/StatusContext";
 import { useCouponClaim } from "@/hooks/useCouponClaim";
 import NavbarByCinema from "@/pages/home-landing/sections/NavbarByCinema/NavbarByCinema";

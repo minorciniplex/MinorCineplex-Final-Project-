@@ -1,7 +1,7 @@
-import CouponsCard from "@/components/Coupons-components/Coupons-card";
+import CouponsCard from "@/components/coupons-components/CouponsCard";
 import { useStatus } from "@/context/StatusContext";
 import { useFetchCoupon } from "@/context/fecthCouponContext";
-import CategoryBar from "@/components/Coupons-components/category-bar";
+import CategoryBar from "@/components/coupons-components/CategoryBar";
 import { useState } from "react";
 import axios from "axios";
 import NavbarByCinema from "../home-landing/sections/NavbarByCinema/NavbarByCinema";

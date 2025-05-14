@@ -9,16 +9,14 @@ export default function CategoryBar() {
   const [selectedCategory, setSelectedCategory] = useState("ทั้งหมด");
   const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
-    // สร้างรายการ categories จาก owner_name ที่ไม่ซ้ำกัน
     const uniqueOwners = [...new Set(coupons.map(coupon => coupon.owner_name))];
     setCategories(["ทั้งหมด", ...uniqueOwners]);
-  }, []); // เรียกครั้งเดียวตอนโหลดคอมโพเนนต์
+  }, []); 
 
   const handleCategoryClick = async (category) => {
     setSelectedCategory(category);
     
     if (category === "ทั้งหมด") {
-      // ถ้าเลือก "ทั้งหมด" ให้โหลดคูปองทั้งหมดใหม่
       try {
         const response = await axios.get("/api/coupons/get-coupons");
         setCoupons(response.data.coupons);
@@ -26,7 +24,6 @@ export default function CategoryBar() {
         console.error("Error fetching all coupons:", error);
       }
     } else {
-      // ถ้าเลือก category เฉพาะ ให้โหลดคูปองของ owner นั้นๆ
       try {
         const response = await axios.get(`/api/coupons/get-coupons/name?owner_name=${category}`);
         setCoupons(response.data.coupons);
@@ -40,7 +37,7 @@ export default function CategoryBar() {
 
   return (
     
-    <div className="w-full hidden md:flex items-center gap-1 md:gap-4 px-2 sm:px-4 md:px-[120px] rounded-[8px]  mx-auto overflow-x-auto scrollbar-hide">
+    <div className="w-full hidden md:flex  items-center justify-center gap-1 md:gap-4 px-2 sm:px-4 md:px-[120px] rounded-[8px] mx-auto scrollbar-hide">
       {categories.map((category) => (
         <button
           key={category}

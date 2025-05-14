@@ -17,7 +17,7 @@ function CouponButton({ isClaimed, isLoggedIn, couponId, handleClaimCoupon, isDe
         className="w-full h-[36px] sm:h-[40px] md:w-[237px] md:h-[48px] rounded-[4px] px-0 font-medium text-sm sm:text-base bg-brand-blue-100 text-white hover:bg-brand-blue-200 transition-colors duration-200 shadow-md mt-2 md:mt-3"
         onClick={() => isLoggedIn ? handleClaimCoupon() : router.push('/auth/login')}
       >
-        รับคูปอง
+        Get Coupon
       </button>
     )
   );

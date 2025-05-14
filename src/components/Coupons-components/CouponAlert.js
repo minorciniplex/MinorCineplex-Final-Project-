@@ -3,7 +3,7 @@ import React, { useEffect } from "react";
 export default function CouponAlert({ open, onClose }) {
   useEffect(() => {
     if (!open) return;
-    const timer = setTimeout(onClose, 400000);
+    const timer = setTimeout(onClose, 5000);
     return () => clearTimeout(timer);
   }, [open, onClose]);
 

@@ -10,8 +10,11 @@ import FmdGoodIcon from '@mui/icons-material/FmdGood';
 import { supabase } from "@/utils/supabase";
 import { getDistance } from 'geolib';
 import { useRouter } from "next/router";
+import CouponsCard from "@/components/Coupons-components/CouponsCard";
+import { useCouponClaim } from "@/hooks/useCouponClaim";
+import { useFetchCoupon } from "@/context/fecthCouponContext";
 
-export const FrameByCinema = ({ filters }) => {
+export const FrameByCinema = ({ filters , coupon_id }) => {
   const sectionRef = useRef(null);
   const [activeTab, setActiveTab] = useState("now-showing");
   const [viewMode, setViewMode] = useState("browse-by-city");
@@ -25,11 +28,11 @@ export const FrameByCinema = ({ filters }) => {
   const [userLocation, setUserLocation] = useState(null);
   const [nearestCinemas, setNearestCinemas] = useState([]);
   const [locationError, setLocationError] = useState(null);
-  const [coupons, setCoupons] = useState([]);
+  const {coupons , setCoupons} = useFetchCoupon();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [cinemaLoading, setCinemaLoading] = useState(true);
-
+  const { isClaimed, isLoading, handleClaimCoupon, alertOpen, setAlertOpen } = useCouponClaim(coupon_id);
   // ฟังก์ชันสร้าง query ตาม filter
   const buildQuery = (baseQuery, filters, isNowShowing) => {
     let query = baseQuery;
@@ -510,13 +513,17 @@ export const FrameByCinema = ({ filters }) => {
             </div>
           ) : (
             coupons.slice(0, 4).map((coupon) => (
-              <CouponCard
-                key={coupon.id || coupon.code || coupon.title}
-                coupon={{
-                  ...coupon,
-                  valid_until: coupon.end_date,
-                  image_url: coupon.image
-                }}
+              <CouponsCard
+                key={coupon.coupon_id}
+                coupon_id={coupon.coupon_id}
+                image={coupon.image}
+                title={coupon.title}
+                end_date={coupon.end_date}
+                onClaimCoupon={() => handleClaimCoupon(coupon.coupon_id)}
+                isClaimed={isClaimed}
+                isLoading={isLoading}
+                alertOpen={alertOpen}
+                setAlertOpen={setAlertOpen}
               />
             ))
           )}
@@ -565,10 +572,10 @@ export const FrameByCinema = ({ filters }) => {
               .sort((a, b) => b[1].length - a[1].length)
               .map(([province, cinemas]) => (
                 <div key={province} className="flex flex-col items-start gap-6 w-full">
-              <h3 className="text-base-gray-300 headline-3 text-base md:headline-3 tracking-[var(--headline-3-letter-spacing)] leading-[var(--headline-3-line-height)] [font-style:var(--headline-3-font-style)]">
+                  <h3 className="text-base-gray-300 headline-3 text-base md:headline-3 tracking-[var(--headline-3-letter-spacing)] leading-[var(--headline-3-line-height)] [font-style:var(--headline-3-font-style)]">
                     {province}
-              </h3>
-              <div className="flex flex-col gap-4 md:flex-wrap md:flex-row md:gap-5 w-full">
+                  </h3>
+                  <div className="flex flex-col gap-4 md:flex-wrap md:flex-row md:gap-5 w-full">
                     {cinemas.map((cinema) => (
                       <div
                         key={cinema.cinema_id}

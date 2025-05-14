@@ -7,21 +7,27 @@ import { useCouponClaim } from "@/hooks/useCouponClaim";
 import Navbar from "@/components/Navbar/Navbar";
 import FooterSection from '@/components/sections/FooterSection/FooterSection';
 import CouponAlert from "@/components/Coupons-components/CouponAlert";
+
 export default function Viewcoupon() {
   const router = useRouter();
   const { couponId } = router.query;
   const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
   const { isLoggedIn } = useStatus();
   const { isClaimed, handleClaimCoupon, alertOpen, setAlertOpen } = useCouponClaim(couponId);
   const [isDetailPage, setIsDetailPage] = useState(false);
+
   const fetchCoupon = async () => {
     try {
+      setLoading(true);
       const response = await axios.get(
         `/api/coupons/get-coupon-by-id?coupon_id=${couponId}`
       );
       setData(response.data.coupon);
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -31,11 +37,35 @@ export default function Viewcoupon() {
     }
   }, [couponId]);
 
+  if (loading) {
+    return (
+      <div className="w-full min-h-screen flex flex-col items-center bg-[#101525]">
+        <Navbar />
+        <div className="flex items-center justify-center w-full min-h-[calc(100vh-120px)]">
+          
+        </div>
+        <FooterSection />
+      </div>
+    );
+  }
+
+  if (!data) {
+    return (
+      <div className="w-full min-h-screen flex flex-col items-center bg-[#101525]">
+        <Navbar />
+        <div className="flex items-center justify-center w-full min-h-[calc(100vh-120px)]">
+          <div className="text-white">ไม่พบข้อมูลคูปอง</div>
+        </div>
+        <FooterSection />
+      </div>
+    );
+  }
+
   return (
     <div className="w-full min-h-screen flex flex-col items-center bg-[#101525]">
       <Navbar />
       <div className="flex flex-col items-center justify-center w-full min-h-[calc(100vh-120px)] py-10 px-2 md:px-0 pt-[80px]">
-        {data ? (
+
           <div className="flex flex-col md:flex-row gap-8 w-full max-w-5xl rounded-xl  p-6 md:p-10 ">
             {/* Image Section */}
             <div className="flex-shrink-0 flex items-center justify-center w-full md:w-[380px] h-[380px] md:h-[380px] bg-[#070C1B] rounded-lg overflow-hidden border border-[#232B3E]">
@@ -79,9 +109,7 @@ export default function Viewcoupon() {
               </div>
             </div>
           </div>
-        ) : (
-          <p className="text-white text-lg mt-10">กำลังโหลด...</p>
-        )}
+       
         <CouponAlert
           open={alertOpen}
           onClose={() => setAlertOpen(false)}

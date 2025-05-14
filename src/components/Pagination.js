@@ -1,5 +1,4 @@
 import React from 'react';
-import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
@@ -15,15 +14,24 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
     }
 
     for (let i = startPage; i <= endPage; i++) {
+      const isActive = currentPage === i;
       pageNumbers.push(
-        <Button
+        <button
           key={i}
-          variant={currentPage === i ? "default" : "outline"}
           onClick={() => onPageChange(i)}
-          className="mx-1"
+          disabled={isActive}
+          className={`
+            w-8 h-8 mx-1 rounded
+            flex items-center justify-center
+            text-base font-medium
+            transition
+            ${isActive
+              ? "bg-[#5A617A] text-white cursor-default"
+              : "bg-transparent text-[#A0AEC0] hover:bg-[#232B3E] hover:text-white"}
+          `}
         >
           {i}
-        </Button>
+        </button>
       );
     }
     return pageNumbers;
@@ -31,22 +39,31 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
 
   return (
     <div className="flex items-center justify-center space-x-2 my-4">
-      <Button
+      <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
+        className={`
+          w-8 h-8 rounded flex items-center justify-center
+          text-[#A0AEC0] hover:bg-[#232B3E] hover:text-white
+          disabled:opacity-50 disabled:cursor-not-allowed
+        `}
       >
         <ChevronLeft className="h-4 w-4" />
-      </Button>
+      </button>
       
       {renderPageNumbers()}
       
-      <Button
-        
+      <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
+        className={`
+          w-8 h-8 rounded flex items-center justify-center
+          text-[#A0AEC0] hover:bg-[#232B3E] hover:text-white
+          disabled:opacity-50 disabled:cursor-not-allowed
+        `}
       >
         <ChevronRight className="h-4 w-4" />
-      </Button>
+      </button>
     </div>
   );
 };

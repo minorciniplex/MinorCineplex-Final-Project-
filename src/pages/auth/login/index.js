@@ -2,10 +2,11 @@ import Link from "next/link";
 import { use, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
-import NavbarByCinema from "../../home-landing/sections/NavbarByCinema/NavbarByCinema";
+
 import { Loading } from "@/components/ui/loading";
 import { useStatus } from "@/context/StatusContext";
 import { useEffect } from "react";
+import Navbar from "@/components/Navbar/Navbar";
 
 export default function Login() {
   const {isLoggedIn, checkAuthStatus} = useStatus();
@@ -87,7 +88,7 @@ export default function Login() {
 
   return (
     <>
-      <NavbarByCinema />
+      <Navbar />
       <div className="min-h-screen flex items-center justify-center px-4">
         {loading ? (
           <Loading />

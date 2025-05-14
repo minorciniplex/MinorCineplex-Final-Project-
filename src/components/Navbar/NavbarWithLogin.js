@@ -322,11 +322,11 @@ useEffect(() => {
         <div className="md:hidden fixed left-0 right-0 top-12 z-[9999] w-full min-h-[176px] flex items-center justify-center">
           <div className="w-full h-[400px] max-w-full mx-auto rounded-none rounded-b-[16px] border-b border-[#21263F] bg-black/40 backdrop-blur-[15px] pt-6 pr-4 pb-6 flex flex-col justify-center ">
             <div className="px-5 py-4 flex flex-row items-center gap-4">
-              <img
+              {dataUser?.user_profile && <img
                 src={dataUser?.user_profile}
                 alt="user profile"
                 className="w-[40px] h-[40px] rounded-full "
-              ></img>
+              ></img>}
               <p className="body-2-regular text-base-gray-400">
                 {dataUser?.name}
               </p>

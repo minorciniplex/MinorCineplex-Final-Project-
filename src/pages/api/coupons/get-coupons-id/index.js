@@ -20,15 +20,7 @@ export default async function handler(req, res) {
     .from("coupons")
     .select(
       `
-      coupon_id,
-      code,
-      discount_type,
-      discount_value,
-      min_purchase,
-      start_date,
-      end_date,
-      image,
-      owner_id,
+      *,
       coupon_owners (
         owner_id,
         name

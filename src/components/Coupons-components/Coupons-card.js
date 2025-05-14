@@ -14,30 +14,31 @@ function CouponsCard({ coupon_id, image, title, end_date }) {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="w-full max-w-xs sm:max-w-sm md:w-[285px] md:h-[477px] bg-[#070C1B] flex flex-col items-start justify-between rounded-[8px] shadow-lg overflow-hidden mx-auto p-0 ">
       <img
-        className="w-[285px] h-[285px] object-cover rounded-md cursor-pointer"
+        className="w-full h-[160px] md:w-[285px] md:h-[285px] object-cover bg-center transition-transform duration-300 group-hover:scale-105 cursor-pointer"
         src={image}
         alt={title}
         onClick={() => router.push(`/coupons/viewcoupon/${coupon_id}`)}
       />
-
-      <button onClick={() => router.push(`/coupons/viewcoupon/${coupon_id}`)}>
-        <h2 className="text-start font-bold text-xl mb-2 line-clamp-2 hover:underline">
-          {title}
-        </h2>
-      </button>
-
-      <div>
-        <p>วันที่หมดอายุ: {end_date}</p>
+      <div className="flex flex-col flex-1 w-full px-3 pt-3 pb-2 md:px-4 md:pt-4">
+        <button onClick={() => router.push(`/coupons/viewcoupon/${coupon_id}`)} className="text-start">
+          <h2 className="font-bold text-base md:text-xl mb-2 line-clamp-2 hover:underline text-white">
+            {title}
+          </h2>
+        </button>
+        <div className="mb-3 md:mb-4 mt-auto">
+          <p className="text-xs md:text-sm text-[#A0AEC0]">Valid until: {end_date}</p>
+        </div>
+        <div className="w-full flex justify-center mt-auto">
+          <CouponButton
+            isClaimed={isClaimed}
+            isLoggedIn={isLoggedIn}
+            couponId={coupon_id}
+            handleClaimCoupon={handleClaimCoupon}
+          />
+        </div>
       </div>
-
-      <CouponButton
-        isClaimed={isClaimed}
-        isLoggedIn={isLoggedIn}
-        couponId={coupon_id}
-        handleClaimCoupon={handleClaimCoupon}
-      />
     </div>
   );
 }

@@ -2,11 +2,12 @@ import { useFetchCoupon } from "@/context/fecthCouponContext";
 import { useState, useEffect } from "react";
 import axios from "axios";
 
+
 export default function CategoryBar() {
   const { coupons, setCoupons } = useFetchCoupon();
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("ทั้งหมด");
-
+  const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
     // สร้างรายการ categories จาก owner_name ที่ไม่ซ้ำกัน
     const uniqueOwners = [...new Set(coupons.map(coupon => coupon.owner_name))];
@@ -31,21 +32,21 @@ export default function CategoryBar() {
         setCoupons(response.data.coupons);
       } catch (error) {
         console.error("Error fetching category coupons:", error);
+      } finally {
+        setIsLoading(false);
       }
     }
   };
 
   return (
-    <div className="flex flex-wrap gap-2 mb-6">
+    
+    <div className="w-full hidden md:flex items-center gap-1 md:gap-4 px-2 sm:px-4 md:px-[120px] rounded-[8px]  mx-auto overflow-x-auto scrollbar-hide">
       {categories.map((category) => (
         <button
           key={category}
           onClick={() => handleCategoryClick(category)}
-          className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 ${
-            selectedCategory === category
-              ? "bg-brand-blue-100 text-white"
-              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-          }`}
+          className={`px-3 md:px-6 py-1.5 md:py-2 rounded-full text-xs md:text-base font-semibold transition-colors duration-200 "bg-[#101624] text-[#A0AEC0] hover:bg-[#181F2A] hover:text-white"}
+          `}
         >
           {category}
         </button>

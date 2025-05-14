@@ -1,10 +1,12 @@
-
 import CouponsCard from "@/components/Coupons-components/Coupons-card";
 import { useStatus } from "@/context/StatusContext";
 import { useFetchCoupon } from "@/context/fecthCouponContext";
 import CategoryBar from "@/components/Coupons-components/category-bar";
 import { useState } from "react";
 import axios from "axios";
+import NavbarByCinema from "../home-landing/sections/NavbarByCinema/NavbarByCinema";
+import FooterSection from "../home-landing/sections/FooterSection/FooterSection";
+
 export default function Coupons() {
     const { coupons, loading } = useFetchCoupon();
     const { isLoggedIn, user } = useStatus();
@@ -21,21 +23,32 @@ export default function Coupons() {
     }
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <h1 className="text-3xl font-bold mb-8">คูปองทั้งหมด</h1>
-            <CategoryBar />
-           
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {coupons?.map((coupon) => (
-                    <CouponsCard 
-                        key={coupon.coupon_id}
-                        coupon_id={coupon.coupon_id}
-                        image={coupon.image}
-                        title={coupon.title}
-                        end_date={coupon.end_date}
-                        onClaimCoupon={() => handleClaimCoupon(coupon.coupon_id)}
-                    />
-                ))}
+        <div className="w-full min-h-screen flex flex-col items-center ]">
+            <div className="w-full">
+                <NavbarByCinema />
+            </div>
+
+            <div className="w-[1440px] px-[120px] pt-[40px] pb-[24px] mt-[40px]">
+                <CategoryBar />
+            </div>
+
+            <div className="w-full max-w-[1440px] mx-auto flex-grow flex flex-col px-4 md:px-[40px] lg:px-[120px] pt-0 pb-[80px] gap-[40px]">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 justify-items-center gap-x-[24px] gap-y-[40px] w-full">
+                    {coupons?.map((coupon) => (
+                        <CouponsCard 
+                            key={coupon.coupon_id}
+                            coupon_id={coupon.coupon_id}
+                            image={coupon.image}
+                            title={coupon.title}
+                            end_date={coupon.end_date}
+                            onClaimCoupon={() => handleClaimCoupon(coupon.coupon_id)}
+                        />
+                    ))}
+                </div>
+            </div>
+
+            <div className="w-full">
+                <FooterSection />
             </div>
         </div>
     );

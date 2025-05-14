@@ -118,7 +118,7 @@ export default function Home() {
           {isLoading ? "กำลังออกจากระบบ..." : "Logout"}
         </button>
         <Link href="/auth/login" className="btn btn-primary mt-4">
-          Login
+          login
         </Link>
         <br />
         <button

@@ -3,11 +3,10 @@ import Link from "next/link";
 import { use } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
-import Navbar from "@/components/Navbar/Navbar";
 import { Loading } from "@/components/ui/loading";
 import { useStatus } from "@/context/StatusContext";
 import { useEffect } from "react";
-
+import NavbarLoading from "@/components/Navbar/NavbarLoading";
 export default function Login() {
   const {isLoggedIn, checkAuthStatus} = useStatus();
   const [form, setForm] = useState({
@@ -88,7 +87,7 @@ export default function Login() {
 
   return (
     <>
-      <Navbar />
+      <NavbarLoading />
       <div className="min-h-screen flex items-center justify-center px-4">
         {loading ? (
           <Loading />

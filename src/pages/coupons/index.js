@@ -1,10 +1,10 @@
-import CouponsCard from "@/components/coupons-components/CouponsCard";
+import CouponsCard from "@/components/Coupons-components/CouponsCard";
 import { useStatus } from "@/context/StatusContext";
 import { useFetchCoupon } from "@/context/fecthCouponContext";
-import CategoryBar from "@/components/coupons-components/CategoryBar";
+import CategoryBar from "@/components/Coupons-components/CategoryBar";
 import { useState } from "react";
 import axios from "axios";
-import NavbarByCinema from "../home-landing/sections/NavbarByCinema/NavbarByCinema";
+import Navbar from "@/components/Navbar/Navbar";
 import FooterSection from "../home-landing/sections/FooterSection/FooterSection";
 
 export default function Coupons() {
@@ -25,7 +25,7 @@ export default function Coupons() {
     return (
         <div className="w-full min-h-screen flex flex-col items-center ]">
             <div className="w-full">
-                <NavbarByCinema />
+                <Navbar />
             </div>
 
             <div className="w-[1440px] px-[120px] pt-[40px] pb-[24px] mt-[40px]">

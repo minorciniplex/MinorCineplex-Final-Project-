@@ -1,10 +1,10 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import CouponButton from "@/components/coupons-components/CouponButton";
+import CouponButton from "@/components/Coupons-components/CouponButton";
 import { useStatus } from "@/context/StatusContext";
 import { useCouponClaim } from "@/hooks/useCouponClaim";
-import NavbarByCinema from "@/pages/home-landing/sections/NavbarByCinema/NavbarByCinema";
+import Navbar from "@/components/Navbar/Navbar";
 import FooterSection from "@/pages/home-landing/sections/FooterSection/FooterSection";
 
 export default function Viewcoupon() {
@@ -33,7 +33,7 @@ export default function Viewcoupon() {
 
   return (
     <div className="w-full min-h-screen flex flex-col items-center bg-[#101525]">
-      <NavbarByCinema />
+      <Navbar />
       <div className="flex flex-col items-center justify-center w-full min-h-[calc(100vh-120px)] py-10 px-2 md:px-0">
         {data ? (
           <div className="flex flex-col md:flex-row gap-8 w-full max-w-5xl rounded-xl  p-6 md:p-10 ">

@@ -6,6 +6,15 @@ import CouponButton from './CouponButton';
 import CouponAlert from './CouponAlert';
 import { useState } from 'react';
 
+function formatDate(dateString) {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric'
+  });
+}
+
 function CouponsCard({ coupon_id, image, title, end_date }) {
   const router = useRouter();
   const { isLoggedIn, loading } = useStatus();
@@ -40,7 +49,7 @@ function CouponsCard({ coupon_id, image, title, end_date }) {
           </h2>
         </button>
         <div className="mb-3 md:mb-4 mt-auto">
-          <p className="text-xs md:text-sm text-[#A0AEC0]">Valid until: {end_date}</p>
+          <p className="text-xs md:text-sm text-[#A0AEC0]">Valid until: {formatDate(end_date)}</p>
         </div>
         <div className="w-full flex justify-center mt-auto">
           <CouponButton

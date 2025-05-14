@@ -39,13 +39,11 @@ export default function Coupons() {
         <>
         <Navbar />
         <div className="w-full min-h-screen flex flex-col items-center ]">
-            
-
-            <div className="w-full px-[120px] pt-[40px] pb-[24px] mt-[40px]">
+            <div className="w-full md:pt-[80px] sm:pt-[48px]">
                 <CategoryBar />
             </div>
 
-            <div className="w-full max-w-[1440px] mx-auto  flex flex-col px-4 md:px-[40px] lg:px-[120px] pt-0 pb-[80px] gap-[40px] ">
+            <div className="w-full max-w-[1440px] mx-auto  flex flex-col px-4 md:px-[40px] lg:px-[120px] pt-[40px] pb-[80px] gap-[40px] ">
                 <div className="flex flex-col gap-[40px]">
                     <div className="
                         grid

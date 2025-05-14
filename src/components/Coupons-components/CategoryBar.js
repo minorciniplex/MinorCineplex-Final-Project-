@@ -10,18 +10,18 @@ export default function CategoryBar() {
   const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
     const uniqueOwners = [...new Set(coupons.map(coupon => coupon.owner_name))];
-    setCategories(["ทั้งหมด", ...uniqueOwners]);
+    setCategories(["All coupons", ...uniqueOwners]);
   }, []); 
 
   const handleCategoryClick = async (category) => {
     setSelectedCategory(category);
     
-    if (category === "ทั้งหมด") {
+    if (category === "All coupons") {
       try {
         const response = await axios.get("/api/coupons/get-coupon");
         setCoupons(response.data.coupons);
       } catch (error) {
-        console.error("Error fetching all coupons:", error);
+        console.error("Error fetching All coupons:", error);
       }
     } else {
       try {
@@ -39,21 +39,21 @@ export default function CategoryBar() {
     
     <div className="
       w-full
-      lg:mt-4
+      h-[118px]
       sm:grid sm:grid-rows-3 sm:grid-flow-col sm:gap-x-4 sm:gap-y-2
       md:grid md:grid-rows-2 md:grid-flow-col md:gap-x-4 md:gap-y-2
       lg:grid lg:grid-rows-1 lg:grid-flow-col lg:gap-x-4 lg:gap-y-2
-      flex flex-wrap items-center justify-center gap-1
+      flex flex-wrap items-center justify-center
       px-2 sm:px-4 md:px-[120px]
-      rounded-[8px] mx-auto scrollbar-hide
+      mx-auto scrollbar-hide
       md:flex md:flex-nowrap 
-
+      bg-[#070C1B] font-bold text-[24px] leading-[30px] tracking-normal 
     ">
       {categories.map((category) => (
         <button
           key={category}
           onClick={() => handleCategoryClick(category)}
-          className={`px-3 md:px-6 py-1.5 md:py-2 rounded-full text-xs md:text-base font-semibold transition-colors duration-200 bg-[#101624] text-[#A0AEC0] hover:bg-[#181F2A] hover:text-white`}
+          className={`px-3 md:px-6 py-1.5 md:py-2  text-xs md:text-base font-semibold transition-colors duration-200  text-white  hover:text-white hover:underline`}
         >
           {category}
         </button>

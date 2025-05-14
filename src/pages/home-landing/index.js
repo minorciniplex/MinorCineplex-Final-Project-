@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import Navbar from "@/components/Navbar/Navbar";
 import BannerByCinema from "../../components/sections/BannerByCinema/BannerByCinema";
 import AnnouncementPopup from "../../components/AnnouncementPopup";
-import FrameByCinema from "./sections/FrameByCinema/FrameByCinema";
-import FooterSection from "./sections/FooterSection/FooterSection";
+import FrameByCinema from "../../components/sections/FrameByCinema/FrameByCinema";
+import FooterSection from '../../components/sections/FooterSection/FooterSection';
 
 const HomeLanding = () => {
   const [filters, setFilters] = useState({
@@ -23,7 +23,7 @@ const HomeLanding = () => {
   return (
     <main className="min-h-screen bg-background overflow-x-hidden">
       <AnnouncementPopup />
-      <NavbarByCinema />
+      <Navbar />
       <BannerByCinema />
       <FrameByCinema />
       <FooterSection />

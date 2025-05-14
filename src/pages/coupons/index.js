@@ -5,7 +5,7 @@ import CategoryBar from "@/components/Coupons-components/CategoryBar";
 import { useState } from "react";
 import axios from "axios";
 import Navbar from "@/components/Navbar/Navbar";
-import FooterSection from "../home-landing/sections/FooterSection/FooterSection";
+import FooterSection from '@/components/sections/FooterSection/FooterSection';
 import Pagination from "@/components/Pagination";
 
 export default function Coupons() {
@@ -13,7 +13,7 @@ export default function Coupons() {
     const { isLoggedIn, user } = useStatus();
     const [couponOwnersId, setCouponOwnersId] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 8; // 4 รายการต่อบรรทัด x 2 บรรทัด
+    const itemsPerPage = 8; 
     const totalPages = Math.ceil(coupons?.length / itemsPerPage) || 1;
     
     const handlePageChange = (page) => {
@@ -53,7 +53,7 @@ export default function Coupons() {
                         sm:grid-cols-2
                         md:grid-cols-2
                         lg:grid-cols-4
-                        gap-x-6 gap-y-8
+                        lg:gap-x-20 lg:gap-y-8
                         sm:gap-x-3 sm:gap-y-6
                     ">
                         {getCurrentPageCoupons().map((coupon) => (
@@ -78,7 +78,7 @@ export default function Coupons() {
             </div>
 
             <div className="w-full">
-                <FooterSection />
+                <FooterSection/>
             </div>
         </div>
         </>

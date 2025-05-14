@@ -5,7 +5,7 @@ import CouponButton from "@/components/Coupons-components/CouponButton";
 import { useStatus } from "@/context/StatusContext";
 import { useCouponClaim } from "@/hooks/useCouponClaim";
 import Navbar from "@/components/Navbar/Navbar";
-import FooterSection from "@/pages/home-landing/sections/FooterSection/FooterSection";
+import FooterSection from '@/components/sections/FooterSection/FooterSection';
 import CouponAlert from "@/components/Coupons-components/CouponAlert";
 export default function Viewcoupon() {
   const router = useRouter();
@@ -87,7 +87,7 @@ export default function Viewcoupon() {
           onClose={() => setAlertOpen(false)}
         />
       </div>
-      <FooterSection />
+      <FooterSection/>
     </div>
   );
 }

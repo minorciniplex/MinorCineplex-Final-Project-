@@ -32,7 +32,6 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
   return (
     <div className="flex items-center justify-center space-x-2 my-4">
       <Button
-        variant="outline"
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
       >
@@ -42,7 +41,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
       {renderPageNumbers()}
       
       <Button
-        variant="outline"
+        
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
       >

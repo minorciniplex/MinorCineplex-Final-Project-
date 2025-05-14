@@ -7,7 +7,6 @@ export default function Viewcoupon() {
     const {couponId} = router.query;
     const [data, setData] = useState(null);
     console.log(data);
-
     const fetchCoupon = async () => {
         try {
             const response = await axios.get(`/api/coupons/get-coupons-id?coupon_id=${couponId}`);
@@ -16,20 +15,29 @@ export default function Viewcoupon() {
             console.log(error);
         }
     }
-    
+
     useEffect(() => {
-        fetchCoupon();
+        if (couponId) {
+            fetchCoupon();
+        }
     }, [couponId]);
 
     return (
         <div>
-            <h1>{data.title}</h1>
-            <p>{data.description}</p>
-            <p>{data.discount_type}</p>
-            <p>{data.discount_value}</p>
-            <p>{data.min_purchase}</p>
-            <p>{data.start_date}</p>
-           
+            {data ? (
+                <div className='flex flex-col gap-4'>
+                <img src={data.image} alt={data.title} />
+                <h1>{data.title}</h1>
+                <p>{data.description}</p>
+                <p>{data.discount_type}</p>
+                <p>{data.discount_value}</p>
+                <p>{data.min_purchase}</p>
+                <p>{data.start_date}</p>
+                <p>{data.end_date}</p>
+                </div>
+            ) : (
+                <p>กำลังโหลด...</p>
+            )}
         </div>
     )
 }

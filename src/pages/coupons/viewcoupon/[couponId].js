@@ -17,7 +17,7 @@ export default function Viewcoupon() {
   const fetchCoupon = async () => {
     try {
       const response = await axios.get(
-        `/api/coupons/get-coupons-id?coupon_id=${couponId}`
+        `/api/coupons/get-coupon-by-id?coupon_id=${couponId}`
       );
       setData(response.data.coupon);
     } catch (error) {

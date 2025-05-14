@@ -10,7 +10,7 @@ export function FetchCouponProvider({ children }) {
     useEffect(() => {
         const fetchCoupons = async () => {
             try {
-                const response = await axios.get("/api/coupons/get-coupons");
+                const response = await axios.get("/api/coupons/get-coupon");
                 setCoupons(response.data.coupons);
             } catch (error) {
                 console.error("Error fetching coupons:", error);

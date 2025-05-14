@@ -18,14 +18,14 @@ export default function CategoryBar() {
     
     if (category === "ทั้งหมด") {
       try {
-        const response = await axios.get("/api/coupons/get-coupons");
+        const response = await axios.get("/api/coupons/get-coupon");
         setCoupons(response.data.coupons);
       } catch (error) {
         console.error("Error fetching all coupons:", error);
       }
     } else {
       try {
-        const response = await axios.get(`/api/coupons/get-coupons/name?owner_name=${category}`);
+        const response = await axios.get(`/api/coupons/get-coupon/name?owner_name=${category}`);
         setCoupons(response.data.coupons);
       } catch (error) {
         console.error("Error fetching category coupons:", error);

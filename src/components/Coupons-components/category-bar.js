@@ -1,32 +1,63 @@
-import axios from 'axios';
-import { useState, useEffect } from 'react';
+import axios from "axios";
+import { useState, useEffect } from "react";
+import { useFetchCoupon } from "@/context/fecthCouponContext";
+
 export default function CategoryBar() {
-    const [couponOwners, setCouponOwners] = useState([]);
+  const [couponOwner, setCouponOwner] = useState("All");
+  const { coupons, setCoupons } = useFetchCoupon();
+  
 
-    const getCouponOwners = async () => {
-        try {
-            const res = await axios.get('/api/coupons/get-coupon-owner');
-            setCouponOwners(res.data.coupons);
-        } catch (err) {
-            console.log(err);
-        }
+
+
+  const getCouponOwner = async (ownerName) => {
+    try {
+      const res = await axios.get(
+        `/api/coupons/get-coupons/name?ownerName=${ownerName}`
+      );
+      setCoupons(res.data.data);
+    } catch (err) {
+      console.error(err);
     }
+  };
 
-    useEffect(() => {
-        getCouponOwners();
-    }, []);
+  useEffect(() => {
+  }, []);
 
-    return (
-        <div className='flex gap-2'>
-            <button className='bg-brand-blue-100 text-white px-4 py-2 rounded-md hover:bg-[#070C1B] transition-colors duration-200'
-             onClick={() => getCouponOwners()}>ทั้งหมด</button>
-            {couponOwners.map((couponOwner) => (
-                <div key={couponOwner.id}>
-                    <button className='bg-brand-blue-100 text-white px-4 py-2 rounded-md hover:bg-[#070C1B] transition-colors duration-200' 
-                   onClick={() => getCouponOwners(couponOwner.id)}>{couponOwner.name}</button>
-                </div>
-            ))}
+  return (
+    <>
+      <div>
+        <button
+          
+          onClick={() => {
+            setCouponOwner("All");
+            // setCoupons([]);
+          }}
+          className={`px-4 py-3 transition-colors rounded-sm text-sm text-muted-foreground font-medium ${
+            couponOwner === "All" ? "bg-[#DAD6D1]" : "hover:bg-muted"
+          }`}
+        >
+          ทั้งหมด
+        </button>
+
+        {coupons?.map((coupon) => (
+          <button
+            key={coupon.id}
             
-        </div>
-    )
+            onClick={() => {
+            //   setCouponOwner(coupon.owner_name);
+            //   setCoupons(couponOwner);
+            getCouponOwner(coupon.owner_name);
+            }}
+            className={`px-4 py-3 transition-colors rounded-sm text-sm text-muted-foreground font-medium ${
+              coupon.coupon_owner === couponOwner ? "bg-[#DAD6D1]" : "hover:bg-muted"
+            }`}
+          >
+            {coupon.owner_name}
+          </button>
+        ))}
+      </div>
+
+     
+    </>
+  );
 }

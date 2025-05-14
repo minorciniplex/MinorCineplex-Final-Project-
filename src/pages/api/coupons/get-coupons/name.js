@@ -5,15 +5,16 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
+    const ownerName = req.query.owner_name;
     const supabase = createSupabaseServerClient(req, res);
 
     try {
         const { data: coupons, error } = await supabase
-            .from('coupon_owners')
+            .from('coupons')
             .select(`
-                name
+                *
             `)
-            
+            .eq("owner_name", ownerName);
 
         if (error) {
             throw error;
@@ -22,6 +23,7 @@ export default async function handler(req, res) {
         return res.status(200).json({ coupons });
     } catch (error) {
         console.error('Error fetching coupons:', error);
-        return res.status(500).json({ error: error.message });
+        return res.status(500).json({ error: 'ไม่สามารถดึงข้อมูลคูปองได้' });
     }
 }
+

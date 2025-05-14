@@ -23,7 +23,7 @@ export function FetchCouponProvider({ children }) {
     }, []);
 
     return (
-        <FetchCouponContext.Provider value={{ coupons, loading }}>
+        <FetchCouponContext.Provider value={{ coupons, loading ,setCoupons }}>
             {children}
         </FetchCouponContext.Provider>
     );

@@ -11,17 +11,7 @@ export default async function handler(req, res) {
         const { data: coupons, error } = await supabase
             .from('coupons')
             .select(`
-                coupon_id,
-                title,
-                image,
-                end_date,
-                discount_type,
-                discount_value,
-                min_purchase,
-                coupon_owners (
-                    owner_id,
-                    name
-                )
+                *
             `)
             .order('created_at', { ascending: false });
 

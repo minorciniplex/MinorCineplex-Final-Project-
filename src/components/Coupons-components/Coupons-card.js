@@ -85,7 +85,7 @@ function CouponsCard({ coupon_id, image, title, end_date }) {
       {!isClaimed ? (
         <button
           className="bg-brand-blue-100 text-white px-4 py-2 rounded-md hover:bg-[#070C1B] transition-colors duration-200"
-          onClick={() => isLoggedIn ? handleClaimCoupon(coupon_id) : router.push('/api/auth/login')}
+          onClick={() => isLoggedIn ? handleClaimCoupon(coupon_id) : router.push('/auth/login')}
         >
           รับคูปอง
         </button>

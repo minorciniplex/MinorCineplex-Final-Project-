@@ -6,7 +6,7 @@ function CouponButton({ isClaimed, isLoggedIn, couponId, handleClaimCoupon, isDe
   return (
     isClaimed ? (
       <button
-        className="w-full h-[36px] sm:h-[40px] md:w-[237px] md:h-[48px] rounded-[4px] px-0 font-medium text-sm sm:text-base bg-gray-300 text-gray-500 shadow-md mt-2 md:mt-3"
+        className="w-full h-[36px] sm:h-[40px] md:w-[full] md:h-[48px] rounded-[4px] px-0 font-medium text-sm sm:text-base bg-gray-300 text-gray-500 shadow-md mt-2 md:mt-3"
         onClick={() => !isDetailPage && router.push(`/coupons/viewcoupon/${couponId}`)}
         disabled={isDetailPage}
       >

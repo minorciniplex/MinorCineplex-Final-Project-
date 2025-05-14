@@ -36,18 +36,26 @@ export default function Coupons() {
     }
 
     return (
+        <>
+        <Navbar />
         <div className="w-full min-h-screen flex flex-col items-center ]">
-            <div className="w-full">
-                <Navbar />
-            </div>
+            
 
-            <div className="w-[1440px] px-[120px] pt-[40px] pb-[24px] mt-[40px]">
+            <div className="w-full px-[120px] pt-[40px] pb-[24px] mt-[40px]">
                 <CategoryBar />
             </div>
 
-            <div className="w-full max-w-[1440px] mx-auto flex-grow flex flex-col px-4 md:px-[40px] lg:px-[120px] pt-0 pb-[80px] gap-[40px]">
+            <div className="w-full max-w-[1440px] mx-auto  flex flex-col px-4 md:px-[40px] lg:px-[120px] pt-0 pb-[80px] gap-[40px] ">
                 <div className="flex flex-col gap-[40px]">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 justify-items-center gap-x-[24px] gap-y-[40px] w-full">
+                    <div className="
+                        grid
+                        grid-cols-1
+                        sm:grid-cols-2
+                        md:grid-cols-2
+                        lg:grid-cols-4
+                        gap-x-6 gap-y-8
+                        sm:gap-x-3 sm:gap-y-6
+                    ">
                         {getCurrentPageCoupons().map((coupon) => (
                             <CouponsCard 
                                 key={coupon.coupon_id}
@@ -73,5 +81,6 @@ export default function Coupons() {
                 <FooterSection />
             </div>
         </div>
+        </>
     );
 }

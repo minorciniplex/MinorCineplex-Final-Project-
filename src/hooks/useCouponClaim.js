@@ -6,6 +6,7 @@ export const useCouponClaim = (couponId) => {
   const [isClaimed, setIsClaimed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useStatus();
+  const [alertOpen, setAlertOpen] = useState(false);
 
   const handleClaimCoupon = async () => {
     if (!user) {
@@ -21,13 +22,11 @@ export const useCouponClaim = (couponId) => {
       });
 
       if (res.data.success) {
-        alert('รับคูปองสำเร็จ');
         setIsClaimed(true);
-        // เช็คสถานะใหม่หลังจากรับคูปอง
+        setAlertOpen(true);
         await checkUserCoupon();
       } else {
         alert(res.data.error || 'ไม่สามารถรับคูปองได้');
-        // ถ้าเป็น error ว่ามีคูปองอยู่แล้ว ให้เช็คสถานะใหม่
         if (res.data.error === 'คุณมีคูปองนี้อยู่แล้ว') {
           setIsClaimed(true);
         }
@@ -63,7 +62,7 @@ export const useCouponClaim = (couponId) => {
     }
   };
 
-  // เช็คสถานะคูปองเมื่อ user เปลี่ยนหรือ couponId เปลี่ยน
+ 
   useEffect(() => {
     if (user) {
       checkUserCoupon();
@@ -74,6 +73,9 @@ export const useCouponClaim = (couponId) => {
     isClaimed,
     isLoading,
     handleClaimCoupon,
-    checkUserCoupon
+    checkUserCoupon,
+    alertOpen,
+    setAlertOpen
   };
-}; 
+};
+

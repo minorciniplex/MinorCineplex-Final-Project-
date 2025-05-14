@@ -6,13 +6,13 @@ import { useStatus } from "@/context/StatusContext";
 import { useCouponClaim } from "@/hooks/useCouponClaim";
 import Navbar from "@/components/Navbar/Navbar";
 import FooterSection from "@/pages/home-landing/sections/FooterSection/FooterSection";
-
+import CouponAlert from "@/components/Coupons-components/CouponAlert";
 export default function Viewcoupon() {
   const router = useRouter();
   const { couponId } = router.query;
   const [data, setData] = useState(null);
   const { isLoggedIn } = useStatus();
-  const { isClaimed, handleClaimCoupon } = useCouponClaim(couponId);
+  const { isClaimed, handleClaimCoupon, alertOpen, setAlertOpen } = useCouponClaim(couponId);
   const [isDetailPage, setIsDetailPage] = useState(false);
   const fetchCoupon = async () => {
     try {
@@ -38,7 +38,7 @@ export default function Viewcoupon() {
         {data ? (
           <div className="flex flex-col md:flex-row gap-8 w-full max-w-5xl rounded-xl  p-6 md:p-10 ">
             {/* Image Section */}
-            <div className="flex-shrink-0 flex items-center justify-center w-full md:w-[380px] h-[260px] md:h-[380px] bg-[#070C1B] rounded-lg overflow-hidden border border-[#232B3E]">
+            <div className="flex-shrink-0 flex items-center justify-center w-full md:w-[380px] h-[380px] md:h-[380px] bg-[#070C1B] rounded-lg overflow-hidden border border-[#232B3E]">
               <img
                 src={data.image}
                 alt={data.title}
@@ -82,6 +82,10 @@ export default function Viewcoupon() {
         ) : (
           <p className="text-white text-lg mt-10">กำลังโหลด...</p>
         )}
+        <CouponAlert
+          open={alertOpen}
+          onClose={() => setAlertOpen(false)}
+        />
       </div>
       <FooterSection />
     </div>

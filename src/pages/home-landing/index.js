@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import Navbar from "@/components/Navbar/Navbar";
-import BannerByCinema from "../../components/sections/BannerByCinema/BannerByCinema";
-import AnnouncementPopup from "../../components/AnnouncementPopup";
-import FrameByCinema from "../../components/sections/FrameByCinema/FrameByCinema";
-import FooterSection from '../../components/sections/FooterSection/FooterSection';
+import BannerByCinema from "@/components/sections/BannerByCinema/BannerByCinema";
+import AnnouncementPopup from "@/components/AnnouncementPopup";
+import FrameByCinema from "@/components/sections/FrameByCinema/FrameByCinema";
+import FooterSection from '@/components/sections/FooterSection/FooterSection';
 
 const HomeLanding = () => {
   const [filters, setFilters] = useState({

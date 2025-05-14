@@ -5,8 +5,6 @@ import Button from "../../Button";
 import { Card, CardContent } from "../../ui/card";
 import { Separator } from "../../ui/separator";
 import { Tabs, TabsList, TabsTrigger } from "../../ui/tabs";
-import { coupons } from "@/data/coupons";
-import { cinemasByCity } from "@/data/cinemas";
 import CouponCard from "@/components/Coupon/CouponCard";
 import FmdGoodIcon from '@mui/icons-material/FmdGood';
 import { supabase } from "@/utils/supabase";

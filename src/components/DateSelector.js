@@ -85,7 +85,7 @@ export default function DateSelector({ onDateSelect }) {
   }
 
   return (
-    <div className="relative w-full bg-[var(--base-gray-0)]">
+    <div className="md:relative w-full bg-[var(--base-gray-0)]">
       {!isAtStart && (
         <Button
           variant="ghost"

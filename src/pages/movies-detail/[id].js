@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/router";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import DateSelector from "@/components/DateSelector";
 import Navbar from "@/components/Navbar/Navbar";
 import React from "react";
@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/select";
 import ShowTimes from "@/components/MovieDetail/ShowTimes";
 import ShowMovieDetail from "@/components/MovieDetail/ShowMovieDetail";
+import FooterSection from "@/components/sections/FooterSection/FooterSection";
 
 export default function MovieDetail() {
   const router = useRouter();
@@ -20,9 +21,9 @@ export default function MovieDetail() {
   const [isRouterReady, setIsRouterReady] = useState(false);
   const { id } = router.query;
 
-  const handleDateSelect = (date) => {
+  const handleDateSelect = useCallback((date) => {
     setSelectedDate(date);
-  };
+  }, []);
 
   useEffect(() => {
     if (router.isReady) {
@@ -30,7 +31,6 @@ export default function MovieDetail() {
     }
   }, [router.isReady]);
 
-  // Don't render content that depends on router query until router is ready
   if (!isRouterReady) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -44,7 +44,7 @@ export default function MovieDetail() {
       <Navbar />
       <ShowMovieDetail />
       <DateSelector onDateSelect={handleDateSelect} />
-      <div className="md:mx-[120px] rounded-2 ">
+      <div className="mb-11 md:mx-[120px] md:mb-[80px] rounded-2">
         <div className="md:flex md:flex-row justify-between rounded md:gap-5 md:mt-20 flex-col py-10 px-4 md:py-0 md:px-0 space-y-5 md:space-y-0">
           <Input />
           <Select>
@@ -52,9 +52,7 @@ export default function MovieDetail() {
               <SelectValue placeholder="City" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="light">Light</SelectItem>
-              <SelectItem value="dark">Dark</SelectItem>
-              <SelectItem value="system">System</SelectItem>
+              <SelectItem value="city">Light</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -63,6 +61,7 @@ export default function MovieDetail() {
           date={selectedDate ? selectedDate.fullDate : null}
         />
       </div>
+      <FooterSection />
     </div>
   );
 }

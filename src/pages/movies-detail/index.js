@@ -1,7 +1,7 @@
 import { Input } from "../../components/ui/input";
 import DateSelector from "@/components/DateSelector";
 import { useEffect, useState } from "react";
-import  NavbarByCinema  from "../../components/NavBar";
+import NavbarByCinema from "../../components/NavBar";
 import axios from "axios";
 import React from "react";
 import {
@@ -57,10 +57,10 @@ export default function MovieDetail() {
           alt={movie?.title}
           className="relative w-full h-[440px] gap-[10px] object-cover"
         />
-        <div className="absolute bg-gradient-to-t from-[#070C1B] to-none w-full h-[440px] flex items-center justify-center text-white text-3xl font-bold"></div>
+        <div className="absolute bg-gradient-to-t from-[--base-gray-0] to-none w-full h-[440px] flex items-center justify-center text-white text-3xl font-bold"></div>
 
         {/* Movie Details */}
-        <div className="absolute position top-[140px] bg-[#070C1B]/30 backdrop-blur-sm mb-8 rounded-lg bg-gradient-to-t from-[#070C1B] to-none">
+        <div className="absolute position top-[140px] bg-[--base-gray-0]/30 backdrop-blur-sm mb-8 rounded-lg bg-gradient-to-t from-[--base-gray-0] to-none">
           <div className="flex flex-row rounded-lg">
             <img
               src={movie?.poster_url}
@@ -71,16 +71,16 @@ export default function MovieDetail() {
               <div className="">
                 <h1 className="text-4xl font-bold mb-4">{movie?.title}</h1>
                 <div className="flex gap-2 mb-2 ">
-                  <span className="bg-[#21263F] py-[6px] px-3 rounded text-sm text-[#8B93B0]">
+                  <span className="bg-[--base-gray-100] py-[6px] px-3 rounded text-sm text-[--base-gray-300]">
                     Action
                   </span>
-                  <span className="bg-[#21263F] py-[6px] px-3 rounded text-sm text-[#8B93B0]">
+                  <span className="bg-[--base-gray-100] py-[6px] px-3 rounded text-sm text-[--base-gray-300]">
                     Crime
                   </span>
-                  <span className="bg-[#21263F] py-[6px] px-3 rounded text-sm text-[#8B93B0]">
+                  <span className="bg-[--base-gray-100] py-[6px] px-3 rounded text-sm text-[--base-gray-300]">
                     TH
                   </span>
-                  <div className="border border-[#565F7E] my-1 mx-5"></div>
+                  <div className="border border-[--base-gray-200] my-1 mx-5"></div>
                   <span className="flex justify-center items-center ">
                     Release date:{" "}
                     {new Date(movie?.release_date).toLocaleDateString("en-GB", {
@@ -119,30 +119,14 @@ export default function MovieDetail() {
         </div>
 
         {/*location hall*/}
-        <div className="">
-          <Accordion type="single" collapsible className="w-full">
-            {showtimes.map((showtime) => (
-              <AccordionItem key={showtime.showtime_id} value={showtime_id}>
-                <AccordionTrigger className="bg-[#21263F] text-white p-4 rounded-lg mb-2 flex justify-between items-center">
-                  <div className="flex items-center gap-2">
-                    <span>{showtime_id}</span>
-                  </div>
-                  <span>{new Date(showtime.date).toLocaleDateString()}</span>
-                </AccordionTrigger>
-                <AccordionContent className="bg-[#21263F] text-white p-4 rounded-lg mb-2">
-                  {showtime.showtimes.map((time) => (
-                    <div key={time.id} className="flex justify-between mb-2">
-                      <span>{time.time}</span>
-                      <button className="p-2 bg-brand-blue-100 text-white rounded-lg shadow-md">
-                        Book Now
-                      </button>
-                    </div>
-                  ))}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </div>
+        <Accordion type="single" collapsible>
+          <AccordionItem value="item-1">
+            <AccordionTrigger>Is it accessible?</AccordionTrigger>
+            <AccordionContent>
+              Yes. It adheres to the WAI-ARIA design pattern.
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       </div>
     </div>
   );

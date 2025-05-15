@@ -1,7 +1,7 @@
 import { Input } from "../../components/ui/input";
 import DateSelector from "@/components/DateSelector";
 import { useEffect, useState } from "react";
-import NavbarByCinema from "../../components/NavBar";
+import Navbar from "@/components/Navbar/Navbar";
 import axios from "axios";
 import React from "react";
 import {
@@ -11,15 +11,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Accordion,
-  AccordionItem,
-  AccordionTrigger,
-  AccordionContent,
-} from "../../components/ui/accordion";
+// import ShowTimes from "@/components/MovieDetail/ShowTimes";
+import TestShowTimes from "@/components/MovieDetail/ShowTimes";
+
 
 export default function MovieDetail() {
-  const [movie, setMovie] = useState(null);
+  const [movie, setMovie] = useState([]);
   const [showtimes, setShowtimes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -37,6 +34,7 @@ export default function MovieDetail() {
       } finally {
         setLoading(false);
       }
+      
     };
 
     fetchMovieDetails();
@@ -49,7 +47,7 @@ export default function MovieDetail() {
 
   return (
     <div className="">
-      <NavbarByCinema />
+      <Navbar />
       {/* Banner */}
       <div className="flex flex-col items-center justify-center bg-gray-800 text-white mb-[348px]">
         <img
@@ -104,10 +102,10 @@ export default function MovieDetail() {
       {/* Showtimes */}
       <div className="mx-[120px] rounded-2">
         {/* Cinema Selection */}
-        <div className="flex flex-row justify-center p-4 rounded gap-5 mt-20">
+        <div className="flex flex-row justify-between rounded gap-5 mt-20">
           <Input />
           <Select>
-            <SelectTrigger className="w-1/5">
+            <SelectTrigger className="w-1/4">
               <SelectValue placeholder="City" />
             </SelectTrigger>
             <SelectContent>
@@ -118,15 +116,9 @@ export default function MovieDetail() {
           </Select>
         </div>
 
-        {/*location hall*/}
-        <Accordion type="single" collapsible>
-          <AccordionItem value="item-1">
-            <AccordionTrigger>Is it accessible?</AccordionTrigger>
-            <AccordionContent>
-              Yes. It adheres to the WAI-ARIA design pattern.
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+        {/* Showtimes */}
+        <TestShowTimes/>            
+                
       </div>
     </div>
   );

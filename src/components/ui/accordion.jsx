@@ -1,7 +1,6 @@
 import * as React from "react"
 import * as AccordionPrimitive from "@radix-ui/react-accordion"
 import { ChevronDown } from "lucide-react"
-
 import { cn } from "@/lib/utils"
 
 const Accordion = AccordionPrimitive.Root
@@ -16,14 +15,15 @@ const AccordionTrigger = React.forwardRef(({ className, children, ...props }, re
     <AccordionPrimitive.Trigger
       ref={ref}
       className={cn(
-        "flex flex-1 bg-[--base-gray-0] rounded-t-lg items-center justify-between py-4 pl-6 text-sm font-medium transition-all text-left [&[data-state=open]>svg]:rotate-180",
+        "flex flex-1 bg-[--base-gray-0] md:rounded-t-lg md:items-center md:py-4 md:pl-6 text-sm font-medium transition-all text-left [&[data-state=open]>svg]:rotate-90",
         className
       )}
       {...props}>
       {children}
 
       <ChevronDown
-        className="h-10 w-10 mr-[18px] shrink-0 text-foreground transition-transform duration-200" />
+        className="h-10 w-10 md:mr-[18px] shrink-0 text-[--base-gray-400] transition-transform duration-200"
+        strokeWidth={1.5} />
     </AccordionPrimitive.Trigger>
   </AccordionPrimitive.Header>
 ))
@@ -32,9 +32,9 @@ AccordionTrigger.displayName = AccordionPrimitive.Trigger.displayName
 const AccordionContent = React.forwardRef(({ className, children, ...props }, ref) => (
   <AccordionPrimitive.Content
     ref={ref}
-    className="bg-[--base-gray-0] p-10 rounded-b-lg border-t-2 border-[--base-gray-100] overflow-hidden text-sm data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
+    className="bg-[--base-gray-0] md:p-10 rounded-b-lg border-t-2 border-[--base-gray-100] overflow-hidden text-sm data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
     {...props}>
-    <div className={cn("pb-4 pt-0", className)}>{children}</div>
+    <div className={cn(className)}>{children}</div>
   </AccordionPrimitive.Content>
 ))
 AccordionContent.displayName = AccordionPrimitive.Content.displayName

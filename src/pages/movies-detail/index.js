@@ -1,6 +1,7 @@
 import { Input } from "../../components/ui/input";
 import DateSelector from "@/components/DateSelector";
 import { useEffect, useState } from "react";
+import  NavbarByCinema  from "../../components/NavBar";
 import axios from "axios";
 import React from "react";
 import {
@@ -10,7 +11,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
 import {
   Accordion,
   AccordionItem,
@@ -49,7 +49,7 @@ export default function MovieDetail() {
 
   return (
     <div className="">
-      กล่อง Navbar
+      <NavbarByCinema />
       {/* Banner */}
       <div className="flex flex-col items-center justify-center bg-gray-800 text-white mb-[348px]">
         <img
@@ -60,16 +60,16 @@ export default function MovieDetail() {
         <div className="absolute bg-gradient-to-t from-[#070C1B] to-none w-full h-[440px] flex items-center justify-center text-white text-3xl font-bold"></div>
 
         {/* Movie Details */}
-        <div className="absolute position top-[140px] flex justify-center md:flex-row bg-[#070C1B]/30 backdrop-blur-sm mb-8 rounded-lg">
-        <img
+        <div className="absolute position top-[140px] bg-[#070C1B]/30 backdrop-blur-sm mb-8 rounded-lg bg-gradient-to-t from-[#070C1B] to-none">
+          <div className="flex flex-row rounded-lg">
+            <img
               src={movie?.poster_url}
               alt={movie?.title}
               className="h-[600px] rounded shadow-lg"
             />
-          <div className="flex flex-row rounded-lg shadow-lg p-15">            
-            <div className="">
-              <div className="p-15">
-                <h1 className="text-3xl font-bold mb-2">{movie?.title}</h1>
+            <div className="flex flex-col justify-start p-[60px]">
+              <div className="">
+                <h1 className="text-4xl font-bold mb-4">{movie?.title}</h1>
                 <div className="flex gap-2 mb-2 ">
                   <span className="bg-[#21263F] py-[6px] px-3 rounded text-sm text-[#8B93B0]">
                     Action
@@ -81,7 +81,7 @@ export default function MovieDetail() {
                     TH
                   </span>
                   <div className="border border-[#565F7E] my-1 mx-5"></div>
-                  <span className="text-sm">
+                  <span className="flex justify-center items-center ">
                     Release date:{" "}
                     {new Date(movie?.release_date).toLocaleDateString("en-GB", {
                       day: "numeric",
@@ -90,7 +90,7 @@ export default function MovieDetail() {
                     })}
                   </span>
                 </div>
-                <button className="p-4 bg-brand-blue-100 text-white rounded-lg shadow-md">
+                <button className="p-4 bg-brand-blue-100 text-white rounded-lg shadow-md mt-12 mb-12">
                   Movie detail
                 </button>
                 <p className="mb-2">{movie?.description}</p>

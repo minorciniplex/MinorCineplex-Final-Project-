@@ -4,6 +4,8 @@ import BannerByCinema from "@/components/sections/BannerByCinema/BannerByCinema"
 import AnnouncementPopup from "@/components/AnnouncementPopup";
 import FrameByCinema from "@/components/sections/FrameByCinema/FrameByCinema";
 import FooterSection from '@/components/sections/FooterSection/FooterSection';
+import ScrollToTop from '@/components/ScrollToTop';
+
 
 const HomeLanding = () => {
   const [filters, setFilters] = useState({
@@ -17,16 +19,19 @@ const HomeLanding = () => {
 
   // รับค่าจาก BannerByCinema เมื่อกดค้นหา
   const handleSearch = (newFilters) => {
-    setSearchFilters(newFilters);
+    if (JSON.stringify(searchFilters) !== JSON.stringify(newFilters)) {
+      setSearchFilters(newFilters);
+    }
   };
 
   return (
     <main className="min-h-screen bg-background overflow-x-hidden">
       <AnnouncementPopup />
       <Navbar />
-      <BannerByCinema />
-      <FrameByCinema />
+      <BannerByCinema onSearch={handleSearch} />
+      <FrameByCinema filters={searchFilters} />
       <FooterSection />
+      <ScrollToTop />
     </main>
   );
 };

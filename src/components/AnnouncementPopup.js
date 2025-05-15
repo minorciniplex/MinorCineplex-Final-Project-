@@ -46,7 +46,7 @@ const AnnouncementPopup = () => {
 
   return (
     <div className="fixed inset-0 z-[9999]">
-      <Card className="absolute top-8 left-7 w-[359px] h-[336px] bg-[#1a1b20] rounded-2xl border-none pointer-events-auto">
+      <Card className="absolute top-8 left-1/2 -translate-x-1/2 w-[90vw] max-w-[359px] h-auto max-h-[90vh] bg-[#1a1b20] rounded-2xl border-none pointer-events-auto md:w-[359px] md:h-[336px]">
         <CardContent className="flex flex-col items-start gap-4 p-4 h-full">
           {/* Header Section */}
           <div className="flex items-start justify-between w-full pt-1">

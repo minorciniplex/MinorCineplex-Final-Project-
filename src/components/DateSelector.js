@@ -38,7 +38,7 @@ export default function DateSelector({ onDateSelect }) {
     if (onDateSelect && initialDates.length > 0) {
       onDateSelect(initialDates[0]);
     }
-  }, []);
+  }, [onDateSelect]);
 
   const handleDateSelect = (index) => {
     setSelectedDateIndex(index);

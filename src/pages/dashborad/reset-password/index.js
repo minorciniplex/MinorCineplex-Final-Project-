@@ -84,7 +84,7 @@ function ResetPassword() {
           {/* Booking history */}
           <Button
             variant="ghost"
-            className="w-full body-2-regular hover:bg-[#1c223a] hover:text-white"
+            className="w-full body-2-regular hover:bg-[#21263F] hover:text-white"
             onClick={() => {router.push("/dashborad/booking-history");}}
           >
             <svg
@@ -131,7 +131,7 @@ function ResetPassword() {
           {/* My coupons */}
           <Button
             variant="ghost"
-            className="w-full body-2-regular hover:bg-[#1c223a] hover:text-white"
+            className="w-full body-2-regular hover:bg-[#21263F] hover:text-white"
             onClick={() => {router.push("/dashborad/my-coupons");}}
           >
             <svg
@@ -157,7 +157,7 @@ function ResetPassword() {
           {/* Profile */}
           <Button
             variant="ghost"
-            className="w-full body-2-regular hover:bg-[#1c223a] hover:text-white"
+            className="w-full body-2-regular hover:bg-[#21263F] hover:text-white"
             onClick={() => {router.push("/dashborad/profile");}}
           >
             <svg
@@ -192,7 +192,7 @@ function ResetPassword() {
           {/* Reset password */}
           <Button
             variant="ghost"
-            className="w-full body-2-regular bg-[#2d375c] "
+            className="w-full body-2-regular bg-[#343950] "
             onClick={() => {
               router.push("/dashborad/reset-password");
             }}

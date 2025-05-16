@@ -1,17 +1,14 @@
 import requireUser from "@/middleware/requireUser";
 import { withMiddleware } from "@/middleware/withMiddleware";
-//confirm email and name
+//confirm email and name 
 
 const handler = async (req, res) => {
     const supabase = req.supabase;
     
     if (req.method === "PUT") {
-        const { email, name } = req.body;
+        const { email } = req.body;
         const userId = req.user.id;
 
-        if (!email || !name) {
-            return res.status(400).json({ error: "All fields are required." });
-        }
 
         if (!/\S+@\S+\.\S+/.test(email)) {
             return res.status(400).json({ error: "Email is invalid." });
@@ -29,7 +26,8 @@ const handler = async (req, res) => {
         // อัพเดทชื่อในตาราง users
         const { error: updateError } = await supabase
             .from("users")
-            .update({ name: name , email: email})
+            .update({  
+                email: email })
             .eq("user_id", userId);
 
         if (updateError) {

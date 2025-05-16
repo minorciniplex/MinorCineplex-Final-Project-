@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 
-export default function CouponAlert({ open, onClose }) {
+export default function CouponAlert({ open, onClose, text, text_sub }) {
   useEffect(() => {
     if (!open) return;
     const timer = setTimeout(onClose, 5000);
@@ -23,8 +23,8 @@ export default function CouponAlert({ open, onClose }) {
       >
         &times;
       </button>
-      <strong className="font-semibold">Coupon Claimed!</strong>
-      <span className="text-sm">You can find it in the &lsquo;My Coupons&rsquo; menu</span>
+      <strong className="font-semibold">{text}</strong>
+      <span className="text-sm">{text_sub}</span>
     </div>
   );
 }

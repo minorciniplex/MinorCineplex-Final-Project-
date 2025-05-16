@@ -1,0 +1,290 @@
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
+import Navbar from "@/components/Navbar/Navbar";
+import CouponAlert from "@/components/Coupons-components/CouponAlert";
+import Button from "@/components/Button";
+
+function ResetPassword() {
+  const router = useRouter();
+  const [form, setForm] = useState({
+    password: "",
+    confirmPassword: "",
+  });
+  const [error, setError] = useState({
+    password: "",
+    confirmPassword: "",
+  });
+  const [loading, setLoading] = useState(false);
+  const [resError, setResError] = useState("");
+  const [alertOpen, setAlertOpen] = useState(false);
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const validateForm = () => {
+    let isValid = true;
+    const newError = { password: "", confirmPassword: "" };
+
+    if (!form.password) {
+      newError.password = "Password is required";
+      isValid = false;
+    } else if (form.password.length < 6) {
+      newError.password = "Password must be at least 6 characters long";
+      isValid = false;
+    }
+
+    if (!form.confirmPassword) {
+      newError.confirmPassword = "Confirm password is required";
+      isValid = false;
+    } else if (form.confirmPassword !== form.password) {
+      newError.confirmPassword = "Passwords do not match";
+      isValid = false;
+    }
+
+    setError(newError);
+    if (isValid) {
+      handleSubmit();
+    }
+  };
+
+  const handleSubmit = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.post("/api/auth/reset-password", {
+        newPassword: form.password,
+        confirmPassword: form.confirmPassword,
+      });
+      if (response.status === 200) {
+        setForm({ password: "", confirmPassword: "" });
+        setError({ password: "", confirmPassword: "" });
+        setResError("");
+        setLoading(false);
+        setAlertOpen(true);
+      }
+    } catch (error) {
+      if (error.response) {
+        console.log(error.response.data.error);
+        setResError("Invalid password");
+        setLoading(false);
+        setForm({ ...form, password: "", confirmPassword: "" });
+      } else {
+        console.error("Error:", error.message);
+        setLoading(false);
+      }
+    }
+  };
+
+  return (
+    <>
+      <Navbar />
+      <div className="flex flex-col lg:flex-row justify-start items-start pt-20 lg:pt-52 px-4 lg:pl-80 gap-14 ">
+        <div className="flex flex-row lg:flex-col w-full lg:w-[300px] h-auto lg:h-[288px] bg-[#070C1B] justify-center items-center lg:items-start px-4">
+          {/* Booking history */}
+          <Button
+            variant="ghost"
+            className="w-full body-2-regular hover:bg-[#1c223a] hover:text-white"
+            onClick={() => {router.push("/dashborad/booking-history");}}
+          >
+            <svg
+              width="40"
+              height="40"
+              viewBox="0 0 20 20"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              className="px-2"
+            >
+              <rect
+                x="5"
+                y="3.33301"
+                width="10.8333"
+                height="14.1667"
+                rx="2"
+                stroke="#8B93B0"
+              />
+              <path
+                d="M12.5 8.33301V6.66634"
+                stroke="#8B93B0"
+                stroke-linecap="round"
+              />
+              <path
+                d="M3.33398 7.5H6.66732"
+                stroke="#8B93B0"
+                stroke-linecap="round"
+              />
+              <path
+                d="M3.33398 10.833H6.66732"
+                stroke="#8B93B0"
+                stroke-linecap="round"
+              />
+              <path
+                d="M3.33398 14.167H6.66732"
+                stroke="#8B93B0"
+                stroke-linecap="round"
+              />
+            </svg>
+            <span className="w-full text-left text-base-gray-400 font-bold ">
+              Booking history
+            </span>
+          </Button>
+          {/* My coupons */}
+          <Button
+            variant="ghost"
+            className="w-full body-2-regular hover:bg-[#1c223a] hover:text-white"
+            onClick={() => {router.push("/dashborad/my-coupons");}}
+          >
+            <svg
+              width="40"
+              height="40"
+              viewBox="0 0 20 20"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              className="px-2"
+            >
+              <path
+                d="M8.12535 11.4212L11.8754 7.74477M8.12535 7.74477H8.1336M11.8671 11.4212H11.8754M2.84829 7.63007C2.66229 7.63007 2.49204 7.48154 2.50029 7.28815C2.55054 6.15433 2.69154 5.4161 3.08529 4.83227C3.30989 4.49957 3.59156 4.20751 3.9178 3.96904C4.79156 3.33301 6.02533 3.33301 8.49436 3.33301H11.5049C13.9739 3.33301 15.2077 3.33301 16.0829 3.96904C16.4062 4.20433 16.6882 4.49624 16.9147 4.83227C17.3085 5.4161 17.4495 6.15433 17.4997 7.28815C17.508 7.48154 17.3377 7.63007 17.151 7.63007C16.1114 7.63007 15.2684 8.50433 15.2684 9.58301C15.2684 10.6617 16.1114 11.5359 17.151 11.5359C17.3377 11.5359 17.508 11.6845 17.4997 11.8786C17.4495 13.0117 17.3085 13.7499 16.9147 14.3345C16.69 14.6669 16.4084 14.9587 16.0822 15.197C15.2077 15.833 13.9739 15.833 11.5049 15.833H8.49511C6.02608 15.833 4.79231 15.833 3.91705 15.197C3.59107 14.9584 3.30967 14.6664 3.08529 14.3337C2.69154 13.7499 2.55054 13.0117 2.50029 11.8779C2.49204 11.6845 2.66229 11.5359 2.84829 11.5359C3.8878 11.5359 4.73081 10.6617 4.73081 9.58301C4.73081 8.50433 3.8878 7.63007 2.84829 7.63007Z"
+                stroke="#8B93B0"
+                stroke-width="1.2"
+                stroke-linecap="round"
+              />
+            </svg>
+
+            <span className="w-full text-left text-base-gray-400 font-bold">
+              My coupons
+            </span>
+          </Button>
+          {/* Profile */}
+          <Button
+            variant="ghost"
+            className="w-full body-2-regular hover:bg-[#1c223a] hover:text-white"
+            onClick={() => {router.push("/dashborad/profile");}}
+          >
+            <svg
+              width="40"
+              height="40"
+              viewBox="0 0 20 20"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              className="px-2"
+            >
+              <path
+                d="M16.4402 17.0389C16.0603 15.9757 15.2234 15.0363 14.0591 14.3662C12.8948 13.6962 11.4682 13.333 10.0007 13.333C8.53309 13.333 7.10654 13.6962 5.94224 14.3662C4.77795 15.0363 3.94098 15.9757 3.56115 17.0389"
+                stroke="#8B93B0"
+                stroke-width="1.2"
+                stroke-linecap="round"
+              />
+              <ellipse
+                cx="9.99935"
+                cy="6.66634"
+                rx="3.33333"
+                ry="3.33333"
+                stroke="#8B93B0"
+                stroke-width="1.2"
+                stroke-linecap="round"
+              />
+            </svg>
+
+            <span className="w-full text-left text-base-gray-400 font-bold">
+              Profile
+            </span>
+          </Button>
+          {/* Reset password */}
+          <Button
+            variant="ghost"
+            className="w-full body-2-regular bg-[#2d375c] "
+            onClick={() => {
+              router.push("/dashborad/reset-password");
+            }}
+          >
+            <svg
+              width="40"
+              height="40"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              className="px-2"
+            >
+              <path d="M14 15L10 19L14 23" stroke="#8B93B0" />
+              <path
+                d="M5.93782 15.5C5.14475 14.1264 4.84171 12.5241 5.07833 10.9557C5.31495 9.38734 6.07722 7.94581 7.24024 6.86729C8.40327 5.78877 9.8981 5.13721 11.4798 5.01935C13.0616 4.90149 14.6365 5.32432 15.9465 6.21856C17.2565 7.1128 18.224 8.42544 18.6905 9.94144C19.1569 11.4574 19.0947 13.0869 18.5139 14.5629C17.9332 16.0389 16.8684 17.2739 15.494 18.0656C14.1196 18.8573 12.517 19.1588 10.9489 18.9206"
+                stroke="#8B93B0"
+                stroke-linecap="round"
+              />
+            </svg>
+
+            <span className="w-full text-left text-base-gray-400 font-bold">
+              Reset password
+            </span>
+          </Button>
+        </div>
+
+        <div className="flex flex-col items-center justify-start min-h-screen w-full max-w-sm ">
+          <div className="flex items-start w-full px-6"> 
+          <h1 className="text-[36px] lg:text-[36px] font-bold mb-4 ">
+            Reset Password
+          </h1>
+          </div>
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              validateForm();
+            }}
+          >
+            <p className="py-4 text-[#C8CEDD]">New password</p>
+            <input
+              type="password"
+              name="password"
+              placeholder="New Password"
+              value={form.password}
+              onChange={handleChange}
+              className={
+                error.password ||
+                error.confirmPassword === "Passwords do not match"
+                  ? "w-full px-4 py-2 mb-4 bg-[#1c223a] border border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500"
+                  : "w-full px-4 py-2 mb-4 bg-[#1c223a] border border-[#565F7E] focus:outline-none focus:ring-2 focus:ring-blue-500"
+              }
+            />
+            {error.password && <p className="text-red-500">{error.password}</p>}
+            <p className="py-4 text-[#C8CEDD]">Confirm password</p>
+            <input
+              type="password"
+              name="confirmPassword"
+              placeholder="Confirm password"
+              value={form.confirmPassword}
+              onChange={handleChange}
+              className={
+                error.confirmPassword
+                  ? "w-full px-4 py-2 mb-4 bg-[#1c223a] border border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500"
+                  : "w-full px-4 py-2 mb-4 bg-[#1c223a] border border-[#565F7E] focus:outline-none focus:ring-2 focus:ring-blue-500"
+              }
+            />
+            {error.confirmPassword === "Confirm password is required" && (
+              <p className="text-red-500 pb-4">{error.confirmPassword}</p>
+            )}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-1/2 h-[48px] px-4 py-2 text-white rounded-lg border border-[#565F7E] focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              Reset Password
+            </button>
+          </form>
+          {error.confirmPassword === "Passwords do not match" && (
+            <p className=" text-red-500">{error.confirmPassword}</p>
+          )}
+          {resError && <p className="mt-4 text-red-500">{resError}</p>}
+        </div>
+        <CouponAlert
+          open={alertOpen}
+          onClose={() => setAlertOpen(false)}
+          text="Password reset successfully"
+          text_sub="You can now log in with your new password."
+        />
+      </div>
+    </>
+  );
+}
+
+export default ResetPassword;

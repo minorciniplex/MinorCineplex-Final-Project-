@@ -1,9 +1,9 @@
 import Link from "next/link";
-import Navbar from "@/components/Navbar/Navbar";
+import NavbarLoading from "@/components/Navbar/NavbarLoading";
 export default function RegisterSuccess() {
   return (
     <>
-      <Navbar />
+      <NavbarLoading />
       <main className="min-h-screen flex items-center justify-center px-4 ">
         <section className="w-full max-w-md text-white text-center flex flex-col items-center space-y-8">
           <div className="w-24 h-24 bg-brand-green rounded-full flex items-center justify-center">

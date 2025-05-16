@@ -8,7 +8,7 @@ import { useStatus } from "@/context/StatusContext";
 import { useEffect } from "react";
 import NavbarLoading from "@/components/Navbar/NavbarLoading";
 export default function Login() {
-  const {isLoggedIn, checkAuthStatus} = useStatus();
+  const { isLoggedIn, checkAuthStatus } = useStatus();
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -51,7 +51,12 @@ export default function Login() {
         router.push("/home-landing");
       }
     } catch (error) {
-      if (error.response) {
+      if (error.response.data.error === "Email not confirmed") {
+        setResError("Email not confirmed");
+        setLoading(false);
+        setForm({ ...form, password: "" });
+      }
+      else if (error.response) {
         console.log(error.response.data.error);
         setResError("Invalid email or password");
         setLoading(false);

@@ -2,23 +2,20 @@ import { createSupabaseServerClient } from "@/utils/supabaseCookie";
 
 export default async function handler(req, res) {
   const supabase = createSupabaseServerClient(req, res);
-  const { id } = req.query;
-
-  if (!id) {
-    return res.status(400).json({ message: "movie ID is required" });
-  }
-
   if (req.method === "GET") {
     try {
+      const searchCinema = req.query.search || "";
       const { data, error } = await supabase
-        .from("movies")
+        .from("cinemas")
         .select("*")
-        .eq("movie_id", id)
-        .single();
+        .eq("")
+        .ilike("name", `%${searchCinema || ""}%`)
+        .order("name")
+        
 
       if (error) {
-        console.error("Error fetching profile data:", error);
-        return res.status(500).json({ error: "Error fetching Picture data" });
+        console.error("Error fetching data:", error);
+        return res.status(500).json({ error: "Error fetching data" });
       }
 
       return res.status(200).json({ data });

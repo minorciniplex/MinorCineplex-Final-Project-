@@ -1,4 +1,3 @@
-import { Input } from "@/components/ui/input";
 import { useRouter } from "next/router";
 import { useState, useEffect, useCallback } from "react";
 import DateSelector from "@/components/DateSelector";
@@ -14,10 +13,12 @@ import {
 import ShowTimes from "@/components/MovieDetail/ShowTimes";
 import ShowMovieDetail from "@/components/MovieDetail/ShowMovieDetail";
 import FooterSection from "@/components/sections/FooterSection/FooterSection";
+import ShowSearchCinema from "@/components/MovieDetail/ShowSearchCinema";
 
 export default function MovieDetail() {
   const router = useRouter();
   const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedCinema, setSelectedCinema] = useState(null);
   const [isRouterReady, setIsRouterReady] = useState(false);
   const { id } = router.query;
 
@@ -42,11 +43,16 @@ export default function MovieDetail() {
   return (
     <div>
       <Navbar />
-      <ShowMovieDetail />
+      {id && <ShowMovieDetail movieId={id} />}
       <DateSelector onDateSelect={handleDateSelect} />
       <div className="mb-11 md:mx-[120px] md:mb-[80px] rounded-2">
         <div className="md:flex md:flex-row justify-between rounded md:gap-5 md:mt-20 flex-col py-10 px-4 md:py-0 md:px-0 space-y-5 md:space-y-0">
-          <Input />
+          <ShowSearchCinema
+            onCinemaSelect={(selectedCinema) => {
+              setSelectedCinema(selectedCinema);
+              // จัดการเมื่อผู้ใช้เลือกโรงหนัง
+            }}
+          />
           <Select>
             <SelectTrigger className="md:w-1/4">
               <SelectValue placeholder="City" />
@@ -59,6 +65,7 @@ export default function MovieDetail() {
         <ShowTimes
           movieId={id}
           date={selectedDate ? selectedDate.fullDate : null}
+          cinemaName={selectedCinema}
         />
       </div>
       <FooterSection />

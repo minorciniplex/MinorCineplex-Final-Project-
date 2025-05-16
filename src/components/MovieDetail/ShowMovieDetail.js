@@ -3,20 +3,22 @@ import axios from "axios";
 import React from "react";
 import Image from "next/image";
 
-export default function ShowMovieDetail() {
+export default function ShowMovieDetail({ movieId }) {
   const [movie, setMovie] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [genres, setGenres] = useState([]);
 
   useEffect(() => {
     const fetchMovieDetails = async () => {
       try {
         const controller = new AbortController();
-        const response = await axios.get("/api/movies-detail/getMoviesDetail", {
-          signal: controller.signal,
-          timeout: 10000,
-        });
+        const response = await axios.get(
+          `/api/movies-detail/getMoviesDetail?id=${movieId}`,
+          {
+            signal: controller.signal,
+            timeout: 10000,
+          }
+        );
 
         if (response.status !== 200 || !response.data.data) {
           throw new Error("Failed to fetch movie details");
@@ -35,7 +37,7 @@ export default function ShowMovieDetail() {
     };
 
     fetchMovieDetails();
-  }, []);
+  }, [movieId]);
 
   return (
     <div className="w-full flex flex-col items-center justify-center bg-[--background] text-white md:mb-[348px]">

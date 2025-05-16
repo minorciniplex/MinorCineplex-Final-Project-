@@ -2,8 +2,9 @@ import Link from "next/link";
 import { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
-import Navbar from "@/components/Navbar/Navbar";
 import { Loading } from "@/components/ui/loading";
+import NavbarLoading from "@/components/Navbar/NavbarLoading";
+
 
 export default function Register() {
   const router = useRouter();
@@ -76,7 +77,7 @@ export default function Register() {
 
   return (
     <>
-      <Navbar/>
+      <NavbarLoading/>
       <div className="min-h-screen flex items-center justify-center px-4">
         {loading ? (
           <Loading />

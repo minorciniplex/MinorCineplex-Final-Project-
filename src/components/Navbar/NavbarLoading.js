@@ -53,7 +53,7 @@ const NavbarLoading = () => {
                  onClick={() => setMenuOpen((open) => !open)}
                  aria-label="Toggle menu"
                >
-                 <MenuIcon className="w-6 h-6 md:w-8 md:h-8" />
+                 {/* <MenuIcon className="w-6 h-6 md:w-8 md:h-8" /> */}
                </button>
                {/* Mobile Menu Overlay */}
                {menuOpen && (

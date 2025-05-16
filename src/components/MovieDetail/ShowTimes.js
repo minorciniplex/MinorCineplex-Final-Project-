@@ -9,7 +9,7 @@ import {
 import FmdGoodIcon from "@mui/icons-material/FmdGood";
 import ShowtimeButtons from "@/components/MovieDetail/ShowTimeButtons";
 
-export default function ShowTimes({ movieId, date }) {
+export default function ShowTimes({ movieId, date, name, cityName }) {
   const [showtimes, setShowtimes] = useState([]);
   const [openItems, setOpenItems] = useState([]);
 
@@ -24,6 +24,8 @@ export default function ShowTimes({ movieId, date }) {
           params: {
             movieId: movieId,
             date: date,
+            name: name,
+            province: cityName,
           },
           headers: {
             "Content-Type": "application/json",
@@ -48,7 +50,7 @@ export default function ShowTimes({ movieId, date }) {
     };
 
     fetchShowtimes();
-  }, [movieId, date]);
+  }, [movieId, date, name, cityName]);
 
   useEffect(() => {
     const allItems = showtimes.map((_, index) => `item-${index}`);

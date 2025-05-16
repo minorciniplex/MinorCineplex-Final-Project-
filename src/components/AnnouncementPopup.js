@@ -46,16 +46,16 @@ const AnnouncementPopup = () => {
 
   return (
     <div className="fixed inset-0 z-[9999]">
-      <Card className="absolute top-8 left-1/2 -translate-x-1/2 w-[90vw] max-w-[359px] h-auto max-h-[90vh] bg-[#1a1b20] rounded-2xl border-none pointer-events-auto md:w-[359px] md:h-[336px]">
+      <Card className="absolute top-4 left-1/2 -translate-x-1/2 w-[90vw] max-w-[360px] h-auto max-h-[90vh] bg-[#1a1b20] rounded-2xl border-none pointer-events-auto md:top-8 md:left-8 md:translate-x-0 md:w-[359px] md:h-[336px] md:max-w-none">
         <CardContent className="flex flex-col items-start gap-4 p-4 h-full">
           {/* Header Section */}
           <div className="flex items-start justify-between w-full pt-1">
             <div className="flex flex-col gap-0.5">
               <div className="text-white text-lg font-medium font-['Inter']">
-                www.minorcineplex.com
+                www.minorcineplex.comb
               </div>
               <div className="text-white text-lg font-medium font-['Inter']">
-                wants to
+                wants to 
               </div>
             </div>
             <button

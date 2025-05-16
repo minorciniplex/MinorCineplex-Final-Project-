@@ -19,9 +19,7 @@ const HomeLanding = () => {
 
   // รับค่าจาก BannerByCinema เมื่อกดค้นหา
   const handleSearch = (newFilters) => {
-    if (JSON.stringify(searchFilters) !== JSON.stringify(newFilters)) {
-      setSearchFilters(newFilters);
-    }
+    setSearchFilters(newFilters);
   };
 
   return (

@@ -12,7 +12,7 @@ const isValidUUID = (uuid) =>
 export default async function handler(req, res) {
   const supabase = createSupabaseServerClient(req, res);
 
-  const { movieId, date } = req.query;
+  const { movieId, date, name, cityName } = req.query;
 
   // :white_check_mark: Validation
   if (!movieId || !date) {
@@ -45,17 +45,20 @@ export default async function handler(req, res) {
           screen_number,
           cinemas!inner(
             name,
-            facilities
+            facilities,
+            province
           )
         )
       `
         )
         .eq("movie_id", movieId)
-        .eq("date", date);
+        .eq("date", date)
+        .eq("screens.cinemas.name", name)
+        .eq("screens.cinemas.province", cityName);
 
       if (error) {
         console.error("Error fetching showtimes data:", error);
-        return res.status(500).json({ error: "Error fetching showtimes data" });
+        return res.status(500).json({ error: error });
       }
 
       if (!data) {

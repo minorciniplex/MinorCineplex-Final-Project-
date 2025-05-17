@@ -85,32 +85,32 @@ export default function DateSelector({ onDateSelect }) {
   }
 
   return (
-    <div className="md:relative w-full bg-[var(--base-gray-0)]">
+    <div className="relative w-full bg-[var(--base-gray-0)]">
       {!isAtStart && (
         <Button
           variant="ghost"
           size="icon"
-          className="absolute left-20 top-1/2 -translate-y-1/2 z-10 rounded-full bg-background/80 backdrop-blur-sm"
+          className="absolute left-5 top-1/2 -translate-y-1/2 z-10 rounded-full bg-background/80 backdrop-blur-sm"
           onClick={() => scrollDates("left")}
         >
           <ChevronLeft className="h-5 w-5" />
         </Button>
       )}
       {/* ⬇️ Outer container for padding/alignment */}
-      <div className="flex justify-center items-center py-4 px-10 ">
+      <div className="flex justify-center items-center p-4 md:py-4 md:px-10 ">
         {/* ⬇️ Bordered scroll container box */}
-        <div className="w-[70vw] overflow-hidden">
+        <div className="w-[100vw] md:w-[80vw] overflow-hidden">
           {/* ⬇️ Actual horizontal scrolling area inside the border box */}
           <div
             ref={scrollContainerRef}
-            className="flex overflow-x-auto scrollbar-hide scroll-smooth"
+            className="flex gap-2 overflow-x-auto scrollbar-hide scroll-smooth"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
             {dates.map((date, index) => (
               <Card
                 key={index}
                 className={cn(
-                  "flex-shrink-0 flex flex-col items-center justify-center mx-2 py-2 px-4 w-40 cursor-pointer rounded-md bg-transparent text-white",
+                  "flex-shrink-0 flex flex-col items-center justify-center py-2 px-4 w-[120px] md:w-[180px] cursor-pointer rounded-md bg-transparent text-white",
                   selectedDateIndex === index
                     ? "ring-2 ring-primary bg-[--base-gray-100]"
                     : "hover:bg-[--base-gray-100]"
@@ -119,7 +119,7 @@ export default function DateSelector({ onDateSelect }) {
               >
                 <div
                   className={cn(
-                    "text-xl font-medium",
+                    "text-2xl font-bold",
                     selectedDateIndex === index
                       ? "text-[--base-white]"
                       : "text-[--base-gray-300]"
@@ -129,7 +129,7 @@ export default function DateSelector({ onDateSelect }) {
                 </div>
                 <div
                   className={cn(
-                    "text-base font-medium",
+                    "text-base font-normal",
                     selectedDateIndex === index
                       ? "text-[--base-gray-400]"
                       : "text-[--base-gray-200]"
@@ -147,7 +147,7 @@ export default function DateSelector({ onDateSelect }) {
         <Button
           variant="ghost"
           size="icon"
-          className="absolute right-20 top-1/2 -translate-y-1/2 z-10 rounded-full bg-background/80 backdrop-blur-sm"
+          className="absolute right-5 top-1/2 -translate-y-1/2 z-10 rounded-full bg-background/80 backdrop-blur-sm"
           onClick={() => scrollDates("right")}
         >
           <ChevronRight className="h-5 w-5" />

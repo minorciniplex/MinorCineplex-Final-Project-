@@ -15,16 +15,28 @@ const ProfileUpload = () => {
   const [userData, setUserData] = useState(null);
   const [form, setForm] = useState({
     name: "",
-    email: userData?.email,
+    email: "",
   });
-  console.log(userData);
-  console.log(error);
-  console.log(form.email);
+
+
+
+  useEffect(() => {
+  if (user?.email) {
+    setForm((prev) => ({
+      ...prev,
+      email: user.email,
+    }));
+  }
+}, [user?.email]);
+
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         const response = await axios.get("/api/auth/check-user");
-        setUserData(response.data.data);
+         setForm({
+        name: response.data.data.name || "",
+      });
+
       } catch (error) {
         console.error("Error fetching user data:", error);
       }
@@ -45,10 +57,9 @@ const ProfileUpload = () => {
     setSuccess(null);
 
     try {
-      const response = await axios.put("/api/auth/change-name", form);
+      const response = await axios.put("/api/auth/change-profile", form);
       if (response.status === 200) {
         setSuccess("อัพเดทโปรไฟล์สำเร็จ");
-        setForm({ name: ""});
         // รีเฟรชข้อมูลผู้ใช้
         checkAuthStatus();
       }
@@ -120,7 +131,16 @@ const ProfileUpload = () => {
             id="name"
             name="name"
             value={form.name}
-            placeholder={userData?.name}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-[#21263F] border-[#565F7E] rounded-[4px]"
+            required
+          />
+
+          <input 
+            type="email"
+            id="email"
+            name="email"
+            value={form.email}
             onChange={handleChange}
             className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-[#21263F] border-[#565F7E] rounded-[4px]"
             required

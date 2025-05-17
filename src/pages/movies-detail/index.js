@@ -1,7 +1,7 @@
-import { Input } from "../../components/ui/input";
+import { useRouter } from "next/router";
+import { useState, useEffect, useCallback } from "react";
 import DateSelector from "@/components/DateSelector";
-import { useEffect, useState } from "react";
-import axios from "axios";
+import Navbar from "@/components/Navbar/Navbar";
 import React from "react";
 import {
   Select,
@@ -10,140 +10,65 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-import {
-  Accordion,
-  AccordionItem,
-  AccordionTrigger,
-  AccordionContent,
-} from "../../components/ui/accordion";
+import ShowTimes from "@/components/MovieDetail/ShowTimes";
+import ShowMovieDetail from "@/components/MovieDetail/ShowMovieDetail";
+import FooterSection from "@/components/sections/FooterSection/FooterSection";
+import ShowSearchCinema from "@/components/MovieDetail/ShowSearchCinema";
 
 export default function MovieDetail() {
-  const [movie, setMovie] = useState(null);
-  const [showtimes, setShowtimes] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const router = useRouter();
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedCinema, setSelectedCinema] = useState(null);
+  const [isRouterReady, setIsRouterReady] = useState(false);
+  const { id } = router.query;
 
-  useEffect(() => {
-    const fetchMovieDetails = async () => {
-      try {
-        const response = await axios.get("/api/movies-detail/getMoviesDetail");
-        if (response.status !== 200 || !response.data.data) {
-          throw new Error("Failed to fetch movie details");
-        }
-        setMovie(response.data.data);
-      } catch (err) {
-        setError(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchMovieDetails();
+  const handleDateSelect = useCallback((date) => {
+    setSelectedDate(date);
   }, []);
 
-  const handleDateSelect = (date) => {
-    console.log("Selected date:", date);
-    // Fetch showtimes for the selected date
-  };
+  useEffect(() => {
+    if (router.isReady) {
+      setIsRouterReady(true);
+    }
+  }, [router.isReady]);
+
+  if (!isRouterReady) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
 
   return (
-    <div className="">
-      กล่อง Navbar
-      {/* Banner */}
-      <div className="flex flex-col items-center justify-center bg-gray-800 text-white mb-[348px]">
-        <img
-          src={movie?.poster_url}
-          alt={movie?.title}
-          className="relative w-full h-[440px] gap-[10px] object-cover"
-        />
-        <div className="absolute bg-gradient-to-t from-[#070C1B] to-none w-full h-[440px] flex items-center justify-center text-white text-3xl font-bold"></div>
-
-        {/* Movie Details */}
-        <div className="absolute position top-[140px] flex justify-center md:flex-row bg-[#070C1B]/30 backdrop-blur-sm mb-8 rounded-lg">
-        <img
-              src={movie?.poster_url}
-              alt={movie?.title}
-              className="h-[600px] rounded shadow-lg"
-            />
-          <div className="flex flex-row rounded-lg shadow-lg p-15">            
-            <div className="">
-              <div className="p-15">
-                <h1 className="text-3xl font-bold mb-2">{movie?.title}</h1>
-                <div className="flex gap-2 mb-2 ">
-                  <span className="bg-[#21263F] py-[6px] px-3 rounded text-sm text-[#8B93B0]">
-                    Action
-                  </span>
-                  <span className="bg-[#21263F] py-[6px] px-3 rounded text-sm text-[#8B93B0]">
-                    Crime
-                  </span>
-                  <span className="bg-[#21263F] py-[6px] px-3 rounded text-sm text-[#8B93B0]">
-                    TH
-                  </span>
-                  <div className="border border-[#565F7E] my-1 mx-5"></div>
-                  <span className="text-sm">
-                    Release date:{" "}
-                    {new Date(movie?.release_date).toLocaleDateString("en-GB", {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                    })}
-                  </span>
-                </div>
-                <button className="p-4 bg-brand-blue-100 text-white rounded-lg shadow-md">
-                  Movie detail
-                </button>
-                <p className="mb-2">{movie?.description}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      {/* Date Selector */}
+    <div>
+      <Navbar />
+      {id && <ShowMovieDetail movieId={id} />}
       <DateSelector onDateSelect={handleDateSelect} />
-      {/* Showtimes */}
-      <div className="mx-[120px] rounded-2">
-        {/* Cinema Selection */}
-        <div className="flex flex-row justify-center p-4 rounded gap-5 mt-20">
-          <Input />
+      <div className="mb-11 md:mx-[120px] md:mb-[80px] rounded-2">
+        <div className="md:flex md:flex-row justify-between rounded md:gap-5 md:mt-20 flex-col py-10 px-4 md:py-0 md:px-0 space-y-5 md:space-y-0">
+          <ShowSearchCinema
+            onCinemaSelect={(selectedCinema) => {
+              setSelectedCinema(selectedCinema);
+              // จัดการเมื่อผู้ใช้เลือกโรงหนัง
+            }}
+          />
           <Select>
-            <SelectTrigger className="w-1/5">
+            <SelectTrigger className="md:w-1/4">
               <SelectValue placeholder="City" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="light">Light</SelectItem>
-              <SelectItem value="dark">Dark</SelectItem>
-              <SelectItem value="system">System</SelectItem>
+              <SelectItem value="city">Light</SelectItem>
             </SelectContent>
           </Select>
         </div>
-
-        {/*location hall*/}
-        <div className="">
-          <Accordion type="single" collapsible className="w-full">
-            {showtimes.map((showtime) => (
-              <AccordionItem key={showtime.showtime_id} value={showtime_id}>
-                <AccordionTrigger className="bg-[#21263F] text-white p-4 rounded-lg mb-2 flex justify-between items-center">
-                  <div className="flex items-center gap-2">
-                    <span>{showtime_id}</span>
-                  </div>
-                  <span>{new Date(showtime.date).toLocaleDateString()}</span>
-                </AccordionTrigger>
-                <AccordionContent className="bg-[#21263F] text-white p-4 rounded-lg mb-2">
-                  {showtime.showtimes.map((time) => (
-                    <div key={time.id} className="flex justify-between mb-2">
-                      <span>{time.time}</span>
-                      <button className="p-2 bg-brand-blue-100 text-white rounded-lg shadow-md">
-                        Book Now
-                      </button>
-                    </div>
-                  ))}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </div>
+        <ShowTimes
+          movieId={id}
+          date={selectedDate ? selectedDate.fullDate : null}
+          cinemaName={selectedCinema}
+        />
       </div>
+      <FooterSection />
     </div>
   );
 }

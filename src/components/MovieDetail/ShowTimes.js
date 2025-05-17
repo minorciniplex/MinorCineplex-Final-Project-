@@ -9,81 +9,81 @@ import {
 import FmdGoodIcon from "@mui/icons-material/FmdGood";
 import ShowtimeButtons from "@/components/MovieDetail/ShowTimeButtons";
 
-export default function ShowTimes({ movieId, date, name, cityName }) {
-  const [showtimes, setShowtimes] = useState([]);
+export default function ShowTimes({ showtimes }) {
+  // const [showtimes, setShowtimes] = useState([]);
   const [openItems, setOpenItems] = useState([]);
 
-  useEffect(() => {
-    const fetchShowtimes = async () => {
-      try {
-        if (!movieId || !date) {
-          return;
-        }
+  // useEffect(() => {
+  //   const fetchShowtimes = async () => {
+  //     try {
+  //       if (!movieId || !date) {
+  //         return;
+  //       }
 
-        const response = await axios.get("/api/movies-detail/getShowTimes", {
-          params: {
-            movieId: movieId,
-            date: date,
-            name: name,
-            province: cityName,
-          },
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
+  //       const response = await axios.get("/api/movies-detail/getShowTimes", {
+  //         params: {
+  //           movieId: movieId,
+  //           date: date,
+  //           name: name,
+  //           province: cityName,
+  //         },
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //       });
 
-        if (response.data && response.data.data) {
-          const groupedData = groupShowtimesByCinemaAndScreen(
-            response.data.data
-          );
-          setShowtimes(groupedData);
-        } else {
-          console.error("Invalid response format:", response);
-        }
-      } catch (err) {
-        console.error(
-          "Error fetching showtimes:",
-          err.response?.data || err.message
-        );
-        setShowtimes([]);
-      }
-    };
+  //       if (response.data && response.data.data) {
+  //         const groupedData = groupShowtimesByCinemaAndScreen(
+  //           response.data.data
+  //         );
+  //         setShowtimes(groupedData);
+  //       } else {
+  //         console.error("Invalid response format:", response);
+  //       }
+  //     } catch (err) {
+  //       console.error(
+  //         "Error fetching showtimes:",
+  //         err.response?.data || err.message
+  //       );
+  //       setShowtimes([]);
+  //     }
+  //   };
 
-    fetchShowtimes();
-  }, [movieId, date, name, cityName]);
+  //   fetchShowtimes();
+  // }, [movieId, date, name, cityName]);
 
   useEffect(() => {
     const allItems = showtimes.map((_, index) => `item-${index}`);
     setOpenItems(allItems);
   }, [showtimes]);
 
-  const groupShowtimesByCinemaAndScreen = (data) => {
-    const cinemaMap = new Map();
+  // const groupShowtimesByCinemaAndScreen = (data) => {
+  //   const cinemaMap = new Map();
 
-    data.forEach((showtime) => {
-      const cinemaName = showtime.screens.cinemas.name;
-      const screenNumber = showtime.screens.screen_number;
-      const facilities = showtime.screens.cinemas.facilities;
-      const key = cinemaName;
+  //   data.forEach((showtime) => {
+  //     const cinemaName = showtime.screens.cinemas.name;
+  //     const screenNumber = showtime.screens.screen_number;
+  //     const facilities = showtime.screens.cinemas.facilities;
+  //     const key = cinemaName;
 
-      if (!cinemaMap.has(key)) {
-        cinemaMap.set(key, {
-          name: cinemaName,
-          facilities: facilities,
-          screens: {},
-        });
-      }
+  //     if (!cinemaMap.has(key)) {
+  //       cinemaMap.set(key, {
+  //         name: cinemaName,
+  //         facilities: facilities,
+  //         screens: {},
+  //       });
+  //     }
 
-      const cinema = cinemaMap.get(key);
-      if (!cinema.screens[screenNumber]) {
-        cinema.screens[screenNumber] = [];
-      }
+  //     const cinema = cinemaMap.get(key);
+  //     if (!cinema.screens[screenNumber]) {
+  //       cinema.screens[screenNumber] = [];
+  //     }
 
-      cinema.screens[screenNumber].push(showtime.start_time.substring(0, 5));
-    });
+  //     cinema.screens[screenNumber].push(showtime.start_time.substring(0, 5));
+  //   });
 
-    return Array.from(cinemaMap.values());
-  };
+  //   return Array.from(cinemaMap.values());
+  // };
 
   return (
     <div>
@@ -131,7 +131,7 @@ export default function ShowTimes({ movieId, date, name, cityName }) {
                       </h3>
                       <ShowtimeButtons
                         times={times}
-                        date={date}
+                        date={cinema.date}
                         screenNumber={screenNumber}
                         cinemaName={cinema.name}
                         onSelect={(time) => {

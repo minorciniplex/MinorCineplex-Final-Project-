@@ -39,6 +39,10 @@ export default function ShowMovieDetail({ movieId }) {
     fetchMovieDetails();
   }, [movieId]);
 
+  if (loading) return <div className="text-center py-10">Loading...</div>;
+  if (error) return <div className="text-center py-10 text-red-500">{error}</div>;
+  if (!movie) return null;
+
   return (
     <div className="w-full flex flex-col items-center justify-center bg-[--background] text-white md:mb-[348px]">
       {movie.poster_url?.trim() ? (

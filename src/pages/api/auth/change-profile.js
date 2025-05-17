@@ -8,6 +8,13 @@ const handler = async (req, res) => {
   const userId = req.user.id;
 
   if (req.method === "PUT") {
+
+    if (!name || !email) {
+        return res.status(400).json({ error: "All fields are required." });
+        }
+    if (!/\S+@\S+\.\S+/.test(email)) {
+        return res.status(400).json({ error: "Email is invalid." });
+        }
     try {
       const { data, error } = await supabase.auth.updateUser({
         name: name,

@@ -78,70 +78,72 @@ function ResetPassword() {
 
   return (
     <>
-        <div className="flex flex-col items-center justify-start min-h-screen w-full max-w-sm ">
-          <div className="flex items-start w-full px-6"> 
-          <h1 className="text-[36px] lg:text-[36px] font-bold mb-4 ">
-            Reset Password
-          </h1>
+      <div className="flex flex-col items-start justify-start min-h-screen w-[400px] px-4 ">
+        <form
+          className="flex flex-col justify-center item-center w-full max-w-sm text-white space-y-2 "
+          onSubmit={(e) => {
+            e.preventDefault();
+            validateForm();
+          }}
+        >
+          <div className="flex flex-col justify-start items-start w-full ">
+            <h1 className="text-[36px] lg:text-[36px] font-bold mb-4 ">
+              Reset Password
+            </h1>
           </div>
 
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              validateForm();
-            }}
-          >
-            <p className="py-4 text-[#C8CEDD]">New password</p>
-            <input
-              type="password"
-              name="password"
-              placeholder="New Password"
-              value={form.password}
-              onChange={handleChange}
-              className={
-                error.password ||
-                error.confirmPassword === "Passwords do not match"
-                  ? "w-full px-4 py-2 mb-4 bg-[#1c223a] border border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500"
-                  : "w-full px-4 py-2 mb-4 bg-[#1c223a] border border-[#565F7E] focus:outline-none focus:ring-2 focus:ring-blue-500"
-              }
-            />
-            {error.password && <p className="text-red-500">{error.password}</p>}
-            <p className="py-4 text-[#C8CEDD]">Confirm password</p>
-            <input
-              type="password"
-              name="confirmPassword"
-              placeholder="Confirm password"
-              value={form.confirmPassword}
-              onChange={handleChange}
-              className={
-                error.confirmPassword
-                  ? "w-full px-4 py-2 mb-4 bg-[#1c223a] border border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500"
-                  : "w-full px-4 py-2 mb-4 bg-[#1c223a] border border-[#565F7E] focus:outline-none focus:ring-2 focus:ring-blue-500"
-              }
-            />
-            {error.confirmPassword === "Confirm password is required" && (
-              <p className="text-red-500 pb-4">{error.confirmPassword}</p>
-            )}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-1/2 h-[48px] px-4 py-2 text-white rounded-lg border border-[#565F7E] focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              Reset Password
-            </button>
-          </form>
-          {error.confirmPassword === "Passwords do not match" && (
-            <p className=" text-red-500">{error.confirmPassword}</p>
+          <p className="py-4 text-[#C8CEDD]">New password</p>
+          <input
+            type="password"
+            name="password"
+            placeholder="New Password"
+            value={form.password}
+            onChange={handleChange}
+            className={
+              error.password ||
+              error.confirmPassword === "Passwords do not match"
+                ? "w-full px-4 py-2 mb-4 bg-[#1c223a] border border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500"
+                : "w-full px-4 py-2 mb-4 bg-[#1c223a] border border-[#565F7E] focus:outline-none focus:ring-2 focus:ring-blue-500"
+            }
+          />
+          {error.password && <p className="text-red-500">{error.password}</p>}
+          <p className="py-4 text-[#C8CEDD]">Confirm password</p>
+          <input
+            type="password"
+            name="confirmPassword"
+            placeholder="Confirm password"
+            value={form.confirmPassword}
+            onChange={handleChange}
+            className={
+              error.confirmPassword
+                ? "w-full px-4 py-2 mb-4 bg-[#1c223a] border border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500"
+                : "w-full px-4 py-2 mb-4 bg-[#1c223a] border border-[#565F7E] focus:outline-none focus:ring-2 focus:ring-blue-500"
+            }
+          />
+          {error.confirmPassword === "Confirm password is required" && (
+            <p className="text-red-500 ">{error.confirmPassword}</p>
           )}
-          {resError && <p className="mt-4 text-red-500">{resError}</p>}
-        </div>
-        <CouponAlert
-          open={alertOpen}
-          onClose={() => setAlertOpen(false)}
-          text="Password reset successfully"
-          text_sub="You can now log in with your new password."
-        />
-      
+          <div className="py-4 ">
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-1/2 h-[48px] px-4 py-2  text-white rounded-lg border border-[#565F7E] focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            Reset Password
+          </button>
+          </div>
+        </form>
+        {error.confirmPassword === "Passwords do not match" && (
+          <p className=" text-red-500">{error.confirmPassword}</p>
+        )}
+        {resError && <p className="mt-4 text-red-500">{resError}</p>}
+      </div>
+      <CouponAlert
+        open={alertOpen}
+        onClose={() => setAlertOpen(false)}
+        text="Password reset successfully"
+        text_sub="You can now log in with your new password."
+      />
     </>
   );
 }

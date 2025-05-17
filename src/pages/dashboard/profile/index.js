@@ -56,6 +56,17 @@ const ProfileUpload = () => {
     setError(null);
     setSuccess(null);
 
+    if (!form.name || !form.email) {
+      setError("All fields are required");
+      setLoading(false);
+      return;
+    }
+    if (!/\S+@\S+\.\S+/.test(form.email)) {
+      setError("Email is invalid");
+      setLoading(false);
+      return;
+    }
+
     try {
       const response = await axios.put("/api/auth/change-profile", form);
       if (response.status === 200) {
@@ -71,7 +82,7 @@ const ProfileUpload = () => {
   };
 
   return (
-    <div className="w-[711px] h-[596px] gap-10">
+    <div className="w-[711px] h-[596px] gap-10 px-4">
       <h1 className="text-2xl font-bold mb-4">Profile</h1>
       <h2 className="text-lg font-bold mb-4">
         Keep your personal details private. Information you add here is visible
@@ -136,6 +147,9 @@ const ProfileUpload = () => {
             required
           />
 
+          <label htmlFor="name" className="block mb-2 font-medium">
+            Email
+          </label>
           <input 
             type="email"
             id="email"

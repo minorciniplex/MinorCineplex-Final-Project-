@@ -15,20 +15,15 @@ import ShowTimes from "@/components/MovieDetail/ShowTimes";
 import ShowMovieDetail from "@/components/MovieDetail/ShowMovieDetail";
 import FooterSection from "@/components/sections/FooterSection/FooterSection";
 import ShowSearchCinema from "@/components/MovieDetail/ShowSearchCinema";
-import { set } from "date-fns";
 
 export default function MovieDetail() {
   const router = useRouter();
   const { movieId } = router.query;
-  const [movie, setMovie] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
   const [cinemaName, setCinemaName] = useState("");
   const [cityName, setCityName] = useState("");
   const [showtimes, setShowtimes] = useState([]);
   const [loadingShowtimes, setLoadingShowtimes] = useState(false);
-  const [selectedCinema, setSelectedCinema] = useState(null);
   const [isRouterReady, setIsRouterReady] = useState(false);
   const [cities, setCities] = useState([]);
   const [loadingCities, setLoadingCities] = useState(true);
@@ -144,19 +139,11 @@ export default function MovieDetail() {
     );
   }
 
-  // if (loading) return <div className="text-center py-10">Loading...</div>;
-  // if (error)
-  //   return <div className="text-center py-10 text-red-500">{error}</div>;
-  // if (!movie) return null;
-
   return (
     <div>
       <Navbar />
-
       {movieId && <ShowMovieDetail movieId={movieId} />}
-
       <DateSelector onDateSelect={handleDateSelect} />
-
       <div className="mb-11 md:mx-[120px] md:mb-[80px] rounded-2">
         <div className="md:flex md:flex-row justify-between rounded md:gap-5 md:mt-20 flex-col py-10 px-4 md:py-0 md:px-0 space-y-5 md:space-y-0">
           <ShowSearchCinema
@@ -197,7 +184,6 @@ export default function MovieDetail() {
           </div>
         )}
       </div>
-
       <FooterSection />
     </div>
   );

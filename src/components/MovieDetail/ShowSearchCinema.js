@@ -18,8 +18,13 @@ function useDebounce(value, delay) {
   return debouncedValue;
 }
 
-export default function ShowSearchCinema({ placeholder, onSearch, value, onChange }) {
-  const [searchQuery, setSearchQuery] = useState(value || '');
+export default function ShowSearchCinema({
+  placeholder,
+  onSearch,
+  value,
+  onChange,
+}) {
+  const [searchQuery, setSearchQuery] = useState(value || "");
   // const [cinemas, setCinemas] = useState([]);
   // const [loading, setLoading] = useState(false);
   // const [error, setError] = useState(null);
@@ -29,7 +34,7 @@ export default function ShowSearchCinema({ placeholder, onSearch, value, onChang
     e.preventDefault();
     onSearch(searchQuery);
   };
-  
+
   const handleChange = (e) => {
     setSearchQuery(e.target.value);
     if (onChange) onChange(e);
@@ -135,26 +140,25 @@ export default function ShowSearchCinema({ placeholder, onSearch, value, onChang
 
   return (
     <form onSubmit={handleSearch} className="w-full">
-    <div className="relative">
-      <Input
-        type="text"
-        placeholder={placeholder || "Search..."}
+      <div className="relative">
+        <Input
+          type="text"
+          placeholder={placeholder || "Search..."}
           value={searchQuery}
           onChange={handleChange}
-      />
+        />
 
-      <button
+        {/* <button
           type="submit"
           className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
-        </button>
-       
+        </button> */}
 
-      {/* Dropdown results */}
-      {/* {(loading || error || (!loading && cinemas.length > 0)) && (
+        {/* Dropdown results */}
+        {/* {(loading || error || (!loading && cinemas.length > 0)) && (
         <div className="absolute w-full mt-1 bg-white rounded-md shadow-lg max-h-60 overflow-auto z-50">
           
           {loading && (
@@ -222,7 +226,7 @@ export default function ShowSearchCinema({ placeholder, onSearch, value, onChang
           )}
         </div>
       )} */}
-    </div>
-     </form>
+      </div>
+    </form>
   );
 }

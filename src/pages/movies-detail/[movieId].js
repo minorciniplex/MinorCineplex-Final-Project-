@@ -55,7 +55,6 @@ export default function MovieDetail() {
           );
           setShowtimes(groupedData);
         }
-        console.log("Showtimes raw:", response.data.data);
       } catch (err) {
         console.error("Error fetching showtimes:", err);
       } finally {
@@ -100,20 +99,17 @@ export default function MovieDetail() {
     return Array.from(cinemaMap.values());
   };
 
-  console.log("Showtimes:", showtimes);
-
   useEffect(() => {
     const fetchCities = async () => {
       try {
         setLoadingCities(true);
         const response = await axios.get("/api/movies-detail/getCities");
-
         setCities(response.data.cities);
       } catch (error) {
         console.error("Error fetching cities:", error);
         setCities([]); // Set empty array on error
       } finally {
-        setLoading(false);
+        setLoadingCities(false);
       }
     };
 

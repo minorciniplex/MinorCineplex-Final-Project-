@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import DateSelector from "@/components/DateSelector";
 import Navbar from "@/components/Navbar/Navbar";
 import React from "react";
@@ -27,6 +27,26 @@ export default function MovieDetail() {
   const [isRouterReady, setIsRouterReady] = useState(false);
   const [cities, setCities] = useState([]);
   const [loadingCities, setLoadingCities] = useState(true);
+  const [debouncedCinemaName, setDebouncedCinemaName] = useState("");
+  const [debouncedCityName, setDebouncedCityName] = useState("");
+  const debounceTimeout = useRef();
+
+  useEffect(() => {
+    clearTimeout(debounceTimeout.current);
+    debounceTimeout.current = setTimeout(() => {
+      setDebouncedCinemaName(cinemaName);
+    }, 500);
+    return () => clearTimeout(debounceTimeout.current);
+  }, [cinemaName]);
+
+  // Debounce cityName
+  useEffect(() => {
+    clearTimeout(debounceTimeout.current);
+    debounceTimeout.current = setTimeout(() => {
+      setDebouncedCityName(cityName);
+    }, 500);
+    return () => clearTimeout(debounceTimeout.current);
+  }, [cityName]);
 
   // Fetch showtimes based on filters
   useEffect(() => {
@@ -39,8 +59,8 @@ export default function MovieDetail() {
           params: {
             movieId: movieId,
             date: selectedDate.fullDate,
-            cinemaName: cinemaName || undefined,
-            province: cityName || undefined,
+            cinemaName: debouncedCinemaName || undefined,
+            province: debouncedCityName || undefined,
           },
         });
 
@@ -61,7 +81,7 @@ export default function MovieDetail() {
     if (movieId) {
       fetchShowtimes();
     }
-  }, [movieId, selectedDate, cinemaName, cityName]);
+  }, [movieId, selectedDate, debouncedCinemaName, debouncedCityName]);
 
   const groupShowtimesByCinemaAndScreen = (data) => {
     const cinemaMap = new Map();
@@ -177,7 +197,7 @@ export default function MovieDetail() {
         {loadingShowtimes ? (
           <div className="text-center py-10">Loading showtimes...</div>
         ) : showtimes.length > 0 ? (
-          <ShowTimes showtimes={showtimes} />
+          <ShowTimes showtimes={showtimes} date={selectedDate} />
         ) : (
           <div className="text-center py-10 text-gray-500">
             No showtimes available for the selected filters.

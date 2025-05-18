@@ -8,7 +8,7 @@ import {
 import FmdGoodIcon from "@mui/icons-material/FmdGood";
 import ShowtimeButtons from "@/components/MovieDetail/ShowTimeButtons";
 
-export default function ShowTimes({ showtimes }) {
+export default function ShowTimes({ showtimes, date }) {
   const [openItems, setOpenItems] = useState([]);
 
   useEffect(() => {
@@ -62,7 +62,7 @@ export default function ShowTimes({ showtimes }) {
                       </h3>
                       <ShowtimeButtons
                         times={times}
-                        date={cinema.date}
+                        date={date}
                         screenNumber={screenNumber}
                         cinemaName={cinema.name}
                         onSelect={(time) => {

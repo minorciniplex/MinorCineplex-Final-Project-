@@ -1,4 +1,3 @@
-// components/ShowtimeButtons.js
 import React from "react";
 
 // Utility to check if a showtime is in the past
@@ -23,29 +22,46 @@ const isPastShowtimeByMinutes = (timeString, dateString, minutes) => {
   return showtimeDate < timeThreshold;
 };
 
-const ShowtimeButtons = ({
-  times = [],
-  date,
-  screenNumber,
-  cinemaName,
-  onSelect,
-}) => {
+const ShowtimeButtons = ({ times = [], date, movie, hall, onSelect }) => {
   const sortedTimes = [...times].sort((a, b) => a.localeCompare(b));
 
   return (
-    <div className="flex flex-wrap md:flex-nowrap gap-3 md:gap-4 overflow-x-auto">
+    <div className="flex flex-wrap gap-6">
       {sortedTimes.map((time, i) => {
+        // If date is not today, apply regular styling to all showtimes
+        if (date.dayName !== "Today") {
+          let buttonClass =
+            "px-4 sm:px-6 py-2 sm:py-3 text-base sm:text-xl rounded-md flex items-center justify-center font-medium text-white bg-[var(--brand-blue-200)] text-white hover:bg-[var(--brand-blue-100)] transition";
+
+          return (
+            <button
+              key={i}
+              className={buttonClass}
+              onClick={() => {
+                console.log(`Selected: ${movie?.title} at ${time} in ${hall}`);
+              }}
+            >
+              {time}
+            </button>
+          );
+        }
+
         const hasRecentPastShowtime = sortedTimes.some(
           (t) =>
-            isPastShowtime(t, date) && !isPastShowtimeByMinutes(t, date, 30)
+            isPastShowtime(t, date.fullDate) &&
+            !isPastShowtimeByMinutes(t, date.fullDate, 30)
         );
 
         const firstFutureIndex = sortedTimes.findIndex(
-          (t) => !isPastShowtime(t, date)
+          (t) => !isPastShowtime(t, date.fullDate)
         );
 
-        const isPastThirtyMins = isPastShowtimeByMinutes(time, date, 30);
-        const isPast = isPastShowtime(time, date);
+        const isPastThirtyMins = isPastShowtimeByMinutes(
+          time,
+          date.fullDate,
+          30
+        );
+        const isPast = isPastShowtime(time, date.fullDate);
         const isWithinThirtyMinsPast = isPast && !isPastThirtyMins;
 
         const shouldHighlight =
@@ -73,7 +89,7 @@ const ShowtimeButtons = ({
             disabled={isPast && !isWithinThirtyMinsPast}
             onClick={() => {
               if (onSelect) {
-                onSelect({ time, screenNumber, cinemaName });
+                onSelect({ time, movie, hall });
               }
             }}
           >

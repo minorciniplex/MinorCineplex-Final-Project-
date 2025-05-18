@@ -506,7 +506,7 @@ export const FrameByCinema = ({ filters , coupon_id }) => {
           <button className="text-basewhite underline body-1-medium md:body-1-medium p-0 hover:text-brandblue-100 transition-colors duration-200 whitespace-nowrap" onClick={() => router.push('/coupons')}>View all</button>
         </div>
 
-        <div className="grid grid-cols-2 mt-4 md:mt-0 md:grid-cols-4 gap-4 md:gap-5 w-full">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-5 w-full px-3 md:px-0">
           {coupons.length === 0 ? (
             <div className="col-span-full text-center text-base-gray-400 py-10">
               ไม่พบคูปอง

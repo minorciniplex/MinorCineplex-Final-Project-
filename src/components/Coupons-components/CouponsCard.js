@@ -16,6 +16,13 @@ function formatDate(dateString) {
   });
 }
 
+function truncateText(text, maxLength) {
+  if (text.length > maxLength) {
+    return text.slice(0, maxLength) + "...";
+  }
+  return text;
+}
+
 function CouponsCard({ coupon_id, image, title, end_date }) {
   const router = useRouter();
   const { isLoggedIn, loading } = useStatus();
@@ -27,34 +34,38 @@ function CouponsCard({ coupon_id, image, title, end_date }) {
   }
 
   return (
-    <div className="w-full max-w-xs sm:max-w-sm md:w-[285px] md:h-[477px] sm:h-[337px] sm:w-[180px] bg-[#070C1B] flex flex-col items-start justify-between rounded-[8px] shadow-lg overflow-hidden mx-auto p-0 ">
-      
-      
-      <Image
-        className="
-          w-full
-          h-[160px]         
-          sm:h-[285px]      
-          object-cover
-          bg-center
-          transition-transform duration-300 group-hover:scale-105 cursor-pointer
-        "
-        src={image}
-        alt={title}
-        width={285}
-        height={285}
+    <div className="w-full bg-[#070C1B] flex flex-col items-start justify-center rounded-[8px] shadow-md overflow-hidden group cursor-pointer">
+      <div
+        className="w-full h-[160px] md:w-[285px] md:h-[285px] bg-cover bg-center transition-transform duration-300 group-hover:scale-105 flex items-center justify-center"
         onClick={() => router.push(`/coupons/viewcoupon/${coupon_id}`)}
-      />
-      <div className="flex flex-col flex-1 w-full px-3 pt-3 pb-2 md:px-4 md:pt-4">
-        <button onClick={() => router.push(`/coupons/viewcoupon/${coupon_id}`)} className="text-start">
-          <h2 className="font-bold text-base md:text-xl mb-2 line-clamp-2 hover:underline text-white">
-            {title}
-          </h2>
-        </button>
-        <div className="mb-3 md:mb-4 mt-auto">
-          <p className="text-xs md:text-sm text-[#A0AEC0]">Valid until: {formatDate(end_date)}</p>
+      >
+        {image ? (
+          <Image
+            src={image}
+            alt={title}
+            width={285}
+            height={160}
+            className="object-cover w-full h-full"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-gray-500 bg-base-gray-100">No Image</div>
+        )}
+      </div>
+      <div className="flex flex-col items-start justify-between pt-3 pb-4 px-4 md:pt-4 md:pb-6 md:px-6 w-full bg-basegray-0 flex-1">
+        <div className="flex flex-col gap-2 w-full flex-1">
+          <h3 className="text-basewhite font-bold text-left text-sm md:headline-4 group-hover:text-brandblue-100 transition-colors duration-200 max-w-full line-clamp-2">
+            {truncateText(title, 70)}
+          </h3>
+          <div className="flex items-center gap-2 w-full text-xs md:text-base">
+            <span className="text-base-gray-300 md:body-2-regular whitespace-nowrap">
+              Valid until
+            </span>
+            <span className="text-base-gray-400 md:body-2-medium flex-1 truncate">
+              {formatDate(end_date)}
+            </span>
+          </div>
         </div>
-        <div className="w-full flex justify-center mt-auto">
+        <div className="w-full mt-3">
           <CouponButton
             isClaimed={isClaimed}
             isLoggedIn={isLoggedIn}

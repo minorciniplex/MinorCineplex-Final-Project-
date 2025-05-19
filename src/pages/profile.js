@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Navbar from '@/components/Navbar/Navbar';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
@@ -6,27 +6,91 @@ import HistoryIcon from '@mui/icons-material/History';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import Button from '@/components/Button';
+import axios from 'axios';
+import { useRouter } from 'next/router';
 
 export default function Profile() {
-  const [name, setName] = useState('Bruce Wayne');
-  const [email, setEmail] = useState('iambatman@gmail.com');
+  const router = useRouter();
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [profileImg, setProfileImg] = useState('/assets/images/default-logo.png.png');
+  const [loading, setLoading] = useState(true);
 
-  const handleImageChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        setProfileImg(ev.target.result);
-      };
-      reader.readAsDataURL(e.target.files[0]);
+  const fetchUserData = async () => {
+    try {
+      const response = await axios.get('/api/auth/check-user');
+      if (response.data?.data) {
+        const userData = response.data.data;
+        setName(userData.name);
+        setEmail(userData.email);
+        setProfileImg(userData.user_profile || '/assets/images/default-logo.png.png');
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      if (error.response?.status === 401) {
+        router.push('/auth/login');
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleSave = (e) => {
-    e.preventDefault();
-    // TODO: เพิ่ม logic บันทึกข้อมูล
-    alert('บันทึกข้อมูลสำเร็จ!');
+  useEffect(() => {
+    fetchUserData();
+  }, [router]);
+
+  const handleImageChange = async (e) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const res = await fetch('/api/upload-image', {
+          method: 'POST',
+          body: formData,
+        });
+        const data = await res.json();
+        console.log(data);
+        if (data.secure_url) {
+          setProfileImg(data.secure_url);
+        } else {
+          alert('อัปโหลดรูปไม่สำเร็จ: ' + (data.error || ''));
+        }
+      } catch (err) {
+        console.error('Error uploading image:', err);
+        alert('เกิดข้อผิดพลาดในการอัปโหลดรูป');
+      }
+    }
   };
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.put('/api/auth/update-profile', {
+        name,
+        email,
+        user_profile: profileImg
+      });
+      alert('บันทึกข้อมูลสำเร็จ!');
+      setLoading(true);
+      await fetchUserData();
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen w-full bg-[#070C1B]">
+        <Navbar />
+        <div className="flex items-center justify-center h-screen">
+          <p className="text-white">กำลังโหลด...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen w-full bg-[#070C1B]">
@@ -97,7 +161,7 @@ export default function Profile() {
                 className="w-full px-4 py-2 bg-[#23263A] border border-[#31365A] rounded body-2-regular text-white focus:outline-none"
               />
             </div>
-            <Button variant="secondary" className="!w-[111px] !h-[48px] !rounded-[4px] !text-white !mb-[80px] ">
+            <Button type="submit" variant="secondary" className="!w-[111px] !h-[48px] !rounded-[4px] !text-white !mb-[80px] ">
               Save
             </Button>
           </form>

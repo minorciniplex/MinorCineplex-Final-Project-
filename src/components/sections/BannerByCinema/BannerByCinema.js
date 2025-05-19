@@ -147,7 +147,7 @@ const BannerByCinema = ({
               onChange={handleFilterChange}
               className="w-[177.25px] h-[48px] bg-base-gray-100 text-base-gray-300 body-2-regular pt-[12px] pr-[12px] pb-[12px] pl-[16px] rounded-[4px] gap-[4px] border-[1px] border-base-gray-200 outline-none cursor-pointer hover:bg-[#252944] transition-colors appearance-none"
             >
-     แก้เ         <option value="">City</option>
+             <option value="">City</option>
               {cityList.map(city => (
                 <option key={city} value={city}>{city}</option>
               ))}

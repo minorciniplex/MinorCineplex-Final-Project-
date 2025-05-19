@@ -8,6 +8,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import axios from "axios";
 import { useEffect } from "react";
 import { useStatus } from "@/context/StatusContext";
+import Link from "next/link";
 
 const NavbarWithLogin = () => {
   const router = useRouter();
@@ -195,6 +196,7 @@ const NavbarWithLogin = () => {
                   className="w-full body-2-regular"
                   onClick={() => {
                     setMenuOpen(false);
+                    router.push("/profile");
                   }}
                 >
                   <svg
@@ -208,8 +210,8 @@ const NavbarWithLogin = () => {
                     <path
                       d="M16.4402 17.0389C16.0603 15.9757 15.2234 15.0363 14.0591 14.3662C12.8948 13.6962 11.4682 13.333 10.0007 13.333C8.53309 13.333 7.10654 13.6962 5.94224 14.3662C4.77795 15.0363 3.94098 15.9757 3.56115 17.0389"
                       stroke="#8B93B0"
-                      stroke-width="1.2"
-                      stroke-linecap="round"
+                      strokeWidth="1.2"
+                      strokeLinecap="round"
                     />
                     <ellipse
                       cx="9.99935"
@@ -217,11 +219,10 @@ const NavbarWithLogin = () => {
                       rx="3.33333"
                       ry="3.33333"
                       stroke="#8B93B0"
-                      stroke-width="1.2"
-                      stroke-linecap="round"
+                      strokeWidth="1.2"
+                      strokeLinecap="round"
                     />
                   </svg>
-
                   <span className="w-full text-left text-base-gray-400 font-bold">
                     Profile
                   </span>
@@ -407,12 +408,13 @@ const NavbarWithLogin = () => {
                     My coupons
                   </span>
                 </Button>
-                {/* Profile */}
+                {/* Profile (Mobile) */}
                 <Button
                   variant="ghost"
                   className="w-full body-2-regular"
                   onClick={() => {
                     setMenuOpen(false);
+                    router.push("/profile");
                   }}
                 >
                   <svg
@@ -426,8 +428,8 @@ const NavbarWithLogin = () => {
                     <path
                       d="M16.4402 17.0389C16.0603 15.9757 15.2234 15.0363 14.0591 14.3662C12.8948 13.6962 11.4682 13.333 10.0007 13.333C8.53309 13.333 7.10654 13.6962 5.94224 14.3662C4.77795 15.0363 3.94098 15.9757 3.56115 17.0389"
                       stroke="#8B93B0"
-                      stroke-width="1.2"
-                      stroke-linecap="round"
+                      strokeWidth="1.2"
+                      strokeLinecap="round"
                     />
                     <ellipse
                       cx="9.99935"
@@ -435,11 +437,10 @@ const NavbarWithLogin = () => {
                       rx="3.33333"
                       ry="3.33333"
                       stroke="#8B93B0"
-                      stroke-width="1.2"
-                      stroke-linecap="round"
+                      strokeWidth="1.2"
+                      strokeLinecap="round"
                     />
                   </svg>
-
                   <span className="w-full text-left text-base-gray-400 font-bold">
                     Profile
                   </span>

@@ -8,6 +8,7 @@ import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import Button from '@/components/Button';
 import axios from 'axios';
 import { useRouter } from 'next/router';
+import ProfileAlert from '@/components/ProfileAlert';
 
 export default function Profile() {
   const router = useRouter();
@@ -15,6 +16,8 @@ export default function Profile() {
   const [email, setEmail] = useState('');
   const [profileImg, setProfileImg] = useState('/assets/images/default-logo.png.png');
   const [loading, setLoading] = useState(true);
+  const [showAlert, setShowAlert] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   const fetchUserData = async () => {
     try {
@@ -41,6 +44,7 @@ export default function Profile() {
 
   const handleImageChange = async (e) => {
     if (e.target.files && e.target.files[0]) {
+      setUploadingImage(true);
       const file = e.target.files[0];
       const formData = new FormData();
       formData.append('file', file);
@@ -51,15 +55,16 @@ export default function Profile() {
           body: formData,
         });
         const data = await res.json();
-        console.log(data);
         if (data.secure_url) {
           setProfileImg(data.secure_url);
         } else {
-          alert('อัปโหลดรูปไม่สำเร็จ: ' + (data.error || ''));
+          alert('Image upload failed: ' + (data.error || ''));
         }
       } catch (err) {
         console.error('Error uploading image:', err);
-        alert('เกิดข้อผิดพลาดในการอัปโหลดรูป');
+        alert('An error occurred while uploading the image');
+      } finally {
+        setUploadingImage(false);
       }
     }
   };
@@ -72,12 +77,12 @@ export default function Profile() {
         email,
         user_profile: profileImg
       });
-      alert('บันทึกข้อมูลสำเร็จ!');
+      setShowAlert(true);
       setLoading(true);
       await fetchUserData();
     } catch (error) {
       console.error('Error updating profile:', error);
-      alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+      alert('An error occurred while saving your profile');
     }
   };
 
@@ -86,7 +91,7 @@ export default function Profile() {
       <div className="min-h-screen w-full bg-[#070C1B]">
         <Navbar />
         <div className="flex items-center justify-center h-screen">
-          <p className="text-white">กำลังโหลด...</p>
+          <p className="text-white">Loading...</p>
         </div>
       </div>
     );
@@ -123,7 +128,7 @@ export default function Profile() {
             Information you add here is visible to anyone who can view your profile
           </p>
           <div className="flex flex-col items-start mb-6">
-            <div className="w-[120px] h-[120px] rounded-full bg-[#23263A] flex items-center justify-center overflow-hidden mb-2">
+            <div className="w-[120px] h-[120px] rounded-full bg-[#23263A] flex items-center justify-center overflow-hidden mb-2 relative">
               <Image
                 src={profileImg}
                 alt="Profile"
@@ -131,6 +136,14 @@ export default function Profile() {
                 height={120}
                 className="object-cover w-[120px] h-[120px] rounded-full"
               />
+              {uploadingImage && (
+                <div className="absolute inset-0 bg-black/60 flex items-center justify-center rounded-full z-10">
+                  <svg className="animate-spin h-8 w-8 text-white" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
+                  </svg>
+                </div>
+              )}
             </div>
             <label className="body-1-regular text-white cursor-pointer text-sm underline ml-[140px] mt-[-26px] ">
               Upload
@@ -139,6 +152,7 @@ export default function Profile() {
                 accept="image/*"
                 className="hidden"
                 onChange={handleImageChange}
+                disabled={uploadingImage}
               />
             </label>
           </div>
@@ -167,6 +181,12 @@ export default function Profile() {
           </form>
         </div>
       </div>
+      <ProfileAlert
+        show={showAlert}
+        title="Saved profile"
+        description="Your profile has been successfully updated"
+        onClose={() => setShowAlert(false)}
+      />
     </div>
   );
 } 

@@ -110,7 +110,7 @@ export default function ShowMovieDetail({ movieId }) {
               <button className="py-3 px-10 md:py-3 md:px-10 bg-brand-blue-100 text-white rounded-sm shadow-md mt-6 mb-10 md:my-12">
                 Movie detail
               </button>
-              <p className="">{movie?.description}</p>
+              <p className="w-[669px] ">{movie?.description}</p>
             </div>
           </div>
         </div>

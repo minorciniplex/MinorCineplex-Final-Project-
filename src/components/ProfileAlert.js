@@ -7,6 +7,7 @@ const ProfileAlert = ({ show, title, description, onClose }) => {
     <div
       className="
         fixed left-4 bottom-12 z-[9999]
+        md:left-auto md:right-4
         w-[343px] min-h-[80px]
         bg-[#00A372]/60
         rounded-[4px]

@@ -88,7 +88,7 @@ export default function Profile() {
 
   if (loading) {
     return (
-      <div className="min-h-screen w-full bg-[#070C1B]">
+      <div className="min-h-screen w-full bg-background">
         <Navbar />
         <div className="flex items-center justify-center h-screen">
           <p className="text-white">Loading...</p>
@@ -98,11 +98,31 @@ export default function Profile() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-[#070C1B]">
+    <div className="min-h-screen w-full bg-background md:h-screen md:overflow-hidden md:flex md:items-center md:justify-center">
       <Navbar />
-      <div className="flex flex-col md:flex-row w-full max-w-5xl mx-auto pt-12">
+      <div className="flex flex-col md:flex-row w-full max-w-5xl mx-auto pt-12 md:pt-0 md:mt-[100px]">
         {/* Tab Menu */}
-        <div className="grid grid-cols-2 gap-2 w-full md:w-[320px] p-4 md:pt-8">
+        {/* Desktop menu */}
+        <div className="hidden md:flex flex-col w-[257px] h-[288px] bg-[#070C1B] rounded-[8px] p-4 pb-6 gap-2 shadow-[0_4px_30px_0_rgba(0,0,0,0.5)] mr-6">
+          <button className="flex items-center gap-3 px-4 py-3 rounded-lg text-base-gray-100 font-semibold hover:bg-[#181B29] transition w-full">
+            <HistoryIcon />
+            Booking history
+          </button>
+          <button className="flex items-center gap-3 px-4 py-3 rounded-lg text-base-gray-100 font-semibold hover:bg-[#181B29] transition w-full">
+            <LocalOfferIcon />
+            My coupons
+          </button>
+          <button className="flex items-center gap-3 px-4 py-3 rounded-lg bg-[#23263A] text-white font-semibold w-full">
+            <PersonOutlineIcon />
+            Profile
+          </button>
+          <button className="flex items-center gap-3 px-4 py-3 rounded-lg text-base-gray-100 font-semibold hover:bg-[#181B29] transition w-full">
+            <RestartAltIcon />
+            Reset password
+          </button>
+        </div>
+        {/* Mobile menu */}
+        <div className="grid grid-cols-2 md:hidden gap-2 w-full p-4 pt-8">
           <button className="flex items-center gap-3 px-4 py-3 rounded-lg text-base-gray-100 font-semibold hover:bg-[#181B29] transition w-full">
             <HistoryIcon />
             Booking history
@@ -121,7 +141,7 @@ export default function Profile() {
           </button>
         </div>
         {/* Content */}
-        <div className="flex-1 w-full max-w-[400px] mx-auto p-4 md:pt-8">
+        <div className="flex-1 w-full max-w-[400px] mx-auto p-4 md:pt-8 md:ml-[20px] md:mt-[-38px]">
           <h1 className="headline-2 mb-2">Profile</h1>
           <p className="body-1-regular text-base-gray-300 mb-6">
             Keep your personal details private.<br />

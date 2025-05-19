@@ -368,19 +368,30 @@ export const FrameByCinema = ({ filters , coupon_id }) => {
   }, []);
 
   return (
-    <section ref={sectionRef} className="flex flex-col w-full mt-[180px] md:mt-20">
+    <section
+      ref={sectionRef}
+      className="flex flex-col w-full mt-[180px] md:mt-20"
+    >
       {/* Now Showing Section */}
       <div className="flex flex-col items-center gap-4 md:gap-10 px-4 md:px-[120px] py-4 md:py-20 w-full max-w-full md:max-w-[1440px] mx-auto">
         <div className="flex flex-row items-center gap-6 w-full">
           <button
             onClick={() => setActiveTab("now-showing")}
-            className={`pb-1 transition-all duration-500 ease-in-out font-bold text-lg md:text-2xl ${activeTab === "now-showing" ? "text-white border-b-2 border-base-gray-200" : "text-base-gray-400"}`}
+            className={`pb-1 transition-all duration-500 ease-in-out font-bold text-lg md:text-2xl ${
+              activeTab === "now-showing"
+                ? "text-white border-b-2 border-base-gray-200"
+                : "text-base-gray-400"
+            }`}
           >
             Now showing
           </button>
           <button
             onClick={() => setActiveTab("coming-soon")}
-            className={`pb-1 transition-all duration-500 ease-in-out font-bold text-lg md:text-2xl ${activeTab === "coming-soon" ? "text-white border-b-2 border-base-gray-200" : "text-base-gray-400"}`}
+            className={`pb-1 transition-all duration-500 ease-in-out font-bold text-lg md:text-2xl ${
+              activeTab === "coming-soon"
+                ? "text-white border-b-2 border-base-gray-200"
+                : "text-base-gray-400"
+            }`}
           >
             Coming soon
           </button>
@@ -392,23 +403,33 @@ export const FrameByCinema = ({ filters , coupon_id }) => {
             <div className="col-span-full text-center text-base-gray-400 py-10">
               Loading...
             </div>
-          ) : (
-            (activeTab === "now-showing"
+          ) : (activeTab === "now-showing"
               ? nowShowingMovies
               : comingSoonMovies
             )?.slice(startIndex, endIndex).length === 0 ? (
-              <div className="col-span-full text-center text-base-gray-400 py-10">
-                No movies found.
-              </div>
-            ) : (
-              (activeTab === "now-showing"
-                ? nowShowingMovies
-                : comingSoonMovies
-              )?.slice(startIndex, endIndex).map((movie) => (
-                <div key={movie.movie_id || movie.id} className="flex flex-col items-start gap-3 md:gap-4 group cursor-pointer">
+            <div className="col-span-full text-center text-base-gray-400 py-10">
+              No movies found.
+            </div>
+          ) : (
+            (activeTab === "now-showing" ? nowShowingMovies : comingSoonMovies)
+              ?.slice(startIndex, endIndex)
+              .map((movie) => (
+                <div
+                  key={movie.movie_id || movie.id}
+                  className="flex flex-col items-start gap-3 md:gap-4 group cursor-pointer"
+                >
                   <div
                     className="w-[150px] h-[225px] md:w-[285px] md:h-[416px] rounded-[8px] bg-cover bg-center shadow-md mx-auto transition-transform duration-300 group-hover:scale-105"
-                    style={{ backgroundImage: `url(${movie.poster_url || movie.poster})` }}
+                    style={{
+                      backgroundImage: `url(${
+                        movie.poster_url || movie.poster
+                      })`,
+                    }}
+                    onClick={() =>
+                      router.push(
+                        `/movies-detail/${movie.movie_id || movie.id}`
+                      )
+                    }
                   />
                   <div className="flex flex-col items-start w-full">
                     <div className="flex items-center justify-between w-full">
@@ -422,7 +443,14 @@ export const FrameByCinema = ({ filters , coupon_id }) => {
                         </span>
                       </div>
                     </div>
-                    <h3 className="text-basewhite font-bold truncate max-w-full md:headline-4 group-hover:text-brandblue-100 transition-colors duration-200">
+                    <h3
+                      className="text-basewhite font-bold truncate max-w-full md:headline-4 group-hover:text-brandblue-100 transition-colors duration-200"
+                      onClick={() =>
+                        router.push(
+                          `/movies-detail/${movie.movie_id || movie.id}`
+                        )
+                      }
+                    >
                       {movie.title}
                     </h3>
                   </div>
@@ -430,7 +458,7 @@ export const FrameByCinema = ({ filters , coupon_id }) => {
                     {/* Genres */}
                     {movieGenresMap[movie.movie_id]?.map((genre, idx) => (
                       <span
-                        key={movie.movie_id + '-' + genre}
+                        key={movie.movie_id + "-" + genre}
                         className="px-3 py-1.5 bg-base-gray-100 text-base-gray-300 body-2-regular rounded"
                       >
                         {genre}
@@ -439,12 +467,14 @@ export const FrameByCinema = ({ filters , coupon_id }) => {
                     {/* Languages */}
                     {(() => {
                       const langs = movieLangMap[movie.movie_id] || [];
-                      const original = langs.find(l => l.type === "original");
-                      const dubbed = langs.find(l => l.type === "dubbed");
+                      const original = langs.find((l) => l.type === "original");
+                      const dubbed = langs.find((l) => l.type === "dubbed");
                       if (dubbed && original) {
                         return (
                           <span
-                            key={movie.movie_id + '-' + original.code + '-dubbed'}
+                            key={
+                              movie.movie_id + "-" + original.code + "-dubbed"
+                            }
                             className="px-3 py-1.5 bg-base-gray-100 text-base-gray-400 body-2-regular rounded"
                           >
                             TH/{original.code}
@@ -453,7 +483,9 @@ export const FrameByCinema = ({ filters , coupon_id }) => {
                       } else if (original) {
                         return (
                           <span
-                            key={movie.movie_id + '-' + original.code + '-original'}
+                            key={
+                              movie.movie_id + "-" + original.code + "-original"
+                            }
                             className="px-3 py-1.5 bg-base-gray-100 text-base-gray-400 body-2-regular rounded"
                           >
                             {original.code}
@@ -462,7 +494,9 @@ export const FrameByCinema = ({ filters , coupon_id }) => {
                       } else if (dubbed) {
                         return (
                           <span
-                            key={movie.movie_id + '-' + dubbed.code + '-dubbedonly'}
+                            key={
+                              movie.movie_id + "-" + dubbed.code + "-dubbedonly"
+                            }
                             className="px-3 py-1.5 bg-base-gray-100 text-base-gray-300 body-2-regular rounded"
                           >
                             {dubbed.code}
@@ -475,7 +509,6 @@ export const FrameByCinema = ({ filters , coupon_id }) => {
                   </div>
                 </div>
               ))
-            )
           )}
         </div>
 
@@ -490,7 +523,9 @@ export const FrameByCinema = ({ filters , coupon_id }) => {
           </button>
           {renderPageNumbers()}
           <button
-            onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+            onClick={() =>
+              handlePageChange(Math.min(totalPages, currentPage + 1))
+            }
             className="w-8 h-8 flex items-center justify-center text-base-gray-300 hover:text-basewhite"
             disabled={currentPage === totalPages}
           >
@@ -503,7 +538,12 @@ export const FrameByCinema = ({ filters , coupon_id }) => {
       <div className="flex flex-col items-center gap-4 md:gap-10 px-4 md:px-[120px] py-4 md:py-20 w-full max-w-full md:max-w-[1440px] mx-auto">
         <div className="flex items-center justify-between w-full flex-row gap-2 md:gap-0 mb-2">
           <h2 className="headline-2 md:headline-2 ">Special coupons</h2>
-          <button className="text-basewhite underline body-1-medium md:body-1-medium p-0 hover:text-brandblue-100 transition-colors duration-200 whitespace-nowrap" onClick={() => router.push('/coupons')}>View all</button>
+          <button
+            className="text-basewhite underline body-1-medium md:body-1-medium p-0 hover:text-brandblue-100 transition-colors duration-200 whitespace-nowrap"
+            onClick={() => router.push("/coupons")}
+          >
+            View all
+          </button>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-5 w-full px-3 md:px-0">
@@ -512,20 +552,22 @@ export const FrameByCinema = ({ filters , coupon_id }) => {
               ไม่พบคูปอง
             </div>
           ) : (
-            coupons.slice(0, 4).map((coupon) => (
-              <CouponsCard
-                key={coupon.coupon_id}
-                coupon_id={coupon.coupon_id}
-                image={coupon.image}
-                title={coupon.title}
-                end_date={coupon.end_date}
-                onClaimCoupon={() => handleClaimCoupon(coupon.coupon_id)}
-                isClaimed={isClaimed}
-                isLoading={isLoading}
-                alertOpen={alertOpen}
-                setAlertOpen={setAlertOpen}
-              />
-            ))
+            coupons
+              .slice(0, 4)
+              .map((coupon) => (
+                <CouponsCard
+                  key={coupon.coupon_id}
+                  coupon_id={coupon.coupon_id}
+                  image={coupon.image}
+                  title={coupon.title}
+                  end_date={coupon.end_date}
+                  onClaimCoupon={() => handleClaimCoupon(coupon.coupon_id)}
+                  isClaimed={isClaimed}
+                  isLoading={isLoading}
+                  alertOpen={alertOpen}
+                  setAlertOpen={setAlertOpen}
+                />
+              ))
           )}
         </div>
       </div>
@@ -533,32 +575,60 @@ export const FrameByCinema = ({ filters , coupon_id }) => {
       {/* All Cinemas Section */}
       <div className="flex flex-col items-center gap-4 md:gap-10 px-4 md:px-[120px] py-4 md:py-20 w-full max-w-full md:max-w-[1440px] mx-auto">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between w-full gap-3 md:gap-0">
-          <h2 className="text-base-white headline-2 text-left pl-0 md: prose-headline-2 ">All cinemas</h2>
+          <h2 className="text-base-white headline-2 text-left pl-0 md: prose-headline-2 ">
+            All cinemas
+          </h2>
           <div className="w-full h-[44px] flex gap-1 bg-base-gray-100 rounded-[4px] p-1 mt-2 md:w-[380px] md:h-[48px] md:mt-0">
             <button
-              className={`flex-1 flex items-center justify-center gap-1 px-0 py-2 rounded-[4px] font-bold transition text-xs md:text-base h-full ${viewMode === "browse-by-city"
+              className={`flex-1 flex items-center justify-center gap-1 px-0 py-2 rounded-[4px] font-bold transition text-xs md:text-base h-full ${
+                viewMode === "browse-by-city"
                   ? "bg-[#434665] text-white shadow"
                   : "bg-transparent text-[#8B93B0] hover:bg-[#35385a]"
-                }`}
+              }`}
               onClick={() => setViewMode("browse-by-city")}
             >
               {viewMode === "browse-by-city" && (
-                <svg className="w-4 h-4 text-brandblue-100" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                <svg
+                  className="w-4 h-4 text-brandblue-100"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="3"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M5 13l4 4L19 7"
+                  />
                 </svg>
               )}
               Browse by City
             </button>
             <button
-              className={`flex-1 flex items-center justify-center gap-1 px-0 py-2 rounded-[4px] font-bold transition text-xs md:text-base h-full ${viewMode === "nearest-locations"
+              className={`flex-1 flex items-center justify-center gap-1 px-0 py-2 rounded-[4px] font-bold transition text-xs md:text-base h-full ${
+                viewMode === "nearest-locations"
                   ? "bg-[#434665] text-white shadow"
                   : "bg-transparent text-[#8B93B0] hover:bg-[#35385a]"
-                }`}
+              }`}
               onClick={() => setViewMode("nearest-locations")}
             >
               {viewMode === "nearest-locations" && (
-                <svg className="w-4 h-4 text-brandblue-100" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                <svg
+                  className="w-4 h-4 text-brandblue-100"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="3"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M5 13l4 4L19 7"
+                  />
                 </svg>
               )}
               Nearest Locations First
@@ -567,11 +637,14 @@ export const FrameByCinema = ({ filters , coupon_id }) => {
         </div>
 
         <div className="flex flex-col items-start gap-4 md:gap-6 w-full">
-          {viewMode === 'browse-by-city' ? (
+          {viewMode === "browse-by-city" ? (
             Object.entries(allCinemasByProvince)
               .sort((a, b) => b[1].length - a[1].length)
               .map(([province, cinemas]) => (
-                <div key={province} className="flex flex-col items-start gap-6 w-full">
+                <div
+                  key={province}
+                  className="flex flex-col items-start gap-6 w-full"
+                >
                   <h3 className="text-base-gray-300 headline-3 text-base md:headline-3 tracking-[var(--headline-3-letter-spacing)] leading-[var(--headline-3-line-height)] [font-style:var(--headline-3-font-style)]">
                     {province}
                   </h3>
@@ -582,7 +655,9 @@ export const FrameByCinema = ({ filters , coupon_id }) => {
                         className="w-full min-h-[120px] max-w-[344px] mx-auto p-4 border border-base-gray-100 rounded-[4px] flex items-center gap-4 mb-2 md:mb-0 md:p-4 md:rounded-[4px] md:bg-transparent md:max-w-[590px] md:border md:border-base-gray-100 cursor-pointer hover:border-brandblue-100 transition-colors duration-200 group md:mx-0"
                       >
                         <div className="w-[40px] h-[40px] md:w-[52px] md:h-[52px] flex items-center justify-center rounded-full bg-[#21263F]">
-                          <FmdGoodIcon style={{ color: '#4E7BEE', fontSize: 20 }} />
+                          <FmdGoodIcon
+                            style={{ color: "#4E7BEE", fontSize: 20 }}
+                          />
                         </div>
                         <div className="flex flex-col items-start justify-center gap-1 flex-1 break-words w-full">
                           <h4 className="text-basewhite headline-3 md:headline-3 group-hover:text-brandblue-100 transition-colors duration-200 break-words w-full">
@@ -604,7 +679,9 @@ export const FrameByCinema = ({ filters , coupon_id }) => {
               ) : locationError ? (
                 <div className="text-base-gray-400 py-4">{locationError}</div>
               ) : !userLocation ? (
-                <div className="text-base-gray-400 py-4">Getting your location...</div>
+                <div className="text-base-gray-400 py-4">
+                  Getting your location...
+                </div>
               ) : nearestCinemas.length === 0 ? (
                 <div className="text-base-gray-400 py-4">No cinemas found.</div>
               ) : (
@@ -614,7 +691,7 @@ export const FrameByCinema = ({ filters , coupon_id }) => {
                     className="w-full min-h-[120px] max-w-[590px] mx-auto p-4 border border-base-gray-100 rounded-[4px] flex items-center gap-4 mb-2 md:mb-0 md:p-4 md:rounded-[4px] md:bg-transparent md:border md:border-base-gray-100 cursor-pointer hover:border-brandblue-100 transition-colors duration-200 group"
                   >
                     <div className="w-[40px] h-[40px] md:w-[52px] md:h-[52px] flex items-center justify-center rounded-full bg-[#21263F]">
-                      <FmdGoodIcon style={{ color: '#4E7BEE', fontSize: 20 }} />
+                      <FmdGoodIcon style={{ color: "#4E7BEE", fontSize: 20 }} />
                     </div>
                     <div className="flex flex-col items-start justify-center gap-1 flex-1 break-words w-full">
                       <h4 className="text-basewhite headline-3 md:headline-3 group-hover:text-brandblue-100 transition-colors duration-200 break-words w-full">

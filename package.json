@@ -32,6 +32,7 @@
     "date-fns": "^4.1.0",
     "lucide-react": "^0.508.0",
     "formidable": "^3.5.4",
+    "formidable": "^3.5.4",
     "geolib": "^3.3.4",
     "next": "15.3.1",
     "react": "^19.0.0",

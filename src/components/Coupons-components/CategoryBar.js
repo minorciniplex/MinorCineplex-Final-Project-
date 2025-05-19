@@ -2,31 +2,36 @@ import { useFetchCoupon } from "@/context/fecthCouponContext";
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-
 export default function CategoryBar() {
   const { coupons, setCoupons } = useFetchCoupon();
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("ทั้งหมด");
   const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
-    const uniqueOwners = [...new Set(coupons.map(coupon => coupon.owner_name))];
+    const uniqueOwners = [
+      ...new Set(coupons.map((coupon) => coupon.owner_name)),
+    ];
     setCategories(["All coupons", ...uniqueOwners]);
-  }, []); 
+  }, []);
 
   const handleCategoryClick = async (category) => {
     setSelectedCategory(category);
-    
+
     if (category === "All coupons") {
       try {
         const response = await axios.get("/api/coupons/get-coupon");
         setCoupons(response.data.coupons);
+        setIsLoading(false);
       } catch (error) {
         console.error("Error fetching All coupons:", error);
       }
     } else {
       try {
-        const response = await axios.get(`/api/coupons/get-coupon/name?owner_name=${category}`);
+        const response = await axios.get(
+          `/api/coupons/get-coupon/name?owner_name=${category}`
+        );
         setCoupons(response.data.coupons);
+        setIsLoading(false)
       } catch (error) {
         console.error("Error fetching category coupons:", error);
       } finally {
@@ -36,8 +41,8 @@ export default function CategoryBar() {
   };
 
   return (
-    
-    <div className="
+    <div
+      className="
       w-full
       h-[118px]
       sm:grid sm:grid-rows-3 sm:grid-flow-col sm:gap-x-4 sm:gap-y-2
@@ -48,7 +53,8 @@ export default function CategoryBar() {
       mx-auto scrollbar-hide
       md:flex md:flex-nowrap 
       bg-[#070C1B] font-bold text-[24px] leading-[30px] tracking-normal 
-    ">
+    "
+    >
       {categories.map((category) => (
         <button
           key={category}

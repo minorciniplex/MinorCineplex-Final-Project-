@@ -12,13 +12,23 @@ export default async function handler(req, res) {
     try {
       const { data, error } = await supabase
         .from("movies")
-        .select("*")
+        .select(
+          `*,
+      movie_genre_mapping (
+      movie_genres (
+        name
+          )
+        ), movie_languages (
+        languages(
+        name))
+          `
+        )
         .eq("movie_id", id)
         .single();
 
       if (error) {
-        console.error("Error fetching profile data:", error);
-        return res.status(500).json({ error: "Error fetching Picture data" });
+        console.error("Error fetching data:", error);
+        return res.status(500).json({ error: "Error fetching data" });
       }
 
       return res.status(200).json({ data });

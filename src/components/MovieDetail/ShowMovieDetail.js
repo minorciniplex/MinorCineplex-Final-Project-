@@ -7,6 +7,8 @@ export default function ShowMovieDetail({ movieId }) {
   const [movie, setMovie] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [genrs, setGenrs] = useState(null);
+  const [language, setLanguage] = useState(null);
 
   useEffect(() => {
     const fetchMovieDetails = async () => {
@@ -24,6 +26,8 @@ export default function ShowMovieDetail({ movieId }) {
           throw new Error("Failed to fetch movie details");
         }
         setMovie(response.data.data);
+        setGenrs(response.data.data.movie_genre_mapping);
+        setLanguage(response.data.data.movie_languages);
         return () => controller.abort();
       } catch (err) {
         if (axios.isCancel(err)) {
@@ -40,7 +44,8 @@ export default function ShowMovieDetail({ movieId }) {
   }, [movieId]);
 
   if (loading) return <div className="text-center py-10">Loading...</div>;
-  if (error) return <div className="text-center py-10 text-red-500">{error}</div>;
+  if (error)
+    return <div className="text-center py-10 text-red-500">{error}</div>;
   if (!movie) return null;
 
   return (
@@ -75,21 +80,21 @@ export default function ShowMovieDetail({ movieId }) {
           <div className="flex flex-col justify-start px-4 py-10 md:p-[60px]">
             <div>
               <h1 className="text-4xl font-bold mb-4">{movie?.title}</h1>
-              <div className="flex flex-wrap md:flex-nowrap gap-2">
-                {movie.genres?.map((genre, index) => (
+              <div className="flex flex-wrap h-[32px] md:flex-nowrap gap-2">
+                {genrs?.map((genre, index) => (
                   <span
                     key={index}
                     className="bg-[--base-gray-100] py-[4px] md:py-[6px] px-2 md:px-3 rounded text-xs md:text-sm text-[--base-gray-300]"
                   >
-                    {genre}
+                    {genre.movie_genres.name}
                   </span>
                 ))}
-                {movie.subtitle_languages?.map((lang, index) => (
+                {language?.map((lang, index) => (
                   <span
                     key={index}
-                    className="bg-[--base-gray-100] py-[4px] md:py-[6px] px-2 md:px-3 rounded text-xs md:text-sm text-[--base-gray-300]"
+                    className="bg-[--base-gray-100] py-[4px] md:py-[6px] px-2 md:px-3 rounded text-xs md:text-sm text-[--base-gray-400]"
                   >
-                    {lang}
+                    {lang.languages.name}
                   </span>
                 ))}
                 <div className="border md:border border-[--base-gray-200] md:my-1 md:mx-5"></div>

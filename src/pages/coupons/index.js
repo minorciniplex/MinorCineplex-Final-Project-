@@ -75,7 +75,7 @@ export default function Coupons() {
                 </div>
             </div>
 
-            <div className="w-full fixed bottom-0 left-0 right-0">
+            <div className="w-full mt-auto">
                 <FooterSection/>
             </div>
         </div>

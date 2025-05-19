@@ -10,7 +10,7 @@ function CouponButton({ isClaimed, isLoggedIn, couponId, handleClaimCoupon, isDe
         onClick={() => !isDetailPage && router.push(`/coupons/viewcoupon/${couponId}`)}
         disabled={isDetailPage}
       >
-        {isDetailPage ? 'coupon saved' : 'view detail'}
+        {isDetailPage ? 'coupon saved' : 'View Detail'}
       </button>
     ) : (
       <button

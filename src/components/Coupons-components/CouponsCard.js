@@ -34,9 +34,9 @@ function CouponsCard({ coupon_id, image, title, end_date }) {
   }
 
   return (
-    <div className="w-full bg-[#070C1B] flex flex-col items-start justify-center rounded-[8px] shadow-md overflow-hidden group cursor-pointer">
+    <div className="w-[285px] h-[477px] bg-[#070C1B] flex flex-col items-center justify-center  rounded-[8px] shadow-md overflow-hidden group cursor-pointer">
       <div
-        className="w-full h-[160px] md:w-[285px] md:h-[285px] bg-cover bg-center transition-transform duration-300 group-hover:scale-105 flex items-center justify-center"
+        className="w-full h-[285px] md:w-[285px] md:h-[285px] bg-cover bg-center transition-transform duration-300 group-hover:scale-105 flex items-center justify-center"
         onClick={() => router.push(`/coupons/viewcoupon/${coupon_id}`)}
       >
         {image ? (
@@ -65,7 +65,7 @@ function CouponsCard({ coupon_id, image, title, end_date }) {
             </span>
           </div>
         </div>
-        <div className="w-full mt-3">
+        <div className="w-full mt-3 flex justify-center">
           <CouponButton
             isClaimed={isClaimed}
             isLoggedIn={isLoggedIn}

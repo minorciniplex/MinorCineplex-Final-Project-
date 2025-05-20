@@ -25,6 +25,7 @@ export default function Register() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+
   const handleSubmit = async () => {
     try {
       setLoading(true);
@@ -39,7 +40,7 @@ export default function Register() {
     } catch (error) {
       if (error.response) {
         console.log(error.response.data.error);
-        setResError("email already exists");
+        setResError(error.response.data.error);
         setLoading(false);
         setForm({ ...form, password: "" });
       } else {
@@ -69,6 +70,7 @@ export default function Register() {
     }
 
     setError(newErrors);
+    setResError("")
 
     if (Object.keys(newErrors).length === 0) {
       handleSubmit();

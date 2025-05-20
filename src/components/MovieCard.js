@@ -5,7 +5,7 @@ import Link from 'next/link';
 const MovieCard = ({ movie }) => {
   return (
     <Link href={`/movies/${movie.id}`}>
-      <div className="group relative overflow-hidden rounded-lg bg-white shadow-md transition-all duration-300 hover:shadow-xl">
+      <div className="group relative overflow-hidden rounded-[4px] bg-white shadow-md transition-all duration-300 hover:shadow-xl">
         <div className="aspect-[2/3] relative overflow-hidden">
           <Image
             src={`/assets/images/${movie.image}`}

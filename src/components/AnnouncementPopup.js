@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { XIcon } from "lucide-react";
-import Button from "./Button";
 import { Card, CardContent } from "./ui/card";
 import FmdGoodIcon from '@mui/icons-material/FmdGood';
 

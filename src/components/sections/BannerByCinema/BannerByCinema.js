@@ -27,15 +27,28 @@ const BannerByCinema = ({
       // ดึงรายชื่อหนัง
       const { data: movies } = await supabase
         .from('movies')
-        .select('movie_id, title, original_language, genres');
-      if (movies) {
-        setMovieList(movies);
-        const langs = Array.from(new Set(movies.map(m => m.original_language).filter(Boolean)));
-        setLanguageList(langs);
-        const allGenres = movies.flatMap(m => Array.isArray(m.genres) ? m.genres : []);
-        setGenreList(Array.from(new Set(allGenres)));
-      }
-      // ดึงรายชื่อจังหวัด/เมืองจาก cinemas
+        .select('movie_id, title');
+      if (movies) setMovieList(movies);
+
+      // ดึงภาษา (เฉพาะที่มีใน movie_languages)
+      const { data: movieLangs } = await supabase
+        .from('movie_languages')
+        .select('language_id');
+      const uniqueLangIds = Array.from(new Set((movieLangs || []).map(l => l.language_id)));
+      const { data: languages } = await supabase
+        .from('languages')
+        .select('language_id, name');
+      const languageList = (languages || [])
+        .filter(l => uniqueLangIds.includes(l.language_id));
+      setLanguageList(languageList);
+
+      // ดึง genre ทั้งหมด
+      const { data: genres } = await supabase
+        .from('movie_genres')
+        .select('genre_id, name');
+      setGenreList(genres || []);
+
+      // ดึงจังหวัด/เมือง
       const { data: cinemas } = await supabase
         .from('cinemas')
         .select('province');
@@ -121,7 +134,7 @@ const BannerByCinema = ({
             >
               <option value="">Language</option>
               {languageList.map(lang => (
-                <option key={lang} value={lang}>{lang}</option>
+                <option key={lang.language_id} value={lang.language_id}>{lang.name}</option>
               ))}
             </select>
             <ExpandMoreIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none text-base-gray-300" />
@@ -135,7 +148,7 @@ const BannerByCinema = ({
             >
               <option value="">Genre</option>
               {genreList.map(genre => (
-                <option key={genre} value={genre}>{genre}</option>
+                <option key={genre.genre_id} value={genre.genre_id}>{genre.name}</option>
               ))}
             </select>
             <ExpandMoreIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none text-base-gray-300" />
@@ -199,7 +212,7 @@ const BannerByCinema = ({
               >
                 <option value="">Language</option>
                 {languageList.map(lang => (
-                  <option key={lang} value={lang}>{lang}</option>
+                  <option key={lang.language_id} value={lang.language_id}>{lang.name}</option>
                 ))}
               </select>
               <ExpandMoreIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none text-base-gray-300" />
@@ -213,7 +226,7 @@ const BannerByCinema = ({
               >
                 <option value="">Genre</option>
                 {genreList.map(genre => (
-                  <option key={genre} value={genre}>{genre}</option>
+                  <option key={genre.genre_id} value={genre.genre_id}>{genre.name}</option>
                 ))}
               </select>
               <ExpandMoreIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none text-base-gray-300" />

@@ -34,18 +34,18 @@ function CouponsCard({ coupon_id, image, title, end_date }) {
   }
 
   return (
-    <div className="w-full max-w-[161px] h-[337px] bg-[#10142A] flex flex-col items-center justify-start rounded-[4px] shadow-[0_4px_16px_0_rgba(0,0,0,0.10)] overflow-hidden group cursor-pointer border border-[#23284A] transition-transform duration-200 hover:scale-[1.03] md:w-[285px] md:h-[477px] md:max-w-[285px] md:rounded-[16px]">
+    <div className="w-full max-w-[161px] h-[337px] bg-[#10142A] flex flex-col items-center justify-start rounded-[4px] shadow-[0_4px_16px_0_rgba(0,0,0,0.10)] overflow-hidden group cursor-pointer border border-[#23284A] transition-transform duration-200 hover:scale-[1.03] md:w-[285px] md:h-[477px] md:max-w-[285px] md:rounded-[8px]">
       <div
-        className="w-full h-[161px] md:w-[285px] md:h-[200px] bg-cover bg-center flex items-center justify-center border-b border-[#23284A]"
+        className="w-full h-[161px] md:w-[285px] md:h-[285px] bg-cover bg-center flex items-center justify-center border-b border-[#23284A] md:bg-cover md:bg-center"
         onClick={() => router.push(`/coupons/viewcoupon/${coupon_id}`)}
       >
         {image ? (
           <Image
             src={image}
             alt={title}
-            width={161}
-            height={161}
-            className="object-cover w-full h-[161px] md:w-[285px] md:h-[200px]"
+            width={285}
+            height={285}
+            className="object-cover w-full h-[161px] md:w-[285px] md:h-[285px]"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-gray-500 bg-base-gray-100">No Image</div>

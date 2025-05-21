@@ -429,17 +429,16 @@ export const FrameByCinema = ({ filters , coupon_id }) => {
               ? nowShowingMovies
               : comingSoonMovies
             )?.slice(startIndex, endIndex).length === 0 ? (
-            <div className="col-span-full text-center text-base-gray-400 py-10">
-              No movies found.
-            </div>
-          ) : (
-            (activeTab === "now-showing" ? nowShowingMovies : comingSoonMovies)
-              ?.slice(startIndex, endIndex)
-              .map((movie) => (
-                <div
-                  key={movie.movie_id || movie.id}
-                  className="flex flex-col items-start gap-3 md:gap-4 group cursor-pointer"
-                >
+              <div className="col-span-full text-center text-base-gray-400 py-10">
+                No movies found.
+              </div>
+            ) : (
+              (activeTab === "now-showing"
+                ? nowShowingMovies
+                : comingSoonMovies
+              )?.slice(startIndex, endIndex).map((movie) => (
+                
+                <div key={movie.movie_id || movie.id} className="flex flex-col items-start gap-3 md:gap-4 group cursor-pointer">
                   <div
                     className="w-[150px] h-[225px]  md:w-[285px] md:h-[416px] rounded-[4px] bg-cover bg-center shadow-md mx-auto transition-transform duration-300 group-hover:scale-105"
                     style={{

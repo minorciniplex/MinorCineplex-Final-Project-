@@ -51,11 +51,13 @@ export default function Login() {
         router.push("/home-landing");
       }
     } catch (error) {
+      console.log(error.response?.data?.error);
+      console.log(error.message);
       if (
         error.response?.data?.error ||
         error.message === "Invalid login credentials"
       ) {
-        setResError("Email not confirmed");
+        setResError("Email or password is incorrect");
         setLoading(false);
         setForm({ ...form, password: "" });
       } else if (error.response?.data?.error || error.message) {

@@ -7,7 +7,7 @@ import MyCoupon from "./my-coupons/index";
 import ResetPassword from "./reset-password/index";
 function Dashboard() {
   const router = useRouter();
-  const [activeComponent, setActiveComponent] = useState("profile"); // เริ่มต้นที่ profile
+  const [activeComponent, setActiveComponent] = useState("");
 
   const handleComponentChange = (component) => {
     setActiveComponent(component);

@@ -2,15 +2,18 @@ import requireUser from "@/middleware/requireUser";
 import { withMiddleware } from "@/middleware/withMiddleware";
 
 const handler = async (req, res) => {
-  const supabase = req.supabase;
-  const user = req.user; // เพิ่มการดึงข้อมูล user จาก middleware
-
   try {
     if (req.method !== "POST") {
       return res.status(405).json({ error: "Method not allowed" });
     }
 
     const { coupon_id } = req.body;
+    const supabase = req.supabase;
+    const user = req.user;
+
+    if (!user) {
+      return res.status(401).json({ error: "Unauthorized: Please login first." });
+    }
 
     if (!coupon_id) {
       return res.status(400).json({ error: "Coupon ID is required" });

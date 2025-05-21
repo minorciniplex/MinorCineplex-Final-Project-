@@ -20,6 +20,17 @@ function ErrorBoundary({ children }) {
   );
 }
 
+// เพิ่มฟังก์ชันแปลงวันที่
+function formatDate(dateString) {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  return date.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
+
 export const FrameByCinema = ({ filters , coupon_id, onError }) => {
   const sectionRef = useRef(null);
   const [activeTab, setActiveTab] = useState("now-showing");
@@ -53,6 +64,21 @@ export const FrameByCinema = ({ filters , coupon_id, onError }) => {
         setNowShowingMovies(nowShowingRes.data || []);
         setComingSoonMovies(comingSoonRes.data || []);
         // หมายเหตุ: ถ้าต้องการ genres/languages เพิ่มเติม สามารถดึงเพิ่มได้ที่นี่
+
+        // --- เพิ่มส่วนนี้ ---
+        // รวมหนังทั้งหมด
+        const allMovies = [...(nowShowingRes.data || []), ...(comingSoonRes.data || [])];
+        const genresMap = {};
+        const langMap = {};
+        allMovies.forEach(movie => {
+          // ปรับชื่อ key ให้ตรงกับข้อมูลจริง ถ้าไม่ตรงให้เปลี่ยนชื่อ
+          genresMap[movie.movie_id || movie.id] = movie.genres || [];
+          langMap[movie.movie_id || movie.id] = movie.languages || [];
+        });
+        setMovieGenresMap(genresMap);
+        setMovieLangMap(langMap);
+        // --- จบส่วนนี้ ---
+
       } catch (error) {
         console.error('Error fetching movies:', error);
         if (onError) onError(error);
@@ -298,14 +324,14 @@ export const FrameByCinema = ({ filters , coupon_id, onError }) => {
     <>
       <section
         ref={sectionRef}
-        className="flex flex-col w-full mt-[180px] md:mt-20"
+        className="flex flex-col w-full mt-[170px] md:mt-20"
       >
         {/* Now Showing Section */}
         <div className="flex flex-col items-center gap-2 md:gap-10 px-4 md:px-[120px] py-4 md:py-20 w-full max-w-full md:max-w-[1440px] mx-auto">
-          <div className="flex flex-row items-center gap-6 w-full">
+          <div className="flex flex-row items-center gap-6 w-full mb-8 ">
             <button
               onClick={() => setActiveTab("now-showing")}
-              className={`pb-1 transition-all duration-500 ease-in-out font-bold text-lg md:text-2xl ${
+              className={`pb-1 transition-all duration-500 ease-in-out font-bold text-2xl md:text-3xl ${
                 activeTab === "now-showing"
                   ? "text-white border-b-2 border-base-gray-200"
                   : "text-base-gray-400"
@@ -315,7 +341,7 @@ export const FrameByCinema = ({ filters , coupon_id, onError }) => {
             </button>
             <button
               onClick={() => setActiveTab("coming-soon")}
-              className={`pb-1 transition-all duration-500 ease-in-out font-bold text-lg md:text-2xl ${
+              className={`pb-1 transition-all duration-500 ease-in-out font-bold text-2xl md:text-3xl ${
                 activeTab === "coming-soon"
                   ? "text-white border-b-2 border-base-gray-200"
                   : "text-base-gray-400"
@@ -362,7 +388,7 @@ export const FrameByCinema = ({ filters , coupon_id, onError }) => {
                     <div className="flex flex-col items-start w-full">
                       <div className="flex items-center justify-between w-full">
                         <span className="text-base-gray-300 body-2-regular flex items-center">
-                          {movie.release_date || movie.date}
+                          {formatDate(movie.release_date || movie.date)}
                         </span>
                         <div className="flex items-center">
                           <StarFillIcon className="w-4 h-4 fill-[#4E7BEE] text-[#4E7BEE]" />
@@ -372,7 +398,7 @@ export const FrameByCinema = ({ filters , coupon_id, onError }) => {
                         </div>
                       </div>
                       <h3
-                        className="text-basewhite font-bold truncate max-w-full md:headline-4 group-hover:text-brandblue-100 transition-colors duration-200"
+                        className="text-basewhite font-bold truncate max-w-full text-lg md:text-[22.5px] group-hover:text-brandblue-100 transition-colors duration-200"
                         onClick={() =>
                           router.push(
                             `/movies-detail/${movie.movie_id || movie.id}`

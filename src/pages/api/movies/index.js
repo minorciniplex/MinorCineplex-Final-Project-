@@ -92,7 +92,43 @@ export default async function handler(req, res) {
 
       const { data, error } = await query.order('release_date', { ascending: true });
       if (error) throw error;
-      res.status(200).json(data);
+
+      // --- ดึง genres และ languages ของหนังแต่ละเรื่อง ---
+      const movieIds = data.map(m => m.movie_id);
+      // ดึง genres (แก้ไขให้ join กับ movie_genres)
+      let genresMap = {};
+      if (movieIds.length > 0) {
+        const { data: genresData } = await supabase
+          .from('movie_genre_mapping')
+          .select('movie_id, movie_genres:genre_id (name)')
+          .in('movie_id', movieIds);
+        genresData?.forEach(item => {
+          if (!genresMap[item.movie_id]) genresMap[item.movie_id] = [];
+          if (item.movie_genres && item.movie_genres.name) {
+            genresMap[item.movie_id].push(item.movie_genres.name);
+          }
+        });
+      }
+      // ดึง languages (เหมือนเดิม)
+      let languagesMap = {};
+      if (movieIds.length > 0) {
+        const { data: langsData } = await supabase
+          .from('movie_languages')
+          .select('movie_id, language_type, languages (code)')
+          .in('movie_id', movieIds);
+        langsData?.forEach(item => {
+          if (!languagesMap[item.movie_id]) languagesMap[item.movie_id] = [];
+          languagesMap[item.movie_id].push({ type: item.language_type, code: item.languages.code });
+        });
+      }
+      // รวม genres/languages เข้าแต่ละ movie
+      const moviesWithDetails = data.map(movie => ({
+        ...movie,
+        genres: genresMap[movie.movie_id] || [],
+        languages: languagesMap[movie.movie_id] || []
+      }));
+      res.status(200).json(moviesWithDetails);
+      return;
     } catch (error) {
       res.status(500).json({ error: error.message });
     }

@@ -1,11 +1,5 @@
 import { Star as StarFillIcon } from "lucide-react";
 import React, { useState, useEffect, useRef } from "react";
-import { Badge } from "../../ui/badge";
-import Button from "../../Button";
-import { Card, CardContent } from "../../ui/card";
-import { Separator } from "../../ui/separator";
-import { Tabs, TabsList, TabsTrigger } from "../../ui/tabs";
-import CouponCard from "@/components/Coupon/CouponCard";
 import FmdGoodIcon from '@mui/icons-material/FmdGood';
 import { supabase } from "@/utils/supabase";
 import { getDistance } from 'geolib';
@@ -63,11 +57,41 @@ export const FrameByCinema = ({ filters , coupon_id }) => {
         const screenIds = screens ? screens.map(s => s.screen_id) : [];
         let showtimeQuery = supabase
           .from('showtimes')
-          .select('movie_id, date');
+          .select('movie_id');
         if (screenIds.length > 0) showtimeQuery = showtimeQuery.in('screen_id', screenIds);
         if (filters.releaseDate) showtimeQuery = showtimeQuery.eq('date', filters.releaseDate);
         const { data: showtimes } = await showtimeQuery;
-        filteredMovieIds = showtimes ? Array.from(new Set(showtimes.map(st => st.movie_id))) : [];
+        const cityMovieIds = showtimes ? Array.from(new Set(showtimes.map(st => st.movie_id))) : [];
+        if (filteredMovieIds) {
+          filteredMovieIds = filteredMovieIds.filter(id => cityMovieIds.includes(id));
+        } else {
+          filteredMovieIds = cityMovieIds;
+        }
+      }
+      if (filters && filters.language) {
+        const { data: movieLangs } = await supabase
+          .from('movie_languages')
+          .select('movie_id')
+          .eq('language_id', filters.language)
+          .eq('language_type', 'original');
+        const langMovieIds = movieLangs ? movieLangs.map(m => m.movie_id) : [];
+        if (filteredMovieIds) {
+          filteredMovieIds = filteredMovieIds.filter(id => langMovieIds.includes(id));
+        } else {
+          filteredMovieIds = langMovieIds;
+        }
+      }
+      if (filters && filters.genre) {
+        const { data: movieGenres } = await supabase
+          .from('movie_genre_mapping')
+          .select('movie_id')
+          .eq('genre_id', filters.genre);
+        const genreMovieIds = movieGenres ? movieGenres.map(m => m.movie_id) : [];
+        if (filteredMovieIds) {
+          filteredMovieIds = filteredMovieIds.filter(id => genreMovieIds.includes(id));
+        } else {
+          filteredMovieIds = genreMovieIds;
+        }
       }
       let baseNowShowing = supabase
         .from('movies')
@@ -83,8 +107,6 @@ export const FrameByCinema = ({ filters , coupon_id }) => {
         let query = baseQuery;
         if (filters) {
           if (filters.movie) query = query.eq('movie_id', filters.movie);
-          if (filters.language) query = query.eq('original_language', filters.language);
-          if (filters.genre) query = query.contains('genres', [filters.genre]);
           if (filters.releaseDate && !filters.city) query = query.eq('release_date', filters.releaseDate);
         }
         return query;
@@ -373,7 +395,7 @@ export const FrameByCinema = ({ filters , coupon_id }) => {
       className="flex flex-col w-full mt-[180px] md:mt-20"
     >
       {/* Now Showing Section */}
-      <div className="flex flex-col items-center gap-4 md:gap-10 px-4 md:px-[120px] py-4 md:py-20 w-full max-w-full md:max-w-[1440px] mx-auto">
+      <div className="flex flex-col items-center gap-2 md:gap-10 px-4 md:px-[120px] py-4 md:py-20 w-full max-w-full md:max-w-[1440px] mx-auto">
         <div className="flex flex-row items-center gap-6 w-full">
           <button
             onClick={() => setActiveTab("now-showing")}
@@ -419,7 +441,7 @@ export const FrameByCinema = ({ filters , coupon_id }) => {
                   className="flex flex-col items-start gap-3 md:gap-4 group cursor-pointer"
                 >
                   <div
-                    className="w-[150px] h-[225px] md:w-[285px] md:h-[416px] rounded-[8px] bg-cover bg-center shadow-md mx-auto transition-transform duration-300 group-hover:scale-105"
+                    className="w-[150px] h-[225px]  md:w-[285px] md:h-[416px] rounded-[4px] bg-cover bg-center shadow-md mx-auto transition-transform duration-300 group-hover:scale-105"
                     style={{
                       backgroundImage: `url(${
                         movie.poster_url || movie.poster
@@ -439,7 +461,7 @@ export const FrameByCinema = ({ filters , coupon_id }) => {
                       <div className="flex items-center">
                         <StarFillIcon className="w-4 h-4 fill-[#4E7BEE] text-[#4E7BEE]" />
                         <span className="text-base-gray-300 body-2-regular ml-1 flex items-center">
-                          {movie.rating}
+                          {movie.rating !== undefined && movie.rating !== null ? Number(movie.rating).toFixed(1) : ''}
                         </span>
                       </div>
                     </div>
@@ -546,7 +568,7 @@ export const FrameByCinema = ({ filters , coupon_id }) => {
           </button>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-5 w-full px-3 md:px-0">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-5 w-full  md:px-0">
           {coupons.length === 0 ? (
             <div className="col-span-full text-center text-base-gray-400 py-10">
               ไม่พบคูปอง

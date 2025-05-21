@@ -5,6 +5,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method Not Allowed' })
   }
 
+
   try {
     // ตรวจสอบ cookie ที่มีในรีเควสก่อน
     console.log("Cookies in request:", req.cookies)
@@ -22,14 +23,14 @@ export default async function handler(req, res) {
     const isProd = process.env.NODE_ENV === 'production'
     const cookieOptions = `Path=/; HttpOnly; SameSite=Lax; Expires=Thu, 01 Jan 1970 00:00:00 GMT${isProd ? '; Secure' : ''}`
     
-
-    // ดึง project reference จากตัวแปรแวดล้อม หรือใช้ค่าแบบ hardcode
     const projectRef = process.env.NEXT_PUBLIC_SUPABASE_PROJECT_REF
-
+    
     if (!projectRef) {
         return res.status(500).json({ message: 'Missing Supabase project reference' })
       }
+      
 
+    
     // รายชื่อ cookie ที่ต้องลบโดยใช้ชื่อที่ถูกต้อง
     const cookiesToClear = [
       `sb-${projectRef}-auth-token`

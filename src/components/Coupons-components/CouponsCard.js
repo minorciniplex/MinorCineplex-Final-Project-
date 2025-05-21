@@ -34,29 +34,29 @@ function CouponsCard({ coupon_id, image, title, end_date }) {
   }
 
   return (
-    <div className="w-[285px] h-[477px] bg-[#070C1B] flex flex-col items-center justify-center  rounded-[8px] shadow-md overflow-hidden group cursor-pointer">
+    <div className="w-full max-w-[161px] h-[337px] bg-[#10142A] flex flex-col items-center justify-start rounded-[4px] shadow-[0_4px_16px_0_rgba(0,0,0,0.10)] overflow-hidden group cursor-pointer border border-[#23284A] transition-transform duration-200 hover:scale-[1.03] md:w-[285px] md:h-[477px] md:max-w-[285px] md:rounded-[16px]">
       <div
-        className="w-full h-[285px] md:w-[285px] md:h-[285px] bg-cover bg-center transition-transform duration-300 group-hover:scale-105 flex items-center justify-center"
+        className="w-full h-[161px] md:w-[285px] md:h-[200px] bg-cover bg-center flex items-center justify-center border-b border-[#23284A]"
         onClick={() => router.push(`/coupons/viewcoupon/${coupon_id}`)}
       >
         {image ? (
           <Image
             src={image}
             alt={title}
-            width={285}
-            height={160}
-            className="object-cover w-full h-full"
+            width={161}
+            height={161}
+            className="object-cover w-full h-[161px] md:w-[285px] md:h-[200px]"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-gray-500 bg-base-gray-100">No Image</div>
         )}
       </div>
-      <div className="flex flex-col items-start justify-between pt-3 pb-4 px-4 md:pt-4 md:pb-6 md:px-6 w-full bg-basegray-0 flex-1">
-        <div className="flex flex-col gap-2 w-full flex-1">
-          <h3 className="text-basewhite font-bold text-left text-sm md:headline-4 group-hover:text-brandblue-100 transition-colors duration-200 max-w-full line-clamp-2">
-            {truncateText(title, 70)}
+      <div className="flex flex-col items-start justify-between mt-3 pb-3 md:pt-4 md:pb-6 md:px-6 w-full bg-[#10142A] flex-1">
+        <div className="flex flex-col gap-2 px-2 w-full flex-1">
+          <h3 className="text-basewhite body-1-medium text-left text-xs md:headline-4 group-hover:text-brandblue-100 transition-colors duration-200 max-w-full line-clamp-2 tracking-tight">
+            {truncateText(title, 38)}
           </h3>
-          <div className="flex items-center gap-2 w-full text-xs md:text-base">
+          <div className="flex items-center gap-2 w-full text-[11px] md:text-base mt-1">
             <span className="text-base-gray-300 md:body-2-regular whitespace-nowrap">
               Valid until
             </span>
@@ -65,7 +65,7 @@ function CouponsCard({ coupon_id, image, title, end_date }) {
             </span>
           </div>
         </div>
-        <div className="w-full mt-3 flex justify-center">
+        <div className="w-full mt-2 flex justify-center">
           <CouponButton
             isClaimed={isClaimed}
             isLoggedIn={isLoggedIn}
@@ -79,7 +79,7 @@ function CouponsCard({ coupon_id, image, title, end_date }) {
         open={alertOpen}
         onClose={() => setAlertOpen(false)}
         text="Coupon claimed successfully"
-        text_sub="You can now use this coupon at the cinema"
+        text_sub="You can now use this coupon"
       />
     </div>
   );

@@ -25,6 +25,7 @@ export default function Register() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+
   const handleSubmit = async () => {
     try {
       setLoading(true);
@@ -37,9 +38,15 @@ export default function Register() {
         router.push("/auth/register-complete");
       }
     } catch (error) {
+      if (error.response.data.error.includes('duplicate key value violates unique constraint "users_email_key"')) {
+        setResError("Email already exists");
+        setLoading(false);
+        setForm({ ...form, password: "" });
+        return;
+      }
       if (error.response) {
         console.log(error.response.data.error);
-        setResError("email already exists");
+        setResError(error.response.data.error);
         setLoading(false);
         setForm({ ...form, password: "" });
       } else {
@@ -69,6 +76,7 @@ export default function Register() {
     }
 
     setError(newErrors);
+    setResError("")
 
     if (Object.keys(newErrors).length === 0) {
       handleSubmit();

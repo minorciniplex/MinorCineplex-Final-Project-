@@ -3,10 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "dev": "next dev --turbopack",
+    "format:package": "sort-package-json",
+    "lint": "next lint",
+    "start": "next start"
   },
   "dependencies": {
     "@chakra-ui/react": "^3.16.1",
@@ -49,6 +50,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.3.1",
     "postcss": "^8.4.31",
+    "sort-package-json": "^3.2.1",
     "tailwindcss": "^3.3.0"
   }
 }

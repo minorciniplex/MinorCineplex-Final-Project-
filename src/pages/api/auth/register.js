@@ -23,12 +23,6 @@ export default async function handler(req, res) {
       password,
     });
 
-    
-
-   
-
-    
-
     if (error) {
       return res.status(400).json({ error: error.message });
     }
@@ -41,7 +35,15 @@ export default async function handler(req, res) {
 
     const { data, error: insertError } = await supabase
       .from("users")
-      .insert([{ name, email, user_id: userId, user_profile: "https://res.cloudinary.com/djrtfvimn/image/upload/v1747368614/image_bgcu1h.png" }]);
+      .insert([
+        {
+          name,
+          email,
+          user_id: userId,
+          user_profile:
+            "https://res.cloudinary.com/djrtfvimn/image/upload/v1747368614/image_bgcu1h.png",
+        },
+      ]);
 
     if (insertError) {
       return res.status(400).json({ error: insertError.message });

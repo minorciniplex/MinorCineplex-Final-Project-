@@ -4,6 +4,8 @@ import { useEffect } from "react";
 import axios from "axios";
 import { useStatus } from "@/context/StatusContext";
 import CouponAlert from "@/components/Coupons-components/CouponAlert";
+import Image from "next/image";
+import ProfileAlert from "@/components/ProfileAlert";
 
 const ProfileUpload = () => {
   const router = useRouter();
@@ -15,14 +17,65 @@ const ProfileUpload = () => {
   const [form, setForm] = useState({
     name: "",
     email: "",
+    user_profile: "",
   });
   const [alertOpen, setAlertOpen] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [profileImg, setProfileImg] = useState(
+    user?.user_profile || "/assets/images/default-logo.png.png"
+  );
+
+  const handleImageChange = async (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setUploadingImage(true);
+      const file = e.target.files[0];
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        const res = await fetch("/api/upload-image", {
+          method: "POST",
+          body: formData,
+        });
+        const data = await res.json();
+        if (data.secure_url) {
+          setProfileImg(data.secure_url);
+          setForm((prev) => ({
+            ...prev,
+            user_profile: data.secure_url,
+          }));
+        } else {
+          alert("Image upload failed: " + (data.error || ""));
+        }
+      } catch (err) {
+        console.error("Error uploading image:", err);
+        alert("An error occurred while uploading the image");
+      } finally {
+        setUploadingImage(false);
+      }
+    }
+  };
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.put("/api/auth/update-profile", {
+        user_profile: form.user_profile,
+      });
+      setLoading(true);
+      await fetchUserData();
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      alert("An error occurred while saving your profile");
+    }
+  };
 
   useEffect(() => {
     if (user?.email) {
       setForm((prev) => ({
         ...prev,
-        email: user.email,
+        email: user?.email,
       }));
     }
   }, [user?.email]);
@@ -30,10 +83,13 @@ const ProfileUpload = () => {
   const fetchUserData = async () => {
     try {
       const response = await axios.get("/api/auth/check-user");
-      setForm({
+      setForm((prev) => ({
+        ...prev,
+
         name: response.data.data.name || "",
-        email: response.data.data.email || "",
-      });
+        user_profile: response.data.data.user_profile || "",
+      }));
+
       setUserData(response.data.data);
     } catch (error) {
       console.error("Error fetching user data:", error);
@@ -52,29 +108,40 @@ const ProfileUpload = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
+    setError({ name: "", email: "", both: "" }); // แก้จาก setError(null)
     setAlertOpen(false);
+    setShowAlert(false);
+
+    if (form.user_profile) {
+      handleSave(e);
+    }
 
     if (!form.name) {
-      setError({ name: "Name is required " });
+      setError({ name: "Name is required ", email: "", both: "" });
       setLoading(false);
       return;
     }
 
     if (!form.email) {
-      setError({ email: "Email is required " });
+      setError({ name: "", email: "Email is required ", both: "" });
       setLoading(false);
       return;
     }
 
     if (!/\S+@\S+\.\S+/.test(form.email)) {
-      setError({ email: "Email is invalid" });
+      setError({ name: "", email: "Email is invalid", both: "" });
       setLoading(false);
       return;
     }
 
-    if (form.name === userData.name && form.email === userData.email) {
-      setError({ both: "No changes made" });
+    // เช็ค userData ก่อนใช้งาน
+    if (
+      userData &&
+      form.name === userData.name &&
+      form.email === userData.email &&
+      form.user_profile === userData.user_profile
+    ) {
+      setError({ name: "", email: "", both: "No changes made" });
       setLoading(false);
       return;
     }
@@ -86,10 +153,14 @@ const ProfileUpload = () => {
         setAlertOpen("อัพเดทโปรไฟล์สำเร็จ");
         // รีเฟรชข้อมูลผู้ใช้
         checkAuthStatus();
-        fetchUserData()
+        fetchUserData();
       }
     } catch (error) {
-      setError({ both: error.response?.data?.error || error.message });
+      setError({
+        name: "",
+        email: "",
+        both: error.response?.data?.error || error.message,
+      });
     } finally {
       setLoading(false);
     }
@@ -104,49 +175,61 @@ const ProfileUpload = () => {
       <h2 className="text-[#8B93B0] text-lg mb-4 w-full lg:w-[550px]">
         Information you add here is visible to anyone who can view your profile
       </h2>
-
-      {/*    {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
-        </div>
-      )}
-
-      {success && (
-        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-          {success}
-        </div>
-      )} */}
       <div>
-        upload profile image
-        {/* upload profile image icon*/}
-        <div className="bg-white rounded-full w-[40px] h-[40px]">
-          <svg
-            width="40"
-            height="40"
-            viewBox="0 0 20 20"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className="px-2"
-          >
-            <path
-              d="M16.4402 17.0389C16.0603 15.9757 15.2234 15.0363 14.0591 14.3662C12.8948 13.6962 11.4682 13.333 10.0007 13.333C8.53309 13.333 7.10654 13.6962 5.94224 14.3662C4.77795 15.0363 3.94098 15.9757 3.56115 17.0389"
-              stroke="#8B93B0"
-              strokeWidth="1.2"
-              strokeLinecap="round"
-            />
-            <ellipse
-              cx="9.99935"
-              cy="6.66634"
-              rx="3.33333"
-              ry="3.33333"
-              stroke="#8B93B0"
-              strokeWidth="1.2"
-              strokeLinecap="round"
-            />
-          </svg>
+        {/* Content */}
+        <div className="flex-1 w-full max-w-[400px] mx-auto md:pt-14 md:ml-[20px] md:mt-[-38px]">
+          <div className="flex flex-col items-start mb-6">
+            <div className="w-[120px] h-[120px] rounded-full bg-[#23263A] flex items-center justify-center overflow-hidden mb-2 relative">
+              <Image
+                src={form.user_profile}
+                alt="Profile"
+                width={120}
+                height={120}
+                className="object-cover w-[120px] h-[120px] rounded-full"
+              />
+              {uploadingImage && (
+                <div className="absolute inset-0 bg-black/60 flex items-center justify-center rounded-full z-10">
+                  <svg
+                    className="animate-spin h-8 w-8 text-white"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                      fill="none"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                    />
+                  </svg>
+                </div>
+              )}
+            </div>
+            <label className="body-1-regular text-white cursor-pointer text-sm underline ml-[140px] mt-[-26px] ">
+              Upload
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageChange}
+                disabled={uploadingImage}
+              />
+            </label>
+          </div>
         </div>
-        {/* upload profile image icon*/}
       </div>
+      <ProfileAlert
+        show={showAlert}
+        title="Saved profile"
+        description="Your profile has been successfully updated"
+        onClose={() => setShowAlert(false)}
+      />
 
       <form onSubmit={handleSubmit} className="w-full text-[#8B93B0]">
         <div className="mb-4">
@@ -187,20 +270,20 @@ const ProfileUpload = () => {
 
         <button
           type="submit"
-          disabled={loading}
-          className={`w-[111px] h-[48px] pt-3 pr-10 pb-3 pl-10 gap-1.5 rounded border bg-[#070C1B] text-white border-[#565F7E] ${
-            loading ? "opacity-50 cursor-not-allowed" : ""
-          }`}
+          className="w-[111px] h-[48px] pt-3 pr-10 pb-3 pl-10 gap-1.5 rounded border bg-[#070C1B] text-white border-[#565F7E] hover:bg-[#1c223a] focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
-          {loading ? "Updating..." : "Save"}
+          Save
         </button>
-        {error?.both ? <p className="text-red-500">{error?.both}</p> : null}
+        {error?.both ? (
+          <p className="text-red-500 pt-2">{error?.both}</p>
+        ) : null}
       </form>
       <CouponAlert
-      open={alertOpen}
-      onClose={() => setAlertOpen(false)}
-      text="Update profile data successfully"
-      text_sub="Your data have been changed"/>
+        open={alertOpen}
+        onClose={() => setAlertOpen(false)}
+        text="Update profile data successfully"
+        text_sub="Your data have been changed"
+      />
     </div>
   );
 };

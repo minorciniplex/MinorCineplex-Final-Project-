@@ -52,16 +52,14 @@ export default function Login() {
       }
     } catch (error) {
       console.log(error.response?.data?.error);
-      console.log(error.message);
       if (
-        error.response?.data?.error ||
-        error.message === "Invalid login credentials"
+        error.response?.data?.error === "Invalid login credentials"
       ) {
         setResError("Email or password is incorrect");
         setLoading(false);
         setForm({ ...form, password: "" });
-      } else if (error.response?.data?.error || error.message) {
-        setResError(error.response?.data?.error || error.message);
+      } else if (error.response?.data?.error) {
+        setResError(error.response?.data?.error);
         setLoading(false);
         setForm({ ...form, password: "" });
       } else {

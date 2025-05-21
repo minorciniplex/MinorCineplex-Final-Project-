@@ -79,7 +79,7 @@ function CouponsCard({ coupon_id, image, title, end_date }) {
         open={alertOpen}
         onClose={() => setAlertOpen(false)}
         text="Coupon claimed successfully"
-        text_sub="You can now use this coupon at the cinema"
+        text_sub="You can now use this coupon"
       />
     </div>
   );

@@ -676,8 +676,9 @@ export const FrameByCinema = ({ filters , coupon_id, onError }) => {
         </div>
       </div>
     </section>
+    </>
   );
-};
+}
 
 export default function FrameByCinemaWithBoundary(props) {
   return (

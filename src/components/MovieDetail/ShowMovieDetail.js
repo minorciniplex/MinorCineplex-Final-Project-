@@ -80,7 +80,7 @@ export default function ShowMovieDetail({ movieId }) {
           <div className="flex flex-col justify-start px-4 py-10 md:p-[60px]">
             <div>
               <h1 className="text-4xl font-bold mb-4">{movie?.title}</h1>
-              <div className="flex flex-wrap h-[32px] md:flex-nowrap gap-2">
+              <div className="flex flex-wrap md:h-[32px] md:flex-nowrap gap-2">
                 {genrs?.map((genre, index) => (
                   <span
                     key={index}
@@ -98,19 +98,21 @@ export default function ShowMovieDetail({ movieId }) {
                   </span>
                 ))}
                 <div className="border md:border border-[--base-gray-200] md:my-1 md:mx-5"></div>
-                <span className="w-full md:w-auto flex justify-start items-center mt-2 md:mt-0">
+                <div className="w-full md:w-auto flex justify-start items-center mt-2 md:mt-0">
                   Release date:{" "}
-                  {new Date(movie?.release_date).toLocaleDateString("en-GB", {
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric",
-                  })}
-                </span>
+                  {movie?.release_date
+                    ? new Date(movie.release_date).toLocaleDateString("en-GB", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      })
+                    : "-"}
+                </div>
               </div>
               <button className="py-3 px-10 md:py-3 md:px-10 bg-brand-blue-100 text-white rounded-sm shadow-md mt-6 mb-10 md:my-12">
                 Movie detail
               </button>
-              <p className="w-[669px] ">{movie?.description}</p>
+              <p className="md:w-[669px]">{movie?.description}</p>
             </div>
           </div>
         </div>

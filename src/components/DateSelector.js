@@ -90,14 +90,17 @@ export default function DateSelector({ onDateSelect }) {
         <Button
           variant="ghost"
           size="icon"
-          className="absolute left-5 top-1/2 -translate-y-1/2 z-10 rounded-full bg-background/80 backdrop-blur-sm"
+          className="hidden md:flex absolute left-5 top-1/2 -translate-y-1/2 z-10 rounded-full bg-background/80 backdrop-blur-sm"
           onClick={() => scrollDates("left")}
         >
           <ChevronLeft className="h-5 w-5" />
         </Button>
       )}
-      <div className="flex justify-center items-center p-4 md:py-4 md:px-10">
+      {/* ⬇️ Outer container for padding/alignment */}
+      <div className="flex justify-center items-center p-4 md:py-4 md:px-10 ">
+        {/* ⬇️ Bordered scroll container box */}
         <div className="w-[100vw] md:w-[80vw] overflow-hidden">
+          {/* ⬇️ Actual horizontal scrolling area inside the border box */}
           <div
             ref={scrollContainerRef}
             className="flex gap-2 overflow-x-auto scrollbar-hide scroll-smooth"
@@ -144,7 +147,7 @@ export default function DateSelector({ onDateSelect }) {
         <Button
           variant="ghost"
           size="icon"
-          className="absolute right-5 top-1/2 -translate-y-1/2 z-10 rounded-full bg-background/80 backdrop-blur-sm"
+          className="hidden md:flex absolute right-5 top-1/2 -translate-y-1/2 z-10 rounded-full bg-background/80 backdrop-blur-sm"
           onClick={() => scrollDates("right")}
         >
           <ChevronRight className="h-5 w-5" />

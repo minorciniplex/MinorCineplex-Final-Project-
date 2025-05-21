@@ -590,83 +590,92 @@ export const FrameByCinema = ({ filters , coupon_id, onError }) => {
             </div>
           </div>
 
-          <div className="flex flex-col items-start gap-4 md:gap-6 w-full">
-            {viewMode === "browse-by-city" ? (
-              Object.entries(allCinemasByProvince)
-                .sort((a, b) => b[1].length - a[1].length)
-                .map(([province, cinemas]) => (
-                  <div
-                    key={province}
-                    className="flex flex-col items-start gap-6 w-full"
-                  >
-                    <h3 className="text-base-gray-300 headline-3 text-base md:headline-3 tracking-[var(--headline-3-letter-spacing)] leading-[var(--headline-3-line-height)] [font-style:var(--headline-3-font-style)]">
-                      {province}
-                    </h3>
-                    <div className="flex flex-col gap-4 md:flex-wrap md:flex-row md:gap-5 w-full">
-                      {cinemas.map((cinema) => (
-                        <div
-                          key={cinema.cinema_id}
-                          className="w-full min-h-[120px] max-w-[344px] mx-auto p-4 border border-base-gray-100 rounded-[4px] flex items-center gap-4 mb-2 md:mb-0 md:p-4 md:rounded-[4px] md:bg-transparent md:max-w-[590px] md:border md:border-base-gray-100 cursor-pointer hover:border-brandblue-100 transition-colors duration-200 group md:mx-0"
-                        >
-                          <div className="w-[40px] h-[40px] md:w-[52px] md:h-[52px] flex items-center justify-center rounded-full bg-[#21263F]">
-                            <FmdGoodIcon
-                              style={{ color: "#4E7BEE", fontSize: 20 }}
-                            />
-                          </div>
-                          <div className="flex flex-col items-start justify-center gap-1 flex-1 break-words w-full">
-                            <h4 className="text-basewhite headline-3 md:headline-3 group-hover:text-brandblue-100 transition-colors duration-200 break-words w-full">
-                              {cinema.name}
-                            </h4>
-                            <p className="body-2-regular text-base-gray-300 text-sm md:body-2-regular break-words w-full">
-                              {cinema.address}
-                            </p>
-                          </div>
+        <div className="flex flex-col items-start gap-4 md:gap-6 w-full">
+          {viewMode === "browse-by-city" ? (
+            Object.entries(allCinemasByProvince)
+              .sort((a, b) => b[1].length - a[1].length)
+              .map(([province, cinemas]) => (
+                <div
+                  key={province}
+                  className="flex flex-col items-start gap-6 w-full"
+                >
+                  <h3 className="text-base-gray-300 headline-3 text-base md:headline-3 tracking-[var(--headline-3-letter-spacing)] leading-[var(--headline-3-line-height)] [font-style:var(--headline-3-font-style)]">
+                    {province}
+                  </h3>
+                  <div className="flex flex-col gap-4 md:flex-wrap md:flex-row md:gap-5 w-full">
+                    {cinemas.map((cinema) => (
+                      <div
+                        key={cinema.cinema_id}
+                        className="w-full min-h-[120px] max-w-[344px] mx-auto p-4 border border-base-gray-100 rounded-[4px] flex items-center gap-4 mb-2 md:mb-0 md:p-4 md:rounded-[4px] md:bg-transparent md:max-w-[590px] md:border md:border-base-gray-100 cursor-pointer hover:border-brandblue-100 transition-colors duration-200 group md:mx-0"
+                        onClick={() =>
+                          router.push(
+                            `/cinemas/${cinema.cinema_id}`
+                          )
+                        }
+                      >
+                        <div className="w-[40px] h-[40px] md:w-[52px] md:h-[52px] flex items-center justify-center rounded-full bg-[#21263F]">
+                          <FmdGoodIcon
+                            style={{ color: "#4E7BEE", fontSize: 20 }}
+                          />
                         </div>
-                      ))}
+                        <div className="flex flex-col items-start justify-center gap-1 flex-1 break-words w-full">
+                          <h4 className="text-basewhite headline-3 md:headline-3 group-hover:text-brandblue-100 transition-colors duration-200 break-words w-full">
+                            {cinema.name}
+                          </h4>
+                          <p className="body-2-regular text-base-gray-300 text-sm md:body-2-regular break-words w-full">
+                            {cinema.address}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+              {cinemaLoading ? (
+                <div className="text-base-gray-400 py-4">Loading...</div>
+              ) : locationError ? (
+                <div className="text-base-gray-400 py-4">{locationError}</div>
+              ) : !userLocation ? (
+                <div className="text-base-gray-400 py-4">
+                  Getting your location...
+                </div>
+              ) : nearestCinemas.length === 0 ? (
+                <div className="text-base-gray-400 py-4">No cinemas found.</div>
+              ) : (
+                nearestCinemas.map((cinema) => (
+                  <div
+                    key={cinema.cinema_id}
+                    className="w-full min-h-[120px] max-w-[590px] mx-auto p-4 border border-base-gray-100 rounded-[4px] flex items-center gap-4 mb-2 md:mb-0 md:p-4 md:rounded-[4px] md:bg-transparent md:border md:border-base-gray-100 cursor-pointer hover:border-brandblue-100 transition-colors duration-200 group"
+                    onClick={() =>
+                          router.push(
+                            `/cinemas/${cinema.cinema_id}`
+                          )
+                        }
+                  >
+                    <div className="w-[40px] h-[40px] md:w-[52px] md:h-[52px] flex items-center justify-center rounded-full bg-[#21263F]">
+                      <FmdGoodIcon style={{ color: "#4E7BEE", fontSize: 20 }} />
+                    </div>
+                    <div className="flex flex-col items-start justify-center gap-1 flex-1 break-words w-full">
+                      <h4 className="text-basewhite headline-3 md:headline-3 group-hover:text-brandblue-100 transition-colors duration-200 break-words w-full">
+                        {cinema.name}
+                      </h4>
+                      <p className="body-2-regular text-base-gray-300 text-sm md:body-2-regular break-words w-full">
+                        {cinema.address}
+                      </p>
+                      <span className="text-brandblue-100 text-xs mt-1">
+                        {(cinema.distance / 1000).toFixed(2)} KM.
+                      </span>
                     </div>
                   </div>
                 ))
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-                {cinemaLoading ? (
-                  <div className="text-base-gray-400 py-4">Loading...</div>
-                ) : locationError ? (
-                  <div className="text-base-gray-400 py-4">{locationError}</div>
-                ) : !userLocation ? (
-                  <div className="text-base-gray-400 py-4">
-                    Getting your location...
-                  </div>
-                ) : nearestCinemas.length === 0 ? (
-                  <div className="text-base-gray-400 py-4">No cinemas found.</div>
-                ) : (
-                  nearestCinemas.map((cinema) => (
-                    <div
-                      key={cinema.cinema_id}
-                      className="w-full min-h-[120px] max-w-[590px] mx-auto p-4 border border-base-gray-100 rounded-[4px] flex items-center gap-4 mb-2 md:mb-0 md:p-4 md:rounded-[4px] md:bg-transparent md:border md:border-base-gray-100 cursor-pointer hover:border-brandblue-100 transition-colors duration-200 group"
-                    >
-                      <div className="w-[40px] h-[40px] md:w-[52px] md:h-[52px] flex items-center justify-center rounded-full bg-[#21263F]">
-                        <FmdGoodIcon style={{ color: "#4E7BEE", fontSize: 20 }} />
-                      </div>
-                      <div className="flex flex-col items-start justify-center gap-1 flex-1 break-words w-full">
-                        <h4 className="text-basewhite headline-3 md:headline-3 group-hover:text-brandblue-100 transition-colors duration-200 break-words w-full">
-                          {cinema.name}
-                        </h4>
-                        <p className="body-2-regular text-base-gray-300 text-sm md:body-2-regular break-words w-full">
-                          {cinema.address}
-                        </p>
-                        <span className="text-brandblue-100 text-xs mt-1">
-                          {(cinema.distance / 1000).toFixed(2)} KM.
-                        </span>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
         </div>
-      </section>
-    </>
+      </div>
+    </section>
   );
 };
 

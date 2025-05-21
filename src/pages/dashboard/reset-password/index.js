@@ -65,7 +65,7 @@ function ResetPassword() {
     } catch (error) {
       if (error.response) {
         console.log(error.response.data.error);
-        setResError("Invalid password");
+        setResError(error.response?.data?.error || error.message);
         setLoading(false);
         setForm({ ...form, password: "", confirmPassword: "" });
       } else {

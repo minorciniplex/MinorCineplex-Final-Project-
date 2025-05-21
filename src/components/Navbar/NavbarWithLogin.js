@@ -32,7 +32,7 @@ const NavbarWithLogin = () => {
 
     const fetchUserData = async () => {
       if (!isLoggedIn) {
-        setDataUser(null); // Clear data when logged out
+        setDataUser(null); 
         return;
       }
 
@@ -119,6 +119,7 @@ const NavbarWithLogin = () => {
                   className="w-full body-2-regular"
                   onClick={() => {
                     setMenuOpen(false);
+                    router.push("/dashboard?tab=booking");
                   }}
                 >
                   <svg
@@ -168,6 +169,7 @@ const NavbarWithLogin = () => {
                   className="w-full body-2-regular"
                   onClick={() => {
                     setMenuOpen(false);
+                    router.push("/dashboard?tab=coupons");
                   }}
                 >
                   <svg
@@ -196,7 +198,7 @@ const NavbarWithLogin = () => {
                   className="w-full body-2-regular"
                   onClick={() => {
                     setMenuOpen(false);
-                    router.push("/profile");
+                    router.push("/dashboard?tab=profile");
                   }}
                 >
                   <svg
@@ -233,7 +235,7 @@ const NavbarWithLogin = () => {
                   className="w-full body-2-regular"
                   onClick={() => {
                     setMenuOpen(false);
-                    router.push("/dashborad/reset-password");
+                    router.push("/dashboard?tab=reset");
                   }}
                 >
                   <svg
@@ -337,6 +339,7 @@ const NavbarWithLogin = () => {
                   className="w-full body-2-regular"
                   onClick={() => {
                     setMenuOpen(false);
+                    router.push("/dashboard?tab=booking");
                   }}
                 >
                   <svg
@@ -386,6 +389,7 @@ const NavbarWithLogin = () => {
                   className="w-full body-2-regular"
                   onClick={() => {
                     setMenuOpen(false);
+                    router.push("/dashboard?tab=coupons");
                   }}
                 >
                   <svg
@@ -414,7 +418,7 @@ const NavbarWithLogin = () => {
                   className="w-full body-2-regular"
                   onClick={() => {
                     setMenuOpen(false);
-                    router.push("/profile");
+                    router.push("/dashboard?tab=profile");
                   }}
                 >
                   <svg
@@ -451,7 +455,7 @@ const NavbarWithLogin = () => {
                   className="w-full body-2-regular"
                   onClick={() => {
                     setMenuOpen(false);
-                    router.push("/dashborad/reset-password");
+                    router.push("/dashboard?tab=reset");
                   }}
                 >
                   <svg

@@ -13,6 +13,13 @@ function Dashboard() {
     setActiveComponent(component);
   };
 
+
+  useEffect(() => {
+    if (router.query.tab) {
+      setActiveComponent(router.query.tab);
+    }
+  }, [router.query.tab]);
+
   return (
     <>
       <Navbar />

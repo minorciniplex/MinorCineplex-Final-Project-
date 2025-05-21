@@ -1,98 +1,13 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
-import ShowtimeButtons from "@/components/Cinemas/ShowtimeButtons";
+import ShowtimeButtons from "@/components/MovieDetail/ShowTimeButtons";
 
-export default function ShowtimeCard({ cinemaId, date }) {
-  const [showtimes, setShowtimes] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    async function fetchShowtimes() {
-      if (!cinemaId || !date) return;
-
-      try {
-        setLoading(true);
-        const response = await axios.get("/api/cinemas/showtimes", {
-          params: { cinemaId, date: date.fullDate },
-        });
-
-        setShowtimes(response.data.formattedData || []);
-      } catch (err) {
-        console.error("Error fetching showtimes:", err);
-        setError(err.response?.data?.message || err.message || "Unknown error");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchShowtimes();
-  }, [cinemaId, date]);
-
-  // Group showtimes by movie
-  const movieShowtimesMap = showtimes.reduce((acc, showtime) => {
-    const { movie_id, movie_title, poster_url, genre, language_code } =
-      showtime;
-
-    if (!acc[movie_id]) {
-      acc[movie_id] = {
-        id: movie_id,
-        title: movie_title,
-        posterUrl: poster_url,
-        genre,
-        languageCode: language_code,
-        halls: {},
-      };
-    }
-
-    // Group by hall/screen
-    const hallNumber = `Hall ${showtime.screen_number}`;
-    if (!acc[movie_id].halls[hallNumber]) {
-      acc[movie_id].halls[hallNumber] = [];
-    }
-
-    // Add showtime to this hall
-    acc[movie_id].halls[hallNumber].push(showtime.start_time.substring(0, 5)); // Extract HH:MM from time
-
-    return acc;
-  }, {});
-
-  const movies = Object.values(movieShowtimesMap).sort(
-    (a, b) =>
-      Object.keys(b.halls).length - Object.keys(a.halls).length ||
-      a.title.localeCompare(b.title)
-  );
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-60">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="text-red-500 p-4 bg-red-50 rounded-lg">
-        Error loading showtimes: {error}
-      </div>
-    );
-  }
-
-  if (movies.length === 0) {
-    return (
-      <div className="text-gray-500 p-4 text-center">
-        No showtimes available for this date.
-      </div>
-    );
-  }
+export default function ShowtimeCard({ showtimes, date }) {
 
   return (
     <div className="py-10 md:px-24 md:py-20">
       <div className="space-y-6">
-        {movies.map((movie) => (
+        {showtimes.map((movie) => (
           <div
             key={movie?.id}
             className="bg-[var(--base-gray-0)] rounded-lg overflow-hidden"

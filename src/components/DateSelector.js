@@ -90,7 +90,7 @@ export default function DateSelector({ onDateSelect }) {
         <Button
           variant="ghost"
           size="icon"
-          className="absolute left-5 top-1/2 -translate-y-1/2 z-10 rounded-full bg-background/80 backdrop-blur-sm"
+          className="hidden md:flex absolute left-5 top-1/2 -translate-y-1/2 z-10 rounded-full bg-background/80 backdrop-blur-sm"
           onClick={() => scrollDates("left")}
         >
           <ChevronLeft className="h-5 w-5" />
@@ -147,7 +147,7 @@ export default function DateSelector({ onDateSelect }) {
         <Button
           variant="ghost"
           size="icon"
-          className="absolute right-5 top-1/2 -translate-y-1/2 z-10 rounded-full bg-background/80 backdrop-blur-sm"
+          className="hidden md:flex absolute right-5 top-1/2 -translate-y-1/2 z-10 rounded-full bg-background/80 backdrop-blur-sm"
           onClick={() => scrollDates("right")}
         >
           <ChevronRight className="h-5 w-5" />

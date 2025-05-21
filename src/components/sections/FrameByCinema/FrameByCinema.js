@@ -438,10 +438,10 @@ export const FrameByCinema = ({ filters , coupon_id }) => {
               .map((movie) => (
                 <div
                   key={movie.movie_id || movie.id}
-                  className="flex flex-col items-start gap-3 md:gap-4 group cursor-pointer"
+                  className="flex flex-col items-start gap-3 md:gap-4 group cursor-pointer w-[161px] min-h-[385px] md:w-[285px] md:min-h-[416px]"
                 >
                   <div
-                    className="w-[150px] h-[225px]  md:w-[285px] md:h-[416px] rounded-[4px] bg-cover bg-center shadow-md mx-auto transition-transform duration-300 group-hover:scale-105"
+                    className="w-[161px] h-[235px] md:w-[285px] md:h-[416px] rounded-[4px] bg-cover bg-center shadow-md mx-auto transition-transform duration-300 group-hover:scale-105"
                     style={{
                       backgroundImage: `url(${
                         movie.poster_url || movie.poster

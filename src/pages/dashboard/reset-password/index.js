@@ -1,9 +1,8 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import Navbar from "@/components/Navbar/Navbar";
 import CouponAlert from "@/components/Coupons-components/CouponAlert";
-import Button from "@/components/Button";
+
 
 function ResetPassword() {
   const router = useRouter();

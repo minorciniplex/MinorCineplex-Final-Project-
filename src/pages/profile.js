@@ -95,7 +95,7 @@ export default function Profile() {
 
   return (
     <div className="min-h-screen w-full bg-background md:h-screen md:overflow-hidden md:flex md:items-center md:justify-center">
-      <Navbar />
+
       <div>
         {/* Content */}
         <div className="flex-1 w-full max-w-[400px] mx-auto p-4 md:pt-8 md:ml-[20px] md:mt-[-38px]">

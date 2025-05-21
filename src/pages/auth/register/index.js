@@ -38,6 +38,12 @@ export default function Register() {
         router.push("/auth/register-complete");
       }
     } catch (error) {
+      if (error.response.data.error.includes('duplicate key value violates unique constraint "users_email_key"')) {
+        setResError("Email already exists");
+        setLoading(false);
+        setForm({ ...form, password: "" });
+        return;
+      }
       if (error.response) {
         console.log(error.response.data.error);
         setResError(error.response.data.error);

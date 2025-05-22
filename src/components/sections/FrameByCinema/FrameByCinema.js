@@ -449,7 +449,7 @@ export const FrameByCinema = ({ filters , coupon_id }) => {
                     }}
                     onClick={() =>
                       router.push(
-                        `/movies-detail/${movie.movie_id || movie.id}`
+                        `/booking/movies-detail/${movie.movie_id || movie.id}`
                       )
                     }
                   />
@@ -469,7 +469,7 @@ export const FrameByCinema = ({ filters , coupon_id }) => {
                       className="text-basewhite font-bold truncate max-w-full md:headline-4 group-hover:text-brandblue-100 transition-colors duration-200"
                       onClick={() =>
                         router.push(
-                          `/movies-detail/${movie.movie_id || movie.id}`
+                          `/booking/movies-detail/${movie.movie_id || movie.id}`
                         )
                       }
                     >
@@ -677,7 +677,7 @@ export const FrameByCinema = ({ filters , coupon_id }) => {
                         className="w-full min-h-[120px] max-w-[344px] mx-auto p-4 border border-base-gray-100 rounded-[4px] flex items-center gap-4 mb-2 md:mb-0 md:p-4 md:rounded-[4px] md:bg-transparent md:max-w-[590px] md:border md:border-base-gray-100 cursor-pointer hover:border-brandblue-100 transition-colors duration-200 group md:mx-0"
                         onClick={() =>
                           router.push(
-                            `/cinemas/${cinema.cinema_id}`
+                            `/booking/cinemas/${cinema.cinema_id}`
                           )
                         }
                       >
@@ -718,7 +718,7 @@ export const FrameByCinema = ({ filters , coupon_id }) => {
                     className="w-full min-h-[120px] max-w-[590px] mx-auto p-4 border border-base-gray-100 rounded-[4px] flex items-center gap-4 mb-2 md:mb-0 md:p-4 md:rounded-[4px] md:bg-transparent md:border md:border-base-gray-100 cursor-pointer hover:border-brandblue-100 transition-colors duration-200 group"
                     onClick={() =>
                           router.push(
-                            `/cinemas/${cinema.cinema_id}`
+                            `/booking/cinemas/${cinema.cinema_id}`
                           )
                         }
                   >

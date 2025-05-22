@@ -2,7 +2,7 @@ import { useRouter } from "next/router";
 import StepProgressBar from "@/components/Booking/StepProgressBar";
 import Navbar from "@/components/Navbar/Navbar";
 
-function SeatsSelection() {
+function PaymentPage() {
   const router = useRouter();
 
   return (
@@ -16,4 +16,4 @@ function SeatsSelection() {
     </div>
   );
 }
-export default SeatsSelection;
+export default PaymentPage;

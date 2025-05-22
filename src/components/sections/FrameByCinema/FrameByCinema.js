@@ -509,18 +509,19 @@ export const FrameByCinema = ({ filters , coupon_id, onError }) => {
               coupons
                 .slice(0, 4)
                 .map((coupon) => (
-                  <CouponsCard
-                    key={coupon.coupon_id}
-                    coupon_id={coupon.coupon_id}
-                    image={coupon.image}
-                    title={coupon.title}
-                    end_date={coupon.end_date}
-                    onClaimCoupon={() => handleClaimCoupon(coupon.coupon_id)}
-                    isClaimed={isClaimed}
-                    isLoading={isLoading}
-                    alertOpen={alertOpen}
-                    setAlertOpen={setAlertOpen}
-                  />
+                  <div className="h-full" key={coupon.coupon_id}>
+                    <CouponsCard
+                      coupon_id={coupon.coupon_id}
+                      image={coupon.image}
+                      title={coupon.title}
+                      end_date={coupon.end_date}
+                      onClaimCoupon={() => handleClaimCoupon(coupon.coupon_id)}
+                      isClaimed={isClaimed}
+                      isLoading={isLoading}
+                      alertOpen={alertOpen}
+                      setAlertOpen={setAlertOpen}
+                    />
+                  </div>
                 ))
             )}
           </div>

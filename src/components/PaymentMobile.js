@@ -30,40 +30,51 @@ export default function PaymentMobile() {
     <div className="bg-background w-screen min-h-screen text-white font-sans overflow-x-hidden">
       <Navbar />
       {/* Stepper */}
-      <div className=" w-[375px] h-[102px] bg-base-gray-0 flex justify-between items-center p-[46px]  mt-[50px] top-[48px] ">
-        <div className="flex flex-col items-center">
-          <div className="w-[44px] h-[44px] rounded-full bg-brand-blue-200 flex items-center justify-center text-white text-bold">
-            <CheckIcon />
+      <div className="w-[375px] h-[102px] bg-base-gray-0 flex flex-col justify-center items-center mt-[50px] relative">
+        {/* เส้นเดียวตรงกลาง */}
+        <div className="absolute left-0 right-0 top-[36%] transform -translate-y-1/2 h-px bg-[#21263F] z-0 mx-[80px]" />
+        {/* วงกลม stepper */}
+        <div className="flex justify-between items-center w-full px-[46px] z-10">
+          <div className="flex flex-col items-center">
+            <div className="w-[44px] h-[44px] rounded-full bg-brand-blue-200 flex items-center justify-center text-white text-bold">
+              <CheckIcon />
+            </div>
+            <span className="body-2-regular mt-2">Select showtime</span>
           </div>
-          <span className="body-2-regular mt-2">Select showtime</span>
-        </div>
-        <div className="flex-1 h-0.5 bg-[#232B47] mx-1"></div>
-        <div className="flex flex-col items-center">
-          <div className="w-[44px] h-[44px] rounded-full bg-brand-blue-200 flex items-center justify-center text-white text-bold">
-            <CheckIcon />
+          <div className="flex flex-col items-center">
+            <div className="w-[44px] h-[44px] rounded-full bg-brand-blue-200 flex items-center justify-center text-white text-bold">
+              <CheckIcon />
+            </div>
+            <span className="body-2-regular mt-2">Select seat</span>
           </div>
-          <span className="body-2-regular mt-2">Select seat</span>
-        </div>
-        <div className="flex-1 h-0.5 bg-[#232B47] mx-1"></div>
-        <div className="flex flex-col items-center">
-          <div className="w-[44px] h-[44px] rounded-full bg-[#3B82F6] flex items-center justify-center text-white headline-4">3</div>
-          <span className="body-2-regular mt-2">Payment</span>
+          <div className="flex flex-col items-center">
+            <div className="w-[44px] h-[44px] rounded-full bg-[#3B82F6] flex items-center justify-center text-white headline-4">3</div>
+            <span className="body-2-regular mt-2">Payment</span>
+          </div>
         </div>
       </div>
 
       {/* Tab */}
       <div className="flex mt-[50px] px-4">
         <button
-          className={`headline-3 flex-1 pb-1 border-b-[1px]  ${tab === "credit" ? "border-white" : "border-transparent"} text-white`}
-          onClick={() => setTab("credit")}
+          className="flex-1 flex justify-center"
+          onClick={() => setTab('credit')}
         >
-          Credit card
+          <span
+            className={`headline-3 pb-1 px-[7px] inline-block ${tab === 'credit' ? 'border-b-[1px] border-[#565F7E] text-white' : 'border-b-0 text-[#8B93B0]'}`}
+          >
+            Credit card
+          </span>
         </button>
         <button
-          className={` headline-3 flex-1 pb-2 border-b-2 ${tab === "qr" ? "border-white" : "border-transparent"} text-white`}
-          onClick={() => setTab("qr")}
+          className="flex-1 flex justify-center"
+          onClick={() => setTab('qr')}
         >
-          QR Code
+          <span
+            className={`headline-3 pb-1 px-[7px] inline-block ${tab === 'qr' ? 'border-b-[1px] border-[#565F7E] text-white' : 'border-b-0 text-[#8B93B0]'}`}
+          >
+            QR Code
+          </span>
         </button>
       </div>
 

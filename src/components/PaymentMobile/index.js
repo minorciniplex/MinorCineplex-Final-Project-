@@ -4,6 +4,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import Image from 'next/image';
 import MovieInfoCard from "../MovieInfoCard";
 import { useMovieDetail } from '@/hooks/useMovieDetail';
+import SelectedSeat from '../SelectedSeat';
 
 export default function PaymentMobile() {
   const [tab, setTab] = useState("credit");
@@ -18,6 +19,11 @@ export default function PaymentMobile() {
   // ตัวอย่าง movie_id (ควรรับจาก prop, route, หรือ context จริง)
   const movie_id = "013b897b-3387-4b7f-ab23-45b78199020a";
   const { movie, genres, languages, showtime, hall, cinema, loading } = useMovieDetail(movie_id);
+
+  // ฟังก์ชันเมื่อกด Next
+  const handleNext = () => {
+    alert('Next Clicked!');
+  };
 
   return (
     <div className="bg-background w-screen min-h-screen text-white font-sans overflow-x-hidden">
@@ -171,31 +177,10 @@ export default function PaymentMobile() {
       </div>
 
       {/* Summary */}
-      <div className="px-4 mt-4 text-xs">
-        <div className="flex justify-between">
-          <span>Selected Seat</span>
-          <span>{Array.isArray(movie?.seats) ? movie.seats.join(", ") : "-"}</span>
-        </div>
-        <div className="flex justify-between">
-          <span>Payment method</span>
-          <span>{movie?.payment || "-"}</span>
-        </div>
-        <div className="flex justify-between text-red-400">
-          <span>Coupon</span>
-          <span>{movie?.coupon || "-"}</span>
-        </div>
-        <div className="flex justify-between font-bold mt-1">
-          <span>Total</span>
-          <span>{movie?.total || "-"}</span>
-        </div>
+      <div className="px-4 mt-4">
+        <SelectedSeat seats={Array.isArray(movie?.seats) ? movie.seats : ["C9", "C10"]} total={movie?.total || "THB300"} onNext={handleNext} />
       </div>
 
-      {/* Next Button */}
-      <div className="px-4 mt-6 mb-4">
-        <button className="w-full bg-[#3B82F6] py-3 rounded text-white font-bold text-lg" disabled>
-          Next
-        </button>
-      </div>
     </div>
   );
 } 

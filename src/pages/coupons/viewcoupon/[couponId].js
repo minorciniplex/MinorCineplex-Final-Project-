@@ -113,6 +113,8 @@ export default function Viewcoupon() {
         <CouponAlert
           open={alertOpen}
           onClose={() => setAlertOpen(false)}
+          text="Coupon claimed successfully"
+          text_sub="You can now use this coupon"
         />
       </div>
       <FooterSection/>

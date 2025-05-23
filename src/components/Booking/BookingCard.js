@@ -68,7 +68,7 @@ function formatDate(dateStr) {
             key={index}
             className="bg-[--base-gray-100] py-[4px] md:py-[6px] px-3 rounded text-xs md:text-sm text-[--base-gray-300] font-medium"
           >
-            {genre?.movie_genres?.name || genre?.name || genre}
+            {genre?.movie_genres?.name || genre?.name || genre || ""}
           </span>
         ))}
         {lang && (

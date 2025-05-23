@@ -2,27 +2,74 @@ import Image from "next/image";
 import Link from "next/link";
 import ShowtimeButtons from "@/components/MovieDetail/ShowTimeButtons";
 import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 export default function ShowtimeCard({ showtimes, date }) {
   const router = useRouter();
-  const { movieId } = router.query;
+  const [movies, setMovie] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const handleSelect = ({ time, movie, hall, date }) => {
+
+
+
+   useEffect(() => {
+    const fetchMovieDetails = async () => {
+      try {
+        const controller = new AbortController();
+        const response = await axios.get(
+          `/api/movies-detail/getMoviesDetail?id=${showtimes[0].id}`,
+          {
+            signal: controller.signal,
+            timeout: 10000,
+          }
+        );
+
+        if (response.status !== 200 || !response.data.data) {
+          throw new Error("Failed to fetch movie details");
+        }
+        setMovie(response.data.data);
+        /*         setGenrs(response.data.data.movie_genre_mapping);
+        setLanguage(response.data.data.movie_languages); */
+        return () => controller.abort();
+      } catch (err) {
+        if (axios.isCancel(err)) {
+          console.log("Request cancelled");
+        } else {
+          setError(err);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMovieDetails();
+  }, []);
+
+
+
+const handleSelect = ({ time, movie, date, hall,}) => {
     // ตัวอย่างการ push ไปหน้าจองตั๋ว
-
+    console.log(movie);
     const query = new URLSearchParams({
-      poster: movie.poster_url,
+      poster: movie.posterUrl,  
       title: movie.title,
-      genres: JSON.stringify(movie.movie_genre_mapping), // แปลง object เป็น string
-      language: JSON.stringify(movie.original_language),
-      time: time.time,
-      screenNumber: hall,
-      cinemaName, 
-      date: date,
+      time: time,
+      date: date.fullDate,
+      screenNumber: hall.split(" ")[1],
+      genres: JSON.stringify(movies.movie_genre_mapping), // แปลง object เป็น string
+      language: JSON.stringify(movies.original_language),
+      cinemaName: movie.cinemaName
+      
     }).toString();
 
     router.push(`/booking/seats/seat?${query}`);
   };
+
+  
+
+
 
   return (
     <div className="py-10 md:px-24 md:py-20">
@@ -103,13 +150,14 @@ export default function ShowtimeCard({ showtimes, date }) {
                         date={date}
                         movie={movie}
                         hall={hall}
-                        onSelect={({ time, movie, hall, date }) => {
+                        onSelect={({ time, movie, hall, date}) => {
                           handleSelect({
                             time,
                             movie,
                             hall,
                             date,
                           });
+
 
                           // คุณสามารถใส่โค้ดสำหรับ handle booking ได้ที่นี่
                         }}

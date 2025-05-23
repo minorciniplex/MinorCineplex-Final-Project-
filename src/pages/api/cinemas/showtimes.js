@@ -42,7 +42,8 @@ export default async function handler(req, res) {
       screens!inner (
         screen_number,
         cinemas!inner (
-          name
+          name,
+          cinema_id
         )
       ),
       movies!inner (
@@ -93,12 +94,19 @@ export default async function handler(req, res) {
       }));
 
       const showtimesGrouped = formattedData.reduce((acc, showtime) => {
-        const { movie_id, movie_title, poster_url, genre, language_code } =
-          showtime;
+        const {
+          movie_id,
+          cinema_name,
+          movie_title,
+          poster_url,
+          genre,
+          language_code,
+        } = showtime;
 
         if (!acc[movie_id]) {
           acc[movie_id] = {
             id: movie_id,
+            cinemaName: cinema_name,
             title: movie_title,
             posterUrl: poster_url,
             genre,

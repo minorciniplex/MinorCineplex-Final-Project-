@@ -9,14 +9,14 @@ export default function Seats() {
   const [genres, setGenres] = useState(null);
   const [language, setLanguage] = useState(null);
 
-  /* useEffect(() => {
+  useEffect(() => {
     if (router.isReady) {
       const { genres, language } = router.query;
 
       setGenres(JSON.parse(genres));
       setLanguage(JSON.parse(language));
     }
-  }, [router.isReady]); */
+  }, [router.isReady]);
 
   return (
     <>

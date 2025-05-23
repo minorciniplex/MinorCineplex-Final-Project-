@@ -37,9 +37,11 @@ const ShowtimeButtons = ({ times = [], date, movie, hall, onSelect }) => {
             <button
               key={i}
               className={buttonClass}
-              onClick={() => {
-                console.log(`Selected: ${movie?.title} at ${time} in ${hall}`);
-              }}
+               onClick={() => {
+              if (onSelect) {
+                onSelect({ time, movie, hall, date });
+              }
+            }}
             >
               {time}
             </button>
@@ -89,7 +91,7 @@ const ShowtimeButtons = ({ times = [], date, movie, hall, onSelect }) => {
             disabled={isPast && !isWithinThirtyMinsPast}
             onClick={() => {
               if (onSelect) {
-                onSelect({ time, movie, hall });
+                onSelect({ time, movie, hall, date });
               }
             }}
           >

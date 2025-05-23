@@ -6,7 +6,6 @@ export default function CinemaDetailCard({ cinemaId }) {
   const [cinema, setCinema] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-
   useEffect(() => {
     async function fetchCinemaDetails() {
       if (!cinemaId) return;

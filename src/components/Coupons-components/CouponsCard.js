@@ -30,7 +30,6 @@ function CouponsCard({ coupon_id, image, title, end_date }) {
   const { isClaimed, isLoading, handleClaimCoupon, alertOpen, setAlertOpen } =
     useCouponClaim(coupon_id);
 
-
   if (loading || isLoading) {
     return <Loading />;
   }

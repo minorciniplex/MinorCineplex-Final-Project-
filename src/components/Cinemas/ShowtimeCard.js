@@ -3,7 +3,6 @@ import Link from "next/link";
 import ShowtimeButtons from "@/components/MovieDetail/ShowTimeButtons";
 
 export default function ShowtimeCard({ showtimes, date }) {
-
   return (
     <div className="py-10 md:px-24 md:py-20">
       <div className="space-y-6">
@@ -28,7 +27,7 @@ export default function ShowtimeCard({ showtimes, date }) {
                   </div>
 
                   {/* Movie Title & Info */}
-                  <div className="bg-[var(--base-gray-0)] w-[200px]">
+                  <div className="bg-[var(--base-gray-0)] md:w-[200px]">
                     <h2 className="text-xl font-bold text-white text-left">
                       {movie?.title}
                     </h2>
@@ -83,11 +82,8 @@ export default function ShowtimeCard({ showtimes, date }) {
                         date={date}
                         movie={movie}
                         hall={hall}
-                        onSelect={({ time, movie, hall }) => {
-                          console.log(
-                            `Selected: ${movie?.title} at ${time} in ${hall}`
-                          );
-                          // คุณสามารถใส่โค้ดสำหรับ handle booking ได้ที่นี่
+                        onSelect={(time) => {
+                          console.log("Selected time:", time);
                         }}
                       />
                     </div>

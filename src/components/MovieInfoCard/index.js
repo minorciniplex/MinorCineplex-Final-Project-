@@ -4,6 +4,25 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import StorefrontIcon from '@mui/icons-material/Storefront';
 
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  const date = new Date(dateStr);
+  if (isNaN(date)) return dateStr;
+  return date.toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });
+}
+
+function formatTime(timeStr) {
+  if (!timeStr) return '';
+  // รองรับทั้ง HH:mm:ss และ HH:mm
+  const [h, m] = timeStr.split(":");
+  if (!h || !m) return timeStr;
+  return `${h}:${m}`;
+}
+
 export default function MovieInfoCard({
   title = "The Dark Knight",
   genres = ["Action", "Crime", "TH"],
@@ -51,11 +70,11 @@ export default function MovieInfoCard({
         </div>
         <div className="flex items-center gap-2">
           <CalendarMonthIcon className="text-base-gray-200 text-sm" style={{ fontSize: 16 }} />
-          <span>{date}</span>
+          <span>{formatDate(date)}</span>
         </div>
         <div className="flex items-center gap-2">
           <AccessTimeIcon className="text-base-gray-200 text-sm" style={{ fontSize: 16 }} />
-          <span>{time}</span>
+          <span>{formatTime(time)}</span>
         </div>
         <div className="flex items-center gap-2">
           <StorefrontIcon className="text-base-gray-200 text-sm" style={{ fontSize: 16 }} />

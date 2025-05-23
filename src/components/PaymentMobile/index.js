@@ -4,7 +4,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import Image from 'next/image';
 import MovieInfoCard from "../MovieInfoCard";
 import { useMovieDetail } from '@/hooks/useMovieDetail';
-import SummaryPayment from '../SummaryPayment';
+import SumPaymentDiscount from '../SumPaymentDiscount';
 import CouponDiscount from '../CouponDiscount';
 import { useMyCoupons } from '@/hooks/useMyCoupons';
 import CouponSelectPopup from '../CouponSelectPopup';
@@ -184,7 +184,7 @@ export default function PaymentMobile() {
       {/* Coupon */}
       <div className="px-4 mt-0">
         <CouponDiscount 
-          coupon={selectedCoupon?.description || (coupons[0]?.description ?? "ไม่มีคูปอง")}
+          coupon={selectedCoupon?.description || (coupons[0]?.description ?? "Not Found Coupon")}
           onRemove={() => setSelectedCoupon(null)}
           onSelectCoupon={() => setOpenCouponPopup(true)}
         />
@@ -201,7 +201,13 @@ export default function PaymentMobile() {
 
       {/* Summary */}
       <div className="px-4 mt-0">
-        <SummaryPayment seats={Array.isArray(movie?.seats) ? movie.seats : ["C9", "C10"]} total={movie?.total || "THB300"} onNext={handleNext} />
+        <SumPaymentDiscount
+          seats={Array.isArray(movie?.seats) ? movie.seats : ["C9", "C10"]}
+          paymentMethod={tab === 'credit' ? 'Credit card' : 'QR Code'}
+          coupon={selectedCoupon ? { label: '-THB50', color: 'text-brand-red' } : null}
+          total={movie?.total || "THB300"}
+          onNext={handleNext}
+        />
       </div>
 
     </div>

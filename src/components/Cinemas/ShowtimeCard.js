@@ -1,8 +1,28 @@
 import Image from "next/image";
 import Link from "next/link";
 import ShowtimeButtons from "@/components/MovieDetail/ShowTimeButtons";
+import { useRouter } from "next/router";
 
 export default function ShowtimeCard({ showtimes, date }) {
+  const router = useRouter();
+  const { movieId } = router.query;
+
+  const handleSelect = ({ time, movie, hall, date }) => {
+    // ตัวอย่างการ push ไปหน้าจองตั๋ว
+
+    const query = new URLSearchParams({
+      poster: movie.poster_url,
+      title: movie.title,
+      genres: JSON.stringify(movie.movie_genre_mapping), // แปลง object เป็น string
+      language: JSON.stringify(movie.original_language),
+      time: time.time,
+      screenNumber: hall,
+      cinemaName, 
+      date: date,
+    }).toString();
+
+    router.push(`/booking/seats/seat?${query}`);
+  };
 
   return (
     <div className="py-10 md:px-24 md:py-20">
@@ -83,10 +103,14 @@ export default function ShowtimeCard({ showtimes, date }) {
                         date={date}
                         movie={movie}
                         hall={hall}
-                        onSelect={({ time, movie, hall }) => {
-                          console.log(
-                            `Selected: ${movie?.title} at ${time} in ${hall}`
-                          );
+                        onSelect={({ time, movie, hall, date }) => {
+                          handleSelect({
+                            time,
+                            movie,
+                            hall,
+                            date,
+                          });
+
                           // คุณสามารถใส่โค้ดสำหรับ handle booking ได้ที่นี่
                         }}
                       />

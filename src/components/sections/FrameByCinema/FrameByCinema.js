@@ -381,7 +381,7 @@ export const FrameByCinema = ({ filters , coupon_id, onError }) => {
                       }}
                       onClick={() =>
                         router.push(
-                          `/movies-detail/${movie.movie_id || movie.id}`
+                          `/booking/movies-detail/${movie.movie_id || movie.id}`
                         )
                       }
                     />
@@ -401,7 +401,7 @@ export const FrameByCinema = ({ filters , coupon_id, onError }) => {
                         className="text-basewhite font-bold truncate max-w-full text-lg md:text-[22.5px] group-hover:text-brandblue-100 transition-colors duration-200"
                         onClick={() =>
                           router.push(
-                            `/movies-detail/${movie.movie_id || movie.id}`
+                            `/booking/movies-detail/${movie.movie_id || movie.id}`
                           )
                         }
                       >

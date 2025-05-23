@@ -1,34 +1,36 @@
-import { useRouter } from 'next/navigation';
-import { useStatus } from '@/context/StatusContext';
-import { useCouponClaim } from '@/hooks/useCouponClaim';
-import { Loading } from '../ui/loading';
-import CouponButton from './CouponButton';
-import CouponAlert from './CouponAlert';
-import { useState } from 'react';
-import Image from 'next/image';
+import { useRouter } from "next/navigation";
+import { useStatus } from "@/context/StatusContext";
+import { useCouponClaim } from "@/hooks/useCouponClaim";
+import { Loading } from "../ui/loading";
+import CouponButton from "./CouponButton";
+import CouponAlert from "./CouponAlert";
+import { useState } from "react";
+import Image from "next/image";
 
 function formatDate(dateString) {
   const date = new Date(dateString);
-  return date.toLocaleDateString('en-GB', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric'
+  return date.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
   });
 }
 
-function truncateText(text, maxLength) {
+const truncateText = (text, maxLength) => {
+  if (!text) return ""; // ถ้า text เป็น null หรือ undefined ให้คืนค่าว่าง
   if (text.length > maxLength) {
     return text.slice(0, maxLength) + "...";
   }
   return text;
-}
+};
 
 function CouponsCard({ coupon_id, image, title, end_date }) {
   const router = useRouter();
   const { isLoggedIn, loading } = useStatus();
-  const { isClaimed, isLoading, handleClaimCoupon, alertOpen, setAlertOpen } = useCouponClaim(coupon_id);
-  
-  console.log(alertOpen)
+  const { isClaimed, isLoading, handleClaimCoupon, alertOpen, setAlertOpen } =
+    useCouponClaim(coupon_id);
+
+  console.log(alertOpen);
   if (loading || isLoading) {
     return <Loading />;
   }
@@ -49,7 +51,9 @@ function CouponsCard({ coupon_id, image, title, end_date }) {
             className="object-cover w-full h-[161px] md:w-[285px] md:h-[285px]"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-gray-500 bg-base-gray-100">No Image</div>
+          <div className="w-full h-full flex items-center justify-center text-gray-500 bg-base-gray-100">
+            No Image
+          </div>
         )}
       </div>
       <div className="flex flex-col flex-1 mt-3 pb-3 md:pt-4 md:pb-6 md:px-6 w-full bg-[#10142A]">
@@ -90,4 +94,3 @@ function CouponsCard({ coupon_id, image, title, end_date }) {
 }
 
 export default CouponsCard;
-

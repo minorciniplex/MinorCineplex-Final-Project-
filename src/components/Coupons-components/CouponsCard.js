@@ -16,12 +16,13 @@ function formatDate(dateString) {
   });
 }
 
-function truncateText(text, maxLength) {
+const truncateText = (text, maxLength) => {
+  if (!text) return ""; // ถ้า text เป็น null หรือ undefined ให้คืนค่าว่าง
   if (text.length > maxLength) {
     return text.slice(0, maxLength) + "...";
   }
   return text;
-}
+};
 
 function CouponsCard({ coupon_id, image, title, end_date }) {
   const router = useRouter();

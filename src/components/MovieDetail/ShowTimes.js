@@ -7,9 +7,51 @@ import {
 } from "../ui/accordion";
 import FmdGoodIcon from "@mui/icons-material/FmdGood";
 import ShowtimeButtons from "@/components/MovieDetail/ShowTimeButtons";
+import { useRouter } from "next/router";
+import axios from "axios";
 
 export default function ShowTimes({ showtimes, date }) {
   const [openItems, setOpenItems] = useState([]);
+  const router = useRouter();
+  const [movie, setMovie] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  /*   const [genrs, setGenrs] = useState(null);
+  const [language, setLanguage] = useState(null); */
+  const { movieId } = router.query;
+
+  useEffect(() => {
+    const fetchMovieDetails = async () => {
+      try {
+        const controller = new AbortController();
+        const response = await axios.get(
+          `/api/movies-detail/getMoviesDetail?id=${movieId}`,
+          {
+            signal: controller.signal,
+            timeout: 10000,
+          }
+        );
+
+        if (response.status !== 200 || !response.data.data) {
+          throw new Error("Failed to fetch movie details");
+        }
+        setMovie(response.data.data);
+        /*         setGenrs(response.data.data.movie_genre_mapping);
+        setLanguage(response.data.data.movie_languages); */
+        return () => controller.abort();
+      } catch (err) {
+        if (axios.isCancel(err)) {
+          console.log("Request cancelled");
+        } else {
+          setError(err);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMovieDetails();
+  }, [movieId]);
 
 useEffect(() => {
   setOpenItems((prev) => {
@@ -19,6 +61,22 @@ useEffect(() => {
   });
 }, [showtimes]);
 
+
+  const handleSelect = ({ time, screenNumber, cinemaName }) => {
+    // ตัวอย่างการ push ไปหน้าจองตั๋ว
+    const query = new URLSearchParams({
+      poster: movie.poster_url,
+      title: movie.title,
+      genres: JSON.stringify(movie.movie_genre_mapping), // แปลง object เป็น string
+      language: JSON.stringify(movie.original_language),
+      time: time.time,
+      screenNumber,
+      cinemaName,
+      date: movie.release_date,
+    }).toString();
+
+    router.push(`/booking/seats/seat?${query}`);
+  };
 
   return (
     <div>

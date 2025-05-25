@@ -353,14 +353,14 @@ export const FrameByCinema = ({ filters, coupon_id, onError }) => {
     <>
       <section
         ref={sectionRef}
-        className="flex flex-col w-full mt-[170px] md:mt-20"
+        className="flex flex-col w-full mt-[180px] md:mt-20"
       >
         {/* Now Showing Section */}
         <div className="flex flex-col items-center gap-2 md:gap-10 px-4 md:px-[120px] py-4 md:py-20 w-full max-w-full md:max-w-[1440px] mx-auto">
-          <div className="flex flex-row items-center gap-6 w-full mb-8 ">
+          <div className="flex flex-row items-center gap-6 w-full">
             <button
               onClick={() => setActiveTab("now-showing")}
-              className={`pb-1 transition-all duration-500 ease-in-out font-bold text-2xl md:text-3xl ${
+              className={`pb-1 transition-all duration-500 ease-in-out font-bold text-lg md:text-2xl ${
                 activeTab === "now-showing"
                   ? "text-white border-b-2 border-base-gray-200"
                   : "text-base-gray-400"
@@ -370,7 +370,7 @@ export const FrameByCinema = ({ filters, coupon_id, onError }) => {
             </button>
             <button
               onClick={() => setActiveTab("coming-soon")}
-              className={`pb-1 transition-all duration-500 ease-in-out font-bold text-2xl md:text-3xl ${
+              className={`pb-1 transition-all duration-500 ease-in-out font-bold text-lg md:text-2xl ${
                 activeTab === "coming-soon"
                   ? "text-white border-b-2 border-base-gray-200"
                   : "text-base-gray-400"

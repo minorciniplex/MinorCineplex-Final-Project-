@@ -9,8 +9,8 @@ export default function SumPaymentDiscount({
   disabled = false,
 }) {
   return (
-    <div className="bg-[#070C1B] w-screen max-w-none -mx-4 px-[16px] min-h-[228px]  pt-4 pb-6 flex flex-col gap-5">
-      <div className="flex flex-col gap-5">
+    <div className="bg-[#070C1B] w-full md:w-[305px] min-h-[228px] flex flex-col gap-[20px] px-[16px] pt-[16px] pb-[24px] border-t border-[#21263F] md:mb-[60px] mb-[60px] ">
+      <div className="flex flex-col gap-[16px]">
         <div className="flex justify-between items-center">
           <span className="text-base-gray-400 body-2-regular">Selected Seat</span>
           <span className="text-white body-1-medium">{Array.isArray(seats) ? seats.join(', ') : seats}</span>
@@ -29,10 +29,9 @@ export default function SumPaymentDiscount({
         </div>
       </div>
       <Button
-        className="!w-full !h-[48px] !rounded-[4px] self-center mt-4"
+        className="!w-full !h-[48px] !rounded-[4px] "
         onClick={onNext}
-        disabled
-        
+        disabled={disabled}
       >
         Next
       </Button>

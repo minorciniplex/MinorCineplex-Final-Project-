@@ -25,13 +25,13 @@ function formatTime(timeStr) {
 
 export default function MovieInfoCard({
   time,
-  screenNumber,
-  cinemaName,
   poster,
   title,
   genres,
   language,
   date,
+  cinemaName,
+  screenNumber,
 }) {
 
  let genreArr = [];
@@ -90,7 +90,7 @@ export default function MovieInfoCard({
       <div className="mt-2 text-base-gray-400 text-sm flex flex-col gap-2">
         <div className="flex items-center gap-2">
           <LocationOnIcon className="text-base-gray-200 text-sm" style={{ fontSize: 16 }} />
-          <span>{cinema}</span>
+          <span>{cinemaName}</span>
         </div>
         <div className="flex items-center gap-2">
           <CalendarMonthIcon className="text-base-gray-200 text-sm" style={{ fontSize: 16 }} />
@@ -102,7 +102,7 @@ export default function MovieInfoCard({
         </div>
         <div className="flex items-center gap-2">
           <StorefrontIcon className="text-base-gray-200 text-sm" style={{ fontSize: 16 }} />
-          <span>{hall}</span>
+          <span>{screenNumber}</span>
         </div>
       </div>
     </div>

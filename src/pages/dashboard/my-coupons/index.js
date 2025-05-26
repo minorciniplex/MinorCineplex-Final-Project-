@@ -48,9 +48,9 @@ const MyCoupon = () => {
 
   return (
     <>
-      <div className="container mx-auto px-4 py-8">
+      <div className="lg:w-[789px] sm:w-[380px] " >
         <h1 className="text-2xl font-bold mb-6">My coupons</h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-22 gap-4">
           {couponsInWallet.map((coupon) => (
             <div key={coupon.coupon_id} className="relative">
               <CouponsCard

@@ -51,7 +51,6 @@ export default function ShowtimeCard({ showtimes, date }) {
 
 const handleSelect = ({ time, movie, date, hall,}) => {
     // ตัวอย่างการ push ไปหน้าจองตั๋ว
-    console.log(movie);
     const query = new URLSearchParams({
       poster: movie.posterUrl,  
       title: movie.title,

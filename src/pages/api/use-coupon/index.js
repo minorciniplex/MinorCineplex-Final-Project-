@@ -21,12 +21,31 @@ export  async function handler(req, res) {
     const { data: coupon, error: couponError } = await supabase
       .from("coupons")
       .select(
-        "discount_type,discount_value")
+        "discount_type,discount_value,end_date,min_purchase,status,used_count"
+      )
       .eq("coupon_id", coupon_id)
       .single();
     if (couponError || !coupon) return res.status(400).json({ error: "Coupon not found" });
 
-    // 3. คำนวณส่วนลด
+    // เช็ค 1: วันหมดอายุ
+    const now = new Date();
+    const endDate = new Date(coupon.end_date);
+    if (now > endDate) {
+      return res.status(400).json({ error: "คูปองนี้หมดอายุแล้ว" });
+    }
+
+    // เช็ค 2: ยอดขั้นต่ำ
+    if (booking.total_price < coupon.min_purchase) {
+      const diff = coupon.min_purchase - booking.total_price;
+      return res.status(400).json({ error: `ยอดซื้อขั้นต่ำไม่ถึง ขาดอีก ${diff} บาท` });
+    }
+
+    // เช็ค 3: สถานะคูปอง
+    if (coupon.status !== "active") {
+      return res.status(400).json({ error: "คูปองนี้ไม่สามารถใช้งานได้" });
+    }
+
+    // 4. คำนวณส่วนลด
     let discount_amount = 0;
     if (coupon.discount_type === "percentage") {
       discount_amount = booking.total_price * (coupon.discount_value / 100);
@@ -34,22 +53,7 @@ export  async function handler(req, res) {
       discount_amount = coupon.discount_value;
     }
 
-    // 4. บันทึกการใช้คูปองกับ booking
-    const { data, error } = await supabase
-      .from("booking_coupons")
-      .insert([{ booking_id, coupon_id, discount_amount }])
-      .select()
-      .single();
-
-    if (error) return res.status(500).json({ error: error.message });
-
-    // 5. อัปเดต user_coupons ให้ is_used = true, used_date = now
-    await supabase
-      .from("user_coupons")
-      .update({ is_used: true, used_date: new Date().toISOString() })
-      .eq("user_id", user.id)
-      .eq("coupon_id", coupon_id);
-
-    return res.status(200).json({ booking_coupon: data, discount_amount });
+    // ส่งข้อมูลกลับ (คูปองใช้งานได้)
+    return res.status(200).json({ message: "คูปองสามารถใช้งานได้", discount_amount });
 } 
 export default withMiddleware([requireUser], handler); 

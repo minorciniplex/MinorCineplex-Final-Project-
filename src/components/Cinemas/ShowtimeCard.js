@@ -94,7 +94,7 @@ const handleSelect = ({ time, movie, date, hall,}) => {
                   </div>
 
                   {/* Movie Title & Info */}
-                  <div className="bg-[var(--base-gray-0)] w-[200px]">
+                  <div className="bg-[var(--base-gray-0)] md:w-[200px]">
                     <h2 className="text-xl font-bold text-white text-left">
                       {movie?.title}
                     </h2>

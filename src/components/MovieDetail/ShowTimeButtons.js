@@ -25,6 +25,7 @@ const isPastShowtimeByMinutes = (timeString, dateString, minutes) => {
 const ShowtimeButtons = ({ times = [], date, movie, hall, onSelect }) => {
   const sortedTimes = [...times].sort((a, b) => a.localeCompare(b));
 
+  if (!date) return null;
   return (
     <div className="flex flex-wrap gap-6">
       {sortedTimes.map((time, i) => {

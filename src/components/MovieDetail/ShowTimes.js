@@ -54,10 +54,14 @@ export default function ShowTimes({ showtimes, date }) {
     fetchMovieDetails();
   }, [movieId]);
 
-  useEffect(() => {
-    const allItems = showtimes.map((_, index) => `item-${index}`);
-    setOpenItems(allItems);
-  }, [showtimes]);
+useEffect(() => {
+  setOpenItems((prev) => {
+    const newKeys = showtimes.map((_, index) => `item-${index}`);
+    const added = newKeys.filter(key => !prev.includes(key));
+    return [...prev, ...added];
+  });
+}, [showtimes]);
+
 
   const handleSelect = ({ time, screenNumber, cinemaName, date}) => {
     // ตัวอย่างการ push ไปหน้าจองตั๋ว
@@ -80,6 +84,7 @@ export default function ShowTimes({ showtimes, date }) {
     <div>
       <div className="md:mt-10">
         <Accordion
+          key={date + JSON.stringify(showtimes)}
           type="multiple"
           value={openItems}
           onValueChange={setOpenItems}

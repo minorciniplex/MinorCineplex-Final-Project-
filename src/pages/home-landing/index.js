@@ -22,8 +22,6 @@ const HomeLanding = () => {
     setSearchFilters(newFilters);
   };
 
-  console.log('HomeLanding render', { searchFilters });
-
   return (
     <main className="min-h-screen bg-background overflow-x-hidden">
       <AnnouncementPopup />

@@ -25,11 +25,10 @@ const useInfiniteScroll = (
   const [items, setItems] = useState(
     Array.isArray(initialData) ? initialData : []
   );
-  const [page, setPage] = useState(initialPage);
+  const pageRef = useRef(initialPage);
   const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState(null);
-
   const loaderRef = useRef(null);
   const observerRef = useRef(null);
 
@@ -52,11 +51,11 @@ const useInfiniteScroll = (
           setItems((prev) =>
             pageNum === initialPage ? newItems : [...prev, ...newItems]
           );
-
           setHasMore(moreAvailable); // trust server's hasMore
         } else {
           setHasMore(false);
         }
+        pageRef.current = pageNum;
       } catch (err) {
         console.error("Error loading data:", err);
         setError(err.message || "Error loading data");
@@ -72,17 +71,16 @@ const useInfiniteScroll = (
   // Load more items
   const loadMoreItems = useCallback(() => {
     if (!hasMore || isLoading) return;
-    const nextPage = page + 1;
-    setPage(nextPage);
+    const nextPage = pageRef.current + 1;
     loadItems(nextPage);
-  }, [hasMore, isLoading, page, loadItems]);
+  }, [hasMore, isLoading, loadItems]);
 
   // Reset data (useful when filters change)
   const resetItems = useCallback(() => {
     setItems([]);
-    setPage(initialPage);
     setHasMore(true);
     setError(null);
+    pageRef.current = initialPage;
     loadItems(initialPage);
   }, [initialPage, loadItems]);
 
@@ -91,12 +89,12 @@ const useInfiniteScroll = (
       observerRef.current.disconnect();
     }
 
-    if (!hasMore) return;
+    if (!hasMore || !loaderRef.current) return;
 
     const options = {
       root: null,
       rootMargin: `${threshold}px`,
-      threshold: 0.9,
+      threshold: 0.1,
     };
 
     const observer = new IntersectionObserver((entries) => {
@@ -113,12 +111,14 @@ const useInfiniteScroll = (
       observer.observe(currentLoaderRef);
     }
 
-    return () => {
-      if (currentLoaderRef && observer) {
-        observer.unobserve(currentLoaderRef);
-      }
-    };
+    return () => observer.disconnect();
   }, [hasMore, isLoading, loadMoreItems, threshold]);
+
+  // Reset on dependency change
+  useEffect(() => {
+    resetItems();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [...dependencies, resetItems]);
 
   return {
     items, // Current items as an object

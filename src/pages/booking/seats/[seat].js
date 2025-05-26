@@ -30,7 +30,8 @@ export default function Seats() {
       <StepProgressBar />
       <div className="flex flex-col sm:flex-row justify-center sm:py-[80px] sm:px-[120px] sm:gap-[102px]">
         <BookingSeats setBookingSeat={setBookingSeat} setSumPrice={setSumPrice} />
-      <BookingCard
+        <BookingCard
+        className="py-10 px-4"
         time={time}
         cinemaName={cinemaName}
         screenNumber={screenNumber}
@@ -46,6 +47,7 @@ export default function Seats() {
       />
       <p>{showtimes}</p>
       </div>
+      
       
 
     </>

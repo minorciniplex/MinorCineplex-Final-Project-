@@ -1,6 +1,9 @@
-import React, { useState } from "react";
-import Navbar from "./Navbar/Navbar";
+import React, { useState, useRef } from "react";
+import Navbar from "../Navbar/Navbar";
 import CheckIcon from '@mui/icons-material/Check';
+import Image from 'next/image';
+import MovieInfoCard from "../MovieInfoCard";
+import { useMovieDetail } from '@/hooks/useMovieDetail';
 
 export default function PaymentMobile() {
   const [tab, setTab] = useState("credit");
@@ -10,21 +13,11 @@ export default function PaymentMobile() {
     expiry: "",
     cvc: "",
   });
+  const expiryInputRef = useRef(null);
 
-  // Mock ข้อมูลหนัง
-  const movie = {
-    title: "The Dark Knight",
-    genres: ["Action", "Crime", "TH"],
-    cinema: "Minor Cineplex Arkham",
-    date: "24 Jun 2024",
-    time: "16:30",
-    hall: "Hall 1",
-    img: "https://m.media-amazon.com/images/I/51k0qa6qH-L._AC_SY679_.jpg",
-    seats: ["C9", "C10"],
-    coupon: "-THB50",
-    total: "THB300",
-    payment: "Credit card",
-  };
+  // ตัวอย่าง movie_id (ควรรับจาก prop, route, หรือ context จริง)
+  const movie_id = "013b897b-3387-4b7f-ab23-45b78199020a";
+  const { movie, genres, languages, showtime, hall, cinema, loading } = useMovieDetail(movie_id);
 
   return (
     <div className="bg-background w-screen min-h-screen text-white font-sans overflow-x-hidden">
@@ -80,28 +73,62 @@ export default function PaymentMobile() {
 
       {/* Credit Card Form */}
       {tab === "credit" && (
-        <form className="px-4 mt-4 space-y-3">
-          <input
-            className="w-full bg-[#232B47] rounded px-3 py-2 text-sm placeholder-gray-400"
-            placeholder="Card number"
-            value={card.number}
-            onChange={e => setCard({ ...card, number: e.target.value })}
-          />
-          <input
-            className="w-full bg-[#232B47] rounded px-3 py-2 text-sm placeholder-gray-400"
-            placeholder="Card owner name"
-            value={card.owner}
-            onChange={e => setCard({ ...card, owner: e.target.value })}
-          />
-          <div className="flex space-x-2">
+        <form className="px-4 mt-4 space-y-4">
+          <div>
+            <label className="block body-2-regular text-base-gray-400 mb-1">Card number</label>
             <input
-              className="flex-1 bg-[#232B47] rounded px-3 py-2 text-sm placeholder-gray-400"
-              placeholder="MM/YY"
-              value={card.expiry}
-              onChange={e => setCard({ ...card, expiry: e.target.value })}
+              className="w-[343px] h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-md px-3 py-2 text-sm placeholder-base-gray-300 outline-none"
+              placeholder="Card number"
+              value={card.number}
+              onChange={e => setCard({ ...card, number: e.target.value })}
             />
+          </div>
+          <div>
+            <label className="block body-2-regular text-base-gray-400 mb-1">Card owner</label>
             <input
-              className="flex-1 bg-[#232B47] rounded px-3 py-2 text-sm placeholder-gray-400"
+              className="w-[343px] h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-md px-3 py-2 text-sm placeholder-base-gray-300 outline-none"
+              placeholder="Card owner name"
+              value={card.owner}
+              onChange={e => setCard({ ...card, owner: e.target.value })}
+            />
+          </div>
+          <div>
+            <label className="block body-2-regular text-base-gray-400 mb-1">Expiry date</label>
+            <div className="relative">
+              <input
+                ref={expiryInputRef}
+                type="date"
+                className="w-[343px] h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-md px-3 py-2 text-sm placeholder-base-gray-300 outline-none pr-[40px]"
+                placeholder="MM/YY"
+                value={card.expiry}
+                onChange={e => setCard({ ...card, expiry: e.target.value })}
+              />
+              <span
+                className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer"
+                onClick={() => {
+                  if (expiryInputRef.current) {
+                    if (expiryInputRef.current.showPicker) {
+                      expiryInputRef.current.showPicker();
+                    } else {
+                      expiryInputRef.current.focus();
+                    }
+                  }
+                }}
+              >
+                <Image src="/assets/images/Date_today_light.png" alt="calendar" width={20} height={20} className="object-contain" />
+              </span>
+              <style jsx global>{`
+                input[type="date"]::-webkit-calendar-picker-indicator {
+                  opacity: 0;
+                  display: none;
+                }
+              `}</style>
+            </div>
+          </div>
+          <div>
+            <label className="block body-2-regular text-base-gray-400 mb-1">CVC</label>
+            <input
+              className="w-[343px] h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-md px-3 py-2 text-sm placeholder-base-gray-300 outline-none"
               placeholder="CVC"
               value={card.cvc}
               onChange={e => setCard({ ...card, cvc: e.target.value })}
@@ -117,28 +144,24 @@ export default function PaymentMobile() {
           <div className="mt-2 text-xs">Scan QR code to pay</div>
         </div>
       )}
-
       {/* Movie Info */}
       <div className="px-4 mt-6">
-        <div className="flex items-center">
-          <img src={movie.img} alt="movie" className="w-16 h-24 rounded object-cover" />
-          <div className="ml-3 flex-1">
-            <div className="font-bold">{movie.title}</div>
-            <div className="flex flex-wrap gap-1 mt-1">
-              {movie.genres.map(g => (
-                <span key={g} className="bg-[#232B47] text-xs px-2 py-0.5 rounded">{g}</span>
-              ))}
-            </div>
-          </div>
-        </div>
-        <div className="mt-3 text-xs space-y-1">
-          <div>📍 {movie.cinema}</div>
-          <div>🗓️ {movie.date}</div>
-          <div>⏰ {movie.time}</div>
-          <div>🏟️ {movie.hall}</div>
-        </div>
+        {loading ? (
+          <div className="text-base-gray-300 text-center">Loading...</div>
+        ) : movie ? (
+          <MovieInfoCard
+            title={movie.title}
+            genres={genres}
+            image={movie.poster_url}
+            cinema={cinema?.name}
+            date={showtime?.date}
+            time={showtime?.start_time}
+            hall={hall?.screen_number}
+          />
+        ) : (
+          <div className="text-red-400 text-center">ไม่พบข้อมูลหนัง</div>
+        )}
       </div>
-
       {/* Coupon */}
       <div className="px-4 mt-4">
         <div className="bg-[#232B47] rounded px-3 py-2 flex items-center justify-between text-xs">
@@ -151,19 +174,19 @@ export default function PaymentMobile() {
       <div className="px-4 mt-4 text-xs">
         <div className="flex justify-between">
           <span>Selected Seat</span>
-          <span>{movie.seats.join(", ")}</span>
+          <span>{Array.isArray(movie?.seats) ? movie.seats.join(", ") : "-"}</span>
         </div>
         <div className="flex justify-between">
           <span>Payment method</span>
-          <span>{movie.payment}</span>
+          <span>{movie?.payment || "-"}</span>
         </div>
         <div className="flex justify-between text-red-400">
           <span>Coupon</span>
-          <span>{movie.coupon}</span>
+          <span>{movie?.coupon || "-"}</span>
         </div>
         <div className="flex justify-between font-bold mt-1">
           <span>Total</span>
-          <span>{movie.total}</span>
+          <span>{movie?.total || "-"}</span>
         </div>
       </div>
 

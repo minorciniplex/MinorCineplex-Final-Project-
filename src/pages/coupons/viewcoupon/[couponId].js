@@ -80,7 +80,7 @@ export default function Viewcoupon() {
               <h1 className="text-2xl md:text-3xl font-bold leading-tight mb-2">{data.title}</h1>
               <div className="flex items-center gap-2 text-base-gray-300 text-sm md:text-base">
                 <span className="font-medium">Valid until</span>
-                <span className="bg-[#232B3E] px-3 py-1 rounded text-brand-blue-100 font-semibold">{data.end_date}</span>
+                <span className="bg-[#232B3E] px-3 py-1 rounded text-basewhite font-semibold">{data.end_date}</span>
               </div>
               <div className="my-2">
                 <CouponButton

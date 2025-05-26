@@ -32,9 +32,21 @@ export default function CouponSelectPopup({ open, coupons, onClose, onApply }) {
               className={`rounded flex items-center gap-3 p-3 cursor-pointer border transition-all hover:bg-[#2A3349] ${selected?.id === coupon.id ? 'border-white bg-[#232B47]' : 'border-transparent bg-[#232B47]'}`}
               onClick={() => setSelected(coupon)}
             >
-              {/* ตัวอย่าง: ใส่รูปภาพคูปอง ถ้ามี coupon.image_url */}
               <div className="w-[60px] h-[60px] md:w-[80px] md:h-[80px] bg-base-gray-100 rounded flex items-center justify-center text-white text-2xl md:text-3xl font-bold">
-                <Image src={coupon.coupons.image} alt={coupon.coupons.title} width={80} height={80} />
+                {coupon.coupons.image ? (
+                  <Image 
+                    src={coupon.coupons.image} 
+                    alt={coupon.coupons.title} 
+                    width={80} 
+                    height={80} 
+                    className="object-cover"
+                    onError={(e) => {
+                      e.target.src = '/assets/images/default-coupon.png';
+                    }}
+                  />
+                ) : (
+                  <span>{coupon.coupons.title.charAt(0)}</span>
+                )}
               </div>
               <div className="flex-1">
                 <div className="text-white font-bold text-sm md:text-base truncate">{coupon.coupons.title}</div>

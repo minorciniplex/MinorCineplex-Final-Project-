@@ -112,17 +112,20 @@ function BookingSeats({
 
   return (
     <>
-      <div className="w-full sm:basis-3/4">
-        <div className="bg-gradient-to-r from-[#2C344E] to-[#516199] rounded-t-[80px] items-center flex justify-center py-[10px] text-[--base-gray-400]">
+      <div className="w-full sm:basis-3/4 py-10 px-4 sm:py-0 sm:px-0">
+        <div className="bg-gradient-to-r from-[#2C344E] to-[#516199] rounded-t-[80px] items-center flex justify-center text-[8px] sm:text-base py-[4.67px] sm:py-[10px] text-[--base-gray-400]">
           screen
         </div>
 
-        <div className="sm:py-[60px]">
+        <div className="mt-[18px] sm:mt-0 sm:py-[60px]">
           <div className="flex flex-row justify-between sm:gap-[30px]">
             {/* ฝั่งซ้าย (A, B, C) */}
-            <div className="flex flex-col items-center space-y-[30px]">
+            <div className="flex flex-col items-center space-y-[5px] sm:space-y-[30px]">
               {seats.slice(0, 3).map((row, rowIndex) => (
-                <div key={rowIndex} className="flex gap-6 items-center">
+                <div
+                  key={rowIndex}
+                  className="flex gap-[11px] sm:gap-6 items-center"
+                >
                   {/* ตัวหนังสือแถวอยู่ซ้าย */}
                   <span className="w-4 text-left">{row.row}</span>
                   {row.seats.map((seat, seatIndex) => {
@@ -131,7 +134,7 @@ function BookingSeats({
                     return (
                       <div
                         key={seatIndex}
-                        className={`w-10 h-10 rounded-md flex items-center justify-center text-xs font-bold ${seatStatusColor[status]}`}
+                        className={`w-4 h-4 sm:w-10 sm:h-10 rounded-md flex items-center justify-center text-xs font-bold ${seatStatusColor[status]}`}
                         onClick={() =>
                           handleSeatClick(row.row, seat.number, seat.status)
                         }
@@ -144,9 +147,12 @@ function BookingSeats({
               ))}
             </div>
             {/* ฝั่งขวา (D, E) */}
-            <div className="flex flex-col items-center space-y-[30px]">
+            <div className="flex flex-col items-center space-y-[5px] sm:space-y-[30px]">
               {seats.slice(3, 5).map((row, rowIndex) => (
-                <div key={rowIndex} className="flex gap-6 items-center">
+                <div
+                  key={rowIndex}
+                  className="flex gap-[11px] sm:gap-6 items-center"
+                >
                   {/* ตัวหนังสือแถวอยู่ขวา */}
                   {row.seats.map((seat, seatIndex) => {
                     const selected = isSelected(row.row, seat.number);
@@ -154,7 +160,7 @@ function BookingSeats({
                     return (
                       <div
                         key={seatIndex}
-                        className={`w-10 h-10 rounded-md flex items-center justify-center text-xs font-bold ${seatStatusColor[status]}`}
+                        className={`w-4 h-4 sm:w-10 sm:h-10 rounded-md flex items-center justify-center text-xs font-bold ${seatStatusColor[status]}`}
                         onClick={() =>
                           handleSeatClick(row.row, seat.number, seat.status)
                         }
@@ -170,21 +176,23 @@ function BookingSeats({
           </div>
         </div>
 
-        <div className="flex gap-10 border-t-2 border-[--base-gray-100] py-4">
-          <div className="bg-[--base-gray-100] rounded-sm py-3 px-4 text-[--base-gray-400] text-2xl font-bold">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-10 border-t-2 border-[--base-gray-100] pt-2 sm:py-4 mt-7 sm:mt-0">
+          <div className="bg-[--base-gray-100] rounded-sm py-3 px-4 text-[--base-gray-400] text-2xl font-bold items-center w-[88px]">
             Hall 1
           </div>
-          <div className="flex flex-wrap gap-4 ">
-            <AvailableIcon />
-            <p>Avilable Seat THB150</p>
-          </div>
-          <div className="flex flex-wrap gap-4">
-            <BookedIcon />
-            <p>Booed Seat</p>
-          </div>
-          <div className="flex flex-wrap gap-4">
-            <ReservedIcon />
-            <p>Reserved Seat</p>
+          <div className="grid grid-cols-2 sm:flex sm:gap-10 sm:grid-cols-none gap-y-8 gap-x-8 sm:gap-y-0 text-[--base-gray-400]">
+            <div className="flex flex-row sm:flex-wrap gap-4 items-center">
+              <AvailableIcon />
+              <p className="basis-24">Avilable Seat THB150</p>
+            </div>
+            <div className="flex flex-row sm:flex-wrap gap-4 items-center">
+              <BookedIcon />
+              <p>Booed Seat</p>
+            </div>
+            <div className="flex flex-row sm:flex-wrap gap-4 items-center">
+              <ReservedIcon />
+              <p>Reserved Seat</p>
+            </div>
           </div>
         </div>
       </div>

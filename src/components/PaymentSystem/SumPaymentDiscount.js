@@ -11,46 +11,28 @@ export default function SumPaymentDiscount({ coupon, onNext, disabled }) {
   const [showBookingError, setShowBookingError] = useState(false);
   const [showCouponError, setShowCouponError] = useState(false);
 
-  // อัพเดท showBookingError เมื่อมี bookingError
   useEffect(() => {
     if (bookingError) {
       setShowBookingError(true);
     }
   }, [bookingError]);
 
-  // อัพเดท showCouponError เมื่อมี couponError
   useEffect(() => {
     if (couponError) {
       setShowCouponError(true);
     }
   }, [couponError]);
 
-  // เช็คคูปองเมื่อมีการเลือกคูปอง
   useEffect(() => {
     const checkCouponValidity = async () => {
-      console.log('Checking coupon validity with:', {
-        coupon,
-        bookingId: data?.booking?.booking_id
-      });
-
       if (!coupon?.coupons?.coupon_id || !data?.booking?.booking_id) {
-        console.log('Missing required data:', {
-          hasCouponId: !!coupon?.coupons?.coupon_id,
-          hasBookingId: !!data?.booking?.booking_id
-        });
         return;
       }
       
       try {
         const result = await checkCoupon(data.booking.booking_id, coupon.coupons.coupon_id);
-        console.log('Coupon check result:', result);
         setCheckResult(result);
       } catch (error) {
-        console.error('Error checking coupon:', {
-          message: error.message,
-          response: error.response?.data,
-          status: error.response?.status
-        });
         setCheckResult(null);
       }
     };
@@ -58,33 +40,18 @@ export default function SumPaymentDiscount({ coupon, onNext, disabled }) {
     checkCouponValidity();
   }, [coupon, data?.booking?.booking_id]);
 
-  // apply คูปองเมื่อกดปุ่ม Next
   const handleNext = async () => {
     if (!checkResult || !data?.booking?.booking_id) {
-      console.log('Skipping coupon application:', {
-        hasCheckResult: !!checkResult,
-        hasBookingId: !!data?.booking?.booking_id
-      });
       onNext();
       return;
     }
     
     try {
       if (checkResult.discount_amount > 0) {
-        console.log('Applying coupon with:', {
-          bookingId: data.booking.booking_id,
-          couponId: coupon.coupons.coupon_id,
-          discountAmount: checkResult.discount_amount
-        });
         await applyCoupon(data.booking.booking_id, coupon.coupons.coupon_id, checkResult.discount_amount);
       }
       onNext();
     } catch (error) {
-      console.error('Error applying coupon:', {
-        message: error.message,
-        response: error.response?.data,
-        status: error.response?.status
-      });
       onNext();
     }
   };

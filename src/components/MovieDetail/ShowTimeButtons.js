@@ -25,6 +25,7 @@ const isPastShowtimeByMinutes = (timeString, dateString, minutes) => {
 const ShowtimeButtons = ({ times = [], date, movie, hall, onSelect }) => {
   const sortedTimes = [...times].sort((a, b) => a.localeCompare(b));
 
+  if (!date) return null;
   return (
     <div className="flex flex-wrap gap-6">
       {sortedTimes.map((time, i) => {
@@ -38,7 +39,9 @@ const ShowtimeButtons = ({ times = [], date, movie, hall, onSelect }) => {
               key={i}
               className={buttonClass}
               onClick={() => {
-                console.log(`Selected: ${movie?.title} at ${time} in ${hall}`);
+                if (onSelect) {
+                  onSelect({ time, movie, hall, date });
+                }
               }}
             >
               {time}
@@ -89,7 +92,7 @@ const ShowtimeButtons = ({ times = [], date, movie, hall, onSelect }) => {
             disabled={isPast && !isWithinThirtyMinsPast}
             onClick={() => {
               if (onSelect) {
-                onSelect({ time, movie, hall });
+                onSelect({ time, movie, hall, date });
               }
             }}
           >

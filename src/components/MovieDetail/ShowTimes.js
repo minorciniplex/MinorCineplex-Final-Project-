@@ -11,15 +11,20 @@ import ShowtimeButtons from "@/components/MovieDetail/ShowTimeButtons";
 export default function ShowTimes({ showtimes, date }) {
   const [openItems, setOpenItems] = useState([]);
 
-  useEffect(() => {
-    const allItems = showtimes.map((_, index) => `item-${index}`);
-    setOpenItems(allItems);
-  }, [showtimes]);
+useEffect(() => {
+  setOpenItems((prev) => {
+    const newKeys = showtimes.map((_, index) => `item-${index}`);
+    const added = newKeys.filter(key => !prev.includes(key));
+    return [...prev, ...added];
+  });
+}, [showtimes]);
+
 
   return (
     <div>
       <div className="md:mt-10">
         <Accordion
+          key={date + JSON.stringify(showtimes)}
           type="multiple"
           value={openItems}
           onValueChange={setOpenItems}

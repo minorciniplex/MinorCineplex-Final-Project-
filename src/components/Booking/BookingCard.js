@@ -4,6 +4,8 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
 import Image from "next/image";
 import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import {useStatus} from "@/context/StatusContext";
 
 export default function BookingCard({
   time,
@@ -17,6 +19,7 @@ export default function BookingCard({
   seat,
   price
 }) {
+  const { isLoggedIn, user } = useStatus();
 
   const router = useRouter();
   let genreArr = [];
@@ -63,6 +66,12 @@ export default function BookingCard({
 
   const handleSumbit = () => {
     // ตัวอย่างการ push ไปหน้าจองตั๋ว
+
+
+    if (!isLoggedIn) {
+      router.push("/auth/login");
+      return;
+    }
     const query = new URLSearchParams({
       poster: poster,  
       title: title,

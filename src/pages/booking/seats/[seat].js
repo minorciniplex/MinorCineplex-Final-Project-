@@ -12,7 +12,7 @@ export default function Seats() {
   const [genres, setGenres] = useState(null);
   const [language, setLanguage] = useState(null);
   const [bookingSeat, setBookingSeat] = useState([]);
-const [sumPrice, setSumPrice] = useState(0);
+  const [sumPrice, setSumPrice] = useState(0);
 
   useEffect(() => {
     if (router.isReady) {
@@ -22,11 +22,6 @@ const [sumPrice, setSumPrice] = useState(0);
       setLanguage(JSON.parse(language));
     }
   }, [router.isReady]);
-
-
- 
-  
-
 
   return (
     <>
@@ -45,8 +40,6 @@ const [sumPrice, setSumPrice] = useState(0);
         seat={bookingSeat}
         price={sumPrice}
       />
-      
-
     </>
   );
 }

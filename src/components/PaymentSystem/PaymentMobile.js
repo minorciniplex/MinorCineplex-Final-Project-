@@ -212,6 +212,7 @@ export default function PaymentMobile() {
           setOpenCouponPopup(false);
         }}
       />
+      
     </div>
   );
 } 

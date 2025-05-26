@@ -6,9 +6,21 @@ import CouponButton from "./CouponButton";
 import CouponAlert from "./CouponAlert";
 import { useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useStatus } from "@/context/StatusContext";
+import { useCouponClaim } from "@/hooks/useCouponClaim";
+import { Loading } from "../ui/loading";
+import CouponButton from "./CouponButton";
+import CouponAlert from "./CouponAlert";
+import { useState } from "react";
+import Image from "next/image";
 
 function formatDate(dateString) {
   const date = new Date(dateString);
+  return date.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
   return date.toLocaleDateString("en-GB", {
     day: "2-digit",
     month: "short",

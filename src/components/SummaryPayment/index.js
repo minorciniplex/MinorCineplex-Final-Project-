@@ -1,6 +1,6 @@
 import Button from '../Button';
 
-export default function SelectedSeat({ seats = [], total = "", onNext }) {
+export default function SummaryPayment({ seats = [], total = "", onNext }) {
      return (
           <div className="bg-[#070C1B] w-[375px] h-[164px]  -mx-4 px-[16px] pt-6 pb-11 flex flex-col gap-4 border-t border-[#21263F]">
                <div>

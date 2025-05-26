@@ -12,7 +12,7 @@ const isValidUUID = (uuid) =>
 export default async function handler(req, res) {
   const supabase = createSupabaseServerClient(req, res);
 
-  const { movieId, date, cinemaName, province } = req.query;
+  const { movieId, date, cinemaName, province, page, pageSize } = req.query;
 
   // :white_check_mark: Validation
   if (!movieId || !date) {
@@ -74,8 +74,66 @@ export default async function handler(req, res) {
       if (!data) {
         return res.status(404).json({ error: "showtimes not found" });
       }
+      // Transform the nested data structure to match the expected format
+      const groupShowtimesByCinemaAndScreen = (data) => {
+        const cinemaMap = new Map();
 
-      return res.status(200).json({ data });
+        data.forEach((showtime) => {
+          const cinemaName = showtime.screens.cinemas.name;
+          const screenNumber = showtime.screens.screen_number;
+          const facilities = showtime.screens.cinemas.facilities;
+          const date = showtime.date;
+          const key = cinemaName;
+
+          if (!cinemaMap.has(key)) {
+            cinemaMap.set(key, {
+              name: cinemaName,
+              facilities: facilities,
+              date: date,
+              screens: {},
+            });
+          }
+
+          const cinema = cinemaMap.get(key);
+
+          if (!cinema.screens[screenNumber]) {
+            cinema.screens[screenNumber] = [];
+          }
+
+          cinema.screens[screenNumber].push(
+            showtime.start_time.substring(0, 5)
+          );
+        });
+
+        return Array.from(cinemaMap.values());
+      };
+      const showtimesGrouped = groupShowtimesByCinemaAndScreen(data);
+
+      // Calculate total for pagination
+      const totalMovies = showtimesGrouped.length;
+
+      // Apply pagination to the grouped data
+      const pageNum = parseInt(page, 10) || 1;
+      const pageSizeNum = parseInt(pageSize, 10) || 5;
+      const startIndex = (pageNum - 1) * pageSizeNum;
+      const endIndex = Math.min(startIndex + pageSizeNum, totalMovies);
+
+      // Get just the movies for this page
+      const paginatedMovies = showtimesGrouped.slice(startIndex, endIndex);
+
+      // Format response to match your interface
+      res.status(200).json({
+        data: {
+          showtimes: paginatedMovies,
+          pagination: {
+            total: totalMovies,
+            page: pageNum,
+            pageSize: pageSizeNum,
+            totalPages: Math.ceil(totalMovies / pageSizeNum),
+            hasMore: pageNum < Math.ceil(totalMovies / pageSizeNum),
+          },
+        },
+      });
     } catch (error) {
       console.error("Server error:", error);
       return res.status(500).json({ error: "Internal Server Error" });

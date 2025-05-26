@@ -11,20 +11,17 @@ import Image from "next/image";
 
 export default function CinemaPage() {
   const router = useRouter();
-  const { id: cinemaId } = router.query;
+  const { cinemaId } = router.query;
   const [selectedDate, setSelectedDate] = useState(null);
   const [isRouterReady, setIsRouterReady] = useState(false);
   const [isFirstLoad, setIsFirstLoad] = useState(true);
 
- 
   const handleDateSelect = useCallback((date) => {
     setSelectedDate(date);
   }, []);
 
-  
   const fetchShowtimes = useCallback(
     async (page, pageSize) => {
-
       if (!cinemaId) {
         console.log("Missing cinemaId, returning empty data");
         return { data: [], hasMore: false };
@@ -50,21 +47,20 @@ export default function CinemaPage() {
         };
       } catch (err) {
         console.error("Error fetching showtimes:", err);
-        setIsFirstLoad(false); 
-        return { data: [], hasMore: false }; 
+        setIsFirstLoad(false);
+        return { data: [], hasMore: false };
       }
     },
     [cinemaId, selectedDate]
   );
 
-  
   const {
     items: showtimes,
     isLoading,
     error,
     hasMore,
     loaderRef,
-    resetItems, 
+    resetItems,
   } = useInfiniteScroll(fetchShowtimes, {
     pageSize: 4,
     threshold: 100,

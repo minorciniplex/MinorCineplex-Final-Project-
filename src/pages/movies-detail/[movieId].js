@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import useInfiniteScroll from "@/hooks/useInfiniteScroll";
 import ShowTimes from "@/components/MovieDetail/ShowTimes";
 import ShowMovieDetail from "@/components/MovieDetail/ShowMovieDetail";
 import FooterSection from "@/components/sections/FooterSection/FooterSection";
@@ -22,7 +23,6 @@ export default function MovieDetail() {
   const [selectedDate, setSelectedDate] = useState(null);
   const [cinemaName, setCinemaName] = useState("");
   const [cityName, setCityName] = useState("");
-  const [showtimes, setShowtimes] = useState([]);
   const [loadingShowtimes, setLoadingShowtimes] = useState(false);
   const [isRouterReady, setIsRouterReady] = useState(false);
   const [cities, setCities] = useState([]);
@@ -49,9 +49,12 @@ export default function MovieDetail() {
   }, [cityName]);
 
   // Fetch showtimes based on filters
-  useEffect(() => {
-    const fetchShowtimes = async () => {
-      if (!movieId || !selectedDate?.fullDate) return;
+  const fetchShowtimes = useCallback(
+    async (page, pageSize) => {
+      if (!movieId || !selectedDate?.fullDate) {
+        console.log("Missing movieId or selectedDate, returning empty data");
+        return { data: [], hasMore: false };
+      }
 
       try {
         setLoadingShowtimes(true);
@@ -61,58 +64,54 @@ export default function MovieDetail() {
             date: selectedDate.fullDate,
             cinemaName: debouncedCinemaName || undefined,
             province: debouncedCityName || undefined,
+            page,
+            pageSize,
           },
         });
 
-        if (response.data && response.data.data) {
-          const groupedData = groupShowtimesByCinemaAndScreen(
-            response.data.data
-          );
-          setShowtimes(groupedData);
-        }
+        return {
+          data: response.data.data?.showtimes,
+          hasMore: response.data.data.pagination?.hasMore,
+        };
       } catch (err) {
         console.error("Error fetching showtimes:", err);
+        return { data: [], hasMore: false };
       } finally {
         setLoadingShowtimes(false);
       }
-    };
+    },
+    [movieId, selectedDate, debouncedCinemaName, debouncedCityName]
+  );
 
-    // Only fetch if movieId is available (after router is ready)
-    if (movieId) {
-      fetchShowtimes();
+  const {
+    items: showtimes,
+    isLoading,
+    error,
+    hasMore,
+    loaderRef,
+    resetItems,
+  } = useInfiniteScroll(fetchShowtimes, {
+    pageSize: 4,
+    threshold: 300,
+    dependencies: [
+      movieId,
+      selectedDate?.fullDate,
+      debouncedCinemaName,
+      debouncedCityName,
+    ],
+  });
+
+  useEffect(() => {
+    if (selectedDate?.fullDate && movieId) {
+      resetItems();
     }
-  }, [movieId, selectedDate, debouncedCinemaName, debouncedCityName]);
-
-  const groupShowtimesByCinemaAndScreen = (data) => {
-    const cinemaMap = new Map();
-
-    data.forEach((showtime) => {
-      const cinemaName = showtime.screens.cinemas.name;
-      const screenNumber = showtime.screens.screen_number;
-      const facilities = showtime.screens.cinemas.facilities;
-      const date = showtime.date;
-      const key = cinemaName;
-
-      if (!cinemaMap.has(key)) {
-        cinemaMap.set(key, {
-          name: cinemaName,
-          facilities: facilities,
-          date: date,
-          screens: {},
-        });
-      }
-
-      const cinema = cinemaMap.get(key);
-
-      if (!cinema.screens[screenNumber]) {
-        cinema.screens[screenNumber] = [];
-      }
-
-      cinema.screens[screenNumber].push(showtime.start_time.substring(0, 5));
-    });
-
-    return Array.from(cinemaMap.values());
-  };
+  }, [
+    selectedDate?.fullDate,
+    movieId,
+    debouncedCinemaName,
+    debouncedCityName,
+    resetItems,
+  ]);
 
   useEffect(() => {
     const fetchCities = async () => {
@@ -193,6 +192,13 @@ export default function MovieDetail() {
           </Select>
         </div>
 
+        {/* Error state */}
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+            Failed to load showtimes. Please try again.
+          </div>
+        )}
+
         {/* Showtimes Display */}
         {loadingShowtimes ? (
           <div className="text-center py-10">Loading showtimes...</div>
@@ -204,6 +210,31 @@ export default function MovieDetail() {
           </div>
         )}
       </div>
+
+      {/* Invisible loader element - this is what the Intersection Observer watches */}
+      {hasMore && <div ref={loaderRef} className="h-10" />}
+
+      {/* Loading more indicator - only show during pagination, not initial load */}
+      {isLoading && hasMore && (
+        <div className="flex justify-center py-6">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+        </div>
+      )}
+
+      {/* End of content message */}
+      {!isLoading && !hasMore && showtimes?.length > 0 && (
+        <div className="text-center py-4 text-gray-500">
+          No more showtimes available.
+        </div>
+      )}
+
+      {/* Empty state - only show if we're not loading and we have a date selected */}
+      {!isLoading && selectedDate && showtimes?.length === 0 && (
+        <div className="text-center py-8 text-gray-500">
+          No showtimes available for this date.
+        </div>
+      )}
+
       <FooterSection />
     </div>
   );

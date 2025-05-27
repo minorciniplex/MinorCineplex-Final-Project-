@@ -8,6 +8,7 @@ import SumPaymentDiscount from './SumPaymentDiscount';
 import CouponDiscount from './CouponDiscount';
 import { useMyCoupons } from '@/hooks/useMyCoupons';
 import CouponSelectPopup from './CouponSelectPopup';
+import PaymentsCard from "../Booking/PaymentsCard";
 
 export default function PaymentMobile() {
   const [tab, setTab] = useState("credit");
@@ -35,10 +36,10 @@ export default function PaymentMobile() {
   return (
     <div className="bg-background w-screen min-h-screen text-white font-sans overflow-x-hidden flex flex-col md:items-start md:justify-center">
       <div className="w-full">
-        <Navbar />
+        {/* <Navbar /> */}
       </div>
       {/* Stepper */}
-      <div className="w-full">
+     {/*  <div className="w-full">
         <div className="hidden md:flex bg-base-gray-0 justify-start mt-[80px]">
           <div className="w-full max-w-[1200px] mx-auto md:mr-[200px] ">
             <div className="h-[106px] w-full max-w-[600px] flex flex-col justify-center items-center relative mx-auto">
@@ -87,7 +88,7 @@ export default function PaymentMobile() {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
       <div className="flex flex-col md:flex-row justify-between items-start w-full max-w-[1200px] mx-auto md:mt-[100px]">
         {/* ฝั่งซ้าย: ฟอร์ม */}
         <div className="w-full md:w-[600px] md:ml-[-60px]">
@@ -203,7 +204,9 @@ export default function PaymentMobile() {
             </div>
           )}
         </div>
-        <div className="flex flex-col items-center gap-0 w-full mt-8 md:w-auto md:mt-[-30px] px-0">
+        
+        
+      {/*   <div className="flex flex-col items-center gap-0 w-full mt-8 md:w-auto md:mt-[-30px] px-0">
           <div className="w-full">
             <MovieInfoCard />
             <CouponDiscount onSelectCoupon={() => setOpenCouponPopup(true)} />
@@ -212,7 +215,7 @@ export default function PaymentMobile() {
             )}
             <SumPaymentDiscount disabled={tab !== 'qr' && (!card.number || !card.owner || !card.expiry || !card.cvc)} />
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

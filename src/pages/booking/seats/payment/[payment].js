@@ -3,6 +3,8 @@ import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar/Navbar";
 import PaymentsCard from "@/components/Booking/PaymentsCard";
+import PaymentMobile from "@/components/PaymentSystem/PaymentMobile";
+import StepProgressBar from "@/components/Booking/StepProgressBar";
 export default function Seats() {
   const router = useRouter();
   const { time, screenNumber, cinemaName, poster, title, date, seat, price } = router.query;
@@ -27,6 +29,10 @@ export default function Seats() {
   return (
     <>
       <Navbar />
+        <StepProgressBar currentPath="/booking/payment" />
+      <div className="">
+        <div className="flex flex-row justify-between items-start gap-4 p-4">
+      <PaymentMobile />
         <PaymentsCard
           time={time}
           cinemaName={cinemaName}
@@ -39,6 +45,10 @@ export default function Seats() {
           seat={seat}
           price={price}
         />
+        
+        </div>
+      </div>
+
     </>
   );
 }

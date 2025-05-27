@@ -16,9 +16,8 @@ export default function ShowTimes({ showtimes, date }) {
   const [movie, setMovie] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null); 
-  /*   const [genrs, setGenrs] = useState(null);
-  const [language, setLanguage] = useState(null); */
   const { movieId } = router.query;
+  console.log(movie);
 
 
   useEffect(() => {
@@ -65,7 +64,7 @@ useEffect(() => {
 
   const handleSelect = ({ time, screenNumber, cinemaName, date}) => {
     // ตัวอย่างการ push ไปหน้าจองตั๋ว
-    console.log(date);
+    console.log(time);
     const query = new URLSearchParams({
       poster: movie.poster_url,
       title: movie.title,
@@ -74,7 +73,10 @@ useEffect(() => {
       time: time.time,
       screenNumber,
       cinemaName,
-      date
+      date,
+      movieId: movieId
+
+
     }).toString();
 
     router.push(`/booking/seats/seat?${query}`);

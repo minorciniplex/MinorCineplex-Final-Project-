@@ -19,7 +19,7 @@ export async function handler(req, res) {
   // 2. อัปเดต user_coupons ให้ is_used = true, used_date = now
   await supabase
     .from("user_coupons")
-    .update({ is_used: true, used_date: new Date().toISOString() })
+    .update({ is_used: TRUE, used_date: new Date().toISOString() })
     .eq("user_id", user.id)
     .eq("coupon_id", coupon_id);
 

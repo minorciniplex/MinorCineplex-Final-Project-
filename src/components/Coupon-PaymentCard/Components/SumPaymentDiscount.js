@@ -1,8 +1,8 @@
-import Button from '../Button';
+import Button from '../../Button';
 import { useTestBooking } from '@/hooks/testBooking';
 import { useCoupon } from '@/hooks/useCoupon';
 import { useState, useEffect } from 'react';
-import CouponAlert from '../Coupons-components/CouponAlert';
+import CouponAlert from '../../Coupons-components/CouponAlert';
 
 export default function SumPaymentDiscount({ coupon, onNext, disabled }) {
   const { data, loading: bookingLoading, error: bookingError } = useTestBooking();
@@ -96,21 +96,21 @@ export default function SumPaymentDiscount({ coupon, onNext, disabled }) {
   const finalTotal = data?.booking?.total_price - (discountAmount || 0);
 
   return (
-    <div className="bg-[#070C1B] w-screen max-w-none -mx-4 px-[16px] min-h-[228px] pt-4 pb-6 flex flex-col gap-5">
-      <div className="flex flex-col gap-5">
-        <div className="flex justify-between items-center">
-          <span className="text-base-gray-400 body-2-regular">Booking price</span>
-          <span className="text-white body-1-medium">{data?.booking?.total_price || 0} บาท</span>
+    <div >
+      <div className="flex flex-col gap-2">
+        <div className="flex justify-between items-center text-[--base-gray-300] text-base">
+          <span>Booking price</span>
+          <span>THB{data?.booking?.total_price || 0} </span>
         </div>
-        <div className="flex justify-between items-center">
-          <span className="text-base-gray-400 body-2-regular">Coupon</span>
+        <div className="flex justify-between items-center text-[--base-gray-300] text-base">
+          <span>Coupon</span>
           <span className={coupon?.coupons?.color || 'text-brand-red'}>
-            {discountAmount ? `-${discountAmount} บาท` : '-'}
+            {discountAmount ? `-THB${discountAmount} ` : '-'}
           </span>
         </div>
-        <div className="flex justify-between items-center">
-          <span className="text-base-gray-400 body-2-regular">Total</span>
-          <span className="text-white body-1-medium">{finalTotal || 0} บาท</span>
+        <div className="flex justify-between items-center text-[--base-gray-300] text-base">
+          <span>Total</span>
+          <span>THB{finalTotal || 0} </span>
         </div>
       </div>
       <CouponAlert 

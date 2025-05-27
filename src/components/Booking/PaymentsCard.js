@@ -2,7 +2,7 @@ import FmdGoodIcon from "@mui/icons-material/FmdGood";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
-
+import CouponPaymentCard from "../Coupon-PaymentCard/PaymentMobile";
 export default function PaymentsCard({
   time,
   screenNumber,
@@ -133,42 +133,8 @@ export default function PaymentsCard({
             {seatArr.length === 0 ? null : (
               <>
               <div className="flex flex-col justify-between items-center gap-2">
-                <p className="text-[--base-gray-300]  mt-4 w-full">
-                    Coupon Code
-                </p>
-                <input className="w-full bg-[#232B47] rounded px-3 py-2 text-sm placeholder-gray-400">
-                
-                </input>
-
-
+                <CouponPaymentCard />
               </div>
-                <div className="flex flex-row justify-between items-center gap-2">
-                  <p className="text-[--base-gray-300] text-center mt-4">
-                    Selected Seat
-                  </p>
-                  <p className="text-[#FFFFFF] text-center mt-4">
-                    {seatArr.length > 0 ? seatArr.join(", ") : ""}
-                  </p>
-                </div>
-                <div className="flex flex-row justify-between items-center gap-2">
-                  <p className="text-[--base-gray-300] text-center">
-                    Payment method
-                  </p>
-                  <p className="text-[#FFFFFF] text-center ">Credit card</p>
-                </div>
-                <div className="flex flex-row justify-between items-center gap-2">
-                  <p className="text-[--base-gray-300] text-center">Coupon</p>
-                  <p className="text-red-500 text-center ">-THB50</p>
-                </div>
-                <div className="flex flex-row justify-between items-center gap-2">
-                  <p className="text-[--base-gray-300] text-center">Total</p>
-                  <p className="text-[#FFFFFF] text-center ">
-                    {price > 0 ? `THB${price}` : ""}
-                  </p>
-                </div>
-                <button className="bg-[#4E7BEE] text-white px-4 py-2 rounded-lg mt-4 hover:bg-[#5a8cd9] transition-colors">
-                  Next
-                </button>
               </>
             )}
           </div>

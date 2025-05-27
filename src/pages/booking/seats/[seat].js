@@ -4,15 +4,16 @@ import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar/Navbar";
 import BookingSeats from "@/components/Booking/BookingSeats";
 import StepProgressBar from "@/components/Booking/StepProgressBar";
-/* import SeatLayout from "@/components/Booking/SeatLayout"; */
+
 
 export default function Seats() {
   const router = useRouter();
-  const { time, screenNumber, cinemaName, poster, title, date } = router.query;
+  const { time, screenNumber, cinemaName, poster, title, date, showtimes, movieId } = router.query;
   const [genres, setGenres] = useState(null);
   const [language, setLanguage] = useState(null);
   const [bookingSeat, setBookingSeat] = useState([]);
   const [sumPrice, setSumPrice] = useState(0);
+
 
   useEffect(() => {
     if (router.isReady) {
@@ -39,6 +40,8 @@ export default function Seats() {
         date={date}
         seat={bookingSeat}
         price={sumPrice}
+        showtimes={showtimes}
+        movieId={movieId}
       />
     </>
   );

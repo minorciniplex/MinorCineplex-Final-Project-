@@ -10,6 +10,8 @@ export default function ShowtimeCard({ showtimes, date }) {
   const [movies, setMovie] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  console.log(movies);
+
 
 
 
@@ -30,8 +32,6 @@ export default function ShowtimeCard({ showtimes, date }) {
           throw new Error("Failed to fetch movie details");
         }
         setMovie(response.data.data);
-        /*         setGenrs(response.data.data.movie_genre_mapping);
-        setLanguage(response.data.data.movie_languages); */
         return () => controller.abort();
       } catch (err) {
         if (axios.isCancel(err)) {
@@ -51,6 +51,7 @@ export default function ShowtimeCard({ showtimes, date }) {
 
 const handleSelect = ({ time, movie, date, hall,}) => {
     // ตัวอย่างการ push ไปหน้าจองตั๋ว
+    console.log(movie);
     const query = new URLSearchParams({
       poster: movie.posterUrl,  
       title: movie.title,
@@ -59,7 +60,10 @@ const handleSelect = ({ time, movie, date, hall,}) => {
       screenNumber: hall.split(" ")[1],
       genres: JSON.stringify(movies.movie_genre_mapping), // แปลง object เป็น string
       language: JSON.stringify(movies.original_language),
-      cinemaName: movie.cinemaName
+      cinemaName: movie.cinemaName,
+      showtimes: movie.showtimeId,
+      movieId: movies.id,
+
       
     }).toString();
 

@@ -39,6 +39,7 @@ export default async function handler(req, res) {
         .select(
           `
       start_time,
+      showtime_id,
       screens!inner (
         screen_number,
         cinemas!inner (
@@ -79,6 +80,7 @@ export default async function handler(req, res) {
       // Transform the nested data structure to match the expected format
       const formattedData = data.map((item) => ({
         cinema_name: item.screens.cinemas.name,
+        showtime_id: item.showtime_id,
         show_date: item.date,
         poster_url: item.movies.poster_url,
         movie_title: item.movies.title,
@@ -97,6 +99,7 @@ export default async function handler(req, res) {
         const {
           movie_id,
           cinema_name,
+          showtime_id,
           movie_title,
           poster_url,
           genre,
@@ -107,6 +110,7 @@ export default async function handler(req, res) {
           acc[movie_id] = {
             id: movie_id,
             cinemaName: cinema_name,
+            showtimeId: showtime_id,
             title: movie_title,
             posterUrl: poster_url,
             genre,

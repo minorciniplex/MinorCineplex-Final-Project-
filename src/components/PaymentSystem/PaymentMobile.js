@@ -8,6 +8,159 @@ import SumPaymentDiscount from './SumPaymentDiscount';
 import CouponDiscount from './CouponDiscount';
 import { useMyCoupons } from '@/hooks/useMyCoupons';
 import CouponSelectPopup from './CouponSelectPopup';
+import { loadStripe } from "@stripe/stripe-js";
+import { createClient } from '@supabase/supabase-js';
+import {
+  Elements,
+  CardNumberElement,
+  CardExpiryElement,
+  CardCvcElement,
+  useStripe,
+  useElements
+} from "@stripe/react-stripe-js";
+
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
+
+const ELEMENT_OPTIONS = {
+  style: {
+    base: {
+      fontSize: "15px",
+      color: "#fff",
+      backgroundColor: "#232B47",
+      border: "1px solid #232B47",
+      borderRadius: "4px",
+      padding: "12px",
+      '::placeholder': {
+        color: "#8B93B0"
+      }
+    },
+    invalid: {
+      color: "#fa755a",
+      iconColor: "#fa755a"
+    }
+  }
+};
+
+function StripeCardForm({ processing, error, setError, setProcessing, onSuccess }) {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [owner, setOwner] = useState("");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError(null);
+    if (!stripe || !elements) return;
+    setProcessing(true);
+    // Mock ข้อมูล
+    const mockUserId = "00000000-0000-0000-0000-000000000001";
+    const mockBookingId = "11111111-1111-1111-1111-111111111111";
+    const mockMovieId = "22222222-2222-2222-2222-222222222222";
+    const mockAmount = 299;
+    try {
+      const res = await fetch("/api/create-payment-intent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: mockAmount }),
+      });
+      const { clientSecret } = await res.json();
+      const cardNumberElement = elements.getElement(CardNumberElement);
+      const cardExpiryElement = elements.getElement(CardExpiryElement);
+      const cardCvcElement = elements.getElement(CardCvcElement);
+      if (!cardNumberElement || !cardExpiryElement || !cardCvcElement) {
+        setError("กรุณากรอกข้อมูลบัตรให้ครบถ้วน");
+        setProcessing(false);
+        return;
+      }
+      const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: cardNumberElement,
+          billing_details: { name: owner },
+        },
+      });
+      if (confirmError) {
+        setError(confirmError.message);
+        setProcessing(false);
+        return;
+      }
+      // บันทึกข้อมูลลง Supabase
+      const { data, error: supaError } = await supabase
+        .from('movie_payments')
+        .insert([{
+          payment_intent_id: paymentIntent.id,
+          amount: mockAmount,
+          currency: paymentIntent.currency,
+          status: paymentIntent.status,
+          payment_method: "card",
+          payment_details: paymentIntent,
+          user_id: mockUserId,
+          booking_id: mockBookingId,
+          movie_id: mockMovieId,
+        }]);
+      if (supaError) {
+        setError("บันทึกข้อมูลลงฐานข้อมูลไม่สำเร็จ: " + supaError.message);
+        setProcessing(false);
+        return;
+      }
+      setProcessing(false);
+      alert("ชำระเงินสำเร็จ!");
+      if (onSuccess) onSuccess();
+    } catch (err) {
+      setError("เกิดข้อผิดพลาดในการชำระเงิน กรุณาลองใหม่อีกครั้ง");
+      setProcessing(false);
+    }
+  };
+
+  return (
+    <form className="px-4 mt-4 md:mt-0 space-y-4" onSubmit={handleSubmit}>
+      <div className="md:flex md:space-x-4">
+        <div className="md:flex-1">
+          <label className="block body-2-regular text-base-gray-400 mb-1">Card number</label>
+          <CardNumberElement
+            options={ELEMENT_OPTIONS}
+            className="w-[343px] md:w-[384.5px] h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-[4px] px-3 py-2 text-sm placeholder-base-gray-300 outline-none"
+          />
+        </div>
+        <div className="md:flex-1 mt-4 md:mt-0">
+          <label className="block body-2-regular text-base-gray-400 mb-1">Card owner</label>
+          <input
+            className="w-[343px] md:w-[384.5px] h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-md px-3 py-2 text-sm placeholder-base-gray-300 outline-none"
+            placeholder="Card owner name"
+            value={owner}
+            onChange={e => setOwner(e.target.value)}
+          />
+        </div>
+      </div>
+      <div className="md:flex md:space-x-4">
+        <div className="md:flex-1">
+          <label className="block body-2-regular text-base-gray-400 mb-1">Expiry date</label>
+          <CardExpiryElement
+            options={ELEMENT_OPTIONS}
+            className="w-[343px] md:w-[384.5px] h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-md px-3 py-2 text-sm placeholder-base-gray-300 outline-none"
+          />
+        </div>
+        <div className="md:flex-1 mt-4 md:mt-0">
+          <label className="block body-2-regular text-base-gray-400 mb-1">CVC</label>
+          <CardCvcElement
+            options={ELEMENT_OPTIONS}
+            className="w-[343px] md:w-[384.5px] h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-md px-3 py-2 text-sm placeholder-base-gray-300 outline-none"
+          />
+        </div>
+      </div>
+      {error && <div className="px-4 mt-2 text-red-500 text-sm">{error}</div>}
+      <button
+        type="submit"
+        disabled={processing}
+        className="w-full py-2 rounded mt-2 bg-brand-blue-200 text-white"
+      >
+        {processing ? "กำลังประมวลผล..." : "จ่ายเงิน"}
+      </button>
+    </form>
+  );
+}
 
 export default function PaymentMobile() {
   const [tab, setTab] = useState("credit");
@@ -20,6 +173,8 @@ export default function PaymentMobile() {
   const expiryInputRef = useRef(null);
   const [openCouponPopup, setOpenCouponPopup] = useState(false);
   const [selectedCoupon, setSelectedCoupon] = useState(null);
+  const [processing, setProcessing] = useState(false);
+  const [error, setError] = useState(null);
 
   // ตัวอย่าง movie_id (ควรรับจาก prop, route, หรือ context จริง)
   const movie_id = "013b897b-3387-4b7f-ab23-45b78199020a";
@@ -28,8 +183,76 @@ export default function PaymentMobile() {
   const { coupons, loading: loadingCoupons } = useMyCoupons(userId);
 
   // ฟังก์ชันเมื่อกด Next
-  const handleNext = () => {
-    alert('Next Clicked!');
+  const handleNext = async (e) => {
+    e.preventDefault();
+    setProcessing(true);
+    setError(null);
+
+    // Mock ข้อมูล
+    const mockUserId = "00000000-0000-0000-0000-000000000001";
+    const mockBookingId = "11111111-1111-1111-1111-111111111111";
+    const mockMovieId = "22222222-2222-2222-2222-222222222222";
+    const mockAmount = 199;
+
+    try {
+      const stripe = await stripePromise;
+      const res = await fetch("/api/create-payment-intent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: mockAmount }),
+      });
+      const { clientSecret } = await res.json();
+
+      const { paymentMethod, error: pmError } = await stripe.createPaymentMethod({
+        type: "card",
+        card: {
+          number: card.number,
+          exp_month: card.expiry.split("/")[0],
+          exp_year: card.expiry.split("/")[1],
+          cvc: card.cvc,
+        },
+      });
+      if (pmError) {
+        setError(pmError.message);
+        setProcessing(false);
+        return;
+      }
+
+      const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: paymentMethod.id,
+      });
+      if (confirmError) {
+        setError(confirmError.message);
+        setProcessing(false);
+        return;
+      }
+
+      // บันทึกข้อมูลลง Supabase
+      const { data, error: supaError } = await supabase
+        .from('movie_payments')
+        .insert([{
+          payment_intent_id: paymentIntent.id,
+          amount: mockAmount,
+          currency: paymentIntent.currency,
+          status: paymentIntent.status,
+          payment_method: "card",
+          payment_details: paymentIntent,
+          user_id: mockUserId,
+          booking_id: mockBookingId,
+          movie_id: mockMovieId,
+        }]);
+      if (supaError) {
+        setError("บันทึกข้อมูลลงฐานข้อมูลไม่สำเร็จ: " + supaError.message);
+        setProcessing(false);
+        return;
+      }
+
+      setProcessing(false);
+      alert("ชำระเงินสำเร็จ!");
+    } catch (err) {
+      setError("เกิดข้อผิดพลาดในการชำระเงิน กรุณาลองใหม่อีกครั้ง");
+      setProcessing(false);
+    }
   };
 
   return (
@@ -117,78 +340,14 @@ export default function PaymentMobile() {
 
           {/* Credit Card Form */}
           {tab === "credit" && (
-            <form className="px-4 mt-4 md:mt-0 space-y-4 ">
-              <div className="md:flex md:space-x-4">
-                <div className="md:flex-1">
-                  <label className="block body-2-regular text-base-gray-400 mb-1">Card number</label>
-                  <input
-                    className="w-[343px] md:w-[384.5px] h-[48px] md:h-[48px] md:rounded-[4px] bg-base-gray-100 border border-base-gray-200 rounded-[4px] px-3 py-2 text-sm placeholder-base-gray-300 outline-none"
-                    placeholder="Card number"
-                    value={card.number}
-                    onChange={e => setCard({ ...card, number: e.target.value })}
-                  />
-                </div>
-                <div className="md:flex-1 mt-4 md:mt-0">
-                  <label className="block body-2-regular text-base-gray-400 mb-1">Card owner</label>
-                  <input
-                    className="w-[343px] md:w-[384.5px] h-[48px] md:h-[48px] md:rounded-[4px] bg-base-gray-100 border border-base-gray-200 rounded-md px-3 py-2 text-sm placeholder-base-gray-300 outline-none"
-                    placeholder="Card owner name"
-                    value={card.owner}
-                    onChange={e => setCard({ ...card, owner: e.target.value })}
-                  />
-                </div>
-              </div>
-              <div className="md:flex md:space-x-4">
-                <div className="md:flex-1">
-                  <label className="block body-2-regular text-base-gray-400 mb-1">Expiry date</label>
-                  <div className="relative">
-                    <input
-                      ref={expiryInputRef}
-                      type="text"
-                      className="w-[343px] md:w-[384.5px] h-[48px] md:h-[48px] md:rounded-[4px] bg-base-gray-100 border border-base-gray-200 rounded-md px-3 py-2 text-sm placeholder-base-gray-300 outline-none pr-[40px]"
-                      placeholder="MM/YY"
-                      maxLength={5}
-                      value={card.expiry}
-                      onChange={e => {
-                        let value = e.target.value.replace(/[^0-9/]/g, '');
-                        if (value.length === 2 && card.expiry.length === 1) value += '/';
-                        if (value.length > 5) value = value.slice(0, 5);
-                        setCard({ ...card, expiry: value });
-                      }}
-                    />
-                    <span
-                      className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer"
-                      onClick={() => {
-                        if (expiryInputRef.current) {
-                          if (expiryInputRef.current.showPicker) {
-                            expiryInputRef.current.showPicker();
-                          } else {
-                            expiryInputRef.current.focus();
-                          }
-                        }
-                      }}
-                    >
-                      <Image src="/assets/images/Date_today_light.png" alt="calendar" width={20} height={20} className="object-contain" />
-                    </span>
-                    <style jsx global>{`
-                      input[type="date"]::-webkit-calendar-picker-indicator {
-                        opacity: 0;
-                        display: none;
-                      }
-                    `}</style>
-                  </div>
-                </div>
-                <div className="md:flex-1 mt-4 md:mt-0">
-                  <label className="block body-2-regular text-base-gray-400 mb-1">CVC</label>
-                  <input
-                    className="w-[343px] md:w-[384.5px] h-[48px] md:h-[48px] md:rounded-[4px] bg-base-gray-100 border border-base-gray-200 rounded-md px-3 py-2 text-sm placeholder-base-gray-300 outline-none"
-                    placeholder="CVC"
-                    value={card.cvc}
-                    onChange={e => setCard({ ...card, cvc: e.target.value })}
-                  />
-                </div>
-              </div>
-            </form>
+            <Elements stripe={stripePromise}>
+              <StripeCardForm
+                processing={processing}
+                error={error}
+                setError={setError}
+                setProcessing={setProcessing}
+              />
+            </Elements>
           )}
 
           {/* QR Code Tab */}

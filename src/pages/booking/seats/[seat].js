@@ -18,7 +18,6 @@ export default function Seats() {
   useEffect(() => {
     if (router.isReady) {
       const { genres, language } = router.query;
-
       setGenres(JSON.parse(genres));
       setLanguage(JSON.parse(language));
     }

@@ -23,7 +23,7 @@ const handler = async (req, res) => {
         )
       `)
       .eq("user_id", user.id)
-      .eq("is_used", FALSE);
+      .eq("is_used", false);
 
     if (error) {
       console.error("Supabase error:", error);

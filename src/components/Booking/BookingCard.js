@@ -18,6 +18,7 @@ export default function BookingCard({
   date,
   seat,
   price,
+  onConfirmBooking,
   showtimes,
   movieId
 }) {
@@ -66,29 +67,29 @@ export default function BookingCard({
     });
   }
 
-  const handleSumbit = () => {
-    // ตัวอย่างการ push ไปหน้าจองตั๋ว
+  // const handleSumbit = () => {
+  //   // ตัวอย่างการ push ไปหน้าจองตั๋ว
 
 
-    if (!isLoggedIn) {
-      router.push("/auth/login");
-      return;
-    }
-    const query = new URLSearchParams({
-      poster: poster,
-      title: title,
-      time: time,
-      date: date,
-      screenNumber: screenNumber,
-      genres: JSON.stringify(genres), // แปลง object เป็น string
-      language: JSON.stringify(language),
-      cinemaName: cinemaName,
-      seat: JSON.stringify(seat),
-      price: price,
-    }).toString();
+  //   if (!isLoggedIn) {
+  //     router.push("/auth/login");
+  //     return;
+  //   }
+  //   const query = new URLSearchParams({
+  //     poster: poster,
+  //     title: title,
+  //     time: time,
+  //     date: date,
+  //     screenNumber: screenNumber,
+  //     genres: JSON.stringify(genres), // แปลง object เป็น string
+  //     language: JSON.stringify(language),
+  //     cinemaName: cinemaName,
+  //     seat: JSON.stringify(seat),
+  //     price: price,
+  //   }).toString();
 
-    router.push(`/booking/seats/payment/payment?${query}`);
-  };
+  //   router.push(`/booking/seats/payment/payment?${query}`);
+  // };
 
   return (
     <>
@@ -105,7 +106,7 @@ export default function BookingCard({
             <h2 className="text-white text-wrap text-xl font-bold mb-3">
               {title}
             </h2>
-            <div className="flex flex-wrap gap-2 sm:w-max">
+            <div className="flex flex-wrap gap-2">
               {genreArr?.map((genre, index) => (
                 <span
                   key={index}
@@ -165,7 +166,7 @@ export default function BookingCard({
                 </p>
               </div>
               <button
-                onClick={handleSumbit}
+                onClick={onConfirmBooking}
                 className="bg-[#4E7BEE] text-white px-4 py-2 rounded-lg mt-4 hover:bg-[#5a8cd9] transition-colors"
               >
                 Next

@@ -43,6 +43,7 @@ export default function Seats() {
         showtimes={showtimes}
         movieId={movieId}
       />
+      <p>{showtimes}</p>
     </>
   );
 }

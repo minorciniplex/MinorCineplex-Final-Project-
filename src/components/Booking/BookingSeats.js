@@ -25,7 +25,7 @@ function BookingSeats({
 
 
 
-  selectedSeats = ["A1",], // ที่นั่งที่ถูกเลือก
+  selectedSeats = ["A1"], // ที่นั่งที่ถูกเลือก
   onSelect = () => {},
   priceTest = 150,
   hall = 1,

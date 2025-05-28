@@ -30,6 +30,7 @@ export default function MovieDetail() {
   const [debouncedCinemaName, setDebouncedCinemaName] = useState("");
   const [debouncedCityName, setDebouncedCityName] = useState("");
   const debounceTimeout = useRef();
+  console.log();
 
   useEffect(() => {
     clearTimeout(debounceTimeout.current);

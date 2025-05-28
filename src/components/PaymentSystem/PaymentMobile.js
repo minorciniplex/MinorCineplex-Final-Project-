@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Navbar from "../Navbar/Navbar";
 import CheckIcon from '@mui/icons-material/Check';
 import Image from 'next/image';
@@ -159,6 +159,116 @@ function StripeCardForm({ processing, error, setError, setProcessing, onSuccess 
         {processing ? "กำลังประมวลผล..." : "จ่ายเงิน"}
       </button>
     </form>
+  );
+}
+
+function PromptPayQR() {
+  const [qrUrl, setQrUrl] = useState(null);
+  const [chargeId, setChargeId] = useState(null);
+  const [status, setStatus] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [saved, setSaved] = useState(false);
+  const handleGetQR = async () => {
+    setLoading(true);
+    setError(null);
+    setQrUrl(null);
+    setStatus(null);
+    setChargeId(null);
+    setSaved(false);
+    try {
+      const res = await fetch('/api/create-promptpay', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: 29900 }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      setQrUrl(data.qr);
+      setChargeId(data.chargeId);
+      setStatus(data.status);
+    } catch (err) {
+      setError(err.message);
+    }
+    setLoading(false);
+  };
+  useEffect(() => {
+    if (!chargeId) return;
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch('/api/check-promptpay-status', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chargeId }),
+        });
+        const data = await res.json();
+        setStatus(data.status);
+      } catch {}
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [chargeId]);
+
+  // เพิ่ม useEffect สำหรับบันทึกข้อมูลลง Supabase เมื่อจ่ายเงิน QR สำเร็จ
+  useEffect(() => {
+    if (status === 'successful' && chargeId && !saved) {
+      const saveToSupabase = async () => {
+        const mockUserId = "00000000-0000-0000-0000-000000000001";
+        const mockBookingId = "11111111-1111-1111-1111-111111111111";
+        const mockMovieId = "22222222-2222-2222-2222-222222222222";
+        const mockAmount = 299;
+        // ดึงข้อมูล charge จาก Omise API (ผ่าน API server)
+        const res = await fetch('/api/check-promptpay-status', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chargeId }),
+        });
+        const data = await res.json();
+        // บันทึกลง Supabase
+        const { data: supaData, error: supaError } = await supabase
+          .from('movie_payments')
+          .insert([{
+            payment_intent_id: chargeId,
+            amount: mockAmount,
+            currency: 'thb',
+            status: 'successful',
+            payment_method: "promptpay",
+            payment_details: data, // หรือ data.charge
+            user_id: mockUserId,
+            booking_id: mockBookingId,
+            movie_id: mockMovieId,
+          }]);
+        if (supaError) {
+          alert('บันทึกข้อมูลไม่สำเร็จ: ' + supaError.message);
+        } else {
+          alert('บันทึกข้อมูลสำเร็จ!');
+          setSaved(true);
+        }
+      };
+      saveToSupabase();
+    }
+  }, [status, chargeId, saved]);
+
+  if (!qrUrl) {
+    return (
+      <>
+        <div>QR Code Payment</div>
+        <button
+          className="mt-4 bg-brand-blue-200 text-white py-2 px-6 rounded"
+          onClick={handleGetQR}
+          disabled={loading}
+        >
+          {loading ? 'กำลังสร้าง QR...' : 'สร้าง QR PromptPay'}
+        </button>
+        {error && <div className="text-red-500 mt-2">{error}</div>}
+      </>
+    );
+  }
+  return (
+    <>
+      <img src={qrUrl} alt="PromptPay QR" width={180} height={180} />
+      <div className="mt-2 text-xs text-center w-full text-white">สแกน QR ด้วยแอปธนาคารเพื่อชำระเงิน</div>
+      <div className="mt-2 text-xs text-center w-full text-white">สถานะ: {status}</div>
+    </>
   );
 }
 
@@ -353,8 +463,8 @@ export default function PaymentMobile() {
           {/* QR Code Tab */}
           {tab === "qr" && (
             <div className="px-4 mt-4 flex flex-col items-center text-gray-400 w-full md:ml-[120px]">
-              <div className="bg-[#232B47] rounded py-10 md:w-[793px] md:h-[104px] flex items-center justify-center w-full">
-                QR Code Payment
+              <div className="bg-[#232B47] rounded py-10 md:w-[793px] md:h-[104px] flex items-center justify-center w-full flex-col">
+                <PromptPayQR />
               </div>
               <div className="mt-2 text-xs text-center w-full">
                 Scan QR code to pay

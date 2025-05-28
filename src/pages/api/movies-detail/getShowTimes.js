@@ -82,6 +82,7 @@ export default async function handler(req, res) {
         data.forEach((showtime) => {
           const cinemaName = showtime.screens.cinemas.name;
           const screenNumber = showtime.screens.screen_number;
+          const showtimeId = showtime.showtime_id;
           const facilities = showtime.screens.cinemas.facilities;
           const date = showtime.date;
           const key = cinemaName;
@@ -91,6 +92,7 @@ export default async function handler(req, res) {
               name: cinemaName,
               facilities: facilities,
               date: date,
+              showtimeId: showtimeId,
               screens: {},
             });
           }

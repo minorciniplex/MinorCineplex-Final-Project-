@@ -27,7 +27,7 @@ export default function Seats() {
   // Use useCallback to prevent functions from changing on every render
   const handleSeatsChange = useCallback((seatsData) => {
     setSelectedSeats(seatsData.seats);
-    // console.log("Selected seats:", seatsData.seats); // Debug log
+    console.log("Selected seats:", seatsData.seats); // Debug log
   }, []);
 
   const handlePriceChange = useCallback((price) => {

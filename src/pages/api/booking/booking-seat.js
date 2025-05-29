@@ -49,6 +49,7 @@ const handler = async (req, res) => {
           status: "pending",
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
+          reserved_until: new Date(Date.now() + 15 * 60 * 1000).toISOString()
         })
         .select();
 
@@ -69,7 +70,6 @@ const handler = async (req, res) => {
           showtime_id: showtimeId,
           seat_status: "pending",
           reserved_by: user.id,
-
         };
       });
 

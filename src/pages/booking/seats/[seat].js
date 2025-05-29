@@ -8,7 +8,7 @@ import StepProgressBar from "@/components/Booking/StepProgressBar";
 
 export default function Seats() {
   const router = useRouter();
-  const { time, screenNumber, cinemaName, poster, title, date, showtimes, movieId } = router.query;
+  const { time, screenNumber, cinemaName, poster, title, date, showtimes, movieId, bookingId } = router.query;
   const [genres, setGenres] = useState(null);
   const [language, setLanguage] = useState(null);
   const [bookingSeat, setBookingSeat] = useState([]);
@@ -42,6 +42,7 @@ export default function Seats() {
         price={sumPrice}
         showtimes={showtimes}
         movieId={movieId}
+        bookingId={bookingId}
       />
       <p>{showtimes}</p>
     </>

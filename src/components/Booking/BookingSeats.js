@@ -7,7 +7,7 @@ import ReservedIcon from "../Seats/Seat_Reserved";
 import SelectedIcon from "../Seats/Seat_Selected";
 import { useStatus } from "@/context/StatusContext";
 
-function BookingSeats({ showtimeId, onSeatsChange, onPriceChange }) {
+function BookingSeats({ showtimeId, onSeatsChange, onPriceChange, price }) {
   const [seats, setSeats] = useState([]);
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -24,7 +24,7 @@ function BookingSeats({ showtimeId, onSeatsChange, onPriceChange }) {
   // Configuration
   const ROWS = ["E", "D", "C", "B", "A"];
   const SEATS_PER_ROW = 10;
-  const PRICE_PER_SEAT = 150; // THB150
+  const PRICE_PER_SEAT = price; // THB150
 
   // Handle client-side mounting
   useEffect(() => {
@@ -549,7 +549,7 @@ function BookingSeats({ showtimeId, onSeatsChange, onPriceChange }) {
           <div className="grid grid-cols-2 sm:flex sm:gap-10 sm:grid-cols-none gap-y-8 gap-x-8 sm:gap-y-0 text-[--base-gray-400]">
             <div className="flex flex-row sm:flex-wrap gap-4 items-center">
               <AvailableIcon />
-              <p className="basis-24">Available Seat THB150</p>
+              <p className="basis-24">Available Seat THB{price}</p>
             </div>
             <div className="flex flex-row sm:flex-wrap gap-4 items-center">
               <BookedIcon />

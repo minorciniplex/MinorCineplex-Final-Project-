@@ -12,11 +12,7 @@ export default function ShowtimeCard({ showtimes, date }) {
   const [error, setError] = useState(null);
   console.log(movies);
 
-
-
-
-
-   useEffect(() => {
+  useEffect(() => {
     const fetchMovieDetails = async () => {
       try {
         const controller = new AbortController();
@@ -47,13 +43,11 @@ export default function ShowtimeCard({ showtimes, date }) {
     fetchMovieDetails();
   }, []);
 
-
-
-const handleSelect = ({ time, movie, date, hall,}) => {
+  const handleSelect = ({ time, movie, date, hall }) => {
     // ตัวอย่างการ push ไปหน้าจองตั๋ว
     console.log(movie);
     const query = new URLSearchParams({
-      poster: movie.posterUrl,  
+      poster: movie.posterUrl,
       title: movie.title,
       time: time,
       date: date.fullDate,
@@ -63,16 +57,11 @@ const handleSelect = ({ time, movie, date, hall,}) => {
       cinemaName: movie.cinemaName,
       showtimeId: movie.showtimeId,
       movieId: movies.id,
-
-      
+      price: movie.prices[hall],
     }).toString();
 
     router.push(`/booking/seats/seat?${query}`);
   };
-
-  
-
-
 
   return (
     <div className="py-10 md:px-24 md:py-20">
@@ -153,14 +142,13 @@ const handleSelect = ({ time, movie, date, hall,}) => {
                         date={date}
                         movie={movie}
                         hall={hall}
-                        onSelect={({ time, movie, hall, date}) => {
+                        onSelect={({ time, movie, hall, date }) => {
                           handleSelect({
                             time,
                             movie,
                             hall,
                             date,
                           });
-
 
                           // คุณสามารถใส่โค้ดสำหรับ handle booking ได้ที่นี่
                         }}

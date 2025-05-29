@@ -17,6 +17,7 @@ export default function Seats() {
     date,
     showtimeId,
     movieId,
+    price,
   } = router.query;
   const [genres, setGenres] = useState(null);
   const [language, setLanguage] = useState(null);
@@ -90,6 +91,7 @@ export default function Seats() {
           showtimeId={showtimeId}
           onSeatsChange={handleSeatsChange}
           onPriceChange={handlePriceChange}
+          price={price}
         />
         <BookingCard
           className="py-10 px-4"

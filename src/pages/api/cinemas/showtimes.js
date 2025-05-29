@@ -42,6 +42,7 @@ export default async function handler(req, res) {
       showtime_id,
       screens!inner (
         screen_number,
+        price,
         cinemas!inner (
           name,
           cinema_id
@@ -92,6 +93,7 @@ export default async function handler(req, res) {
           .join("/ "),
         movie_id: item.movies.movie_id,
         screen_number: item.screens.screen_number,
+        price: item.screens.price,
         start_time: item.start_time,
       }));
 
@@ -104,8 +106,12 @@ export default async function handler(req, res) {
           poster_url,
           genre,
           language_code,
+          screen_number,
+          price,
+          start_time,
         } = showtime;
 
+        // Create movie entry if it doesn't exist
         if (!acc[movie_id]) {
           acc[movie_id] = {
             id: movie_id,
@@ -116,19 +122,23 @@ export default async function handler(req, res) {
             genre,
             languageCode: language_code,
             halls: {},
+            prices: {}, // <== Add this for screen_number pricing
           };
         }
 
-        // Group by hall/screen
-        const hallNumber = `Hall ${showtime.screen_number}`;
+        const hallNumber = `Hall ${screen_number}`;
+
+        // Add price once for each hall (screen_number)
+        if (!acc[movie_id].prices[hallNumber]) {
+          acc[movie_id].prices[hallNumber] = price;
+        }
+
+        // Group showtimes by hall
         if (!acc[movie_id].halls[hallNumber]) {
           acc[movie_id].halls[hallNumber] = [];
         }
 
-        // Add showtime to this hall
-        acc[movie_id].halls[hallNumber].push(
-          showtime.start_time.substring(0, 5)
-        ); // Extract HH:MM from time
+        acc[movie_id].halls[hallNumber].push(start_time.substring(0, 5));
 
         return acc;
       }, {});

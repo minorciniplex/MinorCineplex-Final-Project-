@@ -68,7 +68,7 @@ const handler = async (req, res) => {
           row: row,
           seat_number: seatNum,
           showtime_id: showtimeId,
-          seat_status: "pending",
+          seat_status: "reserved",
           reserved_by: user.id,
         };
       });
@@ -90,9 +90,9 @@ const handler = async (req, res) => {
         return {
           seat_id: seat,
           showtime_id: showtimeId,
-          booking_id: data[0].booking_id, 
+          booking_id: data[0].booking_id,
           
-
+          
         };
       });
         const { data: bookingData, error: bookingSeatError } = await supabase

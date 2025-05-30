@@ -49,13 +49,14 @@ export default function ShowTimes({ showtimes, date }) {
     fetchMovieDetails();
   }, [movieId]);
 
-  useEffect(() => {
-    setOpenItems((prev) => {
-      const newKeys = showtimes.map((_, index) => `item-${index}`);
-      const added = newKeys.filter((key) => !prev.includes(key));
-      return [...prev, ...added];
-    });
-  }, [showtimes]);
+useEffect(() => {
+  setOpenItems((prev) => {
+    const newKeys = showtimes.map((_, index) => `item-${index}`);
+    const added = newKeys.filter(key => !prev.includes(key));
+    return [...prev, ...added];
+  });
+}, [showtimes]);
+
 
   console.log("Showtimes:", showtimes);
 

@@ -9,15 +9,22 @@ const handler = async (req, res) => {
     if (req.method !== 'GET') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
-    const { data: booking, error: bookingError } = await supabase
+    const { data: bookings, error: bookingError } = await supabase
         .from("bookings")
         .select("*")
-        .eq("user_id", user.id)
-        .single();
-    
+        .eq("user_id", user.id);
+
     if (bookingError) {
         return res.status(500).json({ error: bookingError.message });
     }
-    return res.status(200).json({ message: "Booking found", booking });
+
+    if (!bookings || bookings.length === 0) {
+        return res.status(404).json({ message: "No bookings found" });
+    }
+
+    // ถ้ามีหลาย booking ให้ส่งกลับ booking ล่าสุด
+    const latestBooking = bookings.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
+    return res.status(200).json({ message: "Booking found", booking: latestBooking });
 }
-export default withMiddleware([requireUser], handler); 
+
+export default withMiddleware([requireUser], handler);

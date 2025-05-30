@@ -38,7 +38,6 @@ export default function Seats() {
             language={language}
             date={date}
             seatNumber={seat}
-            price={price}
             bookingId={bookingId}
             showtimes={showtimes}
           />

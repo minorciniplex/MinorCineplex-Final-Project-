@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import supabase from '@/utils/supabase';
+import { supabase } from '@/utils/supabase';
 
 export function useBookingDetail(bookingId) {
   const [booking, setBooking] = useState(null);

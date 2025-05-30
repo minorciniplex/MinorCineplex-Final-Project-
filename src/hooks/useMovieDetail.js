@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import supabase from "@/utils/supabase";
+import {supabase} from "@/utils/supabase";
 
 export function useMovieDetail(movie_id) {
   const [movie, setMovie] = useState(null);

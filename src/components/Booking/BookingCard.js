@@ -85,10 +85,11 @@ export default function BookingCard({
   
 
   return (
-    <div className="">
-      <div className="flex flex-col items-center w-[375px] p-4 bg-[--base-gray-0] rounded-lg shadow-md">
-        <div className="flex w-full rounded-t-lg gap-4">
-          <Image
+    <>
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="flex flex-col items-center w-[375px] p-4 bg-[--base-gray-0] rounded-lg shadow-md">
+          <div className="flex items-center justify-center w-full rounded-t-lg">
+            <Image
             src={poster}
             alt="Movie Poster"
             width={82}

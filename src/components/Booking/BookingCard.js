@@ -92,7 +92,7 @@ export default function BookingCard({
 
   return (
     <>
-      <div className="sm:h-auto sm:basis-1/4 flex flex-col sm:flex-1 p-4 bg-[--base-gray-0] rounded-lg shadow-md">
+      <div className="h-min sm:basis-1/4 flex flex-col sm:flex-1 p-4 bg-[--base-gray-0] rounded-lg shadow-md">
         <div className="flex w-full rounded-t-lg">
           <Image
             src={poster}
@@ -105,7 +105,7 @@ export default function BookingCard({
             <h2 className="text-white text-wrap text-xl font-bold mb-3">
               {title}
             </h2>
-            <div className="flex flex-wrap gap-2 w-full">
+            <div className="flex flex-wrap gap-2 sm:w-max">
               {genreArr?.map((genre, index) => (
                 <span
                   key={index}

@@ -17,7 +17,9 @@ export default function BookingCard({
   language,
   date,
   seat,
-  price
+  price,
+  showtimes,
+  movieId
 }) {
   const { isLoggedIn, user } = useStatus();
 

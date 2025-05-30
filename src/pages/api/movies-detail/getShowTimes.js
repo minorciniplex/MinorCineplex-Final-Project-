@@ -40,6 +40,7 @@ export default async function handler(req, res) {
         .select(
           `
         start_time,
+        showtime_id,
         date,
         screens!inner(
           screen_number,

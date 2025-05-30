@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '@/utils/supabase';
+import supabase from '@/utils/supabase';
 
 // ดึงคูปองของ user ตาม userId
 export function useMyCoupons(userId) {

@@ -1,17 +1,22 @@
-import Omise from 'omise';
+import Stripe from 'stripe';
 
-const omise = Omise({
-  publicKey: process.env.OMISE_PUBLIC_KEY,
-  secretKey: process.env.OMISE_SECRET_KEY,
-});
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).end();
-  const { chargeId } = req.body;
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
   try {
-    const charge = await omise.charges.retrieve(chargeId);
-    res.status(200).json({ status: charge.status });
+    const { chargeId } = req.body;
+
+    const paymentIntent = await stripe.paymentIntents.retrieve(chargeId);
+
+    res.status(200).json({
+      status: paymentIntent.status,
+    });
   } catch (err) {
+    console.error('Error checking promptpay status:', err);
     res.status(500).json({ error: err.message });
   }
 } 

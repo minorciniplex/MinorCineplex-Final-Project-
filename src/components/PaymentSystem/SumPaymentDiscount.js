@@ -6,8 +6,11 @@ export default function SumPaymentDiscount({
   coupon = null, // { label: '-THB50', color: 'text-brand-red' }
   total = '',
   onNext,
-  disabled = false,
+  tab = '',
+  isCardComplete = false,
 }) {
+  // เงื่อนไข disabled: ถ้า tab เป็น credit และ isCardComplete = false ให้ disable
+  const isDisabled = tab === 'credit' ? !isCardComplete : false;
   return (
     <div className="bg-[#070C1B] w-full md:w-[305px] min-h-[228px] flex flex-col gap-[20px] px-[16px] pt-[16px] pb-[24px] border-t border-[#21263F] md:mb-[60px] mb-[60px] ">
       <div className="flex flex-col gap-[16px]">
@@ -31,7 +34,7 @@ export default function SumPaymentDiscount({
       <Button
         className="!w-full !h-[48px] !rounded-[4px] "
         onClick={onNext}
-        disabled={disabled}
+        disabled={isDisabled}
       >
         Next
       </Button>

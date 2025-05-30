@@ -1,15 +1,14 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, forwardRef, useImperativeHandle } from "react";
 import Navbar from "../Navbar/Navbar";
 import CheckIcon from '@mui/icons-material/Check';
 import Image from 'next/image';
 import MovieInfoCard from "./MovieInfoCard";
-import { useMovieDetail } from '@/hooks/useMovieDetail';
+import { useBookingDetail } from '@/hooks/useBookingDetail';
 import SumPaymentDiscount from './SumPaymentDiscount';
 import CouponDiscount from './CouponDiscount';
 import { useMyCoupons } from '@/hooks/useMyCoupons';
 import CouponSelectPopup from './CouponSelectPopup';
 import { loadStripe } from "@stripe/stripe-js";
-import { createClient } from '@supabase/supabase-js';
 import {
   Elements,
   CardNumberElement,
@@ -18,12 +17,11 @@ import {
   useStripe,
   useElements
 } from "@stripe/react-stripe-js";
+import supabase from '@/utils/supabase';
+import { useRouter } from 'next/navigation';
+import ConfirmBookingPopup from './ConfirmBookingPopup';
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-);
 
 const ELEMENT_OPTIONS = {
   style: {
@@ -31,9 +29,6 @@ const ELEMENT_OPTIONS = {
       fontSize: "15px",
       color: "#fff",
       backgroundColor: "#232B47",
-      border: "1px solid #232B47",
-      borderRadius: "4px",
-      padding: "12px",
       '::placeholder': {
         color: "#8B93B0"
       }
@@ -45,83 +40,75 @@ const ELEMENT_OPTIONS = {
   }
 };
 
-function StripeCardForm({ processing, error, setError, setProcessing, onSuccess }) {
+const StripeCardForm = forwardRef(function StripeCardForm({ setIsCardComplete, booking, userId }, ref) {
   const stripe = useStripe();
   const elements = useElements();
   const [owner, setOwner] = useState("");
+  const [isCardNumberComplete, setIsCardNumberComplete] = useState(false);
+  const [isExpiryComplete, setIsExpiryComplete] = useState(false);
+  const [isCvcComplete, setIsCvcComplete] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError(null);
-    if (!stripe || !elements) return;
-    setProcessing(true);
-    // Mock ข้อมูล
-    const mockUserId = "00000000-0000-0000-0000-000000000001";
-    const mockBookingId = "11111111-1111-1111-1111-111111111111";
-    const mockMovieId = "22222222-2222-2222-2222-222222222222";
-    const mockAmount = 299;
-    try {
-      const res = await fetch("/api/create-payment-intent", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: mockAmount }),
-      });
-      const { clientSecret } = await res.json();
-      const cardNumberElement = elements.getElement(CardNumberElement);
-      const cardExpiryElement = elements.getElement(CardExpiryElement);
-      const cardCvcElement = elements.getElement(CardCvcElement);
-      if (!cardNumberElement || !cardExpiryElement || !cardCvcElement) {
-        setError("กรุณากรอกข้อมูลบัตรให้ครบถ้วน");
-        setProcessing(false);
-        return;
-      }
-      const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: {
-          card: cardNumberElement,
-          billing_details: { name: owner },
-        },
-      });
-      if (confirmError) {
-        setError(confirmError.message);
-        setProcessing(false);
-        return;
-      }
-      // บันทึกข้อมูลลง Supabase
-      const { data, error: supaError } = await supabase
-        .from('movie_payments')
-        .insert([{
+  useEffect(() => {
+    setIsCardComplete(isCardNumberComplete && isExpiryComplete && isCvcComplete && owner.trim() !== "");
+  }, [isCardNumberComplete, isExpiryComplete, isCvcComplete, owner, setIsCardComplete]);
+
+  // expose ฟังก์ชันจ่ายเงินผ่าน ref
+  useImperativeHandle(ref, () => ({
+    async pay() {
+      if (!stripe || !elements) return { error: "Stripe ยังไม่พร้อม" };
+      const amount = booking?.total;
+      const bookingIdReal = booking?.id;
+      const movieId = booking?.movie_id;
+      try {
+        const res = await fetch("/api/create-payment-intent", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ amount, userId, bookingId: bookingIdReal, movieId }),
+        });
+        const { clientSecret } = await res.json();
+        console.log('clientSecret', clientSecret);
+        const cardNumberElement = elements.getElement(CardNumberElement);
+        if (!cardNumberElement) return { error: "กรุณากรอกข้อมูลบัตรให้ครบถ้วน" };
+        const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+          payment_method: {
+            card: cardNumberElement,
+            billing_details: { name: owner },
+          },
+        });
+        console.log('confirmError', confirmError, 'paymentIntent', paymentIntent);
+        if (confirmError) return { error: confirmError.message };
+        const paymentData = {
           payment_intent_id: paymentIntent.id,
-          amount: mockAmount,
+          amount,
           currency: paymentIntent.currency,
           status: paymentIntent.status,
           payment_method: "card",
           payment_details: paymentIntent,
-          user_id: mockUserId,
-          booking_id: mockBookingId,
-          movie_id: mockMovieId,
-        }]);
-      if (supaError) {
-        setError("บันทึกข้อมูลลงฐานข้อมูลไม่สำเร็จ: " + supaError.message);
-        setProcessing(false);
-        return;
+          user_id: userId,
+          booking_id: bookingIdReal
+        };
+        const { data, error: supaError } = await supabase
+          .from('movie_payments')
+          .insert([paymentData]);
+        console.log('supabase insert', data, supaError);
+        if (supaError) return { error: "บันทึกข้อมูลลงฐานข้อมูลไม่สำเร็จ: " + supaError.message };
+        return { success: true };
+      } catch (err) {
+        console.log('catch error', err);
+        return { error: "เกิดข้อผิดพลาดในการชำระเงิน กรุณาลองใหม่อีกครั้ง" };
       }
-      setProcessing(false);
-      alert("ชำระเงินสำเร็จ!");
-      if (onSuccess) onSuccess();
-    } catch (err) {
-      setError("เกิดข้อผิดพลาดในการชำระเงิน กรุณาลองใหม่อีกครั้ง");
-      setProcessing(false);
     }
-  };
+  }));
 
   return (
-    <form className="px-4 mt-4 md:mt-0 space-y-4" onSubmit={handleSubmit}>
+    <form className="px-4 mt-4 md:mt-0 space-y-4" onSubmit={e => e.preventDefault()}>
       <div className="md:flex md:space-x-4">
         <div className="md:flex-1">
           <label className="block body-2-regular text-base-gray-400 mb-1">Card number</label>
           <CardNumberElement
             options={ELEMENT_OPTIONS}
             className="w-[343px] md:w-[384.5px] h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-[4px] px-3 py-2 text-sm placeholder-base-gray-300 outline-none"
+            onChange={(e) => setIsCardNumberComplete(e.complete)}
           />
         </div>
         <div className="md:flex-1 mt-4 md:mt-0">
@@ -140,6 +127,7 @@ function StripeCardForm({ processing, error, setError, setProcessing, onSuccess 
           <CardExpiryElement
             options={ELEMENT_OPTIONS}
             className="w-[343px] md:w-[384.5px] h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-md px-3 py-2 text-sm placeholder-base-gray-300 outline-none"
+            onChange={(e) => setIsExpiryComplete(e.complete)}
           />
         </div>
         <div className="md:flex-1 mt-4 md:mt-0">
@@ -147,33 +135,26 @@ function StripeCardForm({ processing, error, setError, setProcessing, onSuccess 
           <CardCvcElement
             options={ELEMENT_OPTIONS}
             className="w-[343px] md:w-[384.5px] h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-md px-3 py-2 text-sm placeholder-base-gray-300 outline-none"
+            onChange={(e) => setIsCvcComplete(e.complete)}
           />
         </div>
       </div>
-      {error && <div className="px-4 mt-2 text-red-500 text-sm">{error}</div>}
-      <button
-        type="submit"
-        disabled={processing}
-        className="w-full py-2 rounded mt-2 bg-brand-blue-200 text-white"
-      >
-        {processing ? "กำลังประมวลผล..." : "จ่ายเงิน"}
-      </button>
     </form>
   );
-}
+});
 
 function PromptPayQR() {
   const [qrUrl, setQrUrl] = useState(null);
+  const [qrLoading, setQrLoading] = useState(false);
+  const [qrError, setQrError] = useState(null);
   const [chargeId, setChargeId] = useState(null);
-  const [status, setStatus] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [qrStatus, setQrStatus] = useState(null);
   const [saved, setSaved] = useState(false);
   const handleGetQR = async () => {
-    setLoading(true);
-    setError(null);
+    setQrLoading(true);
+    setQrError(null);
     setQrUrl(null);
-    setStatus(null);
+    setQrStatus(null);
     setChargeId(null);
     setSaved(false);
     try {
@@ -186,11 +167,11 @@ function PromptPayQR() {
       if (data.error) throw new Error(data.error);
       setQrUrl(data.qr);
       setChargeId(data.chargeId);
-      setStatus(data.status);
+      setQrStatus(data.status);
     } catch (err) {
-      setError(err.message);
+      setQrError(err.message);
     }
-    setLoading(false);
+    setQrLoading(false);
   };
   useEffect(() => {
     if (!chargeId) return;
@@ -202,7 +183,7 @@ function PromptPayQR() {
           body: JSON.stringify({ chargeId }),
         });
         const data = await res.json();
-        setStatus(data.status);
+        setQrStatus(data.status);
       } catch {}
     }, 5000);
     return () => clearInterval(interval);
@@ -210,7 +191,7 @@ function PromptPayQR() {
 
   // เพิ่ม useEffect สำหรับบันทึกข้อมูลลง Supabase เมื่อจ่ายเงิน QR สำเร็จ
   useEffect(() => {
-    if (status === 'successful' && chargeId && !saved) {
+    if (qrStatus === 'successful' && chargeId && !saved) {
       const saveToSupabase = async () => {
         const mockUserId = "00000000-0000-0000-0000-000000000001";
         const mockBookingId = "11111111-1111-1111-1111-111111111111";
@@ -246,7 +227,7 @@ function PromptPayQR() {
       };
       saveToSupabase();
     }
-  }, [status, chargeId, saved]);
+  }, [qrStatus, chargeId, saved]);
 
   if (!qrUrl) {
     return (
@@ -255,11 +236,11 @@ function PromptPayQR() {
         <button
           className="mt-4 bg-brand-blue-200 text-white py-2 px-6 rounded"
           onClick={handleGetQR}
-          disabled={loading}
+          disabled={qrLoading}
         >
-          {loading ? 'กำลังสร้าง QR...' : 'สร้าง QR PromptPay'}
+          {qrLoading ? 'กำลังสร้าง QR...' : 'สร้าง QR PromptPay'}
         </button>
-        {error && <div className="text-red-500 mt-2">{error}</div>}
+        {qrError && <div className="text-red-500 mt-2">{qrError}</div>}
       </>
     );
   }
@@ -267,12 +248,13 @@ function PromptPayQR() {
     <>
       <img src={qrUrl} alt="PromptPay QR" width={180} height={180} />
       <div className="mt-2 text-xs text-center w-full text-white">สแกน QR ด้วยแอปธนาคารเพื่อชำระเงิน</div>
-      <div className="mt-2 text-xs text-center w-full text-white">สถานะ: {status}</div>
+      <div className="mt-2 text-xs text-center w-full text-white">สถานะ: {qrStatus}</div>
     </>
   );
 }
 
 export default function PaymentMobile() {
+  const router = useRouter();
   const [tab, setTab] = useState("credit");
   const [card, setCard] = useState({
     number: "",
@@ -285,85 +267,122 @@ export default function PaymentMobile() {
   const [selectedCoupon, setSelectedCoupon] = useState(null);
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState(null);
+  const [isCardComplete, setIsCardComplete] = useState(false);
+  const [openConfirmPopup, setOpenConfirmPopup] = useState(false);
+  const [confirmLoading, setConfirmLoading] = useState(false);
+  const [confirmError, setConfirmError] = useState(null);
+  const cardFormRef = useRef();
+  const [qrUrl, setQrUrl] = useState(null);
+  const [qrLoading, setQrLoading] = useState(false);
+  const [qrError, setQrError] = useState(null);
+  const [chargeId, setChargeId] = useState(null);
+  const [qrStatus, setQrStatus] = useState(null);
 
-  // ตัวอย่าง movie_id (ควรรับจาก prop, route, หรือ context จริง)
-  const movie_id = "013b897b-3387-4b7f-ab23-45b78199020a";
-  const { movie, genres, languages, showtime, hall, cinema, loading } = useMovieDetail(movie_id);
-  const userId = "mock-user-id"; // TODO: เปลี่ยนเป็น user id จริง
+  // ดึง bookingId จาก route, prop หรือ mock (ตัวอย่างนี้ใช้จริง)
+  const bookingId = "b260cb11-1f32-4fd0-9250-7c5a3f2a672e";
+  const { booking, loading } = useBookingDetail(bookingId);
+  console.log("booking", booking);
+
+  // ดึง userId จริง (ตัวอย่างนี้ใช้ user sanya bochoun)
+  const userId = "b16e32f8-86b8-4f74-bcbe-3c3d1472027a";
   const { coupons, loading: loadingCoupons } = useMyCoupons(userId);
 
   // ฟังก์ชันเมื่อกด Next
-  const handleNext = async (e) => {
+  const handleNext = (e) => {
     e.preventDefault();
-    setProcessing(true);
-    setError(null);
+    if (tab === 'credit' && !isCardComplete) return;
+    setOpenConfirmPopup(true);
+  };
 
-    // Mock ข้อมูล
-    const mockUserId = "00000000-0000-0000-0000-000000000001";
-    const mockBookingId = "11111111-1111-1111-1111-111111111111";
-    const mockMovieId = "22222222-2222-2222-2222-222222222222";
-    const mockAmount = 199;
-
-    try {
-      const stripe = await stripePromise;
-      const res = await fetch("/api/create-payment-intent", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: mockAmount }),
-      });
-      const { clientSecret } = await res.json();
-
-      const { paymentMethod, error: pmError } = await stripe.createPaymentMethod({
-        type: "card",
-        card: {
-          number: card.number,
-          exp_month: card.expiry.split("/")[0],
-          exp_year: card.expiry.split("/")[1],
-          cvc: card.cvc,
-        },
-      });
-      if (pmError) {
-        setError(pmError.message);
-        setProcessing(false);
-        return;
+  // ฟังก์ชันจ่ายเงินจริงเมื่อกด Confirm
+  const handleConfirmPayment = async () => {
+    setConfirmLoading(true);
+    setConfirmError(null);
+    if (cardFormRef.current && cardFormRef.current.pay) {
+      const result = await cardFormRef.current.pay();
+      if (result.success) {
+        setConfirmLoading(false);
+        setOpenConfirmPopup(false);
+        router.push(`/payment-success?bookingId=${booking?.id}`);
+      } else {
+        setConfirmError(result.error || 'เกิดข้อผิดพลาดในการชำระเงิน กรุณาลองใหม่อีกครั้ง');
+        setConfirmLoading(false);
       }
-
-      const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: paymentMethod.id,
-      });
-      if (confirmError) {
-        setError(confirmError.message);
-        setProcessing(false);
-        return;
-      }
-
-      // บันทึกข้อมูลลง Supabase
-      const { data, error: supaError } = await supabase
-        .from('movie_payments')
-        .insert([{
-          payment_intent_id: paymentIntent.id,
-          amount: mockAmount,
-          currency: paymentIntent.currency,
-          status: paymentIntent.status,
-          payment_method: "card",
-          payment_details: paymentIntent,
-          user_id: mockUserId,
-          booking_id: mockBookingId,
-          movie_id: mockMovieId,
-        }]);
-      if (supaError) {
-        setError("บันทึกข้อมูลลงฐานข้อมูลไม่สำเร็จ: " + supaError.message);
-        setProcessing(false);
-        return;
-      }
-
-      setProcessing(false);
-      alert("ชำระเงินสำเร็จ!");
-    } catch (err) {
-      setError("เกิดข้อผิดพลาดในการชำระเงิน กรุณาลองใหม่อีกครั้ง");
-      setProcessing(false);
+    } else {
+      setConfirmError('ไม่สามารถดำเนินการชำระเงินได้');
+      setConfirmLoading(false);
     }
   };
+
+  // ฟังก์ชันเมื่อกด Confirm ใน QR Tab
+  const handleConfirmQR = async () => {
+    setConfirmLoading(true);
+    setQrError(null);
+    try {
+      const res = await fetch('/api/create-promptpay', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: booking?.total * 100 }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      setQrUrl(data.qr);
+      setChargeId(data.chargeId);
+      setQrStatus(data.status);
+      setOpenConfirmPopup(false);
+      router.push(`/payment-qr?chargeId=${data.chargeId}&amount=${booking?.total}&bookingId=${booking?.id}`);
+    } catch (err) {
+      setQrError(err.message);
+    }
+    setConfirmLoading(false);
+  };
+
+  // ติดตามสถานะ QR
+  useEffect(() => {
+    if (!chargeId) return;
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch('/api/check-promptpay-status', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chargeId }),
+        });
+        const data = await res.json();
+        setQrStatus(data.status);
+      } catch {}
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [chargeId]);
+
+  if (loading) return <div>Loading...</div>;
+  // ไม่ต้อง return ถ้า booking เป็น null ให้แสดงฟอร์มด้วย mock data
+
+  // mock data สำหรับ fallback
+  const mockBooking = {
+    movie_title: "The Dark Knight",
+    genres: ["Action", "Crime", "TH"],
+    movie_poster: "https://res.cloudinary.com/dr2ijid6r/image/upload/v1746026694/How_to_Train_Your_Dragon_ei5n5w.jpg",
+    cinema_name: "Minor Cineplex Arkham",
+    show_date: "24 Jun 2024",
+    show_time: "16:30",
+    hall: "Hall 1",
+    languages: ["TH", "EN"],
+    coupon_name: "Merry March Magic – Get 50 THB Off! (Only in March)",
+    coupon_discount: 50,
+    seat: ["C9", "C10"],
+    payment_method: "Credit card",
+    total: 330,
+  };
+
+  // ถ้า booking มีข้อมูลจริง ให้ map field ให้ตรงกับ props และแปลง string เป็น array ถ้าจำเป็น
+  const data = booking
+    ? {
+        ...booking,
+        genres: typeof booking.genres === 'string' ? JSON.parse(booking.genres) : booking.genres,
+        languages: typeof booking.languages === 'string' ? JSON.parse(booking.languages) : booking.languages,
+        seat: typeof booking.seat === 'string' ? JSON.parse(booking.seat) : booking.seat,
+      }
+    : mockBooking;
 
   return (
     <div className="bg-background w-screen min-h-screen text-white font-sans overflow-x-hidden flex flex-col md:items-start md:justify-center">
@@ -452,10 +471,10 @@ export default function PaymentMobile() {
           {tab === "credit" && (
             <Elements stripe={stripePromise}>
               <StripeCardForm
-                processing={processing}
-                error={error}
-                setError={setError}
-                setProcessing={setProcessing}
+                ref={cardFormRef}
+                setIsCardComplete={setIsCardComplete}
+                booking={booking}
+                userId={userId}
               />
             </Elements>
           )}
@@ -463,26 +482,66 @@ export default function PaymentMobile() {
           {/* QR Code Tab */}
           {tab === "qr" && (
             <div className="px-4 mt-4 flex flex-col items-center text-gray-400 w-full md:ml-[120px]">
-              <div className="bg-[#232B47] rounded py-10 md:w-[793px] md:h-[104px] flex items-center justify-center w-full flex-col">
-                <PromptPayQR />
-              </div>
-              <div className="mt-2 text-xs text-center w-full">
-                Scan QR code to pay
-              </div>
+              {/* ถ้ายังไม่มี qrUrl ให้แสดงปุ่ม Next -> Confirm -> สร้าง QR */}
+              {!qrUrl ? (
+                <>
+                  <div className="bg-[#232B47] rounded py-10 md:w-[793px] md:h-[104px] flex items-center justify-center w-full flex-col">
+                    <span className="text-white">QR Code Payment</span>
+                    {qrError && <div className="text-red-500 mt-2">{qrError}</div>}
+                  </div>
+                  <div className="mt-2 text-xs text-center w-full">Scan QR code to pay</div>
+                </>
+              ) : (
+                <div className="bg-[#232B47] rounded py-10 md:w-[793px] flex flex-col items-center justify-center w-full">
+                  <img src={qrUrl} alt="PromptPay QR" width={180} height={180} />
+                  <div className="mt-4 text-white font-bold text-lg">Minor Cineplex Public limited company</div>
+                  <div className="mt-2 text-white font-bold text-xl">THB{(booking?.total || 0).toLocaleString()}</div>
+                  <div className="mt-2 text-xs text-center w-full text-white">{qrStatus && `สถานะ: ${qrStatus}`}</div>
+                </div>
+              )}
             </div>
           )}
         </div>
         <div className="flex flex-col items-center gap-0 w-full mt-8 md:w-auto md:mt-[-30px] px-0">
           <div className="w-full">
-            <MovieInfoCard />
-            <CouponDiscount onSelectCoupon={() => setOpenCouponPopup(true)} />
+            <MovieInfoCard
+              title={data.movie_title}
+              genres={data.genres}
+              image={data.movie_poster}
+              cinema={data.cinema_name}
+              date={data.show_date}
+              time={data.show_time}
+              hall={data.hall}
+              languages={data.languages}
+            />
+            <CouponDiscount
+              coupon={data.coupon_name}
+              onSelectCoupon={() => setOpenCouponPopup(true)}
+            />
             {openCouponPopup && (
-              <CouponSelectPopup open={openCouponPopup} onClose={() => setOpenCouponPopup(false)} coupons={coupons} onApply={setSelectedCoupon} />
+              <CouponSelectPopup open={openCouponPopup} onClose={() => setOpenCouponPopup(false)} coupons={[]} onApply={setSelectedCoupon} />
             )}
-            <SumPaymentDiscount disabled={tab !== 'qr' && (!card.number || !card.owner || !card.expiry || !card.cvc)} />
+            <SumPaymentDiscount
+              seats={data.seat}
+              paymentMethod={data.payment_method}
+              coupon={data.coupon_name ? { label: `-THB${data.coupon_discount}`, color: 'text-brand-red' } : null}
+              total={data.total}
+              tab={tab}
+              card={card}
+              isCardComplete={isCardComplete}
+              onNext={handleNext}
+            />
           </div>
         </div>
       </div>
+      {/* mount popup confirm */}
+      <ConfirmBookingPopup
+        open={openConfirmPopup}
+        onClose={() => setOpenConfirmPopup(false)}
+        onConfirm={tab === 'qr' ? handleConfirmQR : handleConfirmPayment}
+        loading={confirmLoading}
+        error={confirmError || qrError}
+      />
     </div>
   );
 }

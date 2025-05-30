@@ -4,7 +4,7 @@ import Button from '@/components/Button';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import SearchIcon from '@mui/icons-material/Search';
-import { supabase } from '@/utils/supabase';
+import supabase from '@/utils/supabase';
 
 const BannerByCinema = ({
   onSearch = (filters) => console.log('Search filters:', filters),

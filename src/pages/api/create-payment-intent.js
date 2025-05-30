@@ -8,18 +8,22 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { amount, currency = 'thb' } = req.body;
+    const { amount, userId, bookingId, movieId } = req.body;
 
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: amount * 100, // Stripe ใช้หน่วยเป็น cents
-      currency: currency,
+      amount: amount * 100, // แปลงเป็นสตางค์
+      currency: 'thb',
       automatic_payment_methods: {
         enabled: true,
       },
     });
 
-    res.status(200).json({ clientSecret: paymentIntent.client_secret });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(200).json({
+      clientSecret: paymentIntent.client_secret,
+      paymentIntent: paymentIntent,
+    });
+  } catch (err) {
+    console.error('Error creating payment intent:', err);
+    res.status(500).json({ error: err.message });
   }
 } 

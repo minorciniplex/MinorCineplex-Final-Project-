@@ -101,19 +101,21 @@ export default function BookingCard({
             height={120}
             className="object-cover rounded-lg"
           />
-          <div className="flex flex-col w-full pl-4 rounded-t-lg">
-            <h2 className="text-white text-2xl font-bold mb-3">{title}</h2>
-            <div className="flex gap-2 ">
+          <div className="flex flex-col w-[300px] pl-4 rounded-t-lg">
+            <h2 className="text-white text-wrap text-xl font-bold mb-3">
+              {title}
+            </h2>
+            <div className="flex flex-wrap gap-2 w-full">
               {genreArr?.map((genre, index) => (
                 <span
                   key={index}
-                  className="bg-[--base-gray-100] py-[4px] md:py-[6px] px-3 rounded text-xs md:text-sm text-[--base-gray-300] font-medium"
+                  className=" bg-[--base-gray-100] py-[4px] md:py-[6px] px-3 rounded text-sm md:text-sm text-[--base-gray-300]"
                 >
                   {genre?.movie_genres?.name || genre?.name || genre || ""}
                 </span>
               ))}
               {lang && (
-                <span className="bg-[--base-gray-100] py-[4px] md:py-[6px] px-3 rounded text-xs md:text-sm text-[--base-gray-400] font-medium">
+                <span className="bg-[--base-gray-100] py-[4px] md:py-[6px] px-3 rounded text-sm md:text-sm text-[--base-gray-400]">
                   {lang.toUpperCase()}
                 </span>
               )}

@@ -1,42 +1,82 @@
-import { createSupabaseServerClient } from "@/utils/supabaseCookie";
+import requireUser from "@/middleware/requireUser";
+import { withMiddleware } from "@/middleware/withMiddleware";
 
-export default async function handler(req, res) {
-  const supabase = createSupabaseServerClient({ req, res });
 
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
+const handler = async (req, res) => {
+  const supabase = req.supabase;
+  const user = req.user;
 
-  const { bookingId, seats } = req.body; // เปลี่ยนจาก seat เป็น seats
+  if (req.method === "POST") {
+    const { showtimeId, seatNumber, row, sumPrice } = req.body;
 
-  if (!bookingId || !seats || !Array.isArray(seats) || seats.length === 0) {
-    return res.status(400).json({ error: "Missing required parameters or invalid seats array" });
-  }
-
-  try {
-    const insertedSeats = [];
-    
-    // Loop insert ทีละที่นั่ง
-    for (const seat of seats) {
-      const { data, error } = await supabase
-        .from("booking_seat")
-        .insert([{ booking_id: bookingId, seat }]);
-
-      if (error) {
-        throw error;
-      }
-      
-      if (data && data.length > 0) {
-        insertedSeats.push(data[0]);
-      }
+    // Validate input
+    if (!showtimeId || !seatNumber) {
+      return res.status(400).json({ error: "Missing required fields" });
     }
 
-    return res.status(200).json({ 
-      message: "Seats booked successfully", 
-      seats: insertedSeats 
-    });
-  } catch (error) {
-    console.error("Error inserting booking seat:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    try {
+      // Check if the seat is already booked
+      const { data: existingBooking, error: bookingError } = await supabase
+        .from("seats")
+        .select("*")
+        .eq("row", row)
+        .eq("seat_number", seatNumber)
+
+
+      if (bookingError) {
+        console.error("Error checking existing booking:", bookingError);
+        return res.status(500).json({ error: bookingError });
+      }
+
+if (existingBooking && existingBooking.length > 0) {
+        return res.status(409).json({ error: "Seat is already booked" });
+      }
+
+      // Create a new booking
+      const { data, error } = await supabase
+        .from("bookings")
+        .insert({
+          user_id: user.id,
+          showtime_id: showtimeId,
+          booking_date: new Date().toISOString(),
+          total_price: sumPrice,
+          status: "pending",
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .select();
+
+      if (error) {
+        console.error("Error creating booking:", error);
+        return res.status(500).json({ error: error });
+      }
+
+      const { seat, error: seatError } = await supabase
+        .from("seats")
+        .insert({
+         seat_id: "E9",
+          row: row,
+          seat_number: seatNumber,
+          showtime_id: showtimeId,
+          seat_status: "pending",
+        })
+        .select();
+
+        if (seatError) {
+        console.error("Error creating seat booking:", seatError);
+        return res.status(500).json({ error: seatError });
+        }
+
+      return res.status(201).json({ data, seat });
+    } catch (error) {
+      console.error("Error in POST request:", error);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+  } else {
+    return res.status(405).json({ error: "Method Not Allowed" });
   }
-}
+
+  
+};
+
+export default withMiddleware([requireUser], handler);

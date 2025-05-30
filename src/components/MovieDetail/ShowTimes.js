@@ -17,7 +17,7 @@ export default function ShowTimes({ showtimes, date }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null); 
   const { movieId } = router.query;
-  console.log(movie);
+  console.log(showtimes);
 
 
   useEffect(() => {
@@ -36,8 +36,6 @@ export default function ShowTimes({ showtimes, date }) {
           throw new Error("Failed to fetch movie details");
         }
         setMovie(response.data.data);
-        /*         setGenrs(response.data.data.movie_genre_mapping);
-        setLanguage(response.data.data.movie_languages); */
         return () => controller.abort();
       } catch (err) {
         if (axios.isCancel(err)) {
@@ -64,7 +62,7 @@ useEffect(() => {
 
   const handleSelect = ({ time, screenNumber, cinemaName, date}) => {
     // ตัวอย่างการ push ไปหน้าจองตั๋ว
-    console.log(time);
+    console.log();
     const query = new URLSearchParams({
       poster: movie.poster_url,
       title: movie.title,
@@ -74,7 +72,8 @@ useEffect(() => {
       screenNumber,
       cinemaName,
       date,
-      movieId: movieId
+      movieId: movieId,
+      showtimes: showtimes[0].showtimeId
 
 
     }).toString();

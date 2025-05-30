@@ -26,7 +26,7 @@ function formatTime(timeStr) {
 export default function MovieInfoCard({
   title = "The Dark Knight",
   genres = ["Action", "Crime", "TH"],
-  image = "https://m.media-amazon.com/images/I/51k0qa6qH-L._AC_SY679_.jpg",
+  image = "https://res.cloudinary.com/dr2ijid6r/image/upload/v1746026694/How_to_Train_Your_Dragon_ei5n5w.jpg",
   cinema = "Minor Cineplex Arkham",
   date = "24 Jun 2024",
   time = "16:30",
@@ -34,7 +34,7 @@ export default function MovieInfoCard({
   languages = ["TH/EN"]
 }) {
   return (
-    <div className="bg-[#070C1B] w-screen max-w-none flex flex-col gap-4 shadow-md px-[16px] pt-[16px] pb-[24px] -mx-4">
+    <div className="bg-[#070C1B] w-[375px] h-[336px] md:w-[305px] md:h-[336px] flex flex-col gap-[24px] shadow-md px-[16px] pt-[16px] pb-[24px]" style={{paddingRight: 16, paddingLeft: 16, paddingTop: 16, paddingBottom: 24}}>
       <div className="flex items-center gap-2">
         <span className="body-2-regular text-base-gray-300 text-sm">
           Time remaining: 

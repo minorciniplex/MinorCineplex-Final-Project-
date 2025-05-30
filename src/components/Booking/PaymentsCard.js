@@ -2,7 +2,7 @@ import FmdGoodIcon from "@mui/icons-material/FmdGood";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
-import CouponPaymentCard from "../Coupon-PaymentCard/PaymentMobile";
+import CouponPaymentCard from "../Coupon-PaymentCard/CouponApply";
 import useCountdown from "../../hooks/useCountdown";
 import { useEffect } from "react";
 
@@ -158,13 +158,11 @@ const { timeLeft, isTimerActive, formatTime, startReservation, cancelReservation
               />
               <span>Hall {screenNumber}</span>
             </div>
-            {seatArr.length === 0 ? null : (
               <>
               <div className="flex flex-col justify-between items-center gap-2">
                 <CouponPaymentCard />
               </div>
               </>
-            )}
           </div>
         </div>
       </div>

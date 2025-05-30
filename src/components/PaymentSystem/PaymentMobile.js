@@ -8,7 +8,7 @@ import { useMovieDetail } from '@/hooks/useMovieDetail';
 import CouponDiscount from './CouponDiscount';
 import { useMyCoupons } from '@/hooks/useMyCoupons';
 import CouponSelectPopup from './CouponSelectPopup';
-
+import SumPaymentDiscount from '../Coupon-PaymentCard/Components/SumPaymentDiscount';
 export default function PaymentMobile() {
   const [tab, setTab] = useState("credit");
   const [card, setCard] = useState({
@@ -202,16 +202,6 @@ export default function PaymentMobile() {
               </div>
             </div>
           )}
-        </div>
-        <div className="flex flex-col items-center gap-0 w-full mt-8 md:w-auto md:mt-[-30px] px-0">
-          <div className="w-full">
-            <MovieInfoCard />
-            <CouponDiscount onSelectCoupon={() => setOpenCouponPopup(true)} />
-            {openCouponPopup && (
-              <CouponSelectPopup open={openCouponPopup} onClose={() => setOpenCouponPopup(false)} coupons={coupons} onApply={setSelectedCoupon} />
-            )}
-            <SumPaymentDiscount disabled={tab !== 'qr' && (!card.number || !card.owner || !card.expiry || !card.cvc)} />
-          </div>
         </div>
       </div>
     </div>

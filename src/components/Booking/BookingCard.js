@@ -5,7 +5,7 @@ import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useEffect, useState, useCallback } from "react";
-import {useStatus} from "@/context/StatusContext";
+import { useStatus } from "@/context/StatusContext";
 import axios from "axios";
 
 export default function BookingCard({
@@ -22,12 +22,10 @@ export default function BookingCard({
   onConfirmBooking,
   showtimes,
   movieId,
-  bookingId
 }) {
   const { isLoggedIn, user } = useStatus();
   const router = useRouter();
- 
- 
+
   let genreArr = [];
   try {
     genreArr =
@@ -70,16 +68,30 @@ export default function BookingCard({
     });
   }
 
-  const handleSumbit = () => {
-    console.log('Submit button clicked');
+  const handleSumbit = async () => {
     if (!isLoggedIn) {
-      console.log('User not logged in, redirecting to login page');
+      console.log("User not logged in, redirecting to login page");
       router.push("/auth/login");
       return;
     }
-    console.log('Starting timer before navigation');
+    let newBookingId;
+    try {
+      const response = await axios.post("/api/booking/booking-seat", {
+        showtimeId: showtimes,
+        seatNumber: seat, // แก้จาก seat เป็น seatNumber ตาม API
+        sumPrice: price, // แก้จาก price เป็น sumPrice ตาม API
+      });
+
+      // ตั้งค่า bookingId หลังจากได้ response
+      newBookingId = response.data.data[0].booking_id
+      console.log("Booking successful, bookingId:", newBookingId);
+    } catch (error) {
+      console.error("Error booking seat:", error);
+      return;
+    }
+
     const query = new URLSearchParams({
-      poster: poster,  
+      poster: poster,
       title: title,
       time: time,
       date: date,
@@ -89,8 +101,10 @@ export default function BookingCard({
       cinemaName: cinemaName,
       seat: JSON.stringify(seat),
       price: price,
+      showtimes: showtimes,
+      movieId: movieId,
+      bookingId: newBookingId, // ใช้ bookingId ที่ได้จาก response
     }).toString();
-
 
     router.push(`/booking/seats/payment/payment?${query}`);
   };
@@ -170,7 +184,7 @@ export default function BookingCard({
                 </p>
               </div>
               <button
-                onClick={onConfirmBooking}
+                onClick={handleSumbit}
                 className="bg-[#4E7BEE] text-white px-4 py-2 rounded-lg mt-4 hover:bg-[#5a8cd9] transition-colors"
               >
                 Next

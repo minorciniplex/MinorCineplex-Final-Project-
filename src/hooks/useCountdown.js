@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '@/utils/supabase';
+
 import axios from 'axios';
 const RESERVATION_TIME = 15 * 60; // 15 minutes in seconds
 

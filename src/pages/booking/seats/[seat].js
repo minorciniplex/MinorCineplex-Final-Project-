@@ -37,43 +37,6 @@ export default function Seats() {
     // console.log("Total price:", price); // Debug log
   }, []);
 
-  const handleConfirmBooking = async () => {
-    if (!isLoggedIn) {
-      // Save selected seats in localStorage/state
-      localStorage.setItem(
-        "pendingBooking",
-        JSON.stringify({
-          showtimeId,
-          selectedSeats,
-          totalPrice,
-          movieId,
-          time,
-          date,
-          screenNumber,
-          cinemaName,
-        })
-      );
-
-      // Redirect to login
-      router.push("/auth/login");
-      return;
-    }
-    // If user is logged in, proceed with booking
-    const query = new URLSearchParams({
-      poster,
-      title,
-      time,
-      date,
-      screenNumber,
-      genres: JSON.stringify(genres),
-      language: JSON.stringify(language),
-      cinemaName,
-      seat: JSON.stringify(selectedSeats),
-      price: totalPrice,
-    }).toString();
-
-    router.push(`/booking/seats/payment/payment?${query}`);
-  };
 
   useEffect(() => {
     if (router.isReady) {
@@ -81,7 +44,7 @@ export default function Seats() {
       setGenres(JSON.parse(genres));
       setLanguage(JSON.parse(language));
     }
-  }, [router.isReady]);
+  }, [router.isReady, router.query]);
 
   return (
     <>

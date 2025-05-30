@@ -4,7 +4,6 @@ import CheckIcon from '@mui/icons-material/Check';
 import Image from 'next/image';
 import MovieInfoCard from "./MovieInfoCard";
 import { useMovieDetail } from '@/hooks/useMovieDetail';
-import SumPaymentDiscount from './SumPaymentDiscount';
 import CouponDiscount from './CouponDiscount';
 import { useMyCoupons } from '@/hooks/useMyCoupons';
 import CouponSelectPopup from './CouponSelectPopup';
@@ -34,7 +33,7 @@ export default function PaymentMobile() {
 
   return (
     <div className="bg-background w-screen min-h-screen text-white font-sans overflow-x-hidden flex flex-col md:flex-row md:items-start md:justify-center">
-      <Navbar />
+
       {/* ฝั่งซ้าย: ฟอร์ม */}
       <div className="w-full md:w-[600px] md:mr-8 flex-shrink-0">
         {/* Stepper */}
@@ -170,38 +169,10 @@ export default function PaymentMobile() {
       {/* ฝั่งขวา: กล่องสรุป */}
       <div className="w-full md:w-[375px] md:mt-[102px] flex flex-col gap-6">
         <div className="px-4 md:px-0 mt-6 md:mt-0">
-          {loading ? (
-            <div className="text-base-gray-300 text-center">Loading...</div>
-          ) : movie ? (
-            <MovieInfoCard
-              title={movie.title}
-              genres={genres}
-              image={movie.poster_url}
-              cinema={cinema?.name}
-              date={showtime?.date}
-              time={showtime?.start_time}
-              hall={hall?.screen_number}
-            />
-          ) : (
-            <div className="text-red-400 text-center">ไม่พบข้อมูลหนัง</div>
-          )}
+          
         </div>
-        <div className="px-4 md:px-0 mt-0">
-          <CouponDiscount 
-            coupon={selectedCoupon?.description || (coupons[0]?.description ?? "Not Found Coupon")}
-            onRemove={() => setSelectedCoupon(null)}
-            onSelectCoupon={() => setOpenCouponPopup(true)}
-          />
-        </div>
-        <div className="px-4 md:px-0 mt-0">
-          <SumPaymentDiscount
-            seats={Array.isArray(movie?.seats) ? movie.seats : ["C9", "C10"]}
-            paymentMethod={tab === 'credit' ? 'Credit card' : 'QR Code'}
-            coupon={selectedCoupon ? { label: '-THB50', color: 'text-brand-red' } : null}
-            total={movie?.total || "THB300"}
-            onNext={handleNext}
-          />
-        </div>
+
+
       </div>
 
       {/* Popup คูปอง */}

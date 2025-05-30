@@ -46,7 +46,7 @@ const handler = async (req, res) => {
           showtime_id: showtimeId,
           booking_date: new Date().toISOString(),
           total_price: sumPrice,
-          status: "pending",
+          status: "reserved",
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
           reserved_until: new Date(Date.now() + 15 * 60 * 1000).toISOString()
@@ -68,7 +68,7 @@ const handler = async (req, res) => {
           row: row,
           seat_number: seatNum,
           showtime_id: showtimeId,
-          seat_status: "pending",
+          seat_status: "reserved",
           reserved_by: user.id,
         };
       });
@@ -90,9 +90,9 @@ const handler = async (req, res) => {
         return {
           seat_id: seat,
           showtime_id: showtimeId,
-          booking_id: data[0].booking_id, 
+          booking_id: data[0].booking_id,
           
-
+          
         };
       });
         const { data: bookingData, error: bookingSeatError } = await supabase

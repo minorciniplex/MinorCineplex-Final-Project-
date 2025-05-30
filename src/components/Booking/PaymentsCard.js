@@ -3,6 +3,8 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
 import CouponPaymentCard from "../Coupon-PaymentCard/PaymentMobile";
+import useCountdown from "../../hooks/useCountdown";
+import { useEffect } from "react";
 
 export default function PaymentsCard({
   time,
@@ -13,18 +15,17 @@ export default function PaymentsCard({
   genres,
   language,
   date,
-  seat,
+  seatNumber,
   price,
-  timeLeft,
-  isTimerActive
+  showtimes,
+  movieId,
+  bookingId
 }) {
-  console.log('PaymentsCard Props:', { timeLeft, isTimerActive });
+const { timeLeft, isTimerActive, formatTime, startReservation, cancelReservation } = useCountdown(seatNumber, showtimes, bookingId);
 
-  const formatTime = (seconds) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
-  };
+  useEffect(() => {
+    startReservation();
+  }, []);
 
   // แปลง genres และ language ถ้ามาเป็น string
   let seatArr = [];
@@ -38,7 +39,7 @@ export default function PaymentsCard({
   } catch {
     seatArr = [];
   }
-  console.log('Seat Array:', seatArr);
+  
   let genreArr = [];
   try {
     genreArr =
@@ -85,6 +86,7 @@ export default function PaymentsCard({
     <>
       <div className="flex justify-center items-center min-h-screen">
         <div className="flex flex-col items-center w-[375px] p-4 bg-[#18192b] rounded-lg shadow-md">
+          
           {isTimerActive && (
             <div className="w-full text-center mb-4 bg-[#2A2D3E] p-3 rounded-lg">
               <div className="text-[#FF4B4B] text-lg font-semibold mb-1">
@@ -161,7 +163,6 @@ export default function PaymentsCard({
               <div className="flex flex-col justify-between items-center gap-2">
                 <CouponPaymentCard />
               </div>
-              <p>กรุณาชำระเงินภายในเวลาที่กำหนด {timeLeft} วินาที</p>
               </>
             )}
           </div>

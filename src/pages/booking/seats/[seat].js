@@ -18,6 +18,7 @@ export default function Seats() {
     showtimeId,
     movieId,
     price,
+    bookingId
   } = router.query;
   const [genres, setGenres] = useState(null);
   const [language, setLanguage] = useState(null);

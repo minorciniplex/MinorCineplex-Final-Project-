@@ -4,9 +4,9 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {useStatus} from "@/context/StatusContext";
-import useCountdown from "../../hooks/useCountdown";
+import axios from "axios";
 
 export default function BookingCard({
   time,
@@ -21,12 +21,13 @@ export default function BookingCard({
   price,
   onConfirmBooking,
   showtimes,
-  movieId
+  movieId,
+  bookingId
 }) {
   const { isLoggedIn, user } = useStatus();
   const router = useRouter();
-  const { timeLeft, isTimerActive, formatTime, startTimer } = useCountdown();
-  console.log('BookingCard Timer State:', { timeLeft, isTimerActive });
+ 
+ 
   let genreArr = [];
   try {
     genreArr =
@@ -77,7 +78,6 @@ export default function BookingCard({
       return;
     }
     console.log('Starting timer before navigation');
-    startTimer();
     const query = new URLSearchParams({
       poster: poster,  
       title: title,
@@ -89,16 +89,8 @@ export default function BookingCard({
       cinemaName: cinemaName,
       seat: JSON.stringify(seat),
       price: price,
-      timeLeft: timeLeft,
-      isTimerActive: isTimerActive,
-      formatTime: formatTime.toString()
     }).toString();
 
-    console.log('Navigation parameters:', {
-      timeLeft,
-      isTimerActive,
-      formattedTime: formatTime(timeLeft)
-    });
 
     router.push(`/booking/seats/payment/payment?${query}`);
   };

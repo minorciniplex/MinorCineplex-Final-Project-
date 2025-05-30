@@ -61,7 +61,7 @@ const handleSelect = ({ time, movie, date, hall,}) => {
       genres: JSON.stringify(movies.movie_genre_mapping), // แปลง object เป็น string
       language: JSON.stringify(movies.original_language),
       cinemaName: movie.cinemaName,
-      showtimes: movie.showtimeId,
+      showtimeId: movie.showtimeId,
       movieId: movies.id,
 
       

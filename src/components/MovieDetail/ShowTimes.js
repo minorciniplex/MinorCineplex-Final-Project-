@@ -71,7 +71,7 @@ useEffect(() => {
       cinemaName,
       date,
       movieId: movieId,
-      showtimes: showtimes[0].showtimeId
+      showtimeId: showtimes[0].showtimeId
 
 
     }).toString();

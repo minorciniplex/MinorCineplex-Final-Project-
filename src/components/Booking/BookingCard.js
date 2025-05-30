@@ -92,7 +92,7 @@ export default function BookingCard({
 
   return (
     <>
-      <div className="w-full sm:basis-1/4 flex flex-col p-4 bg-[--base-gray-0] rounded-lg shadow-md">
+      <div className="sm:h-auto sm:basis-1/4 flex flex-col sm:flex-1 p-4 bg-[--base-gray-0] rounded-lg shadow-md">
         <div className="flex w-full rounded-t-lg">
           <Image
             src={poster}

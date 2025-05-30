@@ -12,6 +12,7 @@ function formatDate(dateString) {
 
 export default function CouponSelectPopup({ open, coupons, onClose, onApply }) {
   const [selected, setSelected] = useState(null);
+  const [activeCouponId, setActiveCouponId] = useState(null);
   const router = useRouter();
   console.log(coupons);
   if (!open) return null;
@@ -29,8 +30,11 @@ export default function CouponSelectPopup({ open, coupons, onClose, onApply }) {
           {coupons.map(coupon => (
             <div
               key={coupon.id}
-              className={`rounded flex items-center gap-3 p-3 cursor-pointer border transition-all hover:bg-[#2A3349] ${selected?.id === coupon.id ? 'border-white bg-[#232B47]' : 'border-transparent bg-[#232B47]'}`}
-              onClick={() => setSelected(coupon)}
+              className={`rounded flex items-center gap-3 p-3 cursor-pointer transition-all hover:bg-[#2A3349] ${activeCouponId === coupon.coupons.coupon_id ? 'border-2 border-white bg-[#353B4A]' : 'border border-transparent bg-[#232B47] hover:bg-[#2A3349]'}`}
+              onClick={() => {
+                setActiveCouponId(coupon.coupons.coupon_id);
+                setSelected(coupon);
+              }}
             >
               <div className="w-[60px] h-[60px] md:w-[80px] md:h-[80px] bg-base-gray-100 rounded flex items-center justify-center text-white text-2xl md:text-3xl font-bold">
                 {coupon.coupons.image ? (

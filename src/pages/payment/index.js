@@ -1,4 +1,4 @@
-import PaymentMobile from '../../components/PaymentSystem/PaymentMobile';
+import PaymentMobile from '../../components/Coupon-PaymentCard/PaymentMobile';
 
 export default function PaymentPage() {
   return <PaymentMobile />;

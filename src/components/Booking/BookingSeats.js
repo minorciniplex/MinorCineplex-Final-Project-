@@ -29,21 +29,7 @@ function BookingSeats({ showtimeId, onSeatsChange, onPriceChange }) {
   // Handle client-side mounting
   useEffect(() => {
     setIsClient(true);
-
-    // Add debug function only on client side
-    if (typeof window !== "undefined") {
-      window.debugSeats = () => {
-        console.log("=== SEAT DEBUG INFO ===");
-        console.log("Showtime ID:", showtimeId);
-        console.log("Selected seats:", selectedSeats);
-        console.log("Is logged in:", isLoggedIn);
-        console.log("Subscription active:", !!subscriptionRef.current);
-        console.log("Polling active:", !!pollIntervalRef.current);
-        console.log("Current seats:", seats);
-        console.log("=== END DEBUG INFO ===");
-      };
-    }
-  }, [showtimeId, selectedSeats, isLoggedIn, seats]);
+  }, []);
 
   // Initialize component
   useEffect(() => {
@@ -107,8 +93,6 @@ function BookingSeats({ showtimeId, onSeatsChange, onPriceChange }) {
       if (!success) {
         console.warn("Real-time updates unavailable - falling back to polling");
         setupPollingFallback();
-      } else {
-        console.log("✅ Real-time subscription established successfully");
       }
     } catch (err) {
       console.error("Initialization error:", err);
@@ -173,7 +157,6 @@ function BookingSeats({ showtimeId, onSeatsChange, onPriceChange }) {
         selectedSeats
       );
 
-      console.log("Created complete seat layout:", completeSeatLayout);
       setSeats(completeSeatLayout);
     } catch (err) {
       console.warn("Could not load existing seats, creating available seats");
@@ -191,10 +174,6 @@ function BookingSeats({ showtimeId, onSeatsChange, onPriceChange }) {
         subscriptionRef.current = null;
       }
 
-      console.log(
-        `Setting up real-time subscription for showtime: ${showtimeId}`
-      );
-
       // Create a unique channel name
       const channelName = `seats_showtime_${showtimeId}`;
 
@@ -208,28 +187,17 @@ function BookingSeats({ showtimeId, onSeatsChange, onPriceChange }) {
             table: "seats",
             filter: `showtime_id=eq.${showtimeId}`,
           },
-          (payload) => {
-            console.log("🔥 Real-time seat update received:", payload);
-            handleRealtimeUpdate(payload);
-          }
+          handleRealtimeUpdate
         )
         .subscribe((status, err) => {
-          console.log("Subscription status:", status);
-          if (status === "SUBSCRIBED") {
-            console.log("✅ Successfully subscribed to seat updates");
-          } else if (status === "CLOSED") {
-            console.log("❌ Subscription closed");
-          } else if (status === "CHANNEL_ERROR") {
-            console.error("❌ Subscription error:", err);
-          } else if (status === "TIMED_OUT") {
-            console.error("❌ Subscription timed out");
+          if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+            console.error("Subscription error:", err);
           }
         });
 
       // Wait for subscription to establish
       return new Promise((resolve) => {
         const timeout = setTimeout(() => {
-          console.log("Subscription timeout - falling back to polling");
           resolve(false);
         }, 3000);
 
@@ -250,15 +218,12 @@ function BookingSeats({ showtimeId, onSeatsChange, onPriceChange }) {
   };
 
   const setupPollingFallback = () => {
-    console.log("🔄 Setting up polling fallback");
-
     if (pollIntervalRef.current) {
       clearInterval(pollIntervalRef.current);
     }
 
     pollIntervalRef.current = setInterval(async () => {
       try {
-        console.log("📡 Polling seats data...");
         const response = await axios.get(`/api/seats/${showtimeId}`);
         const existingSeats = response.data || [];
 
@@ -277,32 +242,25 @@ function BookingSeats({ showtimeId, onSeatsChange, onPriceChange }) {
 
   const handleRealtimeUpdate = (payload) => {
     const { eventType, new: newRecord, old: oldRecord } = payload;
-    
-    console.log("🔄 Processing real-time update:");
-    console.log("- Event:", eventType);
-    console.log("- New record:", newRecord);
-    console.log("- Old record:", oldRecord);
 
     const seatId = newRecord?.seat_id || oldRecord?.seat_id;
-    console.log("- Seat ID:", seatId);
 
     // Handle selectedSeats updates separately to avoid closure issues
     if (eventType === "INSERT" || eventType === "UPDATE") {
       const newStatus = newRecord?.seat_status;
-      
+
       // If seat becomes booked/reserved, remove it from selectedSeats
       if (newStatus === "booked" || newStatus === "reserved") {
         setSelectedSeats((currentSelectedSeats) => {
-          console.log("Current selected seats before update:", currentSelectedSeats);
-          
           if (currentSelectedSeats.includes(seatId)) {
-            console.log("⚠️ Removing locally selected seat", seatId, "because it's now", newStatus);
-            const newSelected = currentSelectedSeats.filter(id => id !== seatId);
+            const newSelected = currentSelectedSeats.filter(
+              (id) => id !== seatId
+            );
             saveLocalSelectedSeats(newSelected);
-            console.log("Updated selected seats:", newSelected);
+
             return newSelected;
           }
-          
+
           return currentSelectedSeats;
         });
       }
@@ -312,14 +270,12 @@ function BookingSeats({ showtimeId, onSeatsChange, onPriceChange }) {
     setSeats((currentSeats) => {
       const updatedSeats = [...currentSeats];
       const seatIndex = updatedSeats.findIndex((seat) => seat.id === seatId);
-      
-      console.log("- Found seat at index:", seatIndex);
 
       if (eventType === "INSERT" || eventType === "UPDATE") {
         if (seatIndex >= 0) {
           const currentSeat = updatedSeats[seatIndex];
           const newStatus = newRecord.seat_status;
-          
+
           // Always update the seat with the latest database status
           updatedSeats[seatIndex] = {
             ...currentSeat,
@@ -327,11 +283,9 @@ function BookingSeats({ showtimeId, onSeatsChange, onPriceChange }) {
             reserved_by: newRecord.reserved_by,
             reserved_until: newRecord.reserved_until,
           };
-          
-          console.log("✅ Updated seat", seatId, "to status:", newStatus);
         } else if (newRecord) {
           // Add new seat if it doesn't exist - map Supabase format to component format
-          console.log("➕ Adding new seat:", newRecord);
+
           updatedSeats.push({
             id: newRecord.seat_id,
             row: newRecord.row,
@@ -343,7 +297,6 @@ function BookingSeats({ showtimeId, onSeatsChange, onPriceChange }) {
           });
         }
       } else if (eventType === "DELETE" && seatIndex >= 0) {
-        console.log("🗑️ Seat deleted from database:", seatId);
         // Reset to available when deleted from database
         updatedSeats[seatIndex] = {
           ...updatedSeats[seatIndex],

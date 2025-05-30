@@ -15,11 +15,10 @@ export default function ShowTimes({ showtimes, date }) {
   const router = useRouter();
   const [movie, setMovie] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null); 
+  const [error, setError] = useState(null);
   /*   const [genrs, setGenrs] = useState(null);
   const [language, setLanguage] = useState(null); */
   const { movieId } = router.query;
-
 
   useEffect(() => {
     const fetchMovieDetails = async () => {

@@ -380,120 +380,120 @@ export const FrameByCinema = ({ filters, coupon_id, onError }) => {
             </button>
           </div>
 
-        {/* Movie Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 w-full">
-          {loading ? (
-            <div className="col-span-full text-center text-base-gray-400 py-10">
-              Loading...
-            </div>
-          ) : (activeTab === "now-showing"
-              ? nowShowingMovies
-              : comingSoonMovies
-            )?.slice(startIndex, endIndex).length === 0 ? (
-            <div className="col-span-full text-center text-base-gray-400 py-10">
-              No movies found.
-            </div>
-          ) : (
-            (activeTab === "now-showing" ? nowShowingMovies : comingSoonMovies)
-              ?.slice(startIndex, endIndex)
-              .map((movie) => (
-                <div
-                  key={movie.movie_id || movie.id}
-                  className="flex flex-col items-start gap-3 md:gap-4 group cursor-pointer"
-                >
+          {/* Movie Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 w-full">
+            {loading ? (
+              <div className="col-span-full text-center text-base-gray-400 py-10">
+                Loading...
+              </div>
+            ) : (activeTab === "now-showing"
+                ? nowShowingMovies
+                : comingSoonMovies
+              )?.slice(startIndex, endIndex).length === 0 ? (
+              <div className="col-span-full text-center text-base-gray-400 py-10">
+                No movies found.
+              </div>
+            ) : (
+              (activeTab === "now-showing" ? nowShowingMovies : comingSoonMovies)
+                ?.slice(startIndex, endIndex)
+                .map((movie) => (
                   <div
-                    className="w-[150px] h-[225px]  md:w-[285px] md:h-[416px] rounded-[4px] bg-cover bg-center shadow-md mx-auto transition-transform duration-300 group-hover:scale-105"
-                    style={{
-                      backgroundImage: `url(${
-                        movie.poster_url || movie.poster
-                      })`,
-                    }}
-                    onClick={() =>
-                      router.push(
-                        `/booking/movies-detail/${movie.movie_id || movie.id}`
-                      )
-                    }
-                  />
-                  <div className="flex flex-col items-start w-full">
-                    <div className="flex items-center justify-between w-full">
-                      <span className="text-base-gray-300 body-2-regular flex items-center">
-                        {movie.release_date || movie.date}
-                      </span>
-                      <div className="flex items-center">
-                        <StarFillIcon className="w-4 h-4 fill-[#4E7BEE] text-[#4E7BEE]" />
-                        <span className="text-base-gray-300 body-2-regular ml-1 flex items-center">
-                          {movie.rating !== undefined && movie.rating !== null ? Number(movie.rating).toFixed(1) : ''}
-                        </span>
-                      </div>
-                    </div>
-                    <h3
-                      className="text-basewhite font-bold truncate max-w-full md:headline-4 group-hover:text-brandblue-100 transition-colors duration-200"
+                    key={movie.movie_id || movie.id}
+                    className="flex flex-col items-start gap-3 md:gap-4 group cursor-pointer w-[161px] min-h-[385px] md:w-[285px] md:min-h-[416px]"
+                  >
+                    <div
+                      className="w-[161px] h-[235px] md:w-[285px] md:h-[416px] rounded-[4px] bg-cover bg-center shadow-md mx-auto transition-transform duration-300 group-hover:scale-105"
+                      style={{
+                        backgroundImage: `url(${
+                          movie.poster_url || movie.poster
+                        })`,
+                      }}
                       onClick={() =>
                         router.push(
                           `/booking/movies-detail/${movie.movie_id || movie.id}`
                         )
                       }
-                    >
-                      {movie.title}
-                    </h3>
-                  </div>
-                  <div className="flex flex-wrap items-start gap-2">
-                    {/* Genres */}
-                    {movieGenresMap[movie.movie_id]?.map((genre, idx) => (
-                      <span
-                        key={movie.movie_id + "-" + genre}
-                        className="px-3 py-1.5 bg-base-gray-100 text-base-gray-300 body-2-regular rounded"
+                    />
+                    <div className="flex flex-col items-start w-full">
+                      <div className="flex items-center justify-between w-full">
+                        <span className="text-base-gray-300 body-2-regular flex items-center">
+                          {formatDate(movie.release_date || movie.date)}
+                        </span>
+                        <div className="flex items-center">
+                          <StarFillIcon className="w-4 h-4 fill-[#4E7BEE] text-[#4E7BEE]" />
+                          <span className="text-base-gray-300 body-2-regular ml-1 flex items-center">
+                            {movie.rating !== undefined && movie.rating !== null ? Number(movie.rating).toFixed(1) : ''}
+                          </span>
+                        </div>
+                      </div>
+                      <h3
+                        className="text-basewhite font-bold truncate max-w-full text-lg md:text-[22.5px] group-hover:text-brandblue-100 transition-colors duration-200"
+                        onClick={() =>
+                          router.push(
+                            `/booking/movies-detail/${movie.movie_id || movie.id}`
+                          )
+                        }
                       >
-                        {genre}
-                      </span>
-                    ))}
-                    {/* Languages */}
-                    {(() => {
-                      const langs = movieLangMap[movie.movie_id] || [];
-                      const original = langs.find((l) => l.type === "original");
-                      const dubbed = langs.find((l) => l.type === "dubbed");
-                      if (dubbed && original) {
-                        return (
-                          <span
-                            key={
-                              movie.movie_id + "-" + original.code + "-dubbed"
-                            }
-                            className="px-3 py-1.5 bg-base-gray-100 text-base-gray-400 body-2-regular rounded"
-                          >
-                            TH/{original.code}
-                          </span>
-                        );
-                      } else if (original) {
-                        return (
-                          <span
-                            key={
-                              movie.movie_id + "-" + original.code + "-original"
-                            }
-                            className="px-3 py-1.5 bg-base-gray-100 text-base-gray-400 body-2-regular rounded"
-                          >
-                            {original.code}
-                          </span>
-                        );
-                      } else if (dubbed) {
-                        return (
-                          <span
-                            key={
-                              movie.movie_id + "-" + dubbed.code + "-dubbedonly"
-                            }
-                            className="px-3 py-1.5 bg-base-gray-100 text-base-gray-300 body-2-regular rounded"
-                          >
-                            {dubbed.code}
-                          </span>
-                        );
-                      } else {
-                        return null;
-                      }
-                    })()}
+                        {movie.title}
+                      </h3>
+                    </div>
+                    <div className="flex flex-wrap items-start gap-2">
+                      {/* Genres */}
+                      {movieGenresMap[movie.movie_id]?.map((genre, idx) => (
+                        <span
+                          key={movie.movie_id + "-" + genre}
+                          className="px-3 py-1.5 bg-base-gray-100 text-base-gray-300 body-2-regular rounded"
+                        >
+                          {genre}
+                        </span>
+                      ))}
+                      {/* Languages */}
+                      {(() => {
+                        const langs = movieLangMap[movie.movie_id] || [];
+                        const original = langs.find((l) => l.type === "original");
+                        const dubbed = langs.find((l) => l.type === "dubbed");
+                        if (dubbed && original) {
+                          return (
+                            <span
+                              key={
+                                movie.movie_id + "-" + original.code + "-dubbed"
+                              }
+                              className="px-3 py-1.5 bg-base-gray-100 text-base-gray-400 body-2-regular rounded"
+                            >
+                              TH/{original.code}
+                            </span>
+                          );
+                        } else if (original) {
+                          return (
+                            <span
+                              key={
+                                movie.movie_id + "-" + original.code + "-original"
+                              }
+                              className="px-3 py-1.5 bg-base-gray-100 text-base-gray-400 body-2-regular rounded"
+                            >
+                              {original.code}
+                            </span>
+                          );
+                        } else if (dubbed) {
+                          return (
+                            <span
+                              key={
+                                movie.movie_id + "-" + dubbed.code + "-dubbedonly"
+                              }
+                              className="px-3 py-1.5 bg-base-gray-100 text-base-gray-300 body-2-regular rounded"
+                            >
+                              {dubbed.code}
+                            </span>
+                          );
+                        } else {
+                          return null;
+                        }
+                      })()}
+                    </div>
                   </div>
-                </div>
-              ))
-          )}
-        </div>
+                ))
+            )}
+          </div>
 
           {/* Pagination */}
           <div className="flex items-center gap-2 pagination mt-5 md:mt-5">

@@ -170,6 +170,7 @@ export default function MovieDetail() {
             onSearch={handleCinemaSearch}
             value={cinemaName}
             onChange={(e) => setCinemaName(e.target.value)}
+            
           />
           <Select
             value={cityName}

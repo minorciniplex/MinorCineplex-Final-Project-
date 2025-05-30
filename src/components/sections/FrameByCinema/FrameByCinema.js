@@ -704,6 +704,7 @@ export const FrameByCinema = ({ filters, coupon_id, onError }) => {
         </div>
       </div>
     </section>
+    </>
   );
 };
 

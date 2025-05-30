@@ -14,7 +14,7 @@ export default function CouponSelectPopup({ open, coupons, onClose, onApply }) {
   const [selected, setSelected] = useState(null);
   const [activeCouponId, setActiveCouponId] = useState(null);
   const router = useRouter();
-  
+  console.log(coupons);
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center">

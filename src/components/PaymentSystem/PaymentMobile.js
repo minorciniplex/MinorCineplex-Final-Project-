@@ -25,7 +25,7 @@ export default function PaymentMobile() {
   const userId = "mock-user-id"; // TODO: เปลี่ยนเป็น user id จริง
   const { couponsInWallet, loading: loadingCoupons } = useCouponWallet(userId);
   const selectedCoupon = couponsInWallet.find(c => c.coupons.coupon_id === selectedCouponId);
-
+  console.log(selectedCoupon);
   // ฟังก์ชันเมื่อกด Next
   const handleNext = () => {
     alert('Next Clicked!');
@@ -196,8 +196,7 @@ export default function PaymentMobile() {
           <SumPaymentDiscount
             seats={Array.isArray(movie?.seats) ? movie.seats : ["C9", "C10"]}
             paymentMethod={tab === 'credit' ? 'Credit card' : 'QR Code'}
-            coupon={selectedCoupon ? { label: '-THB50', color: 'text-brand-red' } : null}
-            total={movie?.total || "THB300"}
+            coupon={selectedCoupon}
             onNext={handleNext}
           />
         </div>

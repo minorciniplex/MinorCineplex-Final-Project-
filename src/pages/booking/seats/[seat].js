@@ -2,9 +2,14 @@ import BookingCard from "@/components/Booking/BookingCard";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar/Navbar";
+<<<<<<< HEAD
 import BookingSeats from "@/components/Booking/BookingSeats";
 import StepProgressBar from "@/components/Booking/StepProgressBar";
 /* import SeatLayout from "@/components/Booking/SeatLayout"; */
+=======
+import StepProgressBar from "@/components/Booking/StepProgressBar";
+import SeatLayout from "@/components/Booking/SeatLayout";
+>>>>>>> 4b5e3f7 (feat: Enhance booking page layout with StepProgressBar and SeatLayout components)
 
 export default function Seats() {
   const router = useRouter();
@@ -27,6 +32,7 @@ const [sumPrice, setSumPrice] = useState(0);
     <>
       <Navbar />
       <StepProgressBar />
+<<<<<<< HEAD
       <BookingSeats setBookingSeat={setBookingSeat} setSumPrice={setSumPrice} />
       <BookingCard
         time={time}
@@ -42,6 +48,21 @@ const [sumPrice, setSumPrice] = useState(0);
       />
       
 
+=======
+      <div className="flex flex-row sm:py-20 sm:px-[120px] gap-[102px]">
+        <SeatLayout />
+        <BookingCard
+          time={time}
+          cinemaName={cinemaName}
+          screenNumber={screenNumber}
+          poster={poster}
+          title={title}
+          genres={genres}
+          language={language}
+          date={date}
+        />
+      </div>
+>>>>>>> 4b5e3f7 (feat: Enhance booking page layout with StepProgressBar and SeatLayout components)
     </>
   );
 }

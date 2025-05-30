@@ -12,6 +12,7 @@ function BookingSeats({ showtimeId, onSeatsChange, onPriceChange }) {
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isClient, setIsClient] = useState(false);
 
   // Use StatusContext instead of local auth state
   const { isLoggedIn, user, loading: authLoading } = useStatus();
@@ -25,19 +26,36 @@ function BookingSeats({ showtimeId, onSeatsChange, onPriceChange }) {
   const SEATS_PER_ROW = 10;
   const PRICE_PER_SEAT = 150; // THB150
 
+  // Handle client-side mounting
+  useEffect(() => {
+    setIsClient(true);
+
+    // Add debug function only on client side
+    if (typeof window !== "undefined") {
+      window.debugSeats = () => {
+        console.log("=== SEAT DEBUG INFO ===");
+        console.log("Showtime ID:", showtimeId);
+        console.log("Selected seats:", selectedSeats);
+        console.log("Is logged in:", isLoggedIn);
+        console.log("Subscription active:", !!subscriptionRef.current);
+        console.log("Polling active:", !!pollIntervalRef.current);
+        console.log("Current seats:", seats);
+        console.log("=== END DEBUG INFO ===");
+      };
+    }
+  }, [showtimeId, selectedSeats, isLoggedIn, seats]);
+
   // Initialize component
   useEffect(() => {
-    if (showtimeId && !authLoading) {
-      // Wait for auth to load
+    if (showtimeId && !authLoading && isClient) {
       initializeSeats();
-      // Load any previously selected seats for unauthenticated users
       loadLocalSelectedSeats();
     }
 
     return () => {
       cleanup();
     };
-  }, [showtimeId, authLoading]); // Add authLoading dependency
+  }, [showtimeId, authLoading, isClient]);
 
   const cleanup = () => {
     if (subscriptionRef.current) {
@@ -81,11 +99,16 @@ function BookingSeats({ showtimeId, onSeatsChange, onPriceChange }) {
       // Load seats first
       await loadSeats();
 
+      // Clean up any existing subscription/polling
+      cleanup();
+
       // Try to set up real-time updates
-      const { success: realtimeSuccess } = await setupRealtimeSubscription();
-      if (!realtimeSuccess) {
+      const success = await setupRealtimeSubscription();
+      if (!success) {
         console.warn("Real-time updates unavailable - falling back to polling");
         setupPollingFallback();
+      } else {
+        console.log("✅ Real-time subscription established successfully");
       }
     } catch (err) {
       console.error("Initialization error:", err);
@@ -95,60 +118,85 @@ function BookingSeats({ showtimeId, onSeatsChange, onPriceChange }) {
     }
   };
 
+  // Helper function to create the complete seat layout while preserving local selections
+  const createCompleteSeatLayout = (
+    existingSeats = [],
+    preserveSelectedSeats = []
+  ) => {
+    const seatLayout = [];
+
+    // Create a map of existing seats for quick lookup
+    const existingSeatMap = existingSeats.reduce((map, seat) => {
+      map[seat.id] = seat;
+      return map;
+    }, {});
+
+    // Generate all seats for all rows
+    for (let rowIndex = 0; rowIndex < ROWS.length; rowIndex++) {
+      const rowLabel = ROWS[rowIndex];
+      for (let seat = 0; seat < SEATS_PER_ROW; seat++) {
+        const seatId = `${rowLabel}${seat + 1}`;
+
+        // Use existing seat data if available, otherwise create available seat
+        const existingSeat = existingSeatMap[seatId];
+        if (existingSeat) {
+          // If seat exists in database, use its status (booked/reserved)
+          seatLayout.push(existingSeat);
+        } else {
+          // For seats not in database, check if they're locally selected
+          const isLocallySelected = preserveSelectedSeats.includes(seatId);
+          seatLayout.push({
+            id: seatId,
+            row: rowLabel,
+            number: seat + 1,
+            status: isLocallySelected ? "selected" : "available",
+            reserved_by: null,
+            reserved_until: null,
+            showtime_id: showtimeId,
+          });
+        }
+      }
+    }
+
+    return seatLayout;
+  };
+
   const loadSeats = async () => {
     try {
       const response = await axios.get(`/api/seats/${showtimeId}`);
 
-      if (!response.data || response.data.length === 0) {
-        console.log(
-          "No seats found for this showtime, initializing empty seats"
-        );
-        initializeEmptySeats();
-        return;
-      }
+      // Always create complete seat layout, merging with existing data
+      // and preserving currently selected seats
+      const existingSeats = response.data || [];
+      const completeSeatLayout = createCompleteSeatLayout(
+        existingSeats,
+        selectedSeats
+      );
 
-      setSeats(response.data);
+      console.log("Created complete seat layout:", completeSeatLayout);
+      setSeats(completeSeatLayout);
     } catch (err) {
-      console.warn("Could not load existing seats, initializing empty seats");
-      initializeEmptySeats();
+      console.warn("Could not load existing seats, creating available seats");
+      // If API call fails, create all seats as available but preserve selections
+      const completeSeatLayout = createCompleteSeatLayout([], selectedSeats);
+      setSeats(completeSeatLayout);
     }
-  };
-
-  const initializeEmptySeats = () => {
-    const seatLayout = [];
-    for (let rowIndex = 0; rowIndex < ROWS.length; rowIndex++) {
-      const rowLabel = ROWS[rowIndex];
-      for (let seat = 0; seat < SEATS_PER_ROW; seat++) {
-        seatLayout.push({
-          id: `${rowLabel}${seat + 1}`,
-          row: rowLabel,
-          number: seat + 1,
-          status: "available",
-          reserved_by: null,
-          reserved_until: null,
-          showtime_id: showtimeId,
-        });
-      }
-    }
-    console.log("Created seat layout:", seatLayout);
-    setSeats(seatLayout);
   };
 
   const setupRealtimeSubscription = async () => {
     try {
-      // Use your existing auth state instead of checking Supabase directly
-      const needsAuth = !isLoggedIn;
+      // Clean up any existing subscription first
+      if (subscriptionRef.current) {
+        await subscriptionRef.current.unsubscribe();
+        subscriptionRef.current = null;
+      }
 
       console.log(
-        needsAuth
-          ? "No authenticated session - using public subscription"
-          : "Using authenticated subscription"
+        `Setting up real-time subscription for showtime: ${showtimeId}`
       );
 
-      // Use public channel for unauthenticated users
-      const channelName = needsAuth
-        ? `seats_public_${showtimeId}`
-        : `seats_${showtimeId}`;
+      // Create a unique channel name
+      const channelName = `seats_showtime_${showtimeId}`;
 
       subscriptionRef.current = supabase
         .channel(channelName)
@@ -161,61 +209,142 @@ function BookingSeats({ showtimeId, onSeatsChange, onPriceChange }) {
             filter: `showtime_id=eq.${showtimeId}`,
           },
           (payload) => {
-            console.log("Real-time seat update:", payload);
+            console.log("🔥 Real-time seat update received:", payload);
             handleRealtimeUpdate(payload);
           }
         )
         .subscribe((status, err) => {
+          console.log("Subscription status:", status);
           if (status === "SUBSCRIBED") {
-            console.log("Successfully subscribed to seat updates");
+            console.log("✅ Successfully subscribed to seat updates");
           } else if (status === "CLOSED") {
-            console.log("Subscription closed");
+            console.log("❌ Subscription closed");
           } else if (status === "CHANNEL_ERROR") {
-            console.error("Subscription error:", err);
-            setupPollingFallback();
+            console.error("❌ Subscription error:", err);
+          } else if (status === "TIMED_OUT") {
+            console.error("❌ Subscription timed out");
           }
         });
 
-      return { success: true, needsAuth };
+      // Wait for subscription to establish
+      return new Promise((resolve) => {
+        const timeout = setTimeout(() => {
+          console.log("Subscription timeout - falling back to polling");
+          resolve(false);
+        }, 3000);
+
+        const checkSubscription = () => {
+          if (subscriptionRef.current?.state === "joined") {
+            clearTimeout(timeout);
+            resolve(true);
+          } else {
+            setTimeout(checkSubscription, 100);
+          }
+        };
+        checkSubscription();
+      });
     } catch (error) {
       console.error("Error setting up real-time subscription:", error);
-      return { success: false, needsAuth: true };
+      return false;
     }
   };
 
   const setupPollingFallback = () => {
+    console.log("🔄 Setting up polling fallback");
+
     if (pollIntervalRef.current) {
       clearInterval(pollIntervalRef.current);
     }
 
     pollIntervalRef.current = setInterval(async () => {
       try {
+        console.log("📡 Polling seats data...");
         const response = await axios.get(`/api/seats/${showtimeId}`);
-        if (response.data) {
-          setSeats(response.data);
-        }
+        const existingSeats = response.data || [];
+
+        // Preserve current selections when polling
+        setSeats((currentSeats) => {
+          const currentSelectedSeats = currentSeats
+            .filter((seat) => seat.status === "selected")
+            .map((seat) => seat.id);
+          return createCompleteSeatLayout(existingSeats, currentSelectedSeats);
+        });
       } catch (error) {
-        console.error("Polling error:", error);
+        console.error("❌ Polling error:", error);
       }
-    }, 5000); // Poll every 5 seconds
+    }, 2000); // Poll every 2 seconds
   };
 
   const handleRealtimeUpdate = (payload) => {
     const { eventType, new: newRecord, old: oldRecord } = payload;
+    
+    console.log("🔄 Processing real-time update:");
+    console.log("- Event:", eventType);
+    console.log("- New record:", newRecord);
+    console.log("- Old record:", oldRecord);
 
+    const seatId = newRecord?.seat_id || oldRecord?.seat_id;
+    console.log("- Seat ID:", seatId);
+
+    // Handle selectedSeats updates separately to avoid closure issues
+    if (eventType === "INSERT" || eventType === "UPDATE") {
+      const newStatus = newRecord?.seat_status;
+      
+      // If seat becomes booked/reserved, remove it from selectedSeats
+      if (newStatus === "booked" || newStatus === "reserved") {
+        setSelectedSeats((currentSelectedSeats) => {
+          console.log("Current selected seats before update:", currentSelectedSeats);
+          
+          if (currentSelectedSeats.includes(seatId)) {
+            console.log("⚠️ Removing locally selected seat", seatId, "because it's now", newStatus);
+            const newSelected = currentSelectedSeats.filter(id => id !== seatId);
+            saveLocalSelectedSeats(newSelected);
+            console.log("Updated selected seats:", newSelected);
+            return newSelected;
+          }
+          
+          return currentSelectedSeats;
+        });
+      }
+    }
+
+    // Update seats array
     setSeats((currentSeats) => {
       const updatedSeats = [...currentSeats];
-      const seatIndex = updatedSeats.findIndex(
-        (seat) => seat.id === (newRecord?.id || oldRecord?.id)
-      );
+      const seatIndex = updatedSeats.findIndex((seat) => seat.id === seatId);
+      
+      console.log("- Found seat at index:", seatIndex);
 
       if (eventType === "INSERT" || eventType === "UPDATE") {
         if (seatIndex >= 0) {
-          updatedSeats[seatIndex] = newRecord;
-        } else {
-          updatedSeats.push(newRecord);
+          const currentSeat = updatedSeats[seatIndex];
+          const newStatus = newRecord.seat_status;
+          
+          // Always update the seat with the latest database status
+          updatedSeats[seatIndex] = {
+            ...currentSeat,
+            status: newStatus,
+            reserved_by: newRecord.reserved_by,
+            reserved_until: newRecord.reserved_until,
+          };
+          
+          console.log("✅ Updated seat", seatId, "to status:", newStatus);
+        } else if (newRecord) {
+          // Add new seat if it doesn't exist - map Supabase format to component format
+          console.log("➕ Adding new seat:", newRecord);
+          updatedSeats.push({
+            id: newRecord.seat_id,
+            row: newRecord.row,
+            number: newRecord.seat_number,
+            status: newRecord.seat_status,
+            reserved_by: newRecord.reserved_by,
+            reserved_until: newRecord.reserved_until,
+            showtime_id: newRecord.showtime_id,
+          });
         }
       } else if (eventType === "DELETE" && seatIndex >= 0) {
+        console.log("🗑️ Seat deleted from database:", seatId);
+        // Reset to available when deleted from database
         updatedSeats[seatIndex] = {
           ...updatedSeats[seatIndex],
           status: "available",
@@ -263,7 +392,6 @@ function BookingSeats({ showtimeId, onSeatsChange, onPriceChange }) {
     saveLocalSelectedSeats(newSelectedSeats);
 
     // If user is authenticated, you might want to save selections to server
-    // This is optional depending on your requirements
     if (isLoggedIn) {
       try {
         // Optional: Save selection to server for authenticated users
@@ -316,13 +444,13 @@ function BookingSeats({ showtimeId, onSeatsChange, onPriceChange }) {
         canProceed: canProceedToBooking,
       });
     }
-  }, [selectedSeats]); // Only depend on selectedSeats
+  }, [selectedSeats, isLoggedIn]);
 
   useEffect(() => {
     if (onPriceChange) {
       onPriceChange(selectedSeats.length * PRICE_PER_SEAT);
     }
-  }, [selectedSeats]); // Only depend on selectedSeats
+  }, [selectedSeats]);
 
   // Clear local storage when user authenticates
   useEffect(() => {
@@ -331,26 +459,38 @@ function BookingSeats({ showtimeId, onSeatsChange, onPriceChange }) {
     }
   }, [isLoggedIn, showtimeId]);
 
+  // FIXED: Updated getSeatStatus function to handle race conditions properly
   const getSeatStatus = (seat) => {
     if (!seat) return "available";
 
-    // Override status for locally selected seats (for unauthenticated users)
-    if (!isLoggedIn && selectedSeats.includes(seat.id)) {
+    // CRITICAL FIX: Always prioritize database status for booked/reserved seats
+    // regardless of authentication status
+    if (seat.status === "booked" || seat.status === "reserved") {
+      return seat.status;
+    }
+
+    // If seat is locally selected and not booked/reserved, show as selected
+    if (selectedSeats.includes(seat.id)) {
       return "selected";
     }
 
-    return seat.status;
+    // Otherwise show available
+    return "available";
   };
 
-  // Show loading while auth is being checked
-  if (authLoading || loading) {
+  // Show loading while auth is being checked or component is mounting
+  if (!isClient || authLoading || loading) {
     return (
       <div className="w-full">
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
             <p className="mt-4 text-gray-300">
-              {authLoading ? "Checking authentication..." : "Loading seats..."}
+              {!isClient
+                ? "Initializing..."
+                : authLoading
+                ? "Checking authentication..."
+                : "Loading seats..."}
             </p>
           </div>
         </div>

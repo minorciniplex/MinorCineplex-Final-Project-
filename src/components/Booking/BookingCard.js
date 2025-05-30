@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import {useStatus} from "@/context/StatusContext";
+import useCountdown from "../../hooks/useCountdown";
 
 export default function BookingCard({
   time,
@@ -23,8 +24,9 @@ export default function BookingCard({
   movieId
 }) {
   const { isLoggedIn, user } = useStatus();
-
   const router = useRouter();
+  const { timeLeft, isTimerActive, formatTime, startTimer } = useCountdown();
+  console.log('BookingCard Timer State:', { timeLeft, isTimerActive });
   let genreArr = [];
   try {
     genreArr =
@@ -67,29 +69,39 @@ export default function BookingCard({
     });
   }
 
-  // const handleSumbit = () => {
-  //   // ตัวอย่างการ push ไปหน้าจองตั๋ว
+  const handleSumbit = () => {
+    console.log('Submit button clicked');
+    if (!isLoggedIn) {
+      console.log('User not logged in, redirecting to login page');
+      router.push("/auth/login");
+      return;
+    }
+    console.log('Starting timer before navigation');
+    startTimer();
+    const query = new URLSearchParams({
+      poster: poster,  
+      title: title,
+      time: time,
+      date: date,
+      screenNumber: screenNumber,
+      genres: JSON.stringify(genres),
+      language: JSON.stringify(language),
+      cinemaName: cinemaName,
+      seat: JSON.stringify(seat),
+      price: price,
+      timeLeft: timeLeft,
+      isTimerActive: isTimerActive,
+      formatTime: formatTime.toString()
+    }).toString();
 
+    console.log('Navigation parameters:', {
+      timeLeft,
+      isTimerActive,
+      formattedTime: formatTime(timeLeft)
+    });
 
-  //   if (!isLoggedIn) {
-  //     router.push("/auth/login");
-  //     return;
-  //   }
-  //   const query = new URLSearchParams({
-  //     poster: poster,
-  //     title: title,
-  //     time: time,
-  //     date: date,
-  //     screenNumber: screenNumber,
-  //     genres: JSON.stringify(genres), // แปลง object เป็น string
-  //     language: JSON.stringify(language),
-  //     cinemaName: cinemaName,
-  //     seat: JSON.stringify(seat),
-  //     price: price,
-  //   }).toString();
-
-  //   router.push(`/booking/seats/payment/payment?${query}`);
-  // };
+    router.push(`/booking/seats/payment/payment?${query}`);
+  };
 
   return (
     <>

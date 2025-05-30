@@ -4,7 +4,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import Image from 'next/image';
 import MovieInfoCard from "./MovieInfoCard";
 import { useMovieDetail } from '@/hooks/useMovieDetail';
-import SumPaymentDiscount from './SumPaymentDiscount';
+
 import CouponDiscount from './CouponDiscount';
 import { useMyCoupons } from '@/hooks/useMyCoupons';
 import CouponSelectPopup from './CouponSelectPopup';

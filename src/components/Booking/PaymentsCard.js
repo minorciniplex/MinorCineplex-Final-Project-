@@ -3,6 +3,7 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
 import CouponPaymentCard from "../Coupon-PaymentCard/PaymentMobile";
+
 export default function PaymentsCard({
   time,
   screenNumber,
@@ -14,7 +15,17 @@ export default function PaymentsCard({
   date,
   seat,
   price,
+  timeLeft,
+  isTimerActive
 }) {
+  console.log('PaymentsCard Props:', { timeLeft, isTimerActive });
+
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+
   // แปลง genres และ language ถ้ามาเป็น string
   let seatArr = [];
   try {
@@ -27,7 +38,7 @@ export default function PaymentsCard({
   } catch {
     seatArr = [];
   }
-  console.log(seatArr);
+  console.log('Seat Array:', seatArr);
   let genreArr = [];
   try {
     genreArr =
@@ -73,7 +84,22 @@ export default function PaymentsCard({
   return (
     <>
       <div className="flex justify-center items-center min-h-screen">
-        <div className="flex flex-col items-center w-[375px]  p-4 bg-[#18192b] rounded-lg shadow-md">
+        <div className="flex flex-col items-center w-[375px] p-4 bg-[#18192b] rounded-lg shadow-md">
+          {isTimerActive && (
+            <div className="w-full text-center mb-4 bg-[#2A2D3E] p-3 rounded-lg">
+              <div className="text-[#FF4B4B] text-lg font-semibold mb-1">
+                กรุณาชำระเงินภายใน
+              </div>
+              <div className="flex items-center justify-center gap-2">
+                <div className="bg-[#FF4B4B] text-white px-6 py-3 rounded-lg text-2xl font-bold">
+                  {formatTime(Number(timeLeft))}
+                </div>
+              </div>
+              <div className="text-[#C8CEDD] text-sm mt-2">
+                หากไม่ชำระเงินภายในเวลาที่กำหนด การจองจะถูกยกเลิกโดยอัตโนมัติ
+              </div>
+            </div>
+          )}
           <div className="flex items-center justify-center w-full h-16 rounded-t-lg">
             <img
               src={poster}
@@ -135,6 +161,7 @@ export default function PaymentsCard({
               <div className="flex flex-col justify-between items-center gap-2">
                 <CouponPaymentCard />
               </div>
+              <p>กรุณาชำระเงินภายในเวลาที่กำหนด {timeLeft} วินาที</p>
               </>
             )}
           </div>

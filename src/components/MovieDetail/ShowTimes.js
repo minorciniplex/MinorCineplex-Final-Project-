@@ -15,9 +15,8 @@ export default function ShowTimes({ showtimes, date }) {
   const router = useRouter();
   const [movie, setMovie] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null); 
+  const [error, setError] = useState(null);
   const { movieId } = router.query;
-
 
   useEffect(() => {
     const fetchMovieDetails = async () => {
@@ -50,16 +49,17 @@ export default function ShowTimes({ showtimes, date }) {
     fetchMovieDetails();
   }, [movieId]);
 
-useEffect(() => {
-  setOpenItems((prev) => {
-    const newKeys = showtimes.map((_, index) => `item-${index}`);
-    const added = newKeys.filter(key => !prev.includes(key));
-    return [...prev, ...added];
-  });
-}, [showtimes]);
+  useEffect(() => {
+    setOpenItems((prev) => {
+      const newKeys = showtimes.map((_, index) => `item-${index}`);
+      const added = newKeys.filter((key) => !prev.includes(key));
+      return [...prev, ...added];
+    });
+  }, [showtimes]);
 
+  console.log("Showtimes:", showtimes);
 
-  const handleSelect = ({ time, screenNumber, cinemaName, date}) => {
+  const handleSelect = ({ time, screenNumber, cinemaName, date }) => {
     // ตัวอย่างการ push ไปหน้าจองตั๋ว
     const query = new URLSearchParams({
       poster: movie.poster_url,
@@ -71,9 +71,8 @@ useEffect(() => {
       cinemaName,
       date,
       movieId: movieId,
-      showtimeId: showtimes[0].showtimeId
-
-
+      showtimeId: showtimes[0].showtimeId,
+      price: showtimes[0].screenPrices[screenNumber],
     }).toString();
 
     router.push(`/booking/seats/seat?${query}`);

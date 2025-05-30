@@ -44,6 +44,7 @@ export default async function handler(req, res) {
         date,
         screens!inner(
           screen_number,
+          price,
           cinemas!inner(
             name,
             facilities,
@@ -82,6 +83,7 @@ export default async function handler(req, res) {
         data.forEach((showtime) => {
           const cinemaName = showtime.screens.cinemas.name;
           const screenNumber = showtime.screens.screen_number;
+          const price = showtime.screens.price;
           const showtimeId = showtime.showtime_id;
           const facilities = showtime.screens.cinemas.facilities;
           const date = showtime.date;
@@ -94,10 +96,16 @@ export default async function handler(req, res) {
               date: date,
               showtimeId: showtimeId,
               screens: {},
+              screenPrices: {}, // ⬅️ add this to hold screenNumber → price
             });
           }
 
           const cinema = cinemaMap.get(key);
+
+          // Set price for the screenNumber only once
+          if (!cinema.screenPrices[screenNumber]) {
+            cinema.screenPrices[screenNumber] = price;
+          }
 
           if (!cinema.screens[screenNumber]) {
             cinema.screens[screenNumber] = [];
@@ -110,6 +118,7 @@ export default async function handler(req, res) {
 
         return Array.from(cinemaMap.values());
       };
+
       const showtimesGrouped = groupShowtimesByCinemaAndScreen(data);
 
       // Calculate total for pagination

@@ -24,17 +24,41 @@ function formatTime(timeStr) {
 }
 
 export default function MovieInfoCard({
-  title = "The Dark Knight",
-  genres = ["Action", "Crime", "TH"],
-  image = "https://res.cloudinary.com/dr2ijid6r/image/upload/v1746026694/How_to_Train_Your_Dragon_ei5n5w.jpg",
-  cinema = "Minor Cineplex Arkham",
-  date = "24 Jun 2024",
-  time = "16:30",
-  hall = "Hall 1",
-  languages = ["TH/EN"]
+  time,
+  screenNumber,
+  cinemaName,
+  poster,
+  title,
+  genres,
+  language,
+  date,
 }) {
+
+ let genreArr = [];
+  try {
+    genreArr = typeof genres === "string" ? JSON.parse(decodeURIComponent(genres)) : genres;
+  } catch {
+    genreArr = [];
+  }
+  let lang = "";
+  try {
+    lang = typeof language === "string" ? JSON.parse(decodeURIComponent(language)) : language;
+    if (typeof lang === "object" && lang?.name) lang = lang.name;
+
+  } catch {
+    lang = language;
+  }
+
+
+  if (typeof lang === "string" && lang.trim().toUpperCase() === "ENGLISH") lang = "EN";
+  if (typeof lang === "string" && lang.trim().toUpperCase() === "THAI") lang = "TH";
+  if (typeof lang === "string" && lang.trim().toUpperCase() === "CHINESE") lang = "CN";
+  if (typeof lang === "string" && lang.trim().toUpperCase() === "KOREAN") lang = "KR";
+  if (typeof lang === "string" && lang.trim().toUpperCase() === "JAPANESE") lang = "JP";
+
+
   return (
-    <div className="bg-[#070C1B] w-[375px] h-[336px] md:w-[305px] md:h-[336px] flex flex-col gap-[24px] shadow-md px-[16px] pt-[16px] pb-[24px]" style={{paddingRight: 16, paddingLeft: 16, paddingTop: 16, paddingBottom: 24}}>
+    <div className="bg-[#070C1B] w-screen max-w-none flex flex-col gap-4 shadow-md px-[16px] pt-[16px] pb-[24px] -mx-4">
       <div className="flex items-center gap-2">
         <span className="body-2-regular text-base-gray-300 text-sm">
           Time remaining: 
@@ -45,7 +69,7 @@ export default function MovieInfoCard({
       </div>
       <div className="flex gap-4 mt-[-10px]">
         <Image
-          src={image}
+          src={poster}
           alt={title}
           width={82.21}
           height={120}
@@ -54,12 +78,12 @@ export default function MovieInfoCard({
         <div className="flex-1 flex flex-col justify-center">
           <div className=" text-white headline-4 ">{title}</div>
           <div className="flex flex-wrap gap-2 mt-2">
-            {genres.map(g => (
+            {genreArr.map(g => (
               <span key={g} className="bg-base-gray-100 text-base-gray-300 text-xs px-3 py-1 rounded">{g}</span>
             ))}
-            {languages && languages.map(l => (
-              <span key={l} className="bg-base-gray-100 text-base-gray-400 text-xs px-3 py-1 rounded">{l}</span>
-            ))}
+            {lang && (
+              <span className="bg-base-gray-100 text-base-gray-400 text-xs px-3 py-1 rounded">{lang}</span>
+            )}
           </div>
         </div>
       </div>
@@ -83,4 +107,4 @@ export default function MovieInfoCard({
       </div>
     </div>
   );
-} 
+}

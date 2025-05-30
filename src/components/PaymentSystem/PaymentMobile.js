@@ -528,6 +528,7 @@ export default function PaymentMobile() {
         loading={confirmLoading}
         error={confirmError || qrError}
       />
+      
     </div>
   );
 }

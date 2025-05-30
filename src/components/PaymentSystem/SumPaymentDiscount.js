@@ -2,11 +2,28 @@ import Button from '../Button';
 import { useTestBooking } from '@/hooks/testBooking';
 import { useCoupon } from '@/hooks/useCoupon';
 import { useState, useEffect } from 'react';
+import CouponAlert from '../Coupons-components/CouponAlert';
 
 export default function SumPaymentDiscount({ coupon, onNext, disabled }) {
   const { data, loading: bookingLoading, error: bookingError } = useTestBooking();
   const { loading: couponLoading, error: couponError, discountAmount, checkCoupon, applyCoupon } = useCoupon();
   const [checkResult, setCheckResult] = useState(null);
+  const [showBookingError, setShowBookingError] = useState(false);
+  const [showCouponError, setShowCouponError] = useState(false);
+
+  // อัพเดท showBookingError เมื่อมี bookingError
+  useEffect(() => {
+    if (bookingError) {
+      setShowBookingError(true);
+    }
+  }, [bookingError]);
+
+  // อัพเดท showCouponError เมื่อมี couponError
+  useEffect(() => {
+    if (couponError) {
+      setShowCouponError(true);
+    }
+  }, [couponError]);
 
   // เช็คคูปองเมื่อมีการเลือกคูปอง
   useEffect(() => {
@@ -76,10 +93,6 @@ export default function SumPaymentDiscount({ coupon, onNext, disabled }) {
     return <div>กำลังโหลด...</div>;
   }
 
-  if (bookingError || couponError) {
-    return <div>เกิดข้อผิดพลาด: {bookingError?.message || couponError}</div>;
-  }
-
   const finalTotal = data?.booking?.total_price - (discountAmount || 0);
 
   return (
@@ -100,10 +113,24 @@ export default function SumPaymentDiscount({ coupon, onNext, disabled }) {
           <span className="text-white body-1-medium">{finalTotal || 0} บาท</span>
         </div>
       </div>
+      <CouponAlert 
+        open={showBookingError} 
+        onClose={() => setShowBookingError(false)}
+        text={bookingError?.message}
+        text_sub="กรุณาลองใหม่อีกครั้ง"
+        type="error"
+      />
+      <CouponAlert 
+        open={showCouponError} 
+        onClose={() => setShowCouponError(false)}
+        text={couponError}
+        text_sub="กรุณาเลือกคูปองใหม่อีกครั้ง"
+        type="error"
+      />
       <Button
         className="!w-full !h-[48px] !rounded-[4px] self-center mt-4"
         onClick={handleNext}
-        disabled={disabled || !data?.booking}
+        disabled={disabled || !data?.booking || !!couponError}
       >
         Next
       </Button>

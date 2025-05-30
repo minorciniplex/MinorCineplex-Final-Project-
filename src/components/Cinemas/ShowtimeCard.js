@@ -10,14 +10,13 @@ export default function ShowtimeCard({ showtimes, date }) {
   const [movies, setMovie] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  console.log(movies);
 
   useEffect(() => {
     const fetchMovieDetails = async () => {
       try {
         const controller = new AbortController();
         const response = await axios.get(
-          `/api/movies-detail/getMoviesDetail?id=${showtimes[0].id}`,
+          `/api/movies-detail/getMoviesDetail?id=${showtimes[0].movie_id}`,
           {
             signal: controller.signal,
             timeout: 10000,
@@ -43,9 +42,9 @@ export default function ShowtimeCard({ showtimes, date }) {
     fetchMovieDetails();
   }, []);
 
-  const handleSelect = ({ time, movie, date, hall }) => {
+  console.log("showtimes", showtimes);
+  const handleSelect = ({ time, movie, date, hall, showtime_id }) => {
     // ตัวอย่างการ push ไปหน้าจองตั๋ว
-    console.log(movie);
     const query = new URLSearchParams({
       poster: movie.posterUrl,
       title: movie.title,
@@ -55,8 +54,8 @@ export default function ShowtimeCard({ showtimes, date }) {
       genres: JSON.stringify(movies.movie_genre_mapping), // แปลง object เป็น string
       language: JSON.stringify(movies.original_language),
       cinemaName: movie.cinemaName,
-      showtimeId: movie.showtimeId,
-      movieId: movies.id,
+      showtimeId: showtime_id,
+      movieId: movie.movie_id,
       price: movie.prices[hall],
     }).toString();
 
@@ -68,7 +67,7 @@ export default function ShowtimeCard({ showtimes, date }) {
       <div className="space-y-6">
         {showtimes.map((movie) => (
           <div
-            key={movie?.id}
+            key={movie?.movie_id}
             className="bg-[var(--base-gray-0)] rounded-lg overflow-hidden"
           >
             <div className="flex flex-col md:flex-row gap-0">
@@ -95,7 +94,7 @@ export default function ShowtimeCard({ showtimes, date }) {
                       {/* Genre pills */}
                       {movie?.genre.split(", ").map((genre, index) => (
                         <span
-                          key={`${movie.id}-genre-${index}`}
+                          key={`${movie.movie_id}-genre-${index}`}
                           className="text-xs sm:text-sm bg-gray-800 text-gray-300 px-3 py-1.5 rounded-lg"
                         >
                           {genre}
@@ -111,7 +110,7 @@ export default function ShowtimeCard({ showtimes, date }) {
 
                     {/* Mobile only (inside the info block) */}
                     <Link
-                      href={`/movies/${movie?.id}`}
+                      href={`/movies/${movie?.movie_id}`}
                       className="inline-block text-base mt-6 md:hidden text-white underline hover:text-blue-500"
                     >
                       Movie detail
@@ -120,7 +119,7 @@ export default function ShowtimeCard({ showtimes, date }) {
 
                   {/* Desktop only (outside the info block) */}
                   <Link
-                    href={`/movies/${movie?.id}`}
+                    href={`/movies/${movie?.movie_id}`}
                     className="hidden md:inline-block text-base text-white underline hover:text-blue-500 mt-2"
                   >
                     Movie detail
@@ -129,33 +128,41 @@ export default function ShowtimeCard({ showtimes, date }) {
               </div>
 
               {/* Right Column: Only Halls & Showtimes */}
-              <div className="px-4 py-6 md:p-10 w-full">
-                {/* Halls & Showtimes */}
-                <div className="space-y-10 sm:space-y-14">
-                  {Object.entries(movie?.halls).map(([hall, times]) => (
-                    <div key={`${movie?.id}-${hall}`}>
+              <div className="space-y-10 sm:space-y-14">
+                {Object.entries(movie?.halls).map(([hall, timesArray]) => {
+                  // 1️⃣ Flatten times into an array of strings (as before)
+                  const formattedTimes = timesArray.map((t) => t.time);
+
+                  return (
+                    <div key={`${movie?.movie_id}-${hall}`}>
                       <h3 className="text-[var(--base-gray-400)] mb-4 text-xl sm:text-2xl">
                         {hall}
                       </h3>
                       <ShowtimeButtons
-                        times={times}
+                        times={formattedTimes}
                         date={date}
                         movie={movie}
                         hall={hall}
                         onSelect={({ time, movie, hall, date }) => {
+                          const showtimeObj = timesArray.find(
+                            (t) => t.time === time
+                          );
+                          const showtime_id = showtimeObj
+                            ? showtimeObj.showtime_id
+                            : null;
+
                           handleSelect({
                             time,
                             movie,
                             hall,
                             date,
+                            showtime_id, // Pass the ID along
                           });
-
-                          // คุณสามารถใส่โค้ดสำหรับ handle booking ได้ที่นี่
                         }}
                       />
                     </div>
-                  ))}
-                </div>
+                  );
+                })}
               </div>
             </div>
           </div>

@@ -60,7 +60,7 @@ useEffect(() => {
 
   console.log("Showtimes:", showtimes);
 
-  const handleSelect = ({ time, screenNumber, cinemaName, date }) => {
+  const handleSelect = ({ time, screenNumber, cinemaName, date, showtimeId }) => {
     // ตัวอย่างการ push ไปหน้าจองตั๋ว
     const query = new URLSearchParams({
       poster: movie.poster_url,
@@ -72,7 +72,7 @@ useEffect(() => {
       cinemaName,
       date,
       movieId: movieId,
-      showtimeId: showtimes[0].showtimeId,
+      showtimeId: showtimeId,
       price: showtimes[0].screenPrices[screenNumber],
     }).toString();
 
@@ -127,14 +127,13 @@ useEffect(() => {
                       <ShowtimeButtons
                         times={times}
                         date={date}
-                        screenNumber={screenNumber}
-                        cinemaName={cinema.name}
                         onSelect={(time) => {
                           handleSelect({
                             time,
                             screenNumber,
                             cinemaName: cinema.name,
-                            date: showtimes[0].date,
+                            date: cinema.date,
+                            showtimeId: cinema.showtimeId
                           });
                         }}
                       />

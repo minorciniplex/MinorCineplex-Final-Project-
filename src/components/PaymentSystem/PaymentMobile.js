@@ -264,28 +264,12 @@ export default function PaymentMobile() {
   });
   const expiryInputRef = useRef(null);
   const [openCouponPopup, setOpenCouponPopup] = useState(false);
-  const [selectedCoupon, setSelectedCoupon] = useState(null);
-  const [processing, setProcessing] = useState(false);
-  const [error, setError] = useState(null);
-  const [isCardComplete, setIsCardComplete] = useState(false);
-  const [openConfirmPopup, setOpenConfirmPopup] = useState(false);
-  const [confirmLoading, setConfirmLoading] = useState(false);
-  const [confirmError, setConfirmError] = useState(null);
-  const cardFormRef = useRef();
-  const [qrUrl, setQrUrl] = useState(null);
-  const [qrLoading, setQrLoading] = useState(false);
-  const [qrError, setQrError] = useState(null);
-  const [chargeId, setChargeId] = useState(null);
-  const [qrStatus, setQrStatus] = useState(null);
-
-  // ดึง bookingId จาก route, prop หรือ mock (ตัวอย่างนี้ใช้จริง)
-  const bookingId = "b260cb11-1f32-4fd0-9250-7c5a3f2a672e";
-  const { booking, loading } = useBookingDetail(bookingId);
-  console.log("booking", booking);
-
-  // ดึง userId จริง (ตัวอย่างนี้ใช้ user sanya bochoun)
-  const userId = "b16e32f8-86b8-4f74-bcbe-3c3d1472027a";
-  const { coupons, loading: loadingCoupons } = useMyCoupons(userId);
+  const [selectedCouponId, setSelectedCouponId] = useState(null);
+  const movie_id = "013b897b-3387-4b7f-ab23-45b78199020a";
+  const { movie, genres, languages, showtime, hall, cinema, loading } = useMovieDetail(movie_id);
+  const userId = "mock-user-id"; // TODO: เปลี่ยนเป็น user id จริง
+  const { couponsInWallet, loading: loadingCoupons } = useCouponWallet(userId);
+  const selectedCoupon = couponsInWallet.find(c => c.coupons.coupon_id === selectedCouponId);
 
   // ฟังก์ชันเมื่อกด Next
   const handleNext = (e) => {
@@ -507,34 +491,34 @@ export default function PaymentMobile() {
       {/*   <div className="flex flex-col items-center gap-0 w-full mt-8 md:w-auto md:mt-[-30px] px-0">
           <div className="w-full">
             <MovieInfoCard
-              title={data.movie_title}
-              genres={data.genres}
-              image={data.movie_poster}
-              cinema={data.cinema_name}
-              date={data.show_date}
-              time={data.show_time}
-              hall={data.hall}
-              languages={data.languages}
+              title={movie.title}
+              genres={genres}
+              image={movie.poster_url}
+              cinema={cinema?.name}
+              date={showtime?.date}
+              time={showtime?.start_time}
+              hall={hall?.screen_number}
             />
-            <CouponDiscount
-              coupon={data.coupon_name}
-              onSelectCoupon={() => setOpenCouponPopup(true)}
-            />
-            {openCouponPopup && (
-              <CouponSelectPopup open={openCouponPopup} onClose={() => setOpenCouponPopup(false)} coupons={[]} onApply={setSelectedCoupon} />
-            )}
-            <SumPaymentDiscount
-              seats={data.seat}
-              paymentMethod={data.payment_method}
-              coupon={data.coupon_name ? { label: `-THB${data.coupon_discount}`, color: 'text-brand-red' } : null}
-              total={data.total}
-              tab={tab}
-              card={card}
-              isCardComplete={isCardComplete}
-              onNext={handleNext}
-            />
-          </div>
-        </div> */}
+          ) : (
+            <div className="text-red-400 text-center">ไม่พบข้อมูลหนัง</div>
+          )}
+        </div>
+        <div className="px-4 md:px-0 mt-0">
+          <CouponDiscount 
+            coupon={selectedCoupon?.coupons?.title || "Not Found Coupon"}
+            onRemove={() => setSelectedCouponId(null)}
+            onSelectCoupon={() => setOpenCouponPopup(true)}
+          />
+        </div>
+        <div className="px-4 md:px-0 mt-0">
+          <SumPaymentDiscount
+            seats={Array.isArray(movie?.seats) ? movie.seats : ["C9", "C10"]}
+            paymentMethod={tab === 'credit' ? 'Credit card' : 'QR Code'}
+            coupon={selectedCoupon ? { label: '-THB50', color: 'text-brand-red' } : null}
+            total={movie?.total || "THB300"}
+            onNext={handleNext}
+          />
+        </div>
       </div>
       {/* mount popup confirm */}
       <ConfirmBookingPopup

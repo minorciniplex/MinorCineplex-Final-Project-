@@ -27,7 +27,8 @@ export default function Seats() {
     <>
       <Navbar />
       <StepProgressBar />
-      <BookingSeats setBookingSeat={setBookingSeat} setSumPrice={setSumPrice} />
+      <div className="flex flex-col sm:flex-row justify-center sm:py-[80px] sm:px-[120px] sm:gap-[102px]">
+        <BookingSeats setBookingSeat={setBookingSeat} setSumPrice={setSumPrice} />
       <BookingCard
         time={time}
         cinemaName={cinemaName}
@@ -42,6 +43,10 @@ export default function Seats() {
         showtimes={showtimes}
         movieId={movieId}
       />
+      
+
+
+      </div>
       
 
     </>

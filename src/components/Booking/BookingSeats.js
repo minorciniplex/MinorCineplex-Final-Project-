@@ -1,5 +1,8 @@
 import React, { use } from "react";
 import { useState, useEffect } from "react";
+import AvailableIcon from "../Seats/Seat_Available";
+import BookedIcon from "../Seats/Seat_Booked";
+import ReservedIcon from "../Seats/Seat_Reserved";
 
 // ตัวอย่างข้อมูลที่นั่ง (ควรรับจาก props หรือ API)
 // const seats = [
@@ -14,16 +17,58 @@ const seatStatusColor = {
 };
 
 function BookingSeats({
-  seats = [{ row: "A", seats: [{ number: 1, status: "available" }, { number: 2, status: "available" }, { number: 3, status: "booked" }] }
-, { row: "B", seats: [{ number: 1, status: "available" }, { number: 2, status: "reserved" }, { number: 3, status: "available" }] },
-  { row: "C", seats: [{ number: 1, status: "booked" }, { number: 2, status: "available" }, { number: 3, status: "available" }] },
-  { row: "D", seats: [{ number: 1, status: "booked" }, { number: 2, status: "booked" }, { number: 3, status: "available" }] },
-  { row: "E", seats: [{ number: 1, status: "available" }, { number: 2, status: "available" }, { number: 3, status: "available" }] },
-  { row: "F", seats: [{ number: 1, status: "available" }, { number: 2, status: "available" }, { number: 3, status: "available" }] },
-  { row: "G", seats: [{ number: 1, status: "available" }, { number: 2, status: "available" }, { number: 3, status: "available" }] },
-  { row: "H", seats: [{ number: 1, status: "available" }, { number: 2, status: "available" }, { number: 3, status: "available" }] }],
-
-
+  seats = [
+    {
+      row: "A",
+      seats: [
+        { number: "1", status: "available" },
+        { number: "2", status: "available" },
+        { number: "3", status: "booked" },
+        { number: "4", status: "booked" },
+        { number: "5", status: "available" },
+      ],
+    },
+    {
+      row: "B",
+      seats: [
+        { number: "1", status: "available" },
+        { number: "2", status: "reserved" },
+        { number: "3", status: "available" },
+        { number: "4", status: "available" },
+        { number: "5", status: "available" },
+      ],
+    },
+    {
+      row: "C",
+      seats: [
+        { number: "1", status: "available" },
+        { number: "2", status: "available" },
+        { number: "3", status: "available" },
+        { number: "4", status: "booked" },
+        { number: "5", status: "available" },
+      ],
+    },
+    {
+      row: "D",
+      seats: [
+        { number: "1", status: "available" },
+        { number: "2", status: "available" },
+        { number: "3", status: "reserved" },
+        { number: "4", status: "available" },
+        { number: "5", status: "booked" },
+      ],
+    },
+    {
+      row: "E",
+      seats: [
+        { number: "1", status: "available" },
+        { number: "2", status: "available" },
+        { number: "3", status: "available" },
+        { number: "4", status: "available" },
+        { number: "5", status: "available" },
+      ],
+    },
+  ], // ตัวอย่างข้อมูลที่นั่ง
 
   selectedSeats = ["A1"], // ที่นั่งที่ถูกเลือก
   onSelect = () => {},
@@ -32,14 +77,12 @@ function BookingSeats({
   setBookingSeat,
   setSumPrice,
 }) {
-
- useEffect(() => {
+  useEffect(() => {
     // อัพเดทที่นั่งที่ถูกเลือก
     setBookingSeat(selectedSeats);
     // คำนวณราคารวม
     setSumPrice(selectedSeats.length * priceTest);
   }, []);
-
 
   // Helper เช็คว่า seat ถูกเลือก
   const isSelected = (row, number) =>
@@ -60,30 +103,92 @@ function BookingSeats({
     onSelect(newSelected);
   };
 
+  const seatIcon = {
+    available: <AvailableIcon />,
+    booked: <BookedIcon />,
+    reserved: <ReservedIcon />,
+    selected: <AvailableIcon />, // หรือจะเปลี่ยน icon สำหรับ selected ก็ได้
+  };
+
   return (
-    <div className="flex flex-col items-center gap-4">
-      {seats.map((rowObj, rowIdx) => (
-        <div key={rowObj.row} className="flex items-center gap-2">
-          <span className="text-[--base-gray-300] w-4">{rowObj.row}</span>
-          {rowObj.seats.map((seat, seatIdx) => {
-            const selected = isSelected(rowObj.row, seat.number);
-            let status = seat.status;
-            if (selected) status = "selected";
-            return (
-              <button
-                key={seatIdx}
-                className={`w-8 h-8 rounded ${seatStatusColor[status]} flex items-center justify-center`}
-                disabled={seat.status !== "available"}
-                onClick={() => handleSeatClick(rowObj.row, seat.number, seat.status)}
-                type="button"
-              >
-                {seat.number}
-              </button>
-            );
-          })}
+    <>
+      <div className="w-full sm:basis-3/4">
+        <div className="bg-gradient-to-r from-[#2C344E] to-[#516199] rounded-t-[80px] items-center flex justify-center py-[10px] text-[--base-gray-400]">
+          screen
         </div>
-      ))}
-    </div>
+
+        <div className="sm:py-[60px]">
+          <div className="flex flex-row justify-between sm:gap-[30px]">
+            {/* ฝั่งซ้าย (A, B, C) */}
+            <div className="flex flex-col items-center space-y-[30px]">
+              {seats.slice(0, 3).map((row, rowIndex) => (
+                <div key={rowIndex} className="flex gap-6 items-center">
+                  {/* ตัวหนังสือแถวอยู่ซ้าย */}
+                  <span className="w-4 text-left">{row.row}</span>
+                  {row.seats.map((seat, seatIndex) => {
+                    const selected = isSelected(row.row, seat.number);
+                    const status = selected ? "selected" : seat.status;
+                    return (
+                      <div
+                        key={seatIndex}
+                        className={`w-10 h-10 rounded-md flex items-center justify-center text-xs font-bold ${seatStatusColor[status]}`}
+                        onClick={() =>
+                          handleSeatClick(row.row, seat.number, seat.status)
+                        }
+                      >
+                        {seatIcon[status]}
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
+            {/* ฝั่งขวา (D, E) */}
+            <div className="flex flex-col items-center space-y-[30px]">
+              {seats.slice(3, 5).map((row, rowIndex) => (
+                <div key={rowIndex} className="flex gap-6 items-center">
+                  {/* ตัวหนังสือแถวอยู่ขวา */}
+                  {row.seats.map((seat, seatIndex) => {
+                    const selected = isSelected(row.row, seat.number);
+                    const status = selected ? "selected" : seat.status;
+                    return (
+                      <div
+                        key={seatIndex}
+                        className={`w-10 h-10 rounded-md flex items-center justify-center text-xs font-bold ${seatStatusColor[status]}`}
+                        onClick={() =>
+                          handleSeatClick(row.row, seat.number, seat.status)
+                        }
+                      >
+                        {seatIcon[status]}
+                      </div>
+                    );
+                  })}
+                  <span className="w-4 text-right">{row.row}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex gap-10 border-t-2 border-[--base-gray-100] py-4">
+          <div className="bg-[--base-gray-100] rounded-sm py-3 px-4 text-[--base-gray-400] text-2xl font-bold">
+            Hall 1
+          </div>
+          <div className="flex flex-wrap gap-4 ">
+            <AvailableIcon />
+            <p>Avilable Seat THB150</p>
+          </div>
+          <div className="flex flex-wrap gap-4">
+            <BookedIcon />
+            <p>Booed Seat</p>
+          </div>
+          <div className="flex flex-wrap gap-4">
+            <ReservedIcon />
+            <p>Reserved Seat</p>
+          </div>
+        </div>
+      </div>
+    </>
   );
 }
 

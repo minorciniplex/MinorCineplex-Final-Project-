@@ -75,7 +75,7 @@ export default function BookingCard({
       return;
     }
     const query = new URLSearchParams({
-      poster: poster,  
+      poster: poster,
       title: title,
       time: time,
       date: date,
@@ -84,107 +84,92 @@ export default function BookingCard({
       language: JSON.stringify(language),
       cinemaName: cinemaName,
       seat: JSON.stringify(seat),
-      price: price
-      
+      price: price,
     }).toString();
 
     router.push(`/booking/seats/payment/payment?${query}`);
   };
 
-
-
-  
-
   return (
     <>
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="flex flex-col items-center w-[375px] p-4 bg-[--base-gray-0] rounded-lg shadow-md">
-          <div className="flex items-center justify-center w-full rounded-t-lg">
-            <Image
+      <div className="w-full sm:basis-1/4 flex flex-col p-4 bg-[--base-gray-0] rounded-lg shadow-md">
+        <div className="flex w-full rounded-t-lg">
+          <Image
             src={poster}
             alt="Movie Poster"
             width={82}
             height={120}
             className="object-cover rounded-lg"
           />
-              <div className="flex flex-col justify-center w-full rounded-t-lg">
-              <h2 className="text-white text-2xl font-bold mb-3 text-center">
-                {title}
-              </h2>
-              <div className="flex px-2 gap-2 ">
-                {genreArr?.map((genre, index) => (
-                  <span
-                    key={index}
-                    className="bg-[--base-gray-100] py-[4px] md:py-[6px] px-3 rounded text-xs md:text-sm text-[--base-gray-300] font-medium"
-                  >
-                    {genre?.movie_genres?.name || genre?.name || genre || ""}
-                  </span>
-                ))}
-                {lang && (
-                  <span className="bg-[--base-gray-100] py-[4px] md:py-[6px] px-3 rounded text-xs md:text-sm text-[--base-gray-400] font-medium">
-                    {lang.toUpperCase()}
-                  </span>
-                )}
+          <div className="flex flex-col w-full pl-4 rounded-t-lg">
+            <h2 className="text-white text-2xl font-bold mb-3">{title}</h2>
+            <div className="flex gap-2 ">
+              {genreArr?.map((genre, index) => (
+                <span
+                  key={index}
+                  className="bg-[--base-gray-100] py-[4px] md:py-[6px] px-3 rounded text-xs md:text-sm text-[--base-gray-300] font-medium"
+                >
+                  {genre?.movie_genres?.name || genre?.name || genre || ""}
+                </span>
+              ))}
+              {lang && (
+                <span className="bg-[--base-gray-100] py-[4px] md:py-[6px] px-3 rounded text-xs md:text-sm text-[--base-gray-400] font-medium">
+                  {lang.toUpperCase()}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+        <div className="flex flex-col gap-2 w-full pt-6 text-[--base-gray-400] text-base">
+          <div className="flex items-center gap-2">
+            <FmdGoodIcon className="text-[--base-gray-200]" fontSize="small" />
+            <span>{cinemaName}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <CalendarMonthIcon
+              className="text-[--base-gray-200]"
+              fontSize="small"
+            />
+            <span>{formatDate(date)}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <AccessTimeIcon
+              className="text-[--base-gray-200]"
+              fontSize="small"
+            />
+            <span>{time}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <MeetingRoomIcon
+              className="text-[--base-gray-200]"
+              fontSize="small"
+            />
+            <span>Hall {screenNumber}</span>
+          </div>
+          {seat.length === 0 ? null : (
+            <>
+              <div className="flex flex-row justify-between items-center gap-2">
+                <p className="text-[--base-gray-300] text-center mt-4">
+                  Selected Seat
+                </p>
+                <p className="text-[#FFFFFF] text-center mt-4">
+                  {seat.length > 0 ? seat.join(", ") : ""}
+                </p>
               </div>
-            </div>
-          </div>
-          <div className="flex flex-col gap-2 w-full pt-6 text-[--base-gray-400] text-base">
-            <div className="flex items-center gap-2">
-              <FmdGoodIcon
-                className="text-[--base-gray-200]"
-                fontSize="small"
-              />
-              <span>{cinemaName}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <CalendarMonthIcon
-                className="text-[--base-gray-200]"
-                fontSize="small"
-              />
-              <span>{formatDate(date)}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <AccessTimeIcon
-                className="text-[--base-gray-200]"
-                fontSize="small"
-              />
-              <span>{time}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <MeetingRoomIcon
-                className="text-[--base-gray-200]"
-                fontSize="small"
-              />
-              <span>Hall {screenNumber}</span>
-            </div>
-            {seat.length === 0 ? null : (
-              <>
-                <div className="flex flex-row justify-between items-center gap-2">
-                  <p className="text-[--base-gray-300] text-center mt-4">
-                    Selected Seat
-                  </p>
-                  <p className="text-[#FFFFFF] text-center mt-4">
-                    {seat.length > 0 ? seat.join(", ") : ""}
-                  </p>
-                </div>
-                <div className="flex flex-row justify-between items-center gap-2">
-                  <p className="text-[--base-gray-300] text-center">
-                    Total
-                  </p>
-                  <p className="text-[#FFFFFF] text-center ">
-                    {price > 0 ? `THB${price}` : ""}
-                  </p>
-             
-                </div>
-                     <button
-                    onClick={handleSumbit}
-                    className="bg-[#4E7BEE] text-white px-4 py-2 rounded-lg mt-4 hover:bg-[#5a8cd9] transition-colors"
-                  >
-                    Next
-                  </button>
-              </>
-            )}
-          </div>
+              <div className="flex flex-row justify-between items-center gap-2">
+                <p className="text-[--base-gray-300] text-center">Total</p>
+                <p className="text-[#FFFFFF] text-center ">
+                  {price > 0 ? `THB${price}` : ""}
+                </p>
+              </div>
+              <button
+                onClick={handleSumbit}
+                className="bg-[#4E7BEE] text-white px-4 py-2 rounded-lg mt-4 hover:bg-[#5a8cd9] transition-colors"
+              >
+                Next
+              </button>
+            </>
+          )}
         </div>
       </div>
     </>

@@ -17,10 +17,19 @@ const useCountdown = (seatNumber, showtimes, bookingId) => {
 
   const startReservation = useCallback(async () => {
     try {
+      if (!bookingId || !showtimes) {
+        console.error('Missing required parameters: bookingId or showtimes');
+        return;
+      }
+
       // ดึงข้อมูลที่นั่งจากตาราง seats
-      const response = await axios.get(`/api/fetchCountdown?bookingId=5b24ee01-46b5-4846-823a-261ff1cdefa3&showtimeId=0013fafb-9b36-42f0-903d-aa98afd825fe`);
+      const response = await axios.get(`/api/fetchCountdown?bookingId=${bookingId}&showtimeId=${showtimes}`);
       const seatData = response.data.data;
       
+      if (!seatData) {
+        console.error('No seat data found');
+        return;
+      }
 
       // คำนวณเวลาที่เหลือ (วินาที) จาก reserved_until
       const reservedUntil = new Date(seatData.reserved_until).getTime();
@@ -34,6 +43,9 @@ const useCountdown = (seatNumber, showtimes, bookingId) => {
       }
     } catch (error) {
       console.error('Error starting reservation:', error);
+      if (error.response) {
+        console.error('Error response:', error.response.data);
+      }
       throw error;
     }
   }, [bookingId, showtimes]);
@@ -41,9 +53,9 @@ const useCountdown = (seatNumber, showtimes, bookingId) => {
   const cancelReservation = useCallback(async () => {
   try{
     const response = await axios.post('/api/booking/cancel-booking', {
-      bookingId: "5b24ee01-46b5-4846-823a-261ff1cdefa3",
-      seatNumber: ["A100", "B100"],
-      showtimeId: "0013fafb-9b36-42f0-903d-aa98afd825fe"
+      bookingId: bookingId,
+      seatNumber: seatNumber,
+      showtimeId: showtimes
     });
     if (response.status === 200) {
       setIsTimerActive(false);

@@ -5,6 +5,7 @@ import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
 import CouponPaymentCard from "../Coupon-PaymentCard/CouponApply";
 import useCountdown from "../../hooks/useCountdown";
 import { useEffect } from "react";
+import { useRouter } from "next/router";
 
 export default function PaymentsCard({
   time,
@@ -21,11 +22,14 @@ export default function PaymentsCard({
   movieId,
   bookingId
 }) {
-const { timeLeft, isTimerActive, formatTime, startReservation, cancelReservation } = useCountdown(seatNumber, showtimes, bookingId);
-
+  const router = useRouter();
+  const { timeLeft, isTimerActive, formatTime, startReservation, cancelReservation } = useCountdown(seatNumber, showtimes, bookingId);
+//fix error 500
   useEffect(() => {
-    startReservation();
-  }, []);
+    if (router.isReady && bookingId && showtimes) {
+      startReservation();
+    }
+  }, [router.isReady, bookingId, showtimes]);
 
   // แปลง genres และ language ถ้ามาเป็น string
   let seatArr = [];

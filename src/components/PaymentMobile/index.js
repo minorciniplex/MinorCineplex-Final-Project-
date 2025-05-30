@@ -4,10 +4,6 @@ import CheckIcon from '@mui/icons-material/Check';
 import Image from 'next/image';
 import MovieInfoCard from "../MovieInfoCard";
 import { useMovieDetail } from '@/hooks/useMovieDetail';
-import SummaryPayment from '../SummaryPayment';
-import CouponDiscount from '../CouponDiscount';
-import { useMyCoupons } from '@/hooks/useMyCoupons';
-import CouponSelectPopup from '../CouponSelectPopup';
 
 export default function PaymentMobile() {
   const [tab, setTab] = useState("credit");
@@ -18,19 +14,10 @@ export default function PaymentMobile() {
     cvc: "",
   });
   const expiryInputRef = useRef(null);
-  const [openCouponPopup, setOpenCouponPopup] = useState(false);
-  const [selectedCoupon, setSelectedCoupon] = useState(null);
 
   // ตัวอย่าง movie_id (ควรรับจาก prop, route, หรือ context จริง)
   const movie_id = "013b897b-3387-4b7f-ab23-45b78199020a";
   const { movie, genres, languages, showtime, hall, cinema, loading } = useMovieDetail(movie_id);
-  const userId = "mock-user-id"; // TODO: เปลี่ยนเป็น user id จริง
-  const { coupons, loading: loadingCoupons } = useMyCoupons(userId);
-
-  // ฟังก์ชันเมื่อกด Next
-  const handleNext = () => {
-    alert('Next Clicked!');
-  };
 
   return (
     <div className="bg-background w-screen min-h-screen text-white font-sans overflow-x-hidden">
@@ -110,17 +97,11 @@ export default function PaymentMobile() {
             <div className="relative">
               <input
                 ref={expiryInputRef}
-                type="text"
+                type="date"
                 className="w-[343px] h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-md px-3 py-2 text-sm placeholder-base-gray-300 outline-none pr-[40px]"
                 placeholder="MM/YY"
-                maxLength={5}
                 value={card.expiry}
-                onChange={e => {
-                  let value = e.target.value.replace(/[^0-9/]/g, '');
-                  if (value.length === 2 && card.expiry.length === 1) value += '/';
-                  if (value.length > 5) value = value.slice(0, 5);
-                  setCard({ ...card, expiry: value });
-                }}
+                onChange={e => setCard({ ...card, expiry: e.target.value })}
               />
               <span
                 className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer"
@@ -182,28 +163,39 @@ export default function PaymentMobile() {
         )}
       </div>
       {/* Coupon */}
-      <div className="px-4 mt-0">
-        <CouponDiscount 
-          coupon={selectedCoupon?.description || (coupons[0]?.description ?? "ไม่มีคูปอง")}
-          onRemove={() => setSelectedCoupon(null)}
-          onSelectCoupon={() => setOpenCouponPopup(true)}
-        />
+      <div className="px-4 mt-4">
+        <div className="bg-[#232B47] rounded px-3 py-2 flex items-center justify-between text-xs">
+          <span>Merry March Magic – Get 50 THB Off! (Only in March)</span>
+          <button className="ml-2 text-gray-400">✕</button>
+        </div>
       </div>
-      <CouponSelectPopup
-        open={openCouponPopup}
-        coupons={coupons}
-        onClose={() => setOpenCouponPopup(false)}
-        onApply={coupon => {
-          setSelectedCoupon(coupon);
-          setOpenCouponPopup(false);
-        }}
-      />
 
       {/* Summary */}
-      <div className="px-4 mt-0">
-        <SummaryPayment seats={Array.isArray(movie?.seats) ? movie.seats : ["C9", "C10"]} total={movie?.total || "THB300"} onNext={handleNext} />
+      <div className="px-4 mt-4 text-xs">
+        <div className="flex justify-between">
+          <span>Selected Seat</span>
+          <span>{Array.isArray(movie?.seats) ? movie.seats.join(", ") : "-"}</span>
+        </div>
+        <div className="flex justify-between">
+          <span>Payment method</span>
+          <span>{movie?.payment || "-"}</span>
+        </div>
+        <div className="flex justify-between text-red-400">
+          <span>Coupon</span>
+          <span>{movie?.coupon || "-"}</span>
+        </div>
+        <div className="flex justify-between font-bold mt-1">
+          <span>Total</span>
+          <span>{movie?.total || "-"}</span>
+        </div>
       </div>
 
+      {/* Next Button */}
+      <div className="px-4 mt-6 mb-4">
+        <button className="w-full bg-[#3B82F6] py-3 rounded text-white font-bold text-lg" disabled>
+          Next
+        </button>
+      </div>
     </div>
   );
 } 

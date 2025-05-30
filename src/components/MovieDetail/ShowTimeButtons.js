@@ -38,11 +38,11 @@ const ShowtimeButtons = ({ times = [], date, movie, hall, onSelect }) => {
             <button
               key={i}
               className={buttonClass}
-              onClick={() => {
-                if (onSelect) {
-                  onSelect({ time, movie, hall, date });
-                }
-              }}
+               onClick={() => {
+              if (onSelect) {
+                onSelect({ time, movie, hall, date });
+              }
+            }}
             >
               {time}
             </button>

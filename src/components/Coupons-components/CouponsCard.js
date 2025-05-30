@@ -22,7 +22,7 @@ function truncateText(text, maxLength) {
     return text.slice(0, maxLength) + "...";
   }
   return text;
-};
+}
 
 function CouponsCard({ coupon_id, image, title, end_date }) {
   const router = useRouter();

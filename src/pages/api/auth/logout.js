@@ -1,10 +1,9 @@
 import { createSupabaseServerClient } from "@/utils/supabaseCookie";
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Method Not Allowed' })
-  }
-
+  // if (req.method !== 'POST') {
+  //   return res.status(405).json({ message: 'Method Not Allowed' })
+  // }
 
   try {
     // ตรวจสอบ cookie ที่มีในรีเควสก่อน

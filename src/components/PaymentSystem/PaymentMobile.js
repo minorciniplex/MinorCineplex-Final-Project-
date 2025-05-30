@@ -5,9 +5,9 @@ import Image from 'next/image';
 import MovieInfoCard from "./MovieInfoCard";
 import { useMovieDetail } from '@/hooks/useMovieDetail';
 import SumPaymentDiscount from './SumPaymentDiscount';
-import CouponDiscount from './CouponDiscount';
-import { useMyCoupons } from '@/hooks/useMyCoupons';
-import CouponSelectPopup from './CouponSelectPopup';
+import CouponDiscount from './Components/CouponDiscount';
+import CouponSelectPopup from './Components/CouponSelectPopup';
+import useCouponWallet from '@/hooks/useCouponWallet';
 
 export default function PaymentMobile() {
   const [tab, setTab] = useState("credit");
@@ -19,13 +19,12 @@ export default function PaymentMobile() {
   });
   const expiryInputRef = useRef(null);
   const [openCouponPopup, setOpenCouponPopup] = useState(false);
-  const [selectedCoupon, setSelectedCoupon] = useState(null);
-
-  // ตัวอย่าง movie_id (ควรรับจาก prop, route, หรือ context จริง)
+  const [selectedCouponId, setSelectedCouponId] = useState(null);
   const movie_id = "013b897b-3387-4b7f-ab23-45b78199020a";
   const { movie, genres, languages, showtime, hall, cinema, loading } = useMovieDetail(movie_id);
   const userId = "mock-user-id"; // TODO: เปลี่ยนเป็น user id จริง
-  const { coupons, loading: loadingCoupons } = useMyCoupons(userId);
+  const { couponsInWallet, loading: loadingCoupons } = useCouponWallet(userId);
+  const selectedCoupon = couponsInWallet.find(c => c.coupons.coupon_id === selectedCouponId);
 
   // ฟังก์ชันเมื่อกด Next
   const handleNext = () => {
@@ -188,8 +187,8 @@ export default function PaymentMobile() {
         </div>
         <div className="px-4 md:px-0 mt-0">
           <CouponDiscount 
-            coupon={selectedCoupon?.description || (coupons[0]?.description ?? "Not Found Coupon")}
-            onRemove={() => setSelectedCoupon(null)}
+            coupon={selectedCoupon?.coupons?.title || "Not Found Coupon"}
+            onRemove={() => setSelectedCouponId(null)}
             onSelectCoupon={() => setOpenCouponPopup(true)}
           />
         </div>
@@ -207,10 +206,10 @@ export default function PaymentMobile() {
       {/* Popup คูปอง */}
       <CouponSelectPopup
         open={openCouponPopup}
-        coupons={coupons}
+        coupons={couponsInWallet}
         onClose={() => setOpenCouponPopup(false)}
-        onApply={coupon => {
-          setSelectedCoupon(coupon);
+        onApply={couponId => {
+          setSelectedCouponId(couponId);
           setOpenCouponPopup(false);
         }}
       />

@@ -15,7 +15,14 @@ const seatStatusColor = {
 
 function BookingSeats({
   seats = [{ row: "A", seats: [{ number: 1, status: "available" }, { number: 2, status: "available" }, { number: 3, status: "booked" }] }
-, { row: "B", seats: [{ number: 1, status: "available" }, { number: 2, status: "reserved" }, { number: 3, status: "available" }] }], // ตัวอย่างข้อมูลที่นั่ง
+, { row: "B", seats: [{ number: 1, status: "available" }, { number: 2, status: "reserved" }, { number: 3, status: "available" }] },
+  { row: "C", seats: [{ number: 1, status: "booked" }, { number: 2, status: "available" }, { number: 3, status: "available" }] },
+  { row: "D", seats: [{ number: 1, status: "booked" }, { number: 2, status: "booked" }, { number: 3, status: "available" }] },
+  { row: "E", seats: [{ number: 1, status: "available" }, { number: 2, status: "available" }, { number: 3, status: "available" }] },
+  { row: "F", seats: [{ number: 1, status: "available" }, { number: 2, status: "available" }, { number: 3, status: "available" }] },
+  { row: "G", seats: [{ number: 1, status: "available" }, { number: 2, status: "available" }, { number: 3, status: "available" }] },
+  { row: "H", seats: [{ number: 1, status: "available" }, { number: 2, status: "available" }, { number: 3, status: "available" }] }],
+
 
 
   selectedSeats = ["A1",], // ที่นั่งที่ถูกเลือก
@@ -54,9 +61,29 @@ function BookingSeats({
   };
 
   return (
-    <>
-    
-    </>
+    <div className="flex flex-col items-center gap-4">
+      {seats.map((rowObj, rowIdx) => (
+        <div key={rowObj.row} className="flex items-center gap-2">
+          <span className="text-[--base-gray-300] w-4">{rowObj.row}</span>
+          {rowObj.seats.map((seat, seatIdx) => {
+            const selected = isSelected(rowObj.row, seat.number);
+            let status = seat.status;
+            if (selected) status = "selected";
+            return (
+              <button
+                key={seatIdx}
+                className={`w-8 h-8 rounded ${seatStatusColor[status]} flex items-center justify-center`}
+                disabled={seat.status !== "available"}
+                onClick={() => handleSeatClick(rowObj.row, seat.number, seat.status)}
+                type="button"
+              >
+                {seat.number}
+              </button>
+            );
+          })}
+        </div>
+      ))}
+    </div>
   );
 }
 

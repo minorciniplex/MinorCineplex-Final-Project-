@@ -25,7 +25,7 @@ export default function CouponCardStyle2({image, title, end_date, coupon_id}) {
             <p>Valid until {dateFormat} 
             </p>
             <div>
-            <button onClick={() => router.push(`/coupons/viewcoupon/${coupon_id}`)} >view detail</button>
+            <button onClick={() => router.push(`/coupons/viewcoupon/${coupon_id}`)} >View detail</button>
            </div>
            </div>
            

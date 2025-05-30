@@ -1,31 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useRouter } from "next/router";
-import axios from "axios";
 import CouponsCard from "@/components/Coupons-components/CouponsCard";
+import useCouponWallet from '@/hooks/useCouponWallet';
 
 const MyCoupon = () => {
   const router = useRouter();
-  const [couponsInWallet, setCouponsInWallet] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { couponsInWallet, loading, error } = useCouponWallet();
   console.log(couponsInWallet);
 
-  const fetchCoupons = async () => {
-    try {
-      const response = await axios.get(
-        "/api/dashboard/get-all-from-user-coupon"
-      );
-      setCouponsInWallet(response.data.data);
-      setLoading(false);
-    } catch (error) {
-      setError(error.response?.data?.error || error.message);
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchCoupons();
-  }, []);
 
   if (loading) {
     return (

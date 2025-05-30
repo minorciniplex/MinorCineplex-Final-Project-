@@ -23,6 +23,10 @@ export default function SumPaymentDiscount({
           <span className="text-white body-1-medium">{paymentMethod}</span>
         </div>
         <div className="flex justify-between items-center">
+          <span className="text-base-gray-400 body-2-regular">Booking price</span>
+          <span className="text-white body-1-medium">{total}</span>
+        </div>
+        <div className="flex justify-between items-center">
           <span className="text-base-gray-400 body-2-regular">Coupon</span>
           <span className={coupon?.color || 'text-brand-red'}>{coupon?.label || '-'}</span>
         </div>

@@ -2,7 +2,8 @@ import React from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
-export default function CouponDiscount({ coupon = "Merry March Magic – Get 50 THB Off! (Only in March)", onRemove, onSelectCoupon }) {
+export default function CouponDiscount({ coupon , onRemove, onSelectCoupon }) {
+  console.log(coupon);
   return (
     <div className="bg-[#070C1B] w-[375px] h-[96px] md:w-[305px] md:h-[96px] flex flex-col gap-[20px] px-[16px] pt-[16px] pb-[16px] border-t border-b border-[#21263F]" style={{paddingRight: 16, paddingLeft: 16, paddingTop: 16, paddingBottom: 16}}>
       <div className="flex items-center justify-between">

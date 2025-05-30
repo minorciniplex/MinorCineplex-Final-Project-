@@ -23,11 +23,6 @@ const [sumPrice, setSumPrice] = useState(0);
     }
   }, [router.isReady]);
 
-
- 
-  
-
-
   return (
     <>
       <Navbar />

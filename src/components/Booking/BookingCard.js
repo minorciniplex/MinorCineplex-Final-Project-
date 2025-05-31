@@ -19,9 +19,9 @@ export default function BookingCard({
   date,
   seat,
   price,
-  onConfirmBooking,
   showtimes,
   movieId,
+  existingBookingId, // NEW: Accept existing booking ID
 }) {
   const { isLoggedIn, user } = useStatus();
   const router = useRouter();
@@ -74,17 +74,30 @@ export default function BookingCard({
       router.push("/auth/login");
       return;
     }
-    let newBookingId;
-    try {
-      const response = await axios.post("/api/booking/booking-seat", {
-        showtimeId: showtimes,
-        seatNumber: seat, // แก้จาก seat เป็น seatNumber ตาม API
-        sumPrice: price, // แก้จาก price เป็น sumPrice ตาม API
-      });
 
-      // ตั้งค่า bookingId หลังจากได้ response
-      newBookingId = response.data.data[0].booking_id
-      console.log("Booking successful, bookingId:", newBookingId);
+    let bookingId = existingBookingId;
+
+    try {
+      if (existingBookingId) {
+        // UPDATE existing booking
+        const response = await axios.put(`/api/booking/${existingBookingId}`, {
+          showtimeId: showtimes,
+          seatNumber: seat,
+          sumPrice: price,
+        });
+
+        console.log("Booking updated successfully, bookingId:", bookingId);
+      } else {
+        // CREATE new booking
+        const response = await axios.post("/api/booking/booking-seat", {
+          showtimeId: showtimes,
+          seatNumber: seat,
+          sumPrice: price,
+        });
+
+        bookingId = response.data.data[0].booking_id;
+        console.log("New booking created successfully, bookingId:", bookingId);
+      }
     } catch (error) {
       console.error("Error booking seat:", error);
       return;
@@ -103,7 +116,7 @@ export default function BookingCard({
       price: price,
       showtimes: showtimes,
       movieId: movieId,
-      bookingId: newBookingId, // ใช้ bookingId ที่ได้จาก response
+      bookingId: bookingId,
     }).toString();
 
     router.push(`/booking/seats/payment/payment?${query}`);
@@ -187,7 +200,7 @@ export default function BookingCard({
                 onClick={handleSumbit}
                 className="bg-[#4E7BEE] text-white px-4 py-2 rounded-lg mt-4 hover:bg-[#5a8cd9] transition-colors"
               >
-                Next
+                {existingBookingId ? "Update Booking" : "Next"}
               </button>
             </>
           )}

@@ -7,9 +7,17 @@ import ReservedIcon from "../Seats/Seat_Reserved";
 import SelectedIcon from "../Seats/Seat_Selected";
 import { useStatus } from "@/context/StatusContext";
 
-function BookingSeats({ showtimeId, onSeatsChange, onPriceChange, price }) {
+function BookingSeats({
+  showtimeId,
+  onSeatsChange,
+  onPriceChange,
+  price,
+  onBookingIdChange,
+}) {
   const [seats, setSeats] = useState([]);
   const [selectedSeats, setSelectedSeats] = useState([]);
+  const [userReservedSeats, setUserReservedSeats] = useState([]);
+  const [currentBookingId, setCurrentBookingId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isClient, setIsClient] = useState(false);
@@ -24,7 +32,7 @@ function BookingSeats({ showtimeId, onSeatsChange, onPriceChange, price }) {
   // Configuration
   const ROWS = ["E", "D", "C", "B", "A"];
   const SEATS_PER_ROW = 10;
-  const PRICE_PER_SEAT = price; // THB150
+  const PRICE_PER_SEAT = price;
 
   // Handle client-side mounting
   useEffect(() => {
@@ -77,6 +85,36 @@ function BookingSeats({ showtimeId, onSeatsChange, onPriceChange, price }) {
     }
   };
 
+  // Load user's existing reservations
+  const loadUserReservations = async () => {
+    if (!isLoggedIn || !user) return;
+
+    try {
+      // Load user's current reservations for this showtime
+      const response = await axios.get(
+        `/api/seats/${showtimeId}/user-reservations`
+      );
+      const userReservations = response.data || [];
+
+      if (userReservations.length > 0) {
+        const reservedSeatIds = userReservations.map((seat) => seat.seat_id);
+        const bookingId = userReservations[0]?.booking_id;
+
+        setUserReservedSeats(reservedSeatIds);
+        setCurrentBookingId(bookingId);
+        // FIXED: Ensure user's reserved seats are treated as selected
+        setSelectedSeats(reservedSeatIds);
+
+        // Notify parent about the existing booking ID
+        if (onBookingIdChange && bookingId) {
+          onBookingIdChange(bookingId);
+        }
+      }
+    } catch (error) {
+      console.error("Error loading user reservations:", error);
+    }
+  };
+
   const initializeSeats = async () => {
     try {
       setLoading(true);
@@ -84,6 +122,9 @@ function BookingSeats({ showtimeId, onSeatsChange, onPriceChange, price }) {
 
       // Load seats first
       await loadSeats();
+
+      // Load user's existing reservations
+      await loadUserReservations();
 
       // Clean up any existing subscription/polling
       cleanup();
@@ -237,7 +278,7 @@ function BookingSeats({ showtimeId, onSeatsChange, onPriceChange, price }) {
       } catch (error) {
         console.error("❌ Polling error:", error);
       }
-    }, 2000); // Poll every 2 seconds
+    }, 2000);
   };
 
   const handleRealtimeUpdate = (payload) => {
@@ -245,23 +286,47 @@ function BookingSeats({ showtimeId, onSeatsChange, onPriceChange, price }) {
 
     const seatId = newRecord?.seat_id || oldRecord?.seat_id;
 
-    // Handle selectedSeats updates separately to avoid closure issues
+    // IMPROVED: Handle real-time updates while preserving user's own reservations
     if (eventType === "INSERT" || eventType === "UPDATE") {
       const newStatus = newRecord?.seat_status;
+      const reservedBy = newRecord?.reserved_by;
 
-      // If seat becomes booked/reserved, remove it from selectedSeats
-      if (newStatus === "booked" || newStatus === "reserved") {
+      // If seat becomes booked/reserved by someone else (not current user), remove it from selectedSeats
+      if (
+        (newStatus === "booked" || newStatus === "reserved") &&
+        reservedBy !== user
+      ) {
         setSelectedSeats((currentSelectedSeats) => {
           if (currentSelectedSeats.includes(seatId)) {
             const newSelected = currentSelectedSeats.filter(
               (id) => id !== seatId
             );
             saveLocalSelectedSeats(newSelected);
-
             return newSelected;
           }
-
           return currentSelectedSeats;
+        });
+
+        // Also remove from user reserved seats if it was there
+        setUserReservedSeats((current) =>
+          current.filter((id) => id !== seatId)
+        );
+      }
+      
+      // FIXED: If seat is reserved by current user, ensure it stays in selectedSeats
+      if (newStatus === "reserved" && reservedBy === user) {
+        setSelectedSeats((currentSelectedSeats) => {
+          if (!currentSelectedSeats.includes(seatId)) {
+            return [...currentSelectedSeats, seatId];
+          }
+          return currentSelectedSeats;
+        });
+        
+        setUserReservedSeats((current) => {
+          if (!current.includes(seatId)) {
+            return [...current, seatId];
+          }
+          return current;
         });
       }
     }
@@ -285,7 +350,6 @@ function BookingSeats({ showtimeId, onSeatsChange, onPriceChange, price }) {
           };
         } else if (newRecord) {
           // Add new seat if it doesn't exist - map Supabase format to component format
-
           updatedSeats.push({
             id: newRecord.seat_id,
             row: newRecord.row,
@@ -313,12 +377,24 @@ function BookingSeats({ showtimeId, onSeatsChange, onPriceChange, price }) {
   const handleSeatClick = async (seatId) => {
     const seat = seats.find((s) => s.id === seatId);
 
-    // Disable click for booked and reserved seats
-    if (!seat || seat.status === "booked" || seat.status === "reserved") {
+    // FIXED: Allow clicking on user's own reserved seats using user.id
+    // Block clicking ONLY on booked seats or seats reserved by OTHER users
+    if (!seat || seat.status === "booked") {
       return;
     }
 
+    // If seat is reserved, only allow if it's the user's own reservation
+    if (seat.status === "reserved") {
+      const isUserOwnReservation = userReservedSeats.includes(seatId) || 
+                                  seat.reserved_by === user?.id;
+      
+      if (!isUserOwnReservation) {
+        return;
+      }
+    }
+
     const isCurrentlySelected = selectedSeats.includes(seatId);
+    const isUserReserved = userReservedSeats.includes(seatId);
 
     // Optimistically update UI first
     setSeats((currentSeats) => {
@@ -335,6 +411,13 @@ function BookingSeats({ showtimeId, onSeatsChange, onPriceChange, price }) {
     let newSelectedSeats;
     if (isCurrentlySelected) {
       newSelectedSeats = selectedSeats.filter((id) => id !== seatId);
+
+      // If this was a user reserved seat, remove it from that list too
+      if (isUserReserved) {
+        setUserReservedSeats((current) =>
+          current.filter((id) => id !== seatId)
+        );
+      }
     } else {
       newSelectedSeats = [...selectedSeats, seatId];
     }
@@ -367,7 +450,7 @@ function BookingSeats({ showtimeId, onSeatsChange, onPriceChange, price }) {
             return seat;
           });
         });
-        setSelectedSeats(selectedSeats); // Revert to previous state
+        setSelectedSeats(selectedSeats);
       }
     }
   };
@@ -386,7 +469,11 @@ function BookingSeats({ showtimeId, onSeatsChange, onPriceChange, price }) {
       };
     }
 
-    return { canProceed: true, selectedSeats: selectedSeats };
+    return {
+      canProceed: true,
+      selectedSeats: selectedSeats,
+      existingBookingId: currentBookingId,
+    };
   };
 
   // Expose this method to parent component
@@ -397,7 +484,7 @@ function BookingSeats({ showtimeId, onSeatsChange, onPriceChange, price }) {
         canProceed: canProceedToBooking,
       });
     }
-  }, [selectedSeats, isLoggedIn]);
+  }, [selectedSeats, isLoggedIn, currentBookingId]);
 
   useEffect(() => {
     if (onPriceChange) {
@@ -412,19 +499,27 @@ function BookingSeats({ showtimeId, onSeatsChange, onPriceChange, price }) {
     }
   }, [isLoggedIn, showtimeId]);
 
-  // FIXED: Updated getSeatStatus function to handle race conditions properly
+  // FIXED: Updated getSeatStatus function to always show user's reserved seats as selected
   const getSeatStatus = (seat) => {
     if (!seat) return "available";
 
-    // CRITICAL FIX: Always prioritize database status for booked/reserved seats
-    // regardless of authentication status
-    if (seat.status === "booked" || seat.status === "reserved") {
-      return seat.status;
+    // If seat is booked, always show as booked
+    if (seat.status === "booked") {
+      return "booked";
     }
 
-    // If seat is locally selected and not booked/reserved, show as selected
-    if (selectedSeats.includes(seat.id)) {
+    // FIXED: If seat is reserved by current user OR is in selectedSeats, show as selected
+    // This ensures user's reserved seats appear as selected (allowing modification)
+    if (
+      (seat.status === "reserved" && seat.reserved_by === user) ||
+      selectedSeats.includes(seat.id)
+    ) {
       return "selected";
+    }
+
+    // If seat is reserved by someone else, show as reserved
+    if (seat.status === "reserved" && seat.reserved_by !== user) {
+      return "reserved";
     }
 
     // Otherwise show available

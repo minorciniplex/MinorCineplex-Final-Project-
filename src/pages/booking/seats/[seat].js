@@ -24,17 +24,22 @@ export default function Seats() {
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
   const { isLoggedIn } = useStatus();
+  const [existingBookingId, setExistingBookingId] = useState(null);
 
   // Use useCallback to prevent functions from changing on every render
   const handleSeatsChange = useCallback((seatsData) => {
     setSelectedSeats(seatsData.seats);
-    console.log("Selected seats:", seatsData.seats); 
+    console.log("Selected seats:", seatsData.seats);
   }, []);
 
   const handlePriceChange = useCallback((price) => {
     setTotalPrice(price);
   }, []);
 
+  const handleExistingBookingIdChange = useCallback((bookingId) => {
+    setExistingBookingId(bookingId);
+    console.log("existingBookingId:", bookingId);
+  }, []);
 
   useEffect(() => {
     if (router.isReady) {
@@ -51,28 +56,27 @@ export default function Seats() {
       <div className="flex flex-col sm:flex-row justify-center sm:py-[80px] sm:px-[120px] sm:gap-[102px]">
         <BookingSeats
           showtimeId={showtimeId}
+          price={price}
           onSeatsChange={handleSeatsChange}
           onPriceChange={handlePriceChange}
-          price={price}
+          onBookingIdChange={handleExistingBookingIdChange}
         />
         <BookingCard
-        className="py-10 px-4"
-        time={time}
-        cinemaName={cinemaName}
-        screenNumber={screenNumber}
-        poster={poster}
-        title={title}
-        genres={genres}
-        language={language}
-        date={date}
-        seat={selectedSeats}
-        price={totalPrice}
-        showtimes={showtimeId}
-        movieId={movieId}
-      />
-      
-
-
+          className="py-10 px-4"
+          time={time}
+          cinemaName={cinemaName}
+          screenNumber={screenNumber}
+          poster={poster}
+          title={title}
+          genres={genres}
+          language={language}
+          date={date}
+          seat={selectedSeats}
+          price={totalPrice}
+          showtimes={showtimeId}
+          movieId={movieId}
+          existingBookingId={existingBookingId}
+        />
       </div>
     </>
   );

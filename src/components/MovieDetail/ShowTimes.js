@@ -49,18 +49,22 @@ export default function ShowTimes({ showtimes, date }) {
     fetchMovieDetails();
   }, [movieId]);
 
-useEffect(() => {
-  setOpenItems((prev) => {
-    const newKeys = showtimes.map((_, index) => `item-${index}`);
-    const added = newKeys.filter(key => !prev.includes(key));
-    return [...prev, ...added];
-  });
-}, [showtimes]);
+  useEffect(() => {
+    setOpenItems((prev) => {
+      const newKeys = showtimes.map((_, index) => `item-${index}`);
+      const added = newKeys.filter((key) => !prev.includes(key));
+      return [...prev, ...added];
+    });
+  }, [showtimes]);
 
-
-  console.log("Showtimes:", showtimes);
-
-  const handleSelect = ({ time, screenNumber, cinemaName, date, showtimeId }) => {
+  const handleSelect = ({
+    time,
+    screenNumber,
+    cinemaName,
+    date,
+    showtimeId,
+    price,
+  }) => {
     // ตัวอย่างการ push ไปหน้าจองตั๋ว
     const query = new URLSearchParams({
       poster: movie.poster_url,
@@ -73,12 +77,11 @@ useEffect(() => {
       date,
       movieId: movieId,
       showtimeId: showtimeId,
-      price: showtimes[0].screenPrices[screenNumber],
+      price: price,
     }).toString();
 
     router.push(`/booking/seats/seat?${query}`);
   };
-
   return (
     <div>
       <div className="md:mt-10">
@@ -119,26 +122,33 @@ useEffect(() => {
               </AccordionTrigger>
               <AccordionContent className="space-y-8 md:space-y-[60px] py-6 px-4 md:py-0 md:px-0">
                 {Object.entries(cinema.screens).map(
-                  ([screenNumber, times], hallIndex) => (
-                    <div key={hallIndex}>
-                      <h3 className="text-[--base-gray-400] text-2xl font-bold mb-4 gap-4 md:mb-4">
-                        Hall {screenNumber}
-                      </h3>
-                      <ShowtimeButtons
-                        times={times}
-                        date={date}
-                        onSelect={(time) => {
-                          handleSelect({
-                            time,
-                            screenNumber,
-                            cinemaName: cinema.name,
-                            date: cinema.date,
-                            showtimeId: cinema.showtimeId
-                          });
-                        }}
-                      />
-                    </div>
-                  )
+                  ([screenNumber, times], hallIndex) => {
+                    const formattedTimes = times.map((t) => t.time);
+                    return (
+                      <div key={hallIndex}>
+                        <h3 className="text-[--base-gray-400] text-2xl font-bold mb-4 gap-4 md:mb-4">
+                          Hall {screenNumber}
+                        </h3>
+                        <ShowtimeButtons
+                          times={formattedTimes}
+                          date={date}
+                          onSelect={(time) => {
+                            const selectedShowtime = times.find(
+                              (t) => t.time === time.time
+                            );
+                            handleSelect({
+                              time,
+                              screenNumber,
+                              cinemaName: cinema.name,
+                              date: cinema.date,
+                              showtimeId: selectedShowtime?.showtime_id,
+                              price: cinema.screenPrices[screenNumber],
+                            });
+                          }}
+                        />
+                      </div>
+                    );
+                  }
                 )}
               </AccordionContent>
             </AccordionItem>

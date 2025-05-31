@@ -17,14 +17,14 @@ export default async function handler(req, res) {
   // :white_check_mark: Validation
   if (!movieId || !date) {
     return res.status(400).json({
-      error: "Missing required query parameters: cinemaId, date",
+      error: "Missing required query parameters: movieId, date",
     });
   }
 
   if (!isValidUUID(movieId)) {
     return res
       .status(400)
-      .json({ error: "Invalid cinemaId format. Must be a valid UUID." });
+      .json({ error: "Invalid movieId format. Must be a valid UUID." });
   }
 
   if (!isValidDate(date)) {
@@ -76,6 +76,7 @@ export default async function handler(req, res) {
       if (!data) {
         return res.status(404).json({ error: "showtimes not found" });
       }
+
       // Transform the nested data structure to match the expected format
       const groupShowtimesByCinemaAndScreen = (data) => {
         const cinemaMap = new Map();
@@ -84,9 +85,9 @@ export default async function handler(req, res) {
           const cinemaName = showtime.screens.cinemas.name;
           const screenNumber = showtime.screens.screen_number;
           const price = showtime.screens.price;
-          const showtimeId = showtime.showtime_id;
           const facilities = showtime.screens.cinemas.facilities;
           const date = showtime.date;
+          const showtimeId = showtime.showtime_id;
           const key = cinemaName;
 
           if (!cinemaMap.has(key)) {
@@ -94,15 +95,14 @@ export default async function handler(req, res) {
               name: cinemaName,
               facilities: facilities,
               date: date,
-              showtimeId: showtimeId,
               screens: {},
-              screenPrices: {}, // ⬅️ add this to hold screenNumber → price
+              screenPrices: {},
             });
           }
 
           const cinema = cinemaMap.get(key);
 
-          // Set price for the screenNumber only once
+          // Set price once for each screenNumber
           if (!cinema.screenPrices[screenNumber]) {
             cinema.screenPrices[screenNumber] = price;
           }
@@ -111,9 +111,11 @@ export default async function handler(req, res) {
             cinema.screens[screenNumber] = [];
           }
 
-          cinema.screens[screenNumber].push(
-            showtime.start_time.substring(0, 5)
-          );
+          // Instead of just time, push an object with time and showtime_id
+          cinema.screens[screenNumber].push({
+            time: showtime.start_time.substring(0, 5),
+            showtime_id: showtimeId,
+          });
         });
 
         return Array.from(cinemaMap.values());

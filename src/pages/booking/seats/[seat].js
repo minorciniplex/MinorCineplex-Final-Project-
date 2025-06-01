@@ -6,6 +6,7 @@ import StepProgressBar from "@/components/Booking/StepProgressBar";
 import { useStatus } from "@/context/StatusContext";
 import BookingSeats from "@/components/Booking/BookingSeats";
 
+
 export default function Seats() {
   const router = useRouter();
   const {
@@ -48,6 +49,8 @@ export default function Seats() {
       setLanguage(JSON.parse(language));
     }
   }, [router.isReady, router.query]);
+
+
 
   return (
     <>

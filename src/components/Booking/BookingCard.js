@@ -8,6 +8,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useStatus } from "@/context/StatusContext";
 import axios from "axios";
 
+
 export default function BookingCard({
   time,
   screenNumber,
@@ -121,6 +122,10 @@ export default function BookingCard({
 
     router.push(`/booking/seats/payment/payment?${query}`);
   };
+
+
+
+
 
   return (
     <>

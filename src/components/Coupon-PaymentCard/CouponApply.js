@@ -5,16 +5,14 @@ import CouponSelectPopup from './Components/CouponSelectPopup';
 import useCouponWallet from '@/hooks/useCouponWallet';
 import { useStatus } from "@/context/StatusContext";
 
-export default function CouponPaymentCard() {
+export default function CouponPaymentCard({ showtimes, bookingId }) {
   const [openCouponPopup, setOpenCouponPopup] = useState(false);
   const [selectedCouponId, setSelectedCouponId] = useState(null);
   const { user } = useStatus();
   const { couponsInWallet, loading: loadingCoupons } = useCouponWallet(user);
   const selectedCoupon = couponsInWallet.find(c => c.coupons.coupon_id === selectedCouponId);
 
-  const handleNext = () => {
-    alert('Next Clicked!');
-  };
+
 
   return (
     <div className="w-full rounded-lg ">
@@ -33,7 +31,8 @@ export default function CouponPaymentCard() {
       <div className="w-full rounded-lg ">
         <SumPaymentDiscount
           coupon={selectedCoupon}
-          onNext={handleNext}
+          showtimes={showtimes}
+          bookingId={bookingId}
         />
       </div>
       <CouponSelectPopup

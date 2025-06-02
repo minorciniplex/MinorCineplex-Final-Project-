@@ -7,6 +7,7 @@ const handler = async (req, res) => {
 
   if (req.method === "POST") {
     const { showtimeId, seatNumber, bookingId } = req.body;
+    
 
     // Validate input
     if (!showtimeId || !seatNumber || !Array.isArray(seatNumber) || seatNumber.length === 0 || !bookingId) {
@@ -53,6 +54,14 @@ const handler = async (req, res) => {
         .eq("user_id", user.id)
         .select();
       console.log("bookings deleted:", bookingData);
+
+      // const { data: bookingCouponData, error: bookingCouponError } = await supabase
+      //   .from("user_coupons")
+      //   .update({ coupon_status: "active" })
+      //   .eq("coupon_id", couponId)
+      //   .eq("user_id", user.id)
+      //   .select();
+      // console.log("booking_coupons updated:", bookingCouponData);
 
       if (bookingError) {
         console.error("Error deleting booking:", bookingError);

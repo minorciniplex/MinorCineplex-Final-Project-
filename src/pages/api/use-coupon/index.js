@@ -64,7 +64,7 @@ export async function handler(req, res) {
       .select("*")
       .eq("user_id", user.id)
       .eq("coupon_id", coupon_id)
-      .eq("is_used", false);
+      .eq("coupon_status", "active" );
 
     if (userCouponError) {
         return res.status(401).json({ success: false, error: "เกิดข้อผิดพลาดในการตรวจสอบคูปอง" });

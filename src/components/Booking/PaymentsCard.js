@@ -164,7 +164,10 @@ export default function PaymentsCard({
             </div>
               <>
               <div className="flex flex-col justify-between items-center gap-2">
-                <CouponPaymentCard />
+                <CouponPaymentCard 
+                  showtimes={showtimes}
+                  bookingId={bookingId}
+                />
               </div>
               </>
           </div>

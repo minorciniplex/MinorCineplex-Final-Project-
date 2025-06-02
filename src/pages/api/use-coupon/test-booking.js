@@ -4,6 +4,7 @@ import { withMiddleware } from "@/middleware/withMiddleware";
 const handler = async (req, res) => {
     const supabase = req.supabase;
     const user = req.user;
+    const { showtimes, bookingId } = req.query;
 
     // 1. ดึงข้อมูล booking จาก booking_id
     if (req.method !== 'GET') {
@@ -12,8 +13,9 @@ const handler = async (req, res) => {
     const { data: bookings, error: bookingError } = await supabase
         .from("bookings")
         .select("*")
-        .eq("user_id", user.id);
-
+        .eq("user_id", user.id)
+        .eq("showtime_id", showtimes)
+        .eq("booking_id", bookingId);
     if (bookingError) {
         return res.status(500).json({ error: bookingError.message });
     }
@@ -23,8 +25,8 @@ const handler = async (req, res) => {
     }
 
     // ถ้ามีหลาย booking ให้ส่งกลับ booking ล่าสุด
-    const latestBooking = bookings.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
-    return res.status(200).json({ message: "Booking found", booking: latestBooking });
+   
+    return res.status(200).json({ data: bookings });
 }
 
 export default withMiddleware([requireUser], handler);

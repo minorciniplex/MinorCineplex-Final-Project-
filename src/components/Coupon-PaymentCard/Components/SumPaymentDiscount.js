@@ -3,14 +3,16 @@ import { useTestBooking } from '@/hooks/testBooking';
 import { useCoupon } from '@/hooks/useCoupon';
 import { useState, useEffect } from 'react';
 import CouponAlert from '../../Coupons-components/CouponAlert';
-
-export default function SumPaymentDiscount({ coupon, onNext, disabled }) {
-  const { data, loading: bookingLoading, error: bookingError } = useTestBooking();
+import useCountdown from '@/hooks/useCountdown';
+export default function SumPaymentDiscount({ coupon, disabled, showtimes, bookingId }) {
+  const { data, loading: bookingLoading, error: bookingError } = useTestBooking(showtimes, bookingId);
   const { loading: couponLoading, error: couponError, discountAmount, checkCoupon, applyCoupon } = useCoupon();
   const [checkResult, setCheckResult] = useState(null);
   const [showBookingError, setShowBookingError] = useState(false);
   const [showCouponError, setShowCouponError] = useState(false);
-
+  console.log(showtimes);
+  
+  
   // อัพเดท showBookingError เมื่อมี bookingError
   useEffect(() => {
     if (bookingError) {
@@ -30,19 +32,19 @@ export default function SumPaymentDiscount({ coupon, onNext, disabled }) {
     const checkCouponValidity = async () => {
       console.log('Checking coupon validity with:', {
         coupon,
-        bookingId: data?.booking?.booking_id
+        bookingId: data?.booking_id
       });
 
-      if (!coupon?.coupons?.coupon_id || !data?.booking?.booking_id) {
+      if (!coupon?.coupons?.coupon_id || !data?.booking_id) {
         console.log('Missing required data:', {
           hasCouponId: !!coupon?.coupons?.coupon_id,
-          hasBookingId: !!data?.booking?.booking_id
+          hasBookingId: !!data?.booking_id
         });
         return;
       }
       
       try {
-        const result = await checkCoupon(data.booking.booking_id, coupon.coupons.coupon_id);
+        const result = await checkCoupon(data.booking_id, coupon.coupons.coupon_id);
         console.log('Coupon check result:', result);
         setCheckResult(result);
       } catch (error) {
@@ -56,36 +58,23 @@ export default function SumPaymentDiscount({ coupon, onNext, disabled }) {
     };
 
     checkCouponValidity();
-  }, [coupon, data?.booking?.booking_id]);
+  }, [coupon, data?.booking_id]);
 
   // apply คูปองเมื่อกดปุ่ม Next
   const handleNext = async () => {
-    if (!checkResult || !data?.booking?.booking_id) {
-      console.log('Skipping coupon application:', {
-        hasCheckResult: !!checkResult,
-        hasBookingId: !!data?.booking?.booking_id
-      });
-      onNext();
-      return;
-    }
-    
+
     try {
       if (checkResult.discount_amount > 0) {
-        console.log('Applying coupon with:', {
-          bookingId: data.booking.booking_id,
-          couponId: coupon.coupons.coupon_id,
-          discountAmount: checkResult.discount_amount
-        });
-        await applyCoupon(data.booking.booking_id, coupon.coupons.coupon_id, checkResult.discount_amount);
+        await applyCoupon(data.booking_id, coupon.coupons.coupon_id, checkResult.discount_amount);
       }
-      onNext();
+      
     } catch (error) {
       console.error('Error applying coupon:', {
         message: error.message,
         response: error.response?.data,
         status: error.response?.status
       });
-      onNext();
+      
     }
   };
 
@@ -93,14 +82,14 @@ export default function SumPaymentDiscount({ coupon, onNext, disabled }) {
     return <div>กำลังโหลด...</div>;
   }
 
-  const finalTotal = data?.booking?.total_price - (discountAmount || 0);
+  const finalTotal = data?.total_price - (discountAmount || 0);
 
   return (
     <div >
       <div className="flex flex-col gap-2">
         <div className="flex justify-between items-center text-[--base-gray-300] text-base">
           <span>Booking price</span>
-          <span>THB{data?.booking?.total_price || 0} </span>
+          <span>THB{data?.total_price || 0} </span>
         </div>
         <div className="flex justify-between items-center text-[--base-gray-300] text-base">
           <span>Coupon</span>
@@ -130,7 +119,7 @@ export default function SumPaymentDiscount({ coupon, onNext, disabled }) {
       <Button
         className="!w-full !h-[48px] !rounded-[4px] self-center mt-4"
         onClick={handleNext}
-        disabled={disabled || !data?.booking || !!couponError}
+        disabled={disabled || !data || !!couponError}
       >
         Next
       </Button>

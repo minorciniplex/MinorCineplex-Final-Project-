@@ -41,7 +41,7 @@ const handler = async (req, res) => {
         {
           user_id: user.id,
           coupon_id,
-          is_used: false,
+          coupon_status: "active",
           created_at: new Date().toISOString()
         }
       ])

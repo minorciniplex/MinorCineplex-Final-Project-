@@ -55,7 +55,7 @@ const useCountdown = (seatNumber, showtimes, bookingId) => {
     const response = await axios.post('/api/booking/cancel-booking', {
       bookingId: bookingId,
       seatNumber: seatNumber,
-      showtimeId: showtimes
+      showtimeId: showtimes,
     });
     if (response.status === 200) {
       setIsTimerActive(false);

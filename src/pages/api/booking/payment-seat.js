@@ -7,105 +7,71 @@ const handler = async (req, res) => {
   const user = req.user;
 
   if (req.method === "POST") {
-    const { showtimeId, seatNumber, sumPrice } = req.body;
+    const { showtimeId, seatNumber, sumPrice, bookingId } = req.body;
 
-    // Validate input
-    if (!showtimeId || !seatNumber || !Array.isArray(seatNumber) || seatNumber.length === 0) {
-      return res.status(400).json({ error: "Missing required fields or invalid seat data" });
+    // Validate input - เพิ่ม bookingId ในการตรวจสอบ
+    if (!showtimeId || !seatNumber || !Array.isArray(seatNumber) || seatNumber.length === 0 || !bookingId) {
+      return res.status(400).json({ error: "Missing required fields or invalid data" });
     }
 
     try {
-      // Check if any seat is already booked
-      for (const seat of seatNumber) {
-        // Extract row and seat number from seat format (e.g., "E7" -> row: "E", seat: "7")
-        const row = seat.charAt(0);
-        const seatNum = seat.slice(1);
-
-        const { data: existingBooking, error: bookingError } = await supabase
-          .from("seats")
-          .select("*")
-          .eq("row", row)
-          .eq("seat_number", seatNum)
-          .eq("showtime_id", showtimeId);
-
-        if (bookingError) {
-          console.error("Error checking existing booking:", bookingError);
-          return res.status(500).json({ error: bookingError });
-        }
-
-        if (existingBooking && existingBooking.length > 0) {
-          return res.status(409).json({ error: `Seat ${seat} is already booked` });
-        }
-      }
-
-      // Create a new booking
-      const { data, error } = await supabase
+      // ตรวจสอบว่า booking นี้เป็นของ user คนนี้และมีสถานะ reserved
+      const { data: existingBooking, error: bookingCheckError } = await supabase
         .from("bookings")
-        .insert({
-          user_id: user.id,
-          showtime_id: showtimeId,
-          booking_date: new Date().toISOString(),
-          total_price: sumPrice,
-          status: "reserved",
-          created_at: new Date().toISOString(),
+        .select("*")
+        .eq("booking_id", bookingId)
+        .eq("user_id", user.id)
+        .eq("status", "reserved")
+        .single();
+
+      if (bookingCheckError || !existingBooking) {
+        console.error("Error checking booking:", bookingCheckError);
+        return res.status(400).json({ error: "Invalid booking or booking not found" });
+      }
+
+
+      // อัปเดต booking status เป็น "booked"
+      const { data: updatedBooking, error: bookingUpdateError } = await supabase
+        .from("bookings")
+        .update({
+          status: "booked",
           updated_at: new Date().toISOString(),
-          reserved_until: new Date(Date.now() + 15 * 60 * 1000).toISOString()
+          reserved_until: null // ลบเวลาจำกัดการจอง
         })
+        .eq("booking_id", bookingId)
+        .eq("user_id", user.id)
         .select();
 
-      if (error) {
-        console.error("Error creating booking:", error);
-        return res.status(500).json({ error: error });
+      if (bookingUpdateError) {
+        console.error("Error updating booking:", bookingUpdateError);
+        return res.status(500).json({ error: bookingUpdateError });
       }
 
-      // Insert all seats
-      const seatInserts = seatNumber.map(seat => {
-        const row = seat.charAt(0);
-        const seatNum = seat.slice(1);
-        
-        return {
-          seat_id: seat,
-          row: row,
-          seat_number: seatNum,
-          showtime_id: showtimeId,
-          seat_status: "reserved",
-          reserved_by: user.id,
-        };
-      });
-
-      const { data: seatData, error: seatError } = await supabase
+      // อัปเดต seats status เป็น "booked"
+      const seatIds = seatNumber; // สมมติว่า seatNumber คือ array ของ seat_id
+      
+      const { data: updatedSeats, error: seatUpdateError } = await supabase
         .from("seats")
-        .insert(seatInserts)
+        .update({
+          seat_status: "booked"
+        })
+        .in("seat_id", seatIds)
+        .eq("showtime_id", showtimeId)
+        .eq("reserved_by", user.id)
         .select();
 
-      if (seatError) {
-        console.error("Error creating seat booking:", seatError);
-        return res.status(500).json({ error: seatError });
+      if (seatUpdateError) {
+        console.error("Error updating seats:", seatUpdateError);
+        return res.status(500).json({ error: seatUpdateError });
       }
 
-   const bookingSeatInserts = seatNumber.map(seat => {
-        const row = seat.charAt(0);
-        const seatNum = seat.slice(1);
-        
-        return {
-          seat_id: seat,
-          showtime_id: showtimeId,
-          booking_id: data[0].booking_id,
-          
-          
-        };
-      });
-        const { data: bookingData, error: bookingSeatError } = await supabase
-            .from("booking_seats")
-            .insert(bookingSeatInserts)
-            .select();
 
-        if (bookingSeatError) {
-          console.error("Error creating booking seats:", bookingSeatError);
-          return res.status(500).json({ error: bookingSeatError });
-        }
-    
-      return res.status(201).json({ data, seatData});
+      return res.status(200).json({ 
+        message: "Payment successful, booking confirmed",
+        booking: updatedBooking[0],
+        seats: updatedSeats,
+      });
+
     } catch (error) {
       console.error("Error in POST request:", error);
       return res.status(500).json({ error: "Internal Server Error" });

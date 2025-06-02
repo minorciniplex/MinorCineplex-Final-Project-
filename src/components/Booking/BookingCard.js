@@ -8,6 +8,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useStatus } from "@/context/StatusContext";
 import axios from "axios";
 
+
 export default function BookingCard({
   time,
   screenNumber,
@@ -122,9 +123,13 @@ export default function BookingCard({
     router.push(`/booking/seats/payment/payment?${query}`);
   };
 
+
+
+
+
   return (
     <>
-      <div className="h-min sm:basis-1/4 flex flex-col sm:flex-1 p-4 bg-[--base-gray-0] rounded-lg shadow-md">
+      <div className="h-min sm:basis-1/4 flex flex-col p-4 bg-[--base-gray-0] rounded-lg shadow-md">
         <div className="flex w-full rounded-t-lg">
           <Image
             src={poster}

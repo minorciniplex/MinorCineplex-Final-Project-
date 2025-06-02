@@ -4,19 +4,30 @@ import Navbar from "@/components/Navbar/Navbar";
 import PaymentsCard from "@/components/Booking/PaymentsCard";
 import PaymentMobile from "@/components/PaymentSystem/PaymentMobile";
 import StepProgressBar from "@/components/Booking/StepProgressBar";
+import useBookingSeat from "@/hooks/useBookingSeat";
 
 export default function Seats() {
   const router = useRouter();
-  const { time, screenNumber, cinemaName, poster, title, date, seat, price, showtimes, bookingId } = router.query;
+  const {
+    time,
+    screenNumber,
+    cinemaName,
+    poster,
+    title,
+    date,
+    seat,
+    price,
+    showtimes,
+    bookingId,
+  } = router.query;
   const [genres, setGenres] = useState(null);
   const [language, setLanguage] = useState(null);
   const [seatNumber, setSeatNumber] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState("Credit card");
-  console.log(bookingId);
-  console.log(paymentMethod);
+
   useEffect(() => {
     if (router.isReady) {
-      const { genres, language } = router.query;
+      const { genres, language, seat } = router.query;
       setGenres(JSON.parse(genres));
       setLanguage(JSON.parse(language));
       setSeatNumber(JSON.parse(seat));
@@ -28,24 +39,22 @@ export default function Seats() {
     <>
       <Navbar />
       <StepProgressBar currentPath="/booking/payment" />
-      <div className="">
-        <div className="flex flex-row justify-between items-start gap-4 p-4">
-          <PaymentMobile setPaymentMethod={setPaymentMethod} />
-          <PaymentsCard
-            time={time}
-            cinemaName={cinemaName}
-            screenNumber={screenNumber}
-            poster={poster}
-            title={title}
-            genres={genres}
-            language={language}
-            date={date}
-            seatNumber={seat}
-            bookingId={bookingId}
-            showtimes={showtimes}
+      <div className="flex flex-col sm:flex-row justify-center sm:py-[80px] sm:px-[120px] sm:gap-[102px]">
+        <PaymentMobile setPaymentMethod={setPaymentMethod} />
+        <PaymentsCard
+          time={time}
+          cinemaName={cinemaName}
+          screenNumber={screenNumber}
+          poster={poster}
+          title={title}
+          genres={genres}
+          language={language}
+          date={date}
+          seatNumber={seat}
+          bookingId={bookingId}
+          showtimes={showtimes}
             paymentMethod={paymentMethod}
-          />
-        </div>
+        />
       </div>
     </>
   );

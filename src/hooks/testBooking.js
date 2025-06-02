@@ -5,10 +5,10 @@ export const useTestBooking = (showtimes, bookingId) => {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    console.log(data);
+
     useEffect(() => {
         const fetchData = async () => {
-            console.log('Parameters:', { showtimes, bookingId });
+            
             try {
                 const response = await axios.get(`/api/use-coupon/test-booking?showtimes=${showtimes}&bookingId=${bookingId}`);
                 

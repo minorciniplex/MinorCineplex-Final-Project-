@@ -10,6 +10,7 @@ export default function Seats() {
   const { time, screenNumber, cinemaName, poster, title, date, seat, price, showtimes, bookingId } = router.query;
   const [genres, setGenres] = useState(null);
   const [language, setLanguage] = useState(null);
+  const [seatNumber, setSeatNumber] = useState(null);
   console.log(bookingId);
 
   useEffect(() => {
@@ -17,6 +18,7 @@ export default function Seats() {
       const { genres, language } = router.query;
       setGenres(JSON.parse(genres));
       setLanguage(JSON.parse(language));
+      setSeatNumber(JSON.parse(seat));
     }
   }, [router.isReady]);
 

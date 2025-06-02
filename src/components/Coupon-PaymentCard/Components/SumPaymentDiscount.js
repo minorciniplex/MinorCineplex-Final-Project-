@@ -11,7 +11,7 @@ export default function SumPaymentDiscount({ coupon, disabled, showtimes, bookin
   const [checkResult, setCheckResult] = useState(null);
   const [showBookingError, setShowBookingError] = useState(false);
   const [showCouponError, setShowCouponError] = useState(false);
-  console.log(showtimes);
+  const { setCouponIdForCancel, setBookingCouponIdForCancel, ...rest } = useCountdown();
   
   
   // อัพเดท showBookingError เมื่อมี bookingError
@@ -66,6 +66,8 @@ export default function SumPaymentDiscount({ coupon, disabled, showtimes, bookin
     try {
       if (checkResult.discount_amount > 0) {
         await applyCoupon(data.booking_id, coupon.coupons.coupon_id, checkResult.discount_amount);
+        setCouponIdForCancel(coupon.coupons.coupon_id);
+        setBookingCouponIdForCancel(data.booking_id);
       }
     } catch (error) {
       console.error('Error applying coupon:', {

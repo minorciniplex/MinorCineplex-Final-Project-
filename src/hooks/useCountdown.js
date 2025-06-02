@@ -3,14 +3,14 @@ import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 const RESERVATION_TIME = 15 * 60; // 15 minutes in seconds
 
-const useCountdown = (seatNumber, showtimes, bookingId) => {
+const useCountdown = (seatNumber, showtimes, bookingId, couponId, booking_coupon_id) => {
   const [timeLeft, setTimeLeft] = useState(RESERVATION_TIME);
   const [isTimerActive, setIsTimerActive] = useState(false);
   const [reservationId, setReservationId] = useState(null);
   const [onTimeExpire, setOnTimeExpire] = useState(false);
-  console.log(seatNumber);
-  console.log(showtimes);
-  console.log(bookingId);
+  const [couponIdForCancel, setCouponIdForCancel] = useState(null);
+  const [bookingCouponIdForCancel, setBookingCouponIdForCancel] = useState(null);
+
   const formatTime = useCallback((seconds) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
@@ -19,9 +19,30 @@ const useCountdown = (seatNumber, showtimes, bookingId) => {
 
   const startReservation = useCallback(async () => {
     try {
-      if (!bookingId || !showtimes) {
-        console.error('Missing required parameters: bookingId or showtimes');
+      if (!bookingId || !showtimes || !seatNumber) {
+        console.error('Missing required parameters');
         return;
+      }
+      if (typeof seatNumber === "string") {
+        try {
+          // ถ้าเป็น JSON string array
+          const parsed = JSON.parse(seatNumber);
+          if (Array.isArray(parsed)) {
+            seatNumber = parsed;
+          } else if (seatNumber.includes(",")) {
+            // ถ้าเป็น comma separated
+            seatNumber = seatNumber.split(",").map(s => s.trim());
+          } else {
+            seatNumber = [seatNumber];
+          }
+        } catch {
+          // ถ้า parse ไม่ได้ ให้ใช้ logic เดิม
+          if (seatNumber.includes(",")) {
+            seatNumber = seatNumber.split(",").map(s => s.trim());
+          } else {
+            seatNumber = [seatNumber];
+          }
+        }
       }
 
       // ดึงข้อมูลที่นั่งจากตาราง seats
@@ -50,10 +71,10 @@ const useCountdown = (seatNumber, showtimes, bookingId) => {
       }
       throw error;
     }
-  }, [bookingId, showtimes]);
+  }, [bookingId, showtimes, seatNumber]);
 
   const cancelReservation = useCallback(async () => {
-    if (!bookingId || !showtimes) {
+    if (!bookingId || !showtimes || !seatNumber) {
       console.error('Missing required parameters for cancelReservation');
       return;
     }
@@ -62,7 +83,7 @@ const useCountdown = (seatNumber, showtimes, bookingId) => {
      
       const response = await axios.post('/api/booking/cancel-booking', {
         bookingId: bookingId,
-        seatNumber: seatNumber ? [seatNumber] : [], // แปลงเป็น array
+        seatNumber: Array.isArray(seatNumber) ? seatNumber : [seatNumber],
         showtimeId: showtimes,
       });
 
@@ -79,12 +100,70 @@ const useCountdown = (seatNumber, showtimes, bookingId) => {
     }
   }, [bookingId, seatNumber, showtimes]);
 
+  const cancelCoupon = useCallback(async (couponId, booking_coupon_id) => {
+    if (!couponId || !booking_coupon_id) {
+      console.error('Missing required parameters for cancelCoupon');
+      return;
+    }
+    try {
+      const response = await axios.post('/api/booking/cancel-coupon', {
+        couponId: couponId,
+        booking_coupon_id: booking_coupon_id,
+      });
+    } catch (error) {
+      console.error('Error cancelling coupon:', error);
+      if (error.response) {
+        console.error('Error response:', error.response.data);
+      }
+      throw error;
+    }
+  }, []);
+
+const cancelCouponStatus = useCallback(async (couponId) => {
+  if (!couponId ) {
+    console.error('Missing required parameters for cancelCouponStatus');
+    return;
+  }
+  try {
+    const response = await axios.put('/api/booking/cancel-coupon-status', {
+      couponId: couponId,
+     
+    });
+  } catch (error) {
+    console.error('Error cancelling coupon status:', error);
+  }
+}, []);
+
+  // ฟังก์ชันเมื่อเวลาหมด
+  const handleExpire = useCallback(async () => {
+    if (!couponIdForCancel || !bookingCouponIdForCancel) {
+      console.error('Missing couponIdForCancel or bookingCouponIdForCancel');
+      return;
+    }
+    console.log('couponIdForCancel:', couponIdForCancel);
+    console.log('bookingCouponIdForCancel:', bookingCouponIdForCancel);
+    try {
+      alert("Reservation cancelled");
+      await cancelReservation();
+      await cancelCoupon(couponIdForCancel, bookingCouponIdForCancel); // ลบ booking_coupon
+      await cancelCouponStatus(couponIdForCancel); // เปลี่ยน user_coupons เป็น active
+    } catch (error) {
+      console.error('Error in handleExpire:', error);
+    }
+  }, [cancelReservation, cancelCoupon, cancelCouponStatus, couponIdForCancel, bookingCouponIdForCancel]);
+
+  useEffect(() => {
+    if (onTimeExpire && couponIdForCancel && bookingCouponIdForCancel) {
+      handleExpire();
+    }
+  }, [onTimeExpire, couponIdForCancel, bookingCouponIdForCancel, handleExpire]);
+
   // เมื่อ onTimeExpire เป็น true ให้ cancelReservation
   useEffect(() => {
     if (onTimeExpire) {
       alert("Reservation cancelled");
       cancelReservation();
-      
+
     }
   }, [onTimeExpire, cancelReservation,  seatNumber]);
 
@@ -117,7 +196,9 @@ const useCountdown = (seatNumber, showtimes, bookingId) => {
     cancelReservation,
     onTimeExpire,
     setOnTimeExpire,
-    
+    cancelCoupon,
+    setCouponIdForCancel,
+    setBookingCouponIdForCancel
   };
 };
 

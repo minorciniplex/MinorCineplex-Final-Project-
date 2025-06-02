@@ -7,7 +7,7 @@ export const useCoupon = () => {
     const [discountAmount, setDiscountAmount] = useState(0);
     console.log(discountAmount);
     
-    const checkCoupon = async (bookingId, couponId) => {
+    const checkCoupon = async (bookingId, couponId, totalPrice) => {
         setLoading(true);
         setError(null);
         console.log('Sending request to /api/use-coupon with:', {
@@ -23,7 +23,13 @@ export const useCoupon = () => {
             console.log('Response from /api/use-coupon:', response.data);
             if (response.data.success) {
                 setDiscountAmount(response.data.discount_amount);
-                return response.data;
+                const final_price = response.data.final_price !== undefined
+                    ? response.data.final_price
+                    : (typeof totalPrice === 'number' ? totalPrice - response.data.discount_amount : undefined);
+                return {
+                    ...response.data,
+                    final_price
+                };
             } else {
                 throw new Error(response.data.error || 'เกิดข้อผิดพลาดในการตรวจสอบคูปอง');
             }

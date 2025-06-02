@@ -15,6 +15,8 @@ export default function SumPaymentDiscount({ coupon, disabled, showtimes, bookin
   const { cancelCouponStatus ,cancelCoupon} = useCountdown(couponId, bookingId);
   const [finalPrice, setFinalPrice] = useState(0);
   console.log(finalPrice);
+  console.log(data);
+  console.log(bookingId);
   // อัพเดท showBookingError เมื่อมี bookingError
   useEffect(() => {
     if (bookingError) {
@@ -46,7 +48,7 @@ export default function SumPaymentDiscount({ coupon, disabled, showtimes, bookin
       }
       
       try {
-        const result = await checkCoupon(data.booking_id, coupon.coupons.coupon_id);
+        const result = await checkCoupon(data.booking_id, coupon.coupons.coupon_id, data.total_price);
         console.log('Coupon check result:', result);
         setCheckResult(result);
       } catch (error) {
@@ -60,46 +62,45 @@ export default function SumPaymentDiscount({ coupon, disabled, showtimes, bookin
     };
 
     checkCouponValidity();
-  }, [coupon, data?.booking_id]);
+  }, [coupon, data?.booking_id, data?.total_price]);
 
   useEffect(() => {
-    if (checkResult && typeof checkResult.final_price !== 'undefined') {
+    if (checkResult && typeof checkResult.final_price !== 'undefined' && checkResult.final_price !== null) {
       setFinalPrice(Number(checkResult.final_price));
+    } else if (data && typeof data.total_price !== 'undefined') {
+      setFinalPrice(Number(data.total_price));
     } else {
       setFinalPrice(null);
     }
-  }, [checkResult]);
+  }, [checkResult, data]);
 
   // ปรับปรุง handleNext
   const handleNext = async () => {
     try {
-      if (checkResult.discount_amount > 0) {
+      if (checkResult && checkResult.discount_amount > 0) {
         await applyCoupon(data.booking_id, coupon.coupons.coupon_id, checkResult.discount_amount);
         await cancelCouponStatus(couponId);
         await cancelCoupon(couponId, data.booking_id);
-        if (!data.booking_id || !checkResult.final_price) {
-          alert('กรุณาตรวจสอบข้อมูล booking_id และราคาสุทธิให้ถูกต้อง');
-          return;
-        }
-        if (!finalPrice || finalPrice <= 0) {
-          alert('ราคาสุทธิไม่ถูกต้อง');
-          return;
-        }
-        applyPayment({
-          booking_id: data.booking_id,
-          payment_method: 'credit_card',
-          payment_status: 'pending',
-          amount: finalPrice,
-        });
       }
+      if (!data || !data.booking_id) {
+        alert('กรุณาตรวจสอบข้อมูล booking_id ให้ถูกต้อง');
+        return;
+      }
+      if (!finalPrice || finalPrice <= 0) {
+        alert('ราคาสุทธิไม่ถูกต้อง');
+        return;
+      }
+      await applyPayment({
+        bookingId: data.booking_id,
+        finalPrice: finalPrice,
+      });
     } catch (error) {
-      console.error('Error applying coupon:', {
+      console.error('Error applying coupon or payment:', {
         message: error.message,
         response: error.response?.data,
         status: error.response?.status
       });
     }
-    
   };
 
   // ฟังก์ชันใหม่สำหรับยืนยันชำระเงิน
@@ -113,10 +114,8 @@ export default function SumPaymentDiscount({ coupon, disabled, showtimes, bookin
       return;
     }
     applyPayment({
-      booking_id: data.booking_id,
-      payment_method: 'credit_card',
-      payment_status: 'pending',
-      amount: finalPrice,
+      bookingId: bookingId,
+      finalPrice: finalPrice,
     });
   };
 
@@ -165,13 +164,7 @@ export default function SumPaymentDiscount({ coupon, disabled, showtimes, bookin
       >
         Next
       </Button>
-      <Button
-        className="!w-full !h-[48px] !rounded-[4px] self-center mt-2 bg-green-500 hover:bg-green-600 text-white"
-        onClick={handleApplyPayment}
-        disabled={disabled || !data}
-      >
-        ยืนยันชำระเงิน
-      </Button>
+    
     </div>
   );
 } 

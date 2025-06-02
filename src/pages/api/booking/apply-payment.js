@@ -5,6 +5,7 @@ const handler = async (req, res) => {
   const supabase = req.supabase;
   const user = req.user;
   if (req.method === "POST") {
+    console.log("req.body", req.body);
     const {
       booking_id,
       payment_method,

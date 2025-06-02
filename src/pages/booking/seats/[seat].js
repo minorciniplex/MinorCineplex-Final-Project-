@@ -56,7 +56,7 @@ export default function Seats() {
     <>
       <Navbar />
       <StepProgressBar />
-      <div className="flex flex-col sm:flex-row justify-center sm:py-[80px] sm:px-[120px] sm:gap-[102px]">
+      <div className="flex flex-col md:flex-row justify-center md:py-[80px] md:px-[120px] md:gap-[102px]">
         <BookingSeats
           showtimeId={showtimeId}
           price={price}

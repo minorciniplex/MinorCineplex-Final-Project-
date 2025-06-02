@@ -33,9 +33,9 @@ const stripePromise = loadStripe(
 const ELEMENT_OPTIONS = {
   style: {
     base: {
-      fontSize: "15px",
+      fontSize: "16px",
       color: "#fff",
-      backgroundColor: "#232B47",
+      backgroundColor: "",
       "::placeholder": {
         color: "#8B93B0",
       },
@@ -138,7 +138,7 @@ const StripeCardForm = forwardRef(function StripeCardForm(
 
   return (
     <form
-      className="px-4 mt-4 md:mt-0 space-y-4"
+      className="px-4 mb-10 sm:mb-0 space-y-4"
       onSubmit={(e) => e.preventDefault()}
     >
       <div className="md:flex md:space-x-4">
@@ -148,7 +148,7 @@ const StripeCardForm = forwardRef(function StripeCardForm(
           </label>
           <CardNumberElement
             options={ELEMENT_OPTIONS}
-            className="w-[343px] md:w-[384.5px] h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-[4px] px-3 py-2 text-sm placeholder-base-gray-300 outline-none"
+            className="w-[343px] md:w-[384.5px] h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-[4px] pl-4 py-3 pr-3 text-base placeholder-base-gray-300 outline-none"
             onChange={(e) => setIsCardNumberComplete(e.complete)}
           />
         </div>
@@ -157,21 +157,21 @@ const StripeCardForm = forwardRef(function StripeCardForm(
             Card owner
           </label>
           <input
-            className="w-[343px] md:w-[384.5px] h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-md px-3 py-2 text-sm placeholder-base-gray-300 outline-none"
+            className="w-[343px] md:w-[384.5px] h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-md pl-4 py-3 pr-3 text-base placeholder-base-gray-300 outline-none"
             placeholder="Card owner name"
             value={owner}
             onChange={(e) => setOwner(e.target.value)}
           />
         </div>
       </div>
-      <div className="md:flex md:space-x-4">
+      <div className="md:flex md:space-x-4 items-center">
         <div className="md:flex-1">
           <label className="block body-2-regular text-base-gray-400 mb-1">
             Expiry date
           </label>
           <CardExpiryElement
             options={ELEMENT_OPTIONS}
-            className="w-[343px] md:w-[384.5px] h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-md px-3 py-2 text-sm placeholder-base-gray-300 outline-none"
+            className="w-[343px] md:w-[384.5px] h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-md pl-4 py-3 pr-3 text-base placeholder-base-gray-300 outline-none"
             onChange={(e) => setIsExpiryComplete(e.complete)}
           />
         </div>
@@ -181,7 +181,7 @@ const StripeCardForm = forwardRef(function StripeCardForm(
           </label>
           <CardCvcElement
             options={ELEMENT_OPTIONS}
-            className="w-[343px] md:w-[384.5px] h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-md px-3 py-2 text-sm placeholder-base-gray-300 outline-none"
+            className="w-[343px] md:w-[384.5px] h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-md pl-4 py-3 pr-3 text-base placeholder-base-gray-300 outline-none"
             onChange={(e) => setIsCvcComplete(e.complete)}
           />
         </div>
@@ -461,12 +461,12 @@ export default function PaymentMobile({ setPaymentMethod }) {
     : mockBooking;
 
   return (
-    <div className="bg-background w-screen min-h-screen text-white font-sans overflow-x-hidden flex flex-col md:items-start md:justify-center">
-      <div className="flex flex-col md:flex-row justify-between items-start w-full max-w-[1200px] mx-auto md:mt-[100px]">
+    <div className="flex basis-3/4 bg-background text-white font-sans overflow-x-hidden flex-col md:items-start">
+      <div className="flex flex-col md:flex-row justify-between items-start w-full max-w-[1200px]">
         {/* ฝั่งซ้าย: ฟอร์ม */}
-        <div className="w-full md:w-[600px] md:ml-[-60px]">
+        <div className="w-full">
           {/* Tab */}
-          <div className="flex mt-[50px] md:mt-[-30px] gap-4 items-baseline ml-4 md:ml-4">
+          <div className="flex gap-4 items-baseline pt-10 pb-6 px-4 sm:pt-0 sm:px-0 sm:pb-6">
             <button
               className="flex justify-center md:mb-[50px]"
               onClick={() => handleTabChange("credit")}
@@ -486,7 +486,7 @@ export default function PaymentMobile({ setPaymentMethod }) {
               onClick={() => handleTabChange("qr")}
             >
               <span
-                className={`headline-3 pb-1 px-[7px] inline-block ${
+                className={`headline-3 pb-1 inline-block ${
                   tab === "qr"
                     ? "border-b-[1px] border-[#565F7E] text-white"
                     : "border-b-0 text-[#8B93B0]"

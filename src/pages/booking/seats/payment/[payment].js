@@ -34,30 +34,27 @@ export default function Seats() {
     }
   }, [router.isReady]);
 
-  console.log(seatNumber, showtimes, bookingId, price);
 
   return (
     <>
       <Navbar />
       <StepProgressBar currentPath="/booking/payment" />
-      <div className="">
-        <div className="flex flex-row justify-between items-start gap-4 p-4">
-          <PaymentMobile setPaymentMethod={setPaymentMethod} />
-          <PaymentsCard
-            time={time}
-            cinemaName={cinemaName}
-            screenNumber={screenNumber}
-            poster={poster}
-            title={title}
-            genres={genres}
-            language={language}
-            date={date}
-            seatNumber={seat}
-            bookingId={bookingId}
-            showtimes={showtimes}
+      <div className="flex flex-col sm:flex-row justify-center sm:py-[80px] sm:px-[120px] sm:gap-[102px]">
+        <PaymentMobile setPaymentMethod={setPaymentMethod} />
+        <PaymentsCard
+          time={time}
+          cinemaName={cinemaName}
+          screenNumber={screenNumber}
+          poster={poster}
+          title={title}
+          genres={genres}
+          language={language}
+          date={date}
+          seatNumber={seat}
+          bookingId={bookingId}
+          showtimes={showtimes}
             paymentMethod={paymentMethod}
-          />
-        </div>
+        />
       </div>
     </>
   );

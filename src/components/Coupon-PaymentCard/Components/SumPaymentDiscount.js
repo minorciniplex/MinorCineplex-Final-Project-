@@ -8,7 +8,6 @@ import useCountdown from '@/hooks/useCountdown';
 export default function SumPaymentDiscount({ coupon, disabled, showtimes, bookingId }) {
   const { data, loading: bookingLoading, error: bookingError } = useTestBooking(showtimes, bookingId);
   const { loading: couponLoading, error: couponError, discountAmount, checkCoupon, applyCoupon } = useCoupon();
-  const {setCouponOntTimeExpire} = useCountdown(coupon.coupons.coupon_id);
   const [checkResult, setCheckResult] = useState(null);
   const [showBookingError, setShowBookingError] = useState(false);
   const [showCouponError, setShowCouponError] = useState(false);
@@ -67,7 +66,6 @@ export default function SumPaymentDiscount({ coupon, disabled, showtimes, bookin
     try {
       if (checkResult.discount_amount > 0) {
         await applyCoupon(data.booking_id, coupon.coupons.coupon_id, checkResult.discount_amount);
-        await setCouponOntTimeExpire(coupon.coupons.coupon_id);
       }
     } catch (error) {
       console.error('Error applying coupon:', {
@@ -76,7 +74,7 @@ export default function SumPaymentDiscount({ coupon, disabled, showtimes, bookin
         status: error.response?.status
       });
     }
-    cancelReservation(coupon.coupons.coupon_id);
+    
   };
 
   if (bookingLoading || couponLoading) {

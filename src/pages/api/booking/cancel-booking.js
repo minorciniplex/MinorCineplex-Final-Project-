@@ -55,21 +55,14 @@ const handler = async (req, res) => {
         .select();
       console.log("bookings deleted:", bookingData);
 
-      // 4. อัพเดทข้อมูลจาก user_coupons
-      // const { data: bookingCouponData, error: bookingCouponError } = await supabase
-      //   .from("user_coupons")
-      //   .update({ coupon_status: "active" })
-      //   .eq("coupon_id", couponId)
-      //   .eq("user_id", user.id)
-      //   .select();
-      // console.log("booking_coupons updated:", bookingCouponData);
+
 
       if (bookingError) {
         console.error("Error deleting booking:", bookingError);
         return res.status(500).json({ error: bookingError });
       }
 
-      return res.status(200).json({ message: "Booking cancelled and deleted successfully" });
+      return res.status(200).json({ message: "Booking cancelled and deleted successfully"});
     } catch (error) {
       console.error("Error in POST request:", error);
       return res.status(500).json({ error: "Internal Server Error" });

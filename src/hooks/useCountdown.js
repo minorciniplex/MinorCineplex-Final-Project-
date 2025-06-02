@@ -8,32 +8,13 @@ const useCountdown = (seatNumber, showtimes, bookingId) => {
   const [isTimerActive, setIsTimerActive] = useState(false);
   const [reservationId, setReservationId] = useState(null);
   const [onTimeExpire, setOnTimeExpire] = useState(false);
-
+  console.log(seatNumber);
+  console.log(showtimes);
+  console.log(bookingId);
   const formatTime = useCallback((seconds) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
     return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
-  }, []);
-
-  const setCouponOntTimeExpire = useCallback(async (couponId) => {
-    if (!couponId) {
-      console.warn('No coupon ID provided for expiration');
-      return;
-    }
-
-    try {
-      const response = await axios.post('/api/booking/cancel-coupon', {
-        couponId: couponId
-      });
-
-      if (response.data.success) {
-        console.log('Coupon expiration handled successfully:', response.data.message);
-      } else {
-        console.warn('Coupon expiration warning:', response.data.message);
-      }
-    } catch (error) {
-      console.error('Error handling coupon expiration:', error.response?.data?.error || error.message);
-    }
   }, []);
 
   const startReservation = useCallback(async () => {
@@ -72,29 +53,40 @@ const useCountdown = (seatNumber, showtimes, bookingId) => {
   }, [bookingId, showtimes]);
 
   const cancelReservation = useCallback(async () => {
-  try{
-    const response = await axios.post('/api/booking/cancel-booking', {
-      bookingId: bookingId,
-      seatNumber: seatNumber,
-      showtimeId: showtimes,
-    });
-    if (response.status === 200) {
-      setIsTimerActive(false);
+    if (!bookingId || !showtimes) {
+      console.error('Missing required parameters for cancelReservation');
+      return;
     }
-  } catch (error) {
-    console.error('Error cancelling reservation:', error);
-    throw error;
-  }
-  }, []);
+
+    try {
+     
+      const response = await axios.post('/api/booking/cancel-booking', {
+        bookingId: bookingId,
+        seatNumber: seatNumber ? [seatNumber] : [], // แปลงเป็น array
+        showtimeId: showtimes,
+      });
+
+      if (response.status === 200) {
+        setIsTimerActive(false);
+        console.log('Reservation cancelled successfully');
+      }
+    } catch (error) {
+      console.error('Error cancelling reservation:', error);
+      if (error.response) {
+        console.error('Error response:', error.response.data);
+      }
+      throw error;
+    }
+  }, [bookingId, seatNumber, showtimes]);
 
   // เมื่อ onTimeExpire เป็น true ให้ cancelReservation
   useEffect(() => {
     if (onTimeExpire) {
       alert("Reservation cancelled");
       cancelReservation();
-      setCouponOntTimeExpire(seatNumber);
+      
     }
-  }, [onTimeExpire, cancelReservation, setCouponOntTimeExpire, seatNumber]);
+  }, [onTimeExpire, cancelReservation,  seatNumber]);
 
   // Update timer
   useEffect(() => {
@@ -125,7 +117,7 @@ const useCountdown = (seatNumber, showtimes, bookingId) => {
     cancelReservation,
     onTimeExpire,
     setOnTimeExpire,
-    setCouponOntTimeExpire
+    
   };
 };
 

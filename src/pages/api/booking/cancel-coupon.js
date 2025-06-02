@@ -9,7 +9,7 @@ const handler = async (req, res) => {
   }
 
   try {
-    const { couponId } = req.body;
+    const { couponId, booking_coupon_id } = req.body;
 
     if (!couponId) {
       return res.status(400).json({ error: 'Coupon ID is required' });
@@ -27,13 +27,33 @@ const handler = async (req, res) => {
       return res.status(500).json({ error: 'Error checking user coupon' });
     }
 
-    // 2. ถ้ามี user_coupon ให้อัพเดทสถานะเป็น active
+    // ประกาศตัวแปร deletedBookingCoupon ไว้ข้างบน
+    let deletedBookingCoupon = null;
+
+    // 2. ลบข้อมูลจากตาราง booking_coupons
+    if (userCoupon) {
+      const { data, error: deleteBookingCouponError } = await supabase
+        .from('booking_coupons')
+        .delete()
+        .eq('coupon_id', couponId)
+        .eq('booking_coupon_id', booking_coupon_id)
+        .select();
+
+      if (deleteBookingCouponError) {
+        console.error('Error deleting booking coupon:', deleteBookingCouponError);
+        return res.status(500).json({ message: deleteBookingCouponError });
+      }
+      deletedBookingCoupon = data;
+    }
+
+    // 3. ถ้ามี user_coupon ให้อัพเดทสถานะเป็น active
     if (userCoupon) {
       const { data: updatedCoupon, error: updateError } = await supabase
         .from('user_coupons')
-        .update({ coupon_status: 'active',
+        .update({ 
+          coupon_status: 'active',
           used_date: null,
-         })
+        })
         .eq('coupon_id', couponId)
         .select();
 
@@ -44,20 +64,24 @@ const handler = async (req, res) => {
 
       return res.status(200).json({ 
         success: true, 
-        message: 'Coupon status updated successfully',
-        data: updatedCoupon
+        message: 'Coupon status updated and booking coupon deleted successfully',
+        data: {
+          updatedCoupon,
+          deletedBookingCoupon
+        }
       });
     }
 
-    // 3. ถ้าไม่มี user_coupon ให้ส่ง success response
+    // 4. ถ้าไม่มี user_coupon ให้ส่ง success response
     return res.status(200).json({ 
       success: true, 
-      message: 'No user coupon found, proceeding with cancellation'
+      message: 'No user coupon found, booking coupon deleted successfully',
+      
     });
 
   } catch (error) {
     console.error('Error in coupon expire API:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ message: error });
   }
 } 
 

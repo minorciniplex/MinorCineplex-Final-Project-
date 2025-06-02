@@ -572,13 +572,13 @@ function BookingSeats({
         </div>
 
         {/* Seat Layout */}
-        <div className="flex flex-col gap-4 sm:gap-[30px] items-center mt-[28px] sm:my-[60px]">
+        <div className="flex flex-col gap-4 md:gap-[30px] items-center mt-[28px] md:my-[60px]">
           {ROWS.map((rowLabel) => {
             const rowSeats = seats.filter((seat) => seat.row === rowLabel);
             return (
               <div
                 key={rowLabel}
-                className="flex flex-row text-[7.47px] sm:text-base text-[--base-gray-300] items-center gap-9 sm:gap-[138px]"
+                className="flex flex-row text-[7.47px] md:text-base text-[--base-gray-300] items-center gap-9 md:gap-[138px]"
               >
                 {/* Left Row Label */}
                 <div className="flex flex-row gap-3 sm:gap-6 items-center">
@@ -588,12 +588,12 @@ function BookingSeats({
                     return (
                       <div
                         key={seat.id}
-                        className="w-[18.6px] h-[18.6px] sm:w-10 sm:h-10 rounded-md flex items-center justify-center cursor-pointer"
+                        className="w-4 h-4 md:w-10 md:h-10 rounded-md flex items-center justify-center cursor-pointer"
                         onClick={() => handleSeatClick(seat.id)}
                       >
-                        <div className="w-full h-full">
+                        <div className="">
                           {displayStatus === "available" && (
-                            <div className="w-full h-full">
+                            <div className="">
                               <AvailableIcon />
                             </div>
                           )}
@@ -613,7 +613,7 @@ function BookingSeats({
                     return (
                       <div
                         key={seat.id}
-                        className="w-[18.6px] h-[18.6px] sm:w-10 sm:h-10 rounded-md flex items-center justify-center cursor-pointer"
+                        className="w-4 h-4 md:w-10 md:h-10 rounded-md flex items-center justify-center cursor-pointer"
                         onClick={() => handleSeatClick(seat.id)}
                       >
                         <div className="w-full h-full">

@@ -20,11 +20,17 @@ export default function PaymentsCard({
   price,
   showtimes,
   movieId,
-  bookingId
+  bookingId,
 }) {
   const router = useRouter();
-  const { timeLeft, isTimerActive, formatTime, startReservation, cancelReservation } = useCountdown(seatNumber, showtimes, bookingId);
-//fix error 500
+  const {
+    timeLeft,
+    isTimerActive,
+    formatTime,
+    startReservation,
+    cancelReservation,
+  } = useCountdown(seatNumber, showtimes, bookingId);
+  //fix error 500
   useEffect(() => {
     if (router.isReady && bookingId && showtimes) {
       startReservation();
@@ -43,7 +49,7 @@ export default function PaymentsCard({
   } catch {
     seatArr = [];
   }
-  
+
   let genreArr = [];
   try {
     genreArr =
@@ -88,52 +94,44 @@ export default function PaymentsCard({
 
   return (
     <>
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="flex flex-col items-center w-[375px] p-4 bg-[#18192b] rounded-lg shadow-md">
-          
+      <div className="h-min sm:basis-1/4 flex flex-col sm:flex-1 p-4 bg-[--base-gray-0] rounded-lg shadow-md">
+        <div className="flex flex-col w-full bg-[--base-gray-0] rounded-lg shadow-md">
           {isTimerActive && (
-            <div className="w-full text-center mb-4 bg-[#2A2D3E] p-3 rounded-lg">
-              <div className="text-[#FF4B4B] text-lg font-semibold mb-1">
-                กรุณาชำระเงินภายใน
-              </div>
-              <div className="flex items-center justify-center gap-2">
-                <div className="bg-[#FF4B4B] text-white px-6 py-3 rounded-lg text-2xl font-bold">
+            <div className="rounded-lg text-sm font-normal ">
+              <div className="text-[--base-gray-300] mb-3">
+                Time remaining:
+                <span className="text-[--brand-blue-100] ml-2">
                   {formatTime(Number(timeLeft))}
-                </div>
-              </div>
-              <div className="text-[#C8CEDD] text-sm mt-2">
-                หากไม่ชำระเงินภายในเวลาที่กำหนด การจองจะถูกยกเลิกโดยอัตโนมัติ
+                </span>
               </div>
             </div>
           )}
-          <div className="flex items-center justify-center w-full h-16 rounded-t-lg">
+          <div className="flex w-full rounded-t-lg mb-4">
             <img
               src={poster}
               alt="Movie Poster"
-              className="w-[82px] h-[120px] object-cover rounded-lg mb-4"
+              className="w-[82px] object-cover rounded-lg"
             />
-            <div className="flex-col w-full h-16 rounded-t-lg flex items-center justify-center">
-              <h2 className="text-white text-2xl font-bold mb-3 text-center">
-                {title}
-              </h2>
-              <div className="flex gap-2 ">
+            <div className="flex flex-col w-[300px] pl-4 rounded-t-lg">
+              <h2 className="text-white text-2xl font-bold mb-3">{title}</h2>
+              <div className="flex flex-wrap gap-2">
                 {genreArr?.map((genre, index) => (
                   <span
                     key={index}
-                    className="bg-[--base-gray-100] py-[4px] md:py-[6px] px-3 rounded text-xs md:text-sm text-[--base-gray-300] font-medium"
+                    className="bg-[--base-gray-100] py-[4px] md:py-[6px] px-3 rounded text-xs md:text-sm text-[--base-gray-300] font-normal"
                   >
                     {genre?.movie_genres?.name || genre?.name || genre || ""}
                   </span>
                 ))}
                 {lang && (
-                  <span className="bg-[--base-gray-100] py-[4px] md:py-[6px] px-3 rounded text-xs md:text-sm text-[#C8CEDD] font-medium">
+                  <span className="bg-[--base-gray-100] py-[4px] md:py-[6px] px-3 rounded text-xs md:text-sm text-[#C8CEDD] font-normal">
                     {lang.toUpperCase()}
                   </span>
                 )}
               </div>
             </div>
           </div>
-          <div className="flex flex-col gap-2 w-full pt-10 text-[--base-gray-300] text-base">
+          <div className="flex flex-col gap-2 w-full text-[--base-gray-300] text-base">
             <div className="flex items-center gap-2">
               <FmdGoodIcon
                 className="text-[--base-gray-300]"
@@ -162,11 +160,11 @@ export default function PaymentsCard({
               />
               <span>Hall {screenNumber}</span>
             </div>
-              <>
+            <>
               <div className="flex flex-col justify-between items-center gap-2">
                 <CouponPaymentCard />
               </div>
-              </>
+            </>
           </div>
         </div>
       </div>

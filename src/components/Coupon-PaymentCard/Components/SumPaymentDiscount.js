@@ -4,16 +4,17 @@ import { useCoupon } from '@/hooks/useCoupon';
 import { useState, useEffect } from 'react';
 import CouponAlert from '../../Coupons-components/CouponAlert';
 import useCountdown from '@/hooks/useCountdown';
-
-export default function SumPaymentDiscount({ coupon, disabled, showtimes, bookingId }) {
+import useApplyPayment from '@/hooks/useApplyPayment';
+export default function SumPaymentDiscount({ coupon, disabled, showtimes, bookingId, couponId }) {
   const { data, loading: bookingLoading, error: bookingError } = useTestBooking(showtimes, bookingId);
   const { loading: couponLoading, error: couponError, discountAmount, checkCoupon, applyCoupon } = useCoupon();
-  const [checkResult, setCheckResult] = useState(null);
+  const { applyPayment, loading: paymentLoading, error: paymentError, result: paymentResult } = useApplyPayment();
+  const [checkResult, setCheckResult] = useState(0);
   const [showBookingError, setShowBookingError] = useState(false);
   const [showCouponError, setShowCouponError] = useState(false);
-  const { setCouponIdForCancel, setBookingCouponIdForCancel, ...rest } = useCountdown();
-  
-  
+  const { cancelCouponStatus ,cancelCoupon} = useCountdown(couponId, bookingId);
+  const [finalPrice, setFinalPrice] = useState(0);
+  console.log(finalPrice);
   // อัพเดท showBookingError เมื่อมี bookingError
   useEffect(() => {
     if (bookingError) {
@@ -61,13 +62,35 @@ export default function SumPaymentDiscount({ coupon, disabled, showtimes, bookin
     checkCouponValidity();
   }, [coupon, data?.booking_id]);
 
+  useEffect(() => {
+    if (checkResult && typeof checkResult.final_price !== 'undefined') {
+      setFinalPrice(Number(checkResult.final_price));
+    } else {
+      setFinalPrice(null);
+    }
+  }, [checkResult]);
+
   // ปรับปรุง handleNext
   const handleNext = async () => {
     try {
       if (checkResult.discount_amount > 0) {
         await applyCoupon(data.booking_id, coupon.coupons.coupon_id, checkResult.discount_amount);
-        setCouponIdForCancel(coupon.coupons.coupon_id);
-        setBookingCouponIdForCancel(data.booking_id);
+        await cancelCouponStatus(couponId);
+        await cancelCoupon(couponId, data.booking_id);
+        if (!data.booking_id || !checkResult.final_price) {
+          alert('กรุณาตรวจสอบข้อมูล booking_id และราคาสุทธิให้ถูกต้อง');
+          return;
+        }
+        if (!finalPrice || finalPrice <= 0) {
+          alert('ราคาสุทธิไม่ถูกต้อง');
+          return;
+        }
+        applyPayment({
+          booking_id: data.booking_id,
+          payment_method: 'credit_card',
+          payment_status: 'pending',
+          amount: finalPrice,
+        });
       }
     } catch (error) {
       console.error('Error applying coupon:', {
@@ -77,6 +100,24 @@ export default function SumPaymentDiscount({ coupon, disabled, showtimes, bookin
       });
     }
     
+  };
+
+  // ฟังก์ชันใหม่สำหรับยืนยันชำระเงิน
+  const handleApplyPayment = () => {
+    if (!data.booking_id) {
+      alert('กรุณาตรวจสอบข้อมูล booking_id ให้ถูกต้อง');
+      return;
+    }
+    if (!finalPrice || finalPrice <= 0) {
+      alert('ราคาสุทธิไม่ถูกต้อง');
+      return;
+    }
+    applyPayment({
+      booking_id: data.booking_id,
+      payment_method: 'credit_card',
+      payment_status: 'pending',
+      amount: finalPrice,
+    });
   };
 
   if (bookingLoading || couponLoading) {
@@ -123,6 +164,13 @@ export default function SumPaymentDiscount({ coupon, disabled, showtimes, bookin
         disabled={disabled || !data || !!couponError}
       >
         Next
+      </Button>
+      <Button
+        className="!w-full !h-[48px] !rounded-[4px] self-center mt-2 bg-green-500 hover:bg-green-600 text-white"
+        onClick={handleApplyPayment}
+        disabled={disabled || !data}
+      >
+        ยืนยันชำระเงิน
       </Button>
     </div>
   );

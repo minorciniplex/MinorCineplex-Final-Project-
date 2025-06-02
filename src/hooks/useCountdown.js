@@ -10,7 +10,8 @@ const useCountdown = (seatNumber, showtimes, bookingId, couponId, booking_coupon
   const [onTimeExpire, setOnTimeExpire] = useState(false);
   const [couponIdForCancel, setCouponIdForCancel] = useState(null);
   const [bookingCouponIdForCancel, setBookingCouponIdForCancel] = useState(null);
-
+  console.log(couponId);
+  console.log(booking_coupon_id);
   const formatTime = useCallback((seconds) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
@@ -101,6 +102,8 @@ const useCountdown = (seatNumber, showtimes, bookingId, couponId, booking_coupon
   }, [bookingId, seatNumber, showtimes]);
 
   const cancelCoupon = useCallback(async (couponId, booking_coupon_id) => {
+    console.log(couponId);
+    console.log(booking_coupon_id);
     if (!couponId || !booking_coupon_id) {
       console.error('Missing required parameters for cancelCoupon');
       return;
@@ -120,6 +123,7 @@ const useCountdown = (seatNumber, showtimes, bookingId, couponId, booking_coupon
   }, []);
 
 const cancelCouponStatus = useCallback(async (couponId) => {
+  console.log(couponId);
   if (!couponId ) {
     console.error('Missing required parameters for cancelCouponStatus');
     return;
@@ -145,18 +149,18 @@ const cancelCouponStatus = useCallback(async (couponId) => {
     try {
       alert("Reservation cancelled");
       await cancelReservation();
-      await cancelCoupon(couponIdForCancel, bookingCouponIdForCancel); // ลบ booking_coupon
-      await cancelCouponStatus(couponIdForCancel); // เปลี่ยน user_coupons เป็น active
+      await cancelCoupon(); // ลบ booking_coupon
+      await cancelCouponStatus(); // เปลี่ยน user_coupons เป็น active
     } catch (error) {
       console.error('Error in handleExpire:', error);
     }
-  }, [cancelReservation, cancelCoupon, cancelCouponStatus, couponIdForCancel, bookingCouponIdForCancel]);
+  }, []);
 
   useEffect(() => {
-    if (onTimeExpire && couponIdForCancel && bookingCouponIdForCancel) {
+    if (onTimeExpire) {
       handleExpire();
     }
-  }, [onTimeExpire, couponIdForCancel, bookingCouponIdForCancel, handleExpire]);
+  }, [onTimeExpire]);
 
   // เมื่อ onTimeExpire เป็น true ให้ cancelReservation
   useEffect(() => {
@@ -197,8 +201,7 @@ const cancelCouponStatus = useCallback(async (couponId) => {
     onTimeExpire,
     setOnTimeExpire,
     cancelCoupon,
-    setCouponIdForCancel,
-    setBookingCouponIdForCancel
+    cancelCouponStatus
   };
 };
 

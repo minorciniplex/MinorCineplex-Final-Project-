@@ -11,7 +11,7 @@ export default function CouponPaymentCard({ showtimes, bookingId }) {
   const { user } = useStatus();
   const { couponsInWallet, loading: loadingCoupons } = useCouponWallet(user);
   const selectedCoupon = couponsInWallet.find(c => c.coupons.coupon_id === selectedCouponId);
-  
+  console.log(selectedCouponId);
 
 
   return (
@@ -33,6 +33,7 @@ export default function CouponPaymentCard({ showtimes, bookingId }) {
           coupon={selectedCoupon}
           showtimes={showtimes}
           bookingId={bookingId}
+          couponId={selectedCouponId}
         />
       </div>
       <CouponSelectPopup

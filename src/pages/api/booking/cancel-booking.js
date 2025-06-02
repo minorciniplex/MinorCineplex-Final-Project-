@@ -55,6 +55,7 @@ const handler = async (req, res) => {
         .select();
       console.log("bookings deleted:", bookingData);
 
+      // 4. อัพเดทข้อมูลจาก user_coupons
       // const { data: bookingCouponData, error: bookingCouponError } = await supabase
       //   .from("user_coupons")
       //   .update({ coupon_status: "active" })

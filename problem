@@ -1,0 +1,7 @@
+เมื่อuseCountdownนับเวลาถึง0 จะยกเลิกbooking seat แต่จากหน้า[payment]ไม่สามารถดึงค่าcouponidได้ 
+
+
+ค่าที่ส่งไปกับ next ที่2 1.ที่ตารางpaymentsจะมีbooking_id payment_method:qr||credit card  payment_status amount(จากsumpaymentdiscount)  2.ที่ตารางuser_couponจะupdate status เป็นpending 
+
+คิดว่าเมื่อกดnext แล้ว จะต้องส่งค่าcouponidไปที่ cancelReservation เพื่ออัพเดทค่าในตารางuser_coupon กลับบเป็นactiveเมื่อหมดเวลา 
+

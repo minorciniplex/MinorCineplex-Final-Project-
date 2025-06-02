@@ -15,6 +15,27 @@ const useCountdown = (seatNumber, showtimes, bookingId) => {
     return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   }, []);
 
+  const setCouponOntTimeExpire = useCallback(async (couponId) => {
+    if (!couponId) {
+      console.warn('No coupon ID provided for expiration');
+      return;
+    }
+
+    try {
+      const response = await axios.post('/api/booking/cancel-coupon', {
+        couponId: couponId
+      });
+
+      if (response.data.success) {
+        console.log('Coupon expiration handled successfully:', response.data.message);
+      } else {
+        console.warn('Coupon expiration warning:', response.data.message);
+      }
+    } catch (error) {
+      console.error('Error handling coupon expiration:', error.response?.data?.error || error.message);
+    }
+  }, []);
+
   const startReservation = useCallback(async () => {
     try {
       if (!bookingId || !showtimes) {
@@ -71,8 +92,9 @@ const useCountdown = (seatNumber, showtimes, bookingId) => {
     if (onTimeExpire) {
       alert("Reservation cancelled");
       cancelReservation();
+      setCouponOntTimeExpire(seatNumber);
     }
-  }, []);
+  }, [onTimeExpire, cancelReservation, setCouponOntTimeExpire, seatNumber]);
 
   // Update timer
   useEffect(() => {
@@ -102,7 +124,8 @@ const useCountdown = (seatNumber, showtimes, bookingId) => {
     startReservation,
     cancelReservation,
     onTimeExpire,
-    setOnTimeExpire
+    setOnTimeExpire,
+    setCouponOntTimeExpire
   };
 };
 

@@ -306,7 +306,7 @@ function PromptPayQR() {
   );
 }
 
-export default function PaymentMobile() {
+export default function PaymentMobile({ setPaymentMethod }) {
   const router = useRouter();
   const [tab, setTab] = useState("credit");
   const [card, setCard] = useState({
@@ -411,6 +411,14 @@ export default function PaymentMobile() {
     return () => clearInterval(interval);
   }, [chargeId]);
 
+  // ฟังก์ชันเปลี่ยน tab และส่งค่า paymentMethod ออกไป
+  const handleTabChange = (method) => {
+    setTab(method);
+    if (setPaymentMethod) {
+      setPaymentMethod(method === "credit" ? "Credit card" : "QR code");
+    }
+  };
+
   if (loading) return <div>Loading...</div>;
   // ไม่ต้อง return ถ้า booking เป็น null ให้แสดงฟอร์มด้วย mock data
 
@@ -461,7 +469,7 @@ export default function PaymentMobile() {
           <div className="flex mt-[50px] md:mt-[-30px] gap-4 items-baseline ml-4 md:ml-4">
             <button
               className="flex justify-center md:mb-[50px]"
-              onClick={() => setTab("credit")}
+              onClick={() => handleTabChange("credit")}
             >
               <span
                 className={`headline-3 pb-1 px-[7px] inline-block ${
@@ -475,7 +483,7 @@ export default function PaymentMobile() {
             </button>
             <button
               className="flex justify-center md:ml-8"
-              onClick={() => setTab("qr")}
+              onClick={() => handleTabChange("qr")}
             >
               <span
                 className={`headline-3 pb-1 px-[7px] inline-block ${

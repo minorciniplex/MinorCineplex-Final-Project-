@@ -11,8 +11,9 @@ export default function Seats() {
   const [genres, setGenres] = useState(null);
   const [language, setLanguage] = useState(null);
   const [seatNumber, setSeatNumber] = useState(null);
+  const [paymentMethod, setPaymentMethod] = useState("Credit card");
   console.log(bookingId);
-
+  console.log(paymentMethod);
   useEffect(() => {
     if (router.isReady) {
       const { genres, language } = router.query;
@@ -29,7 +30,7 @@ export default function Seats() {
       <StepProgressBar currentPath="/booking/payment" />
       <div className="">
         <div className="flex flex-row justify-between items-start gap-4 p-4">
-          <PaymentMobile />
+          <PaymentMobile setPaymentMethod={setPaymentMethod} />
           <PaymentsCard
             time={time}
             cinemaName={cinemaName}
@@ -42,6 +43,7 @@ export default function Seats() {
             seatNumber={seat}
             bookingId={bookingId}
             showtimes={showtimes}
+            paymentMethod={paymentMethod}
           />
         </div>
       </div>

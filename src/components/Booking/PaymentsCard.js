@@ -20,7 +20,8 @@ export default function PaymentsCard({
   price,
   showtimes,
   movieId,
-  bookingId
+  bookingId,
+  paymentMethod
 }) {
   const router = useRouter();
   const { timeLeft, isTimerActive, formatTime, startReservation, cancelReservation } = useCountdown(seatNumber, showtimes, bookingId);
@@ -167,6 +168,8 @@ export default function PaymentsCard({
                 <CouponPaymentCard 
                   showtimes={showtimes}
                   bookingId={bookingId}
+                  bookingSeats={seatNumber}
+                  paymentMethod={paymentMethod}
                 />
               </div>
               </>

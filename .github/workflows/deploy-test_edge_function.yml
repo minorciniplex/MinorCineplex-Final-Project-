@@ -1,4 +1,5 @@
-name: Scheduled Function Call
+name: Deploy test_edge_function to Supabase
+
 
 on:
   push:

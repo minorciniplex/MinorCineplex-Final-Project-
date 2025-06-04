@@ -1,6 +1,11 @@
 name: Scheduled Function Call
 
 on:
+  push:
+    branches: [main, develop, feature/*]
+    paths:
+      - "supabase/functions/test_edge_function/**"
+      - ".github/workflows/deploy-test_edge_function.yml"
   schedule:
     - cron: '*/2 * * * *'  # Every 2 minutes
   workflow_dispatch:  # Manual trigger

@@ -1,0 +1,31 @@
+name: Deploy test_edge_function to Supabase
+
+on:
+  push:
+    branches: [main, develop, feature/*] # เพิ่ม branches ที่ต้องการ
+    paths:
+      - "supabase/functions/test_edge_function/**"
+      - ".github/workflows/deploy-test_edge_function.yml"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install Supabase CLI
+        run: npm install -g supabase
+
+      - name: Supabase login
+        run: supabase login --access-token ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+      - name: Link to Supabase project
+        run: supabase link --project-ref ${{ secrets.SUPABASE_PROJECT_ID }}
+
+      - name: Deploy test_edge_function function
+        run: supabase functions deploy test_edge_function
+
+      - name: Set cron schedule to every 1 minute
+        run: supabase functions schedule set test_edge_function --cron "* * * * *"

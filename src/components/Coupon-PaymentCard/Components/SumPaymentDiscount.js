@@ -148,7 +148,7 @@ export default function SumPaymentDiscount({
 
   const finalTotal = data?.total_price - (discountAmount || 0);
 
-  const seatNumber = JSON.parse(bookingSeats);
+  const seatNumber = bookingSeats ? JSON.parse(bookingSeats) : [];
   return (
     <div>
       <div className="flex flex-col gap-2">

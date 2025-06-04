@@ -1,0 +1,5 @@
+add route push to seat bookking page when timer run out
+fix bug when timer run out change coupon status to active
+add api to delete booking payment when timer run out 
+learn how to use supabase to timer and trigger function delete data instead of using client timer
+when click clear coupon clean value in summry card

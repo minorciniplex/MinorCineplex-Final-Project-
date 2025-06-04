@@ -1,0 +1,71 @@
+name: Deploy test_edge_function to Supabase
+
+on:
+  push:
+    branches: [main, develop, feature/*]
+    paths:
+      - "supabase/functions/test_edge_function/**"
+      - ".github/workflows/deploy-test_edge_function.yml"
+      
+  schedule:
+    - cron: '*/2 * * * *'  # Every 2 minutes
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Supabase login
+        run: npx supabase login --token ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+      - name: Link to Supabase project
+        run: npx supabase link --project-ref ${{ secrets.SUPABASE_PROJECT_ID }}
+
+      - name: Deploy test_edge_function function
+        run: npx supabase functions deploy test_edge_function
+
+  call-function:
+    runs-on: ubuntu-latest
+    # Remove if condition temporarily to see what's happening
+    steps:
+      - name: Debug Info
+        run: |
+          echo "=== DEBUG INFORMATION ==="
+          echo "Event name: '${{ github.event_name }}'"
+          echo "Branch: '${{ github.ref_name }}'"
+          echo "Repository: '${{ github.repository }}'"
+          echo "Run ID: '${{ github.run_id }}'"
+          echo "Actor: '${{ github.actor }}'"
+          echo "Workflow: '${{ github.workflow }}'"
+          echo "Current time: $(date)"
+          echo "========================="
+          
+      - name: Call Edge Function
+        run: |
+          echo "Calling Supabase function from ${{ github.event_name }}..."
+          response=$(curl -s -w "\n%{http_code}" -X POST \
+            "https://mvlmpdjlmvhqbajcmqwv.supabase.co/functions/v1/test_edge_function" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d '{"source": "${{ github.event_name }}", "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'", "branch": "${{ github.ref_name }}"}')
+          
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | head -n -1)
+          
+          echo "HTTP Status: $http_code"
+          echo "Response: $body"
+          
+          if [ "$http_code" -ne 200 ]; then
+            echo "❌ Function call failed with status $http_code"
+          else
+            echo "✅ Function call completed successfully!"
+          fi

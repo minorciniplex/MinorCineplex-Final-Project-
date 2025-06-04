@@ -1,0 +1,6 @@
+{
+    "name": "clean-expired-bookings",
+    "cron": "*/1 * * * *",
+    "invoke_function": "booking_cleaner"
+}
+

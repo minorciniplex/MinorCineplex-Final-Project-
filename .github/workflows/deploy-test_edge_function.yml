@@ -2,7 +2,7 @@ name: Deploy test_edge_function to Supabase
 
 on:
   push:
-    branches: [main, develop, feature/*] # เพิ่ม branches ที่ต้องการ
+    branches: [main, develop, feature/*] # เพิ่ม branches ที่ต้องการ 
     paths:
       - "supabase/functions/test_edge_function/**"
       - ".github/workflows/deploy-test_edge_function.yml"
@@ -34,3 +34,6 @@ jobs:
         run: |
           curl -X POST "https://mvlmpdjlmvhqbajcmqwv.supabase.co/functions/v1/test_edge_function" \
             -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}"
+
+
+

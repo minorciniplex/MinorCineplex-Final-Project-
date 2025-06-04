@@ -9,23 +9,11 @@ on:
   schedule:
     - cron: '*/2 * * * *'  # Every 2 minutes
   workflow_dispatch:  # Manual trigger
-    inputs:
-      action:
-        description: 'What to do'
-        required: true
-        default: 'both'
-        type: choice
-        options:
-        - deploy
-        - call
-        - both
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    if: |
-      github.event_name == 'push' || 
-      (github.event_name == 'workflow_dispatch' && (github.event.inputs.action == 'deploy' || github.event.inputs.action == 'both'))
+    if: github.event_name == 'push'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -46,16 +34,19 @@ jobs:
 
   call-function:
     runs-on: ubuntu-latest
-    if: |
-      github.event_name == 'schedule' || 
-      (github.event_name == 'workflow_dispatch' && (github.event.inputs.action == 'call' || github.event.inputs.action == 'both'))
+    # Remove if condition temporarily to see what's happening
     steps:
       - name: Debug Info
         run: |
-          echo "Event name: ${{ github.event_name }}"
-          echo "Branch: ${{ github.ref_name }}"
-          echo "Trigger: ${{ github.event_name }}"
-          echo "Scheduled run at: $(date)"
+          echo "=== DEBUG INFORMATION ==="
+          echo "Event name: '${{ github.event_name }}'"
+          echo "Branch: '${{ github.ref_name }}'"
+          echo "Repository: '${{ github.repository }}'"
+          echo "Run ID: '${{ github.run_id }}'"
+          echo "Actor: '${{ github.actor }}'"
+          echo "Workflow: '${{ github.workflow }}'"
+          echo "Current time: $(date)"
+          echo "========================="
           
       - name: Call Edge Function
         run: |
@@ -74,7 +65,6 @@ jobs:
           
           if [ "$http_code" -ne 200 ]; then
             echo "❌ Function call failed with status $http_code"
-            exit 1
           else
-            echo "✅ Function call completed successfully from ${{ github.event_name }}!"
+            echo "✅ Function call completed successfully!"
           fi

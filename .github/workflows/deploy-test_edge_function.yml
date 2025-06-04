@@ -1,6 +1,5 @@
 name: Deploy test_edge_function to Supabase
 
-
 on:
   push:
     branches: [main, develop, feature/*]
@@ -10,13 +9,31 @@ on:
   schedule:
     - cron: '*/2 * * * *'  # Every 2 minutes
   workflow_dispatch:  # Manual trigger
+    inputs:
+      action:
+        description: 'What to do'
+        required: true
+        default: 'both'
+        type: choice
+        options:
+        - deploy
+        - call
+        - both
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'push' || 
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.action == 'deploy' || github.event.inputs.action == 'both'))
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
 
       - name: Supabase login
         run: npx supabase login --token ${{ secrets.SUPABASE_ACCESS_TOKEN }}
@@ -29,21 +46,25 @@ jobs:
 
   call-function:
     runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'schedule' || 
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.action == 'call' || github.event.inputs.action == 'both'))
     steps:
       - name: Debug Info
         run: |
           echo "Event name: ${{ github.event_name }}"
           echo "Branch: ${{ github.ref_name }}"
+          echo "Trigger: ${{ github.event_name }}"
           echo "Scheduled run at: $(date)"
           
       - name: Call Edge Function
         run: |
-          echo "Calling Supabase function from cron job..."
+          echo "Calling Supabase function from ${{ github.event_name }}..."
           response=$(curl -s -w "\n%{http_code}" -X POST \
             "https://mvlmpdjlmvhqbajcmqwv.supabase.co/functions/v1/test_edge_function" \
             -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
             -H "Content-Type: application/json" \
-            -d '{"source": "cron", "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"}')
+            -d '{"source": "${{ github.event_name }}", "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'", "branch": "${{ github.ref_name }}"}')
           
           http_code=$(echo "$response" | tail -n1)
           body=$(echo "$response" | head -n -1)
@@ -55,5 +76,5 @@ jobs:
             echo "❌ Function call failed with status $http_code"
             exit 1
           else
-            echo "✅ Cron job completed successfully!"
+            echo "✅ Function call completed successfully from ${{ github.event_name }}!"
           fi

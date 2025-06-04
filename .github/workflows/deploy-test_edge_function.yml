@@ -19,7 +19,7 @@ jobs:
         run: npm install supabase@latest
 
       - name: Supabase login
-        run: npx supabase login --access-token ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: npx supabase login --token ${{ secrets.SUPABASE_ACCESS_TOKEN }}
 
       - name: Link to Supabase project
         run: npx supabase link --project-ref ${{ secrets.SUPABASE_PROJECT_ID }}

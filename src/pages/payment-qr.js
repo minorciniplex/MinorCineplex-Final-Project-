@@ -18,11 +18,41 @@ export default function PaymentQR() {
   useEffect(() => {
     if (!chargeId || !bookingId) return;
     const interval = setInterval(async () => {
-      const res = await fetch(`/api/get-qr-status?chargeId=${chargeId}`);
+      const res = await fetch('/api/check-promptpay-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chargeId }),
+      });
       const data = await res.json();
       setStatus(data.status);
       if (data.status === 'successful' || data.status === 'paid') {
         clearInterval(interval);
+        console.log('Payment successful! Calling mark-paid API...');
+        
+        // เรียก mark-paid API เพื่ออัพเดทสถานะ booking
+        try {
+          const markPaidResponse = await fetch('/api/booking/mark-paid', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              bookingId: bookingId,
+              paymentIntentId: chargeId,
+              paymentMethod: 'omise_promptpay'
+            }),
+          });
+          
+          const markPaidResult = await markPaidResponse.json();
+          console.log('Mark-paid API result:', markPaidResult);
+          
+          if (!markPaidResponse.ok) {
+            console.error('Mark-paid API error:', markPaidResult);
+            // ยังคงไป success page แม้ mark-paid จะล้มเหลว
+          }
+        } catch (error) {
+          console.error('Error calling mark-paid API:', error);
+          // ยังคงไป success page แม้ mark-paid จะล้มเหลว
+        }
+        
         router.replace(`/payment-success?bookingId=${bookingId}`);
       }
     }, 5000);

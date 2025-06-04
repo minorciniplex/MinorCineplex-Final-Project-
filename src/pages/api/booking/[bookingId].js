@@ -9,8 +9,16 @@ const handler = async (req, res) => {
   if (req.method === "PUT") {
     const { showtimeId, seatNumber, sumPrice } = req.body;
 
+    console.log("=== UPDATE BOOKING REQUEST ===");
+    console.log("Booking ID:", bookingId);
+    console.log("User ID:", user.id);
+    console.log("Showtime ID:", showtimeId);
+    console.log("Seat Numbers:", seatNumber);
+    console.log("Total Price:", sumPrice);
+
     // Validate input
     if (!showtimeId || !seatNumber || !Array.isArray(seatNumber) || seatNumber.length === 0) {
+      console.error("Validation failed: Missing required fields");
       return res.status(400).json({ error: "Missing required fields or invalid seat data" });
     }
 
@@ -123,7 +131,10 @@ const handler = async (req, res) => {
 
         const { data: newSeatData, error: seatError } = await supabase
           .from("seats")
-          .insert(seatInserts)
+          .upsert(seatInserts, { 
+            onConflict: 'seat_id,showtime_id',
+            ignoreDuplicates: false 
+          })
           .select();
 
         if (seatError) {
@@ -172,8 +183,14 @@ const handler = async (req, res) => {
       });
 
     } catch (error) {
+      console.error("=== UPDATE BOOKING ERROR ===");
       console.error("Error in PUT request:", error);
-      return res.status(500).json({ error: "Internal Server Error" });
+      console.error("Stack trace:", error.stack);
+      return res.status(500).json({ 
+        error: "Internal Server Error",
+        message: "Failed to update booking",
+        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      });
     }
   } else {
     return res.status(405).json({ error: "Method Not Allowed" });

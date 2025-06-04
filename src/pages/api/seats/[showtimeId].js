@@ -17,7 +17,7 @@ export default async function handler(req, res) {
     // Clean up expired reservations first
     await cleanupExpiredReservations(supabase, showtimeId);
 
-    // Fetch seats with correct column names
+    // Fetch seats with correct column names (removed reserved_until since it doesn't exist)
     const { data: seats, error } = await supabase
       .from('seats')
       .select('*')
@@ -42,7 +42,7 @@ export default async function handler(req, res) {
       number: seat.seat_number,
       status: seat.seat_status || 'available', // Handle different column names
       reserved_by: seat.reserved_by,
-      reserved_until: seat.reserved_until,
+      reserved_until: null, // Set to null since this column doesn't exist in seats table
       showtime_id: seat.showtime_id,
       created_at: seat.created_at,
       updated_at: seat.updated_at
@@ -62,13 +62,18 @@ export default async function handler(req, res) {
 
 async function cleanupExpiredReservations(supabase, showtimeId) {
   try {
-    const now = new Date().toISOString();
+    // Get expired bookings (reserved_until is in bookings table, not seats)
+    // Add 5 minutes buffer to avoid cleaning up reservations too early
+    const now = new Date(Date.now() - 5 * 60 * 1000).toISOString();
     
-    const { data: expiredSeats, error: selectError } = await supabase
-      .from('seats')
-      .select('seat_id')
+    console.log(`Checking for expired reservations for showtime ${showtimeId} at ${now} (with 5min buffer)`);
+    
+    // Find expired bookings - only ones that are truly expired
+    const { data: expiredBookings, error: selectError } = await supabase
+      .from('bookings')
+      .select('booking_id, user_id, reserved_until, created_at, status')
       .eq('showtime_id', showtimeId)
-      .eq('seat_status', 'reserved') // Use actual database column name
+      .eq('status', 'reserved')
       .lt('reserved_until', now);
 
     if (selectError) {
@@ -76,26 +81,45 @@ async function cleanupExpiredReservations(supabase, showtimeId) {
       return;
     }
 
-    if (expiredSeats && expiredSeats.length > 0) {
-      const { error: updateError } = await supabase
-        .from('seats')
-        .update({
-          seat_status: 'available', // Use actual database column name
-          reserved_by: null,
-          reserved_until: null
-        })
-        .eq('showtime_id', showtimeId)
-        .eq('seat_status', 'reserved')
-        .lt('reserved_until', now);
+    console.log(`Found ${expiredBookings?.length || 0} truly expired bookings (with buffer):`, expiredBookings);
 
-      if (updateError) {
-        console.error('Error cleaning up expired reservations:', updateError);
-      } else {
-        console.log(`Cleaned up ${expiredSeats.length} expired reservations for showtime ${showtimeId}`);
+    if (expiredBookings && expiredBookings.length > 0) {
+      // Update expired seats back to available
+      for (const booking of expiredBookings) {
+        console.log(`Cleaning up expired booking ${booking.booking_id} for user ${booking.user_id}, expired at ${booking.reserved_until}`);
+        
+        const { error: updateSeatsError } = await supabase
+          .from('seats')
+          .update({
+            seat_status: 'available',
+            reserved_by: null,
+            updated_at: new Date().toISOString()
+          })
+          .eq('showtime_id', showtimeId)
+          .eq('reserved_by', booking.user_id);
+
+        if (updateSeatsError) {
+          console.error('Error updating expired seats:', updateSeatsError);
+        }
       }
+
+      // Delete expired bookings
+      const expiredBookingIds = expiredBookings.map(b => b.booking_id);
+      const { error: deleteError } = await supabase
+        .from('bookings')
+        .delete()
+        .in('booking_id', expiredBookingIds);
+
+      if (deleteError) {
+        console.error('Error deleting expired bookings:', deleteError);
+      } else {
+        console.log(`Successfully cleaned up ${expiredBookings.length} expired reservations for showtime ${showtimeId}`);
+      }
+    } else {
+      console.log('No expired reservations found (with buffer)');
     }
   } catch (error) {
     console.error('Error in cleanupExpiredReservations:', error);
-    // Don't throw - this is a cleanup operation that shouldn't break the main request
+    // Don't throw - this is cleanup operation that shouldn't break the main request
   }
 }

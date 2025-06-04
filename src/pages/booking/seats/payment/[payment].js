@@ -5,6 +5,8 @@ import PaymentsCard from "@/components/Booking/PaymentsCard";
 import PaymentMobile from "@/components/PaymentSystem/PaymentMobile";
 import StepProgressBar from "@/components/Booking/StepProgressBar";
 import useBookingSeat from "@/hooks/useBookingSeat";
+import { PaymentProvider } from "@/context/PaymentContext";
+import { parseQueryParam } from "@/utils/jsonHelper";
 
 export default function Seats() {
   const router = useRouter();
@@ -25,13 +27,14 @@ export default function Seats() {
   const [seatNumber, setSeatNumber] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState("Credit card");
   const { processPayment, resetPaymentState } = useBookingSeat();
+  const [isCardComplete, setIsCardComplete] = useState(false);
 
   useEffect(() => {
     if (router.isReady) {
-      const { genres, language, seat } = router.query;
-      setGenres(JSON.parse(genres));
-      setLanguage(JSON.parse(language));
-      setSeatNumber(JSON.parse(seat));
+      // Use safe JSON parsing helper
+      setGenres(parseQueryParam(router.query, 'genres', null));
+      setLanguage(parseQueryParam(router.query, 'language', null));
+      setSeatNumber(parseQueryParam(router.query, 'seat', null));
     }
   }, [router.isReady]);
 
@@ -65,23 +68,26 @@ export default function Seats() {
     <>
       <Navbar />
       <StepProgressBar currentPath="/booking/payment" />
-      <div className="flex flex-col md:flex-row justify-center md:py-[80px] md:px-[120px] md:gap-[102px]">
-        <PaymentMobile setPaymentMethod={setPaymentMethod} />
-        <PaymentsCard
-          time={time}
-          cinemaName={cinemaName}
-          screenNumber={screenNumber}
-          poster={poster}
-          title={title}
-          genres={genres}
-          language={language}
-          date={date}
-          seatNumber={seat}
-          bookingId={bookingId}
-          showtimes={showtimes}
-          paymentMethod={paymentMethod}
-        />
-      </div>
+      <PaymentProvider>
+        <div className="flex flex-col sm:flex-row justify-center sm:py-[80px] sm:px-[120px] sm:gap-[102px]">
+          <PaymentMobile setPaymentMethod={setPaymentMethod} isCardComplete={isCardComplete} setIsCardComplete={setIsCardComplete} />
+          <PaymentsCard
+            time={time}
+            cinemaName={cinemaName}
+            screenNumber={screenNumber}
+            poster={poster}
+            title={title}
+            genres={genres}
+            language={language}
+            date={date}
+            seatNumber={seat}
+            bookingId={bookingId}
+            showtimes={showtimes}
+            paymentMethod={paymentMethod}
+            isCardComplete={isCardComplete}
+          />
+        </div>
+      </PaymentProvider>
       <div className="flex justify-center mt-8">
         <button
           onClick={handlePayment}

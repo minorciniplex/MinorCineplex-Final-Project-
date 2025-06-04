@@ -25,6 +25,8 @@ import {
 import { supabase } from "@/utils/supabase";
 import { useRouter } from "next/navigation";
 import ConfirmBookingPopup from "./ConfirmBookingPopup";
+import CouponPaymentCard from "../Coupon-PaymentCard/CouponApply";
+import { usePayment } from "@/context/PaymentContext";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
@@ -89,10 +91,25 @@ const StripeCardForm = forwardRef(function StripeCardForm(
   // expose ฟังก์ชันจ่ายเงินผ่าน ref
   useImperativeHandle(ref, () => ({
     async pay() {
+      console.log("[DEBUG] pay() called in PaymentMobile");
+      console.log("[DEBUG] booking in PaymentMobile:", booking);
+      
+      // แปลงและตรวจสอบ amount
+      let amount = booking?.total;
+      if (typeof amount === "string") {
+        amount = Number(amount.replace(/,/g, ""));
+      }
+      amount = Number(amount);
+      if (!amount || isNaN(amount)) {
+        console.log("[DEBUG] amount after parse:", amount);
+        return { error: "จำนวนเงินไม่ถูกต้อง" };
+      }
+      
       if (!stripe || !elements) return { error: "Stripe ยังไม่พร้อม" };
-      const amount = booking?.total;
+      
       const bookingIdReal = booking?.id;
       const movieId = booking?.movie_id;
+      
       try {
         const res = await fetch("/api/create-payment-intent", {
           method: "POST",
@@ -105,10 +122,12 @@ const StripeCardForm = forwardRef(function StripeCardForm(
           }),
         });
         const { clientSecret } = await res.json();
-        console.log("clientSecret", clientSecret);
+        console.log("[DEBUG] clientSecret:", clientSecret);
+        
         const cardNumberElement = elements.getElement(CardNumberElement);
         if (!cardNumberElement)
           return { error: "กรุณากรอกข้อมูลบัตรให้ครบถ้วน" };
+          
         const { error: confirmError, paymentIntent } =
           await stripe.confirmCardPayment(clientSecret, {
             payment_method: {
@@ -116,13 +135,29 @@ const StripeCardForm = forwardRef(function StripeCardForm(
               billing_details: { name: owner },
             },
           });
-        console.log(
-          "confirmError",
-          confirmError,
-          "paymentIntent",
-          paymentIntent
-        );
-        if (confirmError) return { error: confirmError.message };
+          
+        console.log("[DEBUG] confirmError:", confirmError);
+        console.log("[DEBUG] paymentIntent:", paymentIntent);
+        
+        if (confirmError) {
+          console.log("[DEBUG] return error:", confirmError.message);
+          return { error: confirmError.message };
+        }
+        
+        // ตรวจสอบสถานะการชำระเงิน
+        if (!paymentIntent) {
+          console.log("[DEBUG] return error: paymentIntent is null");
+          return { error: "ไม่สามารถสร้าง paymentIntent ได้" };
+        }
+        
+        if (paymentIntent.status !== "succeeded") {
+          console.log("[DEBUG] return error: paymentIntent.status =", paymentIntent.status);
+          return { error: "การชำระเงินไม่สำเร็จ กรุณาลองใหม่" };
+        }
+        
+        console.log("[DEBUG] Payment succeeded, saving to database...");
+        
+        // บันทึกข้อมูลการชำระเงิน
         const paymentData = {
           payment_intent_id: paymentIntent.id,
           amount,
@@ -136,14 +171,33 @@ const StripeCardForm = forwardRef(function StripeCardForm(
         const { data, error: supaError } = await supabase
           .from("movie_payments")
           .insert([paymentData]);
-        console.log("supabase insert", data, supaError);
-        if (supaError)
+        console.log("[DEBUG] supabase insert result:", data, supaError);
+        
+        if (supaError) {
+          console.log("[DEBUG] return error: supaError", supaError.message);
           return {
             error: "บันทึกข้อมูลลงฐานข้อมูลไม่สำเร็จ: " + supaError.message,
           };
+        }
+          
+        // เรียก mark-paid API หลังจ่ายเงินสำเร็จ
+        console.log("[DEBUG] Calling mark-paid API...");
+        const markPaidRes = await fetch("/api/booking/mark-paid", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ bookingId: bookingIdReal }),
+        });
+        const markPaidData = await markPaidRes.json();
+        console.log("[DEBUG] mark-paid API result:", markPaidData);
+        
+        if (!markPaidData.success) {
+          return { error: "อัปเดต booking ไม่สำเร็จ: " + (markPaidData.error || "") };
+        }
+        
+        console.log("[DEBUG] Payment completed successfully");
         return { success: true };
       } catch (err) {
-        console.log("catch error", err);
+        console.log("[DEBUG] catch error:", err);
         return { error: "เกิดข้อผิดพลาดในการชำระเงิน กรุณาลองใหม่อีกครั้ง" };
       }
     },
@@ -319,9 +373,10 @@ function PromptPayQR() {
   );
 }
 
-export default function PaymentMobile({ setPaymentMethod }) {
+export default function PaymentMobile({ setPaymentMethod, isCardComplete, setIsCardComplete }) {
   const router = useRouter();
   const [tab, setTab] = useState("credit");
+  const { setCardFormRef, bookingData, userId: paymentUserId } = usePayment();
   const [card, setCard] = useState({
     number: "",
     owner: "",
@@ -333,11 +388,17 @@ export default function PaymentMobile({ setPaymentMethod }) {
   const [selectedCoupon, setSelectedCoupon] = useState(null);
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState(null);
-  const [isCardComplete, setIsCardComplete] = useState(false);
   const [openConfirmPopup, setOpenConfirmPopup] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [confirmError, setConfirmError] = useState(null);
   const cardFormRef = useRef();
+
+  // ส่ง cardFormRef ให้ Context
+  useEffect(() => {
+    if (setCardFormRef && cardFormRef) {
+      setCardFormRef(cardFormRef);
+    }
+  }, [setCardFormRef, cardFormRef]);
   const [qrUrl, setQrUrl] = useState(null);
   const [qrLoading, setQrLoading] = useState(false);
   const [qrError, setQrError] = useState(null);
@@ -516,8 +577,8 @@ export default function PaymentMobile({ setPaymentMethod }) {
               <StripeCardForm
                 ref={cardFormRef}
                 setIsCardComplete={setIsCardComplete}
-                booking={booking}
-                userId={userId}
+                booking={bookingData || booking}
+                userId={paymentUserId || userId}
               />
             </Elements>
           )}

@@ -1,6 +1,9 @@
-import Stripe from 'stripe';
+import Omise from 'omise';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+const omise = Omise({
+  secretKey: process.env.OMISE_SECRET_KEY,
+  omiseVersion: '2019-05-29',
+});
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -10,10 +13,15 @@ export default async function handler(req, res) {
   try {
     const { chargeId } = req.body;
 
-    const paymentIntent = await stripe.paymentIntents.retrieve(chargeId);
+    if (!chargeId) {
+      return res.status(400).json({ error: 'Missing chargeId' });
+    }
 
+    const charge = await omise.charges.retrieve(chargeId);
+    
     res.status(200).json({
-      status: paymentIntent.status,
+      status: charge.status,
+      charge: charge,
     });
   } catch (err) {
     console.error('Error checking promptpay status:', err);

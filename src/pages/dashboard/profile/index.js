@@ -7,6 +7,18 @@ import CouponAlert from "@/components/Coupons-components/CouponAlert";
 import Image from "next/image";
 import ProfileAlert from "@/components/ProfileAlert";
 
+// ฟังก์ชันเช็ค src ให้ปลอดภัย
+const getProfileSrc = (src) => {
+  if (
+    typeof src === "string" &&
+    src.trim() &&
+    (src.startsWith("/") || src.startsWith("http"))
+  ) {
+    return src;
+  }
+  return "/default-profile.png"; // fallback ที่ควรมีใน public/
+};
+
 const ProfileUpload = () => {
   const router = useRouter();
   const { user } = useStatus();
@@ -181,7 +193,7 @@ const ProfileUpload = () => {
           <div className="flex flex-col items-start mb-6">
             <div className="w-[120px] h-[120px] rounded-full bg-[#23263A] flex items-center justify-center overflow-hidden mb-2 relative">
               <Image
-                src={form.user_profile}
+                src={getProfileSrc(form.user_profile)}
                 alt="Profile"
                 width={120}
                 height={120}

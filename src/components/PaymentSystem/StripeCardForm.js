@@ -1,0 +1,203 @@
+import React, { useState, useEffect, forwardRef, useImperativeHandle } from "react";
+import { CardNumberElement, CardExpiryElement, CardCvcElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import { supabase } from "@/utils/supabase";
+
+const ELEMENT_OPTIONS = {
+  style: {
+    base: {
+      fontSize: "16px",
+      color: "#fff",
+      backgroundColor: "",
+      "::placeholder": {
+        color: "#8B93B0",
+      },
+    },
+    invalid: {
+      color: "#fa755a",
+      iconColor: "#fa755a",
+    },
+  },
+};
+
+const StripeCardForm = forwardRef(function StripeCardForm(
+  { setIsCardComplete, booking, userId },
+  ref
+) {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [owner, setOwner] = useState("");
+  const [isCardNumberComplete, setIsCardNumberComplete] = useState(false);
+  const [isExpiryComplete, setIsExpiryComplete] = useState(false);
+  const [isCvcComplete, setIsCvcComplete] = useState(false);
+
+  useEffect(() => {
+    console.log("[DEBUG] Card state:", {
+      isCardNumberComplete,
+      isExpiryComplete,
+      isCvcComplete,
+      owner,
+      isCardComplete: isCardNumberComplete && isExpiryComplete && isCvcComplete && owner.trim() !== ""
+    });
+    if (setIsCardComplete) {
+      setIsCardComplete(
+        isCardNumberComplete &&
+          isExpiryComplete &&
+          isCvcComplete &&
+          owner.trim() !== ""
+      );
+    }
+  }, [
+    isCardNumberComplete,
+    isExpiryComplete,
+    isCvcComplete,
+    owner,
+    setIsCardComplete,
+  ]);
+
+  useImperativeHandle(ref, () => ({
+    async pay() {
+      console.log("[DEBUG] pay() called");
+      console.log("[DEBUG] booking in StripeCardForm:", booking);
+      console.log("[DEBUG] booking.total:", booking?.total, typeof booking?.total);
+      let amount = booking?.total;
+      if (typeof amount === "string") {
+        amount = Number(amount.replace(/,/g, ""));
+      }
+      amount = Number(amount);
+      if (!amount || isNaN(amount)) {
+        console.log("[DEBUG] amount after parse:", amount);
+        return { error: "จำนวนเงินไม่ถูกต้อง" };
+      }
+      if (!stripe || !elements) return { error: "Stripe ยังไม่พร้อม" };
+      const bookingIdReal = booking?.id;
+      const movieId = booking?.movie_id;
+      try {
+        const res = await fetch("/api/create-payment-intent", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            amount,
+            userId,
+            bookingId: bookingIdReal,
+            movieId,
+          }),
+        });
+        const { clientSecret } = await res.json();
+        console.log("[DEBUG] clientSecret:", clientSecret);
+        const cardNumberElement = elements.getElement(CardNumberElement);
+        if (!cardNumberElement)
+          return { error: "กรุณากรอกข้อมูลบัตรให้ครบถ้วน" };
+        const { error: confirmError, paymentIntent } =
+          await stripe.confirmCardPayment(clientSecret, {
+            payment_method: {
+              card: cardNumberElement,
+              billing_details: { name: owner },
+            },
+          });
+        console.log("[DEBUG] confirmError:", confirmError);
+        console.log("[DEBUG] paymentIntent:", paymentIntent);
+        if (confirmError) {
+          console.log("[DEBUG] return error:", confirmError.message);
+          return { error: confirmError.message };
+        }
+        if (!paymentIntent) {
+          console.log("[DEBUG] return error: paymentIntent is null");
+          return { error: "ไม่สามารถสร้าง paymentIntent ได้" };
+        }
+        if (paymentIntent.status !== "succeeded") {
+          console.log("[DEBUG] return error: paymentIntent.status =", paymentIntent.status);
+          return { error: "การชำระเงินไม่สำเร็จ กรุณาลองใหม่" };
+        }
+        console.log("[DEBUG] return success");
+        const paymentData = {
+          payment_intent_id: paymentIntent.id,
+          amount,
+          currency: paymentIntent.currency,
+          status: paymentIntent.status,
+          payment_method: "card",
+          payment_details: paymentIntent,
+          user_id: userId,
+          booking_id: bookingIdReal,
+        };
+        const { data, error: supaError } = await supabase
+          .from("movie_payments")
+          .insert([paymentData]);
+        if (supaError) {
+          console.log("[DEBUG] return error: supaError", supaError.message);
+          return {
+            error: "บันทึกข้อมูลลงฐานข้อมูลไม่สำเร็จ: " + supaError.message,
+          };
+        }
+        // เรียก mark-paid หลังจ่ายเงินสำเร็จ
+        const markPaidRes = await fetch("/api/booking/mark-paid", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ bookingId: bookingIdReal }),
+        });
+        const markPaidData = await markPaidRes.json();
+        if (!markPaidData.success) {
+          return { error: "อัปเดต booking ไม่สำเร็จ: " + (markPaidData.error || "") };
+        }
+        return { success: true };
+      } catch (err) {
+        console.log("[DEBUG] return error: catch", err);
+        return { error: "เกิดข้อผิดพลาดในการชำระเงิน กรุณาลองใหม่อีกครั้ง" };
+      }
+    },
+  }));
+
+  return (
+    <form
+      className="px-4 mb-10 sm:mb-0 space-y-4"
+      onSubmit={(e) => e.preventDefault()}
+    >
+      <div className="md:flex md:space-x-4">
+        <div className="md:flex-1">
+          <label className="block body-2-regular text-base-gray-400 mb-1">
+            Card number
+          </label>
+          <CardNumberElement
+            options={ELEMENT_OPTIONS}
+            className="w-[343px] md:w-[384.5px] h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-[4px] pl-4 py-3 pr-3 text-base placeholder-base-gray-300 outline-none"
+            onChange={(e) => setIsCardNumberComplete(e.complete)}
+          />
+        </div>
+        <div className="md:flex-1 mt-4 md:mt-0">
+          <label className="block body-2-regular text-base-gray-400 mb-1">
+            Card owner
+          </label>
+          <input
+            className="w-[343px] md:w-[384.5px] h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-md pl-4 py-3 pr-3 text-base placeholder-base-gray-300 outline-none"
+            placeholder="Card owner name"
+            value={owner}
+            onChange={(e) => setOwner(e.target.value)}
+          />
+        </div>
+      </div>
+      <div className="md:flex md:space-x-4 items-center">
+        <div className="md:flex-1">
+          <label className="block body-2-regular text-base-gray-400 mb-1">
+            Expiry date
+          </label>
+          <CardExpiryElement
+            options={ELEMENT_OPTIONS}
+            className="w-[343px] md:w-[384.5px] h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-md pl-4 py-3 pr-3 text-base placeholder-base-gray-300 outline-none"
+            onChange={(e) => setIsExpiryComplete(e.complete)}
+          />
+        </div>
+        <div className="md:flex-1 mt-4 md:mt-0">
+          <label className="block body-2-regular text-base-gray-400 mb-1">
+            CVC
+          </label>
+          <CardCvcElement
+            options={ELEMENT_OPTIONS}
+            className="w-[343px] md:w-[384.5px] h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-md pl-4 py-3 pr-3 text-base placeholder-base-gray-300 outline-none"
+            onChange={(e) => setIsCvcComplete(e.complete)}
+          />
+        </div>
+      </div>
+    </form>
+  );
+});
+
+export default StripeCardForm; 

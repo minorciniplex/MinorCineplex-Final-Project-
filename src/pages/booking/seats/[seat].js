@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar/Navbar";
 import StepProgressBar from "@/components/Booking/StepProgressBar";
 import { useStatus } from "@/context/StatusContext";
 import BookingSeats from "@/components/Booking/BookingSeats";
+import { parseQueryParam } from "@/utils/jsonHelper";
 
 
 export default function Seats() {
@@ -44,9 +45,9 @@ export default function Seats() {
 
   useEffect(() => {
     if (router.isReady) {
-      const { genres, language } = router.query;
-      setGenres(JSON.parse(genres));
-      setLanguage(JSON.parse(language));
+      // Use safe JSON parsing helper
+      setGenres(parseQueryParam(router.query, 'genres', null));
+      setLanguage(parseQueryParam(router.query, 'language', null));
     }
   }, [router.isReady, router.query]);
 

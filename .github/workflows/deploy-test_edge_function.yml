@@ -15,9 +15,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Install Supabase CLI
-        run: npm install supabase@latest
-
       - name: Supabase login
         run: npx supabase login --token ${{ secrets.SUPABASE_ACCESS_TOKEN }}
 
@@ -27,6 +24,5 @@ jobs:
       - name: Deploy test_edge_function function
         run: npx supabase functions deploy test_edge_function
 
-        
       - name: Set cron schedule to every 1 minute
         run: npx supabase functions schedule set test_edge_function --cron "* * * * *"

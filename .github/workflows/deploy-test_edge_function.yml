@@ -27,5 +27,6 @@ jobs:
       - name: Deploy test_edge_function function
         run: npx supabase functions deploy test_edge_function
 
+        
       - name: Set cron schedule to every 1 minute
         run: npx supabase functions schedule set test_edge_function --cron "* * * * *"

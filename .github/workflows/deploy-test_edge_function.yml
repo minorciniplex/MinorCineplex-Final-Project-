@@ -1,13 +1,38 @@
-name: Cron Test Every Minute
+name: Scheduled Function Call
 
 on:
   schedule:
-    - cron: '*/1 * * * *' # ทุก 1 นาที
-  workflow_dispatch: # เผื่ออยากรันเองด้วยมือ
+    - cron: '*/2 * * * *'  # Every 2 minutes
+  workflow_dispatch:  # Manual trigger
 
 jobs:
-  run-every-minute:
+  call-function:
     runs-on: ubuntu-latest
     steps:
-      - name: Print current time
-        run: echo "⏰ Running at $(date)"
+      - name: Debug Info
+        run: |
+          echo "Event name: ${{ github.event_name }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Scheduled run at: $(date)"
+          
+      - name: Call Edge Function
+        run: |
+          echo "Calling Supabase function from cron job..."
+          response=$(curl -s -w "\n%{http_code}" -X POST \
+            "https://mvlmpdjlmvhqbajcmqwv.supabase.co/functions/v1/test_edge_function" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d '{"source": "cron", "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"}')
+          
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | head -n -1)
+          
+          echo "HTTP Status: $http_code"
+          echo "Response: $body"
+          
+          if [ "$http_code" -ne 200 ]; then
+            echo "❌ Function call failed with status $http_code"
+            exit 1
+          else
+            echo "✅ Cron job completed successfully!"
+          fi

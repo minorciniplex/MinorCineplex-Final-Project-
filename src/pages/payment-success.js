@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import supabase from '@/utils/supabase';
+import { supabase } from '@/utils/supabase';
+import Image from 'next/image';
 
 export default function PaymentSuccess() {
   const router = useRouter();
@@ -15,15 +16,86 @@ export default function PaymentSuccess() {
       return;
     }
     const fetchBooking = async () => {
-      const { data, error } = await supabase
-        .from('booking_detail')
-        .select('*')
-        .eq('id', bookingId)
-        .single();
-      console.log('bookingId:', bookingId);
-      console.log('Supabase data:', data);
-      console.log('Supabase error:', error);
-      setBooking(data);
+      try {
+        console.log('Fetching booking with ID:', bookingId);
+        
+        // ดึงข้อมูล booking พื้นฐานก่อน
+        const { data: bookingData, error: bookingError } = await supabase
+          .from('bookings')
+          .select('*')
+          .eq('booking_id', bookingId)
+          .single();
+        
+        console.log('Basic booking data:', bookingData);
+        console.log('Booking error:', bookingError);
+        
+        if (bookingError || !bookingData) {
+          console.error('Failed to fetch booking:', bookingError);
+          setLoading(false);
+          return;
+        }
+
+        // ดึงข้อมูล booking_seats
+        const { data: seatData, error: seatError } = await supabase
+          .from('booking_seats')
+          .select('seat_id')
+          .eq('booking_id', bookingData.booking_id);
+
+        // ดึงข้อมูล payment (ใช้ maybeSingle แทน single เพื่อไม่ error เมื่อไม่มีข้อมูล)
+        // เพิ่ม order by created_at desc เพื่อได้ payment ล่าสุด
+        const { data: paymentData, error: paymentError } = await supabase
+          .from('movie_payments')
+          .select('payment_method, payment_details')
+          .eq('booking_id', bookingData.booking_id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        console.log('Seat data:', seatData);
+        console.log('Payment data:', paymentData);
+        console.log('Payment error:', paymentError);
+
+        // แปลง payment method ให้แสดงผลถูกต้อง
+        let displayPaymentMethod = 'Unknown'; // default แปลง
+        if (paymentData?.payment_method) {
+          switch (paymentData.payment_method) {
+            case 'omise_promptpay':
+            case 'promptpay':
+            case 'qr_code':
+              displayPaymentMethod = 'QR code';
+              break;
+            case 'card':
+            case 'credit_card':
+            case 'stripe':
+              displayPaymentMethod = 'Credit card';
+              break;
+            default:
+              displayPaymentMethod = paymentData.payment_method;
+          }
+        } else {
+          // ถ้าไม่มี payment data แต่มา successful แสดงว่าเป็น QR code (เพราะ Credit card จะมี payment data)
+          displayPaymentMethod = 'QR code';
+        }
+
+        // สร้าง formatted booking object
+        const formattedBooking = {
+          ...bookingData,
+          cinema_name: 'Minor Cineplex Big C Phatum Thani', // Default value for now
+          show_date: '05 Jun 2025', // Default value for now  
+          show_time: '23:30', // Default value for now
+          hall: 'Hall 3', // Default value for now
+          movie_title: 'Home Sweet Home: Rebirth', // Default value for now
+          seat: seatData?.map(s => s.seat_id).join(', ') || 'ไม่ระบุ',
+          payment_method: displayPaymentMethod,
+          total: bookingData.total_price || 0
+        };
+
+        console.log('Formatted booking:', formattedBooking);
+        setBooking(formattedBooking);
+        
+      } catch (error) {
+        console.error('Error in fetchBooking:', error);
+      }
       setLoading(false);
     };
     fetchBooking();
@@ -95,7 +167,7 @@ export default function PaymentSuccess() {
             </div>
           </div>
         </div>
-        <div className="flex gap-4 mb-4">
+        <div className="flex flex-col sm:flex-row gap-4 mb-4">
           <button
             onClick={() => router.push('/')}
             className="px-6 py-2 rounded border border-white text-white bg-transparent hover:bg-white hover:text-[#070C1B] transition"
@@ -103,7 +175,7 @@ export default function PaymentSuccess() {
             Back to home
           </button>
           <button
-            onClick={() => router.push(`/booking-detail/${booking.id}`)}
+            onClick={() => router.push(`/booking-detail/${booking.booking_id || booking.id}`)}
             className="px-6 py-2 rounded bg-brand-blue-200 text-white hover:bg-brand-blue-100 transition"
           >
             Booking detail
@@ -120,23 +192,23 @@ export default function PaymentSuccess() {
             <div className="mb-2 font-bold text-white text-center">Share Booking</div>
             <div className="flex gap-4 justify-center">
               <button onClick={handleShareLine} className="flex flex-col items-center">
-                <img src="/icons/line.svg" alt="LINE" width={32} height={32} />
+                <Image src={"/icons/line.svg"} alt="LINE" width={32} height={32} />
                 <span className="text-xs mt-1">LINE</span>
               </button>
               <button onClick={handleShareMessenger} className="flex flex-col items-center">
-                <img src="/icons/messenger.svg" alt="Messenger" width={32} height={32} />
+                <Image src={"/icons/messenger.svg"} alt="Messenger" width={32} height={32} />
                 <span className="text-xs mt-1">Messenger</span>
               </button>
               <button onClick={handleShareFacebook} className="flex flex-col items-center">
-                <img src="/icons/facebook.svg" alt="Facebook" width={32} height={32} />
+                <Image src={"/icons/facebook.svg"} alt="Facebook" width={32} height={32} />
                 <span className="text-xs mt-1">Facebook</span>
               </button>
               <button onClick={handleShareTwitter} className="flex flex-col items-center">
-                <img src="/icons/twitter.svg" alt="Twitter" width={32} height={32} />
+                <Image src={"/icons/twitter.svg"} alt="Twitter" width={32} height={32} />
                 <span className="text-xs mt-1">Twitter</span>
               </button>
               <button onClick={handleCopyLink} className="flex flex-col items-center">
-                <img src="/icons/link.svg" alt="Copy link" width={32} height={32} />
+                <Image src={"/icons/link.svg"} alt="Copy link" width={32} height={32} />
                 <span className="text-xs mt-1">Copy link</span>
               </button>
             </div>

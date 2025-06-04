@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import supabase from '@/utils/supabase';
+import { supabase } from '@/utils/supabase';
 
 export default function BookingDetailPage() {
   const router = useRouter();
@@ -11,12 +11,53 @@ export default function BookingDetailPage() {
   useEffect(() => {
     if (!bookingId) return;
     const fetchBooking = async () => {
+      // ดึงข้อมูล booking พร้อม showtime และ movie details
       const { data, error } = await supabase
-        .from('booking_detail')
-        .select('*')
-        .eq('id', bookingId)
+        .from('bookings')
+        .select(`
+          *,
+          showtimes:showtime_id (
+            show_date,
+            show_time,
+            cinemas:cinema_id (
+              name,
+              location
+            ),
+            movies:movie_id (
+              title,
+              poster_url
+            ),
+            screen_number
+          ),
+          booking_seats (
+            seat_id,
+            seats (
+              row,
+              seat_number
+            )
+          ),
+          movie_payments (
+            payment_method
+          )
+        `)
+        .eq('booking_id', bookingId)
         .single();
-      setBooking(data);
+      
+      if (data) {
+        // สร้าง object ข้อมูลสำหรับแสดงผล
+        const formattedBooking = {
+          ...data,
+          cinema_name: data.showtimes?.cinemas?.name || 'ไม่ระบุ',
+          show_date: data.showtimes?.show_date || 'ไม่ระบุ',
+          show_time: data.showtimes?.show_time || 'ไม่ระบุ',
+          hall: `Hall ${data.showtimes?.screen_number || '?'}`,
+          movie_title: data.showtimes?.movies?.title || 'ไม่ระบุ',
+          seat: data.booking_seats?.map(bs => `${bs.seats?.row}${bs.seats?.seat_number}`).join(', ') || 'ไม่ระบุ',
+          payment_method: data.movie_payments?.[0]?.payment_method || 'Credit card',
+          total: data.total_price || 0
+        };
+        setBooking(formattedBooking);
+      }
       setLoading(false);
     };
     fetchBooking();
@@ -52,7 +93,7 @@ export default function BookingDetailPage() {
           <div className="flex flex-col gap-2 mt-2">
             <div className="flex justify-between">
               <span>Selected Seat</span>
-              <span className="font-bold">{Array.isArray(booking.seat) ? booking.seat.join(', ') : booking.seat}</span>
+              <span className="font-bold">{booking.seat}</span>
             </div>
             <div className="flex justify-between">
               <span>Payment method</span>

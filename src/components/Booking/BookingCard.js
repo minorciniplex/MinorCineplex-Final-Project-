@@ -26,6 +26,8 @@ export default function BookingCard({
 }) {
   const { isLoggedIn, user } = useStatus();
   const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   let genreArr = [];
   try {
@@ -76,20 +78,63 @@ export default function BookingCard({
       return;
     }
 
+    if (isSubmitting) {
+      return; // ป้องกันการคลิกซ้ำ
+    }
+
+    setIsSubmitting(true);
+    setSubmitError("");
     let bookingId = existingBookingId;
 
     try {
       if (existingBookingId) {
         // UPDATE existing booking
-        const response = await axios.put(`/api/booking/${existingBookingId}`, {
-          showtimeId: showtimes,
-          seatNumber: seat,
-          sumPrice: price,
-        });
+        console.log("Updating existing booking:", existingBookingId);
+        try {
+          const response = await axios.put(`/api/booking/${existingBookingId}`, {
+            showtimeId: showtimes,
+            seatNumber: seat,
+            sumPrice: price,
+          });
 
-        console.log("Booking updated successfully, bookingId:", bookingId);
-      } else {
+          bookingId = existingBookingId;
+          console.log("Booking updated successfully, bookingId:", bookingId);
+        } catch (updateError) {
+          if (updateError.response?.status === 410) {
+            console.log("Existing booking expired, creating new booking...");
+            // Booking หมดอายุแล้ว ให้ทำต่อเหมือนสร้างใหม่
+            // (fall through to create new booking)
+          } else {
+            throw updateError; // Re-throw other errors
+          }
+        }
+      }
+      
+      // CREATE new booking (or when existing booking expired)
+      if (!existingBookingId || bookingId === undefined) {
+        // ตรวจสอบสถานะที่นั่งก่อนจอง
+        console.log("Checking seat availability before booking...");
+        const checkResponse = await axios.get(`/api/seats/${showtimes}`);
+        const currentSeats = checkResponse.data || [];
+        
+        console.log("Current seats from API:", currentSeats);
+        
+        // ตรวจสอบว่าที่นั่งที่เลือกยังว่างอยู่หรือไม่
+        const unavailableSeats = seat.filter(seatId => {
+          const seatData = currentSeats.find(s => s.id === seatId);
+          // Check if seat is booked or reserved by someone else
+          return seatData && (
+            seatData.status === 'booked' || 
+            (seatData.status === 'reserved' && seatData.reserved_by !== user?.id)
+          );
+        });
+        
+        if (unavailableSeats.length > 0) {
+          throw new Error(`ที่นั่ง ${unavailableSeats.join(', ')} ถูกจองไปแล้ว`);
+        }
+        
         // CREATE new booking
+        console.log("Creating new booking for seats:", seat);
         const response = await axios.post("/api/booking/booking-seat", {
           showtimeId: showtimes,
           seatNumber: seat,
@@ -101,6 +146,35 @@ export default function BookingCard({
       }
     } catch (error) {
       console.error("Error booking seat:", error);
+      console.error("Error response:", error.response?.data);
+      console.error("Error status:", error.response?.status);
+      setIsSubmitting(false);
+      
+      if (error.response?.status === 409) {
+        setSubmitError("ที่นั่งที่เลือกถูกจองไปแล้ว กรุณาเลือกที่นั่งใหม่");
+        // รีโหลดหน้าเพื่ออัปเดตสถานะที่นั่ง
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+      } else if (error.response?.status === 410) {
+        setSubmitError("การจองหมดอายุแล้ว กรุณาลองจองใหม่อีกครั้ง");
+        // รีโหลดหน้าเพื่อรีเซ็ตสถานะ
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+      } else if (error.response?.status === 500) {
+        const errorMessage = error.response?.data?.message || error.response?.data?.error || "เกิดข้อผิดพลาดภายในระบบ";
+        console.error("500 Error details:", error.response?.data);
+        setSubmitError(`ข้อผิดพลาดเซิร์ฟเวอร์: ${errorMessage}`);
+      } else if (error.message && error.message.includes("ถูกจองไปแล้ว")) {
+        setSubmitError(error.message);
+        // รีโหลดหน้าเพื่ออัปเดตสถานะที่นั่ง
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+      } else {
+        setSubmitError("เกิดข้อผิดพลาดในการจอง กรุณาลองใหม่อีกครั้ง");
+      }
       return;
     }
 
@@ -120,6 +194,7 @@ export default function BookingCard({
       bookingId: bookingId,
     }).toString();
 
+    setIsSubmitting(false);
     router.push(`/booking/seats/payment/payment?${query}`);
   };
 
@@ -201,11 +276,26 @@ export default function BookingCard({
                   {price > 0 ? `THB${price}` : ""}
                 </p>
               </div>
+              {submitError && (
+                <div className="bg-red-500 text-white px-3 py-2 rounded-lg text-sm">
+                  {submitError}
+                </div>
+              )}
               <button
                 onClick={handleSumbit}
-                className="bg-[#4E7BEE] text-white px-4 py-2 rounded-lg mt-4 hover:bg-[#5a8cd9] transition-colors"
+                disabled={isSubmitting}
+                className={`px-4 py-2 rounded-lg mt-4 transition-colors ${
+                  isSubmitting 
+                    ? "bg-gray-500 cursor-not-allowed" 
+                    : "bg-[#4E7BEE] hover:bg-[#5a8cd9]"
+                } text-white`}
               >
-                {existingBookingId ? "Update Booking" : "Next"}
+                {isSubmitting 
+                  ? "กำลังจอง..." 
+                  : existingBookingId 
+                    ? "Continue to Payment" 
+                    : "Next"
+                }
               </button>
             </>
           )}

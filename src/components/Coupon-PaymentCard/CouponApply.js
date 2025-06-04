@@ -5,7 +5,7 @@ import CouponSelectPopup from './Components/CouponSelectPopup';
 import useCouponWallet from '@/hooks/useCouponWallet';
 import { useStatus } from "@/context/StatusContext";
 
-export default function CouponPaymentCard({ showtimes, bookingId, bookingSeats, paymentMethod }) {
+export default function CouponPaymentCard({ showtimes, bookingId, bookingSeats, paymentMethod, isCardComplete }) {
   const [openCouponPopup, setOpenCouponPopup] = useState(false);
   const [selectedCouponId, setSelectedCouponId] = useState(null);
   const { user } = useStatus();
@@ -32,6 +32,7 @@ export default function CouponPaymentCard({ showtimes, bookingId, bookingSeats, 
           couponId={selectedCouponId}
           bookingSeats={bookingSeats}
           paymentMethod={paymentMethod}
+          isCardComplete={isCardComplete}
         />
       </div>
       <CouponSelectPopup

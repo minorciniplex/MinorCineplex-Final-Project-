@@ -6,6 +6,7 @@ import CouponPaymentCard from "../Coupon-PaymentCard/CouponApply";
 import useCountdown from "../../hooks/useCountdown";
 import { useEffect } from "react";
 import { useRouter } from "next/router";
+import SumPaymentDiscount from "../Coupon-PaymentCard/Components/SumPaymentDiscount";
 
 export default function PaymentsCard({
   time,
@@ -21,7 +22,8 @@ export default function PaymentsCard({
   showtimes,
   movieId,
   bookingId,
-  paymentMethod
+  paymentMethod,
+  isCardComplete
 }) {
   const router = useRouter();
   const {
@@ -168,6 +170,7 @@ export default function PaymentsCard({
                   bookingId={bookingId}
                   bookingSeats={seatNumber}
                   paymentMethod={paymentMethod}
+                  isCardComplete={paymentMethod === 'QR code' ? true : isCardComplete}
                 />
               </div>
             </>

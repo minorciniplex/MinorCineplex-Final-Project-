@@ -33,7 +33,11 @@ export default async function handler(req, res) {
       });
     }
 
-    // Execute the Supabase query
+    console.log(`=== USER RESERVATIONS REQUEST ===`);
+    console.log(`User ID: ${userId}`);
+    console.log(`Showtime ID: ${showtimeId}`);
+
+    // Execute the Supabase query - ONLY get reserved bookings (not paid ones)
     const { data, error } = await supabase
       .from('booking_seats')
       .select(`
@@ -49,11 +53,15 @@ export default async function handler(req, res) {
         bookings (
           booking_id,
           reserved_until,
-          user_id
+          user_id,
+          status
         )
       `)
       .eq('showtime_id', showtimeId)
-      .eq('bookings.user_id', userId);
+      .eq('bookings.user_id', userId)
+      .eq('bookings.status', 'reserved'); // Only get reservations that haven't been paid
+
+    console.log('User reservations query result:', { data, error });
 
     if (error) {
       console.error('Supabase query error:', error);
@@ -64,7 +72,7 @@ export default async function handler(req, res) {
       });
     }
 
-    // Format the data as in your example
+    // Format the data - these should only be "reserved" status bookings
     const detailedData = data
       .filter(item => item.seats && item.bookings)
       .map(item => ({
@@ -74,15 +82,19 @@ export default async function handler(req, res) {
         reserved_until: item.bookings.reserved_until,
         row: item.seats.row,
         seat_number: item.seats.seat_number,
-        showtime_id: item.seats.showtime_id
+        showtime_id: item.seats.showtime_id,
+        booking_status: item.bookings.status // Add booking status for debugging
       }));
 
-    // Optional: Filter out expired reservations
+    // Filter out expired reservations (optional safety check)
     const now = new Date();
     const activeReservations = detailedData.filter(reservation => {
       if (!reservation.reserved_until) return true;
       return new Date(reservation.reserved_until) > now;
     });
+
+    console.log(`Found ${activeReservations.length} active reservations for user ${userId}`);
+    console.log('Active reservations:', activeReservations);
 
     return res.status(200).json(activeReservations);
 

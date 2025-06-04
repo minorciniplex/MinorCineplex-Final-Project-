@@ -51,6 +51,26 @@ function BookingSeats({
     };
   }, [showtimeId, authLoading, isClient]);
 
+  // Handle refresh parameter from URL (simplified - no longer needed for payment flow)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const shouldRefresh = urlParams.get('refresh');
+      
+      if (shouldRefresh === 'true' && showtimeId && isClient) {
+        console.log('=== REFRESHING SEATS ===');
+        // รีเฟรชข้อมูลที่นั่ง
+        setTimeout(() => {
+          initializeSeats();
+        }, 1000);
+        
+        // ลบ refresh parameter ออกจาก URL
+        const newUrl = window.location.pathname + window.location.search.replace(/[?&]refresh=true/, '');
+        window.history.replaceState({}, '', newUrl);
+      }
+    }
+  }, [showtimeId, isClient]);
+
   const cleanup = () => {
     if (subscriptionRef.current) {
       subscriptionRef.current.unsubscribe();
@@ -150,8 +170,11 @@ function BookingSeats({
   ) => {
     const seatLayout = [];
 
+    console.log("Creating seat layout with existing seats:", existingSeats.length);
+    
     // Create a map of existing seats for quick lookup
     const existingSeatMap = existingSeats.reduce((map, seat) => {
+      console.log(`Mapping seat ${seat.id} with status: ${seat.status}, reserved_by: ${seat.reserved_by}`);
       map[seat.id] = seat;
       return map;
     }, {});
@@ -165,12 +188,25 @@ function BookingSeats({
         // Use existing seat data if available, otherwise create available seat
         const existingSeat = existingSeatMap[seatId];
         if (existingSeat) {
-          // If seat exists in database, use its status (booked/reserved)
-          seatLayout.push(existingSeat);
-        } else {
-          // For seats not in database, check if they're locally selected
+          // PRIORITY: Use database status but allow local selection override for UI
           const isLocallySelected = preserveSelectedSeats.includes(seatId);
-          seatLayout.push({
+          
+          // Keep original database status unless locally selected
+          const finalSeat = {
+            ...existingSeat,
+            // Only override to "selected" if locally selected AND seat is not booked by someone else
+            status: isLocallySelected && existingSeat.status !== "booked" && 
+                    (existingSeat.reserved_by === user?.id || existingSeat.status === "available")
+                    ? "selected" 
+                    : existingSeat.status
+          };
+          
+          console.log(`Seat ${seatId}: database=${existingSeat.status}, localSelected=${isLocallySelected}, final=${finalSeat.status}`);
+          seatLayout.push(finalSeat);
+        } else {
+          // For seats not in database, they are available or locally selected
+          const isLocallySelected = preserveSelectedSeats.includes(seatId);
+          const newSeat = {
             id: seatId,
             row: rowLabel,
             number: seat + 1,
@@ -178,11 +214,15 @@ function BookingSeats({
             reserved_by: null,
             reserved_until: null,
             showtime_id: showtimeId,
-          });
+          };
+          
+          console.log(`New seat ${seatId}: status=${newSeat.status}`);
+          seatLayout.push(newSeat);
         }
       }
     }
 
+    console.log("Final seat layout created with", seatLayout.length, "seats");
     return seatLayout;
   };
 
@@ -193,11 +233,22 @@ function BookingSeats({
       // Always create complete seat layout, merging with existing data
       // and preserving currently selected seats
       const existingSeats = response.data || [];
+      
+      console.log("=== SEAT DATA LOADED ===");
+      console.log("Existing seats from API:", existingSeats);
+      console.log("Raw API response structure:", JSON.stringify(existingSeats[0], null, 2));
+      existingSeats.forEach(seat => {
+        console.log(`API Seat ${seat.id}: status=${seat.status}, reserved_by=${seat.reserved_by}, showtime_id=${seat.showtime_id}`);
+      });
+      console.log("Current selected seats:", selectedSeats);
+      console.log("Current user:", user?.id);
+
       const completeSeatLayout = createCompleteSeatLayout(
         existingSeats,
         selectedSeats
       );
 
+      console.log("Complete seat layout:", completeSeatLayout);
       setSeats(completeSeatLayout);
     } catch (err) {
       console.warn("Could not load existing seats, creating available seats");
@@ -282,9 +333,16 @@ function BookingSeats({
   };
 
   const handleRealtimeUpdate = (payload) => {
+    console.log("=== REALTIME UPDATE ===");
+    console.log("Payload:", payload);
+    
     const { eventType, new: newRecord, old: oldRecord } = payload;
-
     const seatId = newRecord?.seat_id || oldRecord?.seat_id;
+    
+    console.log("Event type:", eventType);
+    console.log("Seat ID:", seatId);
+    console.log("New record:", newRecord);
+    console.log("Old record:", oldRecord);
 
     // IMPROVED: Handle real-time updates while preserving user's own reservations
     if (eventType === "INSERT" || eventType === "UPDATE") {
@@ -346,7 +404,7 @@ function BookingSeats({
             ...currentSeat,
             status: newStatus,
             reserved_by: newRecord.reserved_by,
-            reserved_until: newRecord.reserved_until,
+            reserved_until: null,
           };
         } else if (newRecord) {
           // Add new seat if it doesn't exist - map Supabase format to component format
@@ -356,7 +414,7 @@ function BookingSeats({
             number: newRecord.seat_number,
             status: newRecord.seat_status,
             reserved_by: newRecord.reserved_by,
-            reserved_until: newRecord.reserved_until,
+            reserved_until: null,
             showtime_id: newRecord.showtime_id,
           });
         }
@@ -377,20 +435,29 @@ function BookingSeats({
   const handleSeatClick = async (seatId) => {
     const seat = seats.find((s) => s.id === seatId);
 
-    // FIXED: Allow clicking on user's own reserved seats using user.id
-    // Block clicking ONLY on booked seats or seats reserved by OTHER users
-    if (!seat || seat.status === "booked") {
+    // Block clicking on seats that cannot be selected
+    if (!seat) {
+      console.log("Seat not found:", seatId);
       return;
     }
 
-    // If seat is reserved, only allow if it's the user's own reservation
-    if (seat.status === "reserved") {
-      const isUserOwnReservation = userReservedSeats.includes(seatId) || 
-                                  seat.reserved_by === user?.id;
-      
-      if (!isUserOwnReservation) {
-        return;
-      }
+    // FIXED: Never allow clicking booked seats
+    if (seat.status === "booked") {
+      console.log("Cannot select booked seat:", seatId);
+      return;
+    }
+
+    // FIXED: Block clicking on seats reserved by OTHER users
+    if (seat.status === "reserved" && seat.reserved_by !== user?.id) {
+      console.log("Cannot select seat reserved by another user:", seatId, "reserved_by:", seat.reserved_by, "current_user:", user?.id);
+      return;
+    }
+
+    // Show visual feedback that seat is not clickable
+    if ((seat.status === "booked") || 
+        (seat.status === "reserved" && seat.reserved_by !== user?.id)) {
+      // Could add a toast notification here
+      return;
     }
 
     const isCurrentlySelected = selectedSeats.includes(seatId);
@@ -499,30 +566,31 @@ function BookingSeats({
     }
   }, [isLoggedIn, showtimeId]);
 
-  // FIXED: Updated getSeatStatus function to always show user's reserved seats as selected
+  // FIXED: Updated getSeatStatus function to properly show seat status
   const getSeatStatus = (seat) => {
     if (!seat) return "available";
 
-    // If seat is booked, always show as booked
+    // PRIORITY 1: If seat is in selectedSeats (user is currently selecting), show as selected
+    if (selectedSeats.includes(seat.id)) {
+      return "selected";
+    }
+
+    // PRIORITY 2: If seat is booked, always show as booked (cannot select)
     if (seat.status === "booked") {
       return "booked";
     }
 
-    // FIXED: If seat is reserved by current user OR is in selectedSeats, show as selected
-    // This ensures user's reserved seats appear as selected (allowing modification)
-    if (
-      (seat.status === "reserved" && seat.reserved_by === user) ||
-      selectedSeats.includes(seat.id)
-    ) {
+    // PRIORITY 3: If seat is reserved by current user, show as selected (can modify)
+    if (seat.status === "reserved" && seat.reserved_by === user?.id) {
       return "selected";
     }
 
-    // If seat is reserved by someone else, show as reserved
-    if (seat.status === "reserved" && seat.reserved_by !== user) {
+    // PRIORITY 4: If seat is reserved by someone else, show as reserved (cannot select)
+    if (seat.status === "reserved" && seat.reserved_by && seat.reserved_by !== user?.id) {
       return "reserved";
     }
 
-    // Otherwise show available
+    // PRIORITY 5: Otherwise show available
     return "available";
   };
 
@@ -567,8 +635,18 @@ function BookingSeats({
   return (
     <>
       <div className="w-full sm:basis-3/4 py-10 px-4 sm:py-0 sm:px-0">
-        <div className="bg-gradient-to-r from-[#2C344E] to-[#516199] rounded-t-[80px] items-center flex justify-center text-[8px] sm:text-base py-[4.67px] sm:py-[10px] text-[--base-gray-400]">
+        <div className="bg-gradient-to-r from-[#2C344E] to-[#516199] rounded-t-[80px] items-center flex justify-center text-[8px] sm:text-base py-[4.67px] sm:py-[10px] text-[--base-gray-400] relative">
           screen
+          <button
+            onClick={() => {
+              console.log('Refreshing seat data...');
+              initializeSeats();
+            }}
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-300 text-sm"
+            title="รีเฟรชข้อมูลที่นั่ง"
+          >
+            🔄
+          </button>
         </div>
 
         {/* Seat Layout */}
@@ -585,11 +663,25 @@ function BookingSeats({
                   <span className="text-left font-bold">{rowLabel}</span>
                   {rowSeats.slice(0, 5).map((seat) => {
                     const displayStatus = getSeatStatus(seat);
+                    const isClickable = displayStatus === "available" || displayStatus === "selected";
+                    const cursorClass = isClickable ? "cursor-pointer hover:opacity-80" : "cursor-not-allowed";
+                    
+                    // Debug logging for seat status
+                    if (process.env.NODE_ENV === 'development') {
+                      console.log(`Seat ${seat.id}: status=${seat.status}, reserved_by=${seat.reserved_by}, display=${displayStatus}, user=${user?.id}`);
+                    }
+                    
                     return (
                       <div
                         key={seat.id}
-                        className="w-4 h-4 md:w-10 md:h-10 rounded-md flex items-center justify-center cursor-pointer"
+                        className={`w-4 h-4 md:w-10 md:h-10 rounded-md flex items-center justify-center transition-opacity ${cursorClass}`}
                         onClick={() => handleSeatClick(seat.id)}
+                        title={
+                          displayStatus === "booked" ? "ที่นั่งถูกจองแล้ว" :
+                          displayStatus === "reserved" ? "ที่นั่งถูกจองชั่วคราว" :
+                          displayStatus === "available" ? "ที่นั่งว่าง - คลิกเพื่อเลือก" :
+                          "ที่นั่งที่เลือก - คลิกเพื่อยกเลิก"
+                        }
                       >
                         <div className="">
                           {displayStatus === "available" && (
@@ -610,11 +702,20 @@ function BookingSeats({
                 <div className="flex flex-row gap-3 sm:gap-6 items-center">
                   {rowSeats.slice(5, 10).map((seat) => {
                     const displayStatus = getSeatStatus(seat);
+                    const isClickable = displayStatus === "available" || displayStatus === "selected";
+                    const cursorClass = isClickable ? "cursor-pointer hover:opacity-80" : "cursor-not-allowed";
+                    
                     return (
                       <div
                         key={seat.id}
-                        className="w-4 h-4 md:w-10 md:h-10 rounded-md flex items-center justify-center cursor-pointer"
+                        className={`w-4 h-4 md:w-10 md:h-10 rounded-md flex items-center justify-center transition-opacity ${cursorClass}`}
                         onClick={() => handleSeatClick(seat.id)}
+                        title={
+                          displayStatus === "booked" ? "ที่นั่งถูกจองแล้ว" :
+                          displayStatus === "reserved" ? "ที่นั่งถูกจองชั่วคราว" :
+                          displayStatus === "available" ? "ที่นั่งว่าง - คลิกเพื่อเลือก" :
+                          "ที่นั่งที่เลือก - คลิกเพื่อยกเลิก"
+                        }
                       >
                         <div className="w-full h-full">
                           {displayStatus === "available" && (

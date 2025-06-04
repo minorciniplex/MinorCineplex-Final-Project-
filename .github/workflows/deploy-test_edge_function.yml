@@ -12,6 +12,21 @@ on:
   workflow_dispatch:  # Manual trigger
 
 jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Supabase login
+        run: npx supabase login --token ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+      - name: Link to Supabase project
+        run: npx supabase link --project-ref ${{ secrets.SUPABASE_PROJECT_ID }}
+
+      - name: Deploy test_edge_function function
+        run: npx supabase functions deploy test_edge_function
+
   call-function:
     runs-on: ubuntu-latest
     steps:

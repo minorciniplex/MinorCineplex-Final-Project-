@@ -6,6 +6,8 @@ on:
     paths:
       - "supabase/functions/test_edge_function/**"
       - ".github/workflows/deploy-test_edge_function.yml"
+  schedule:
+    - cron: '* * * * *' # ทุก 1 นาที (UTC)
 
 jobs:
   deploy:
@@ -24,5 +26,11 @@ jobs:
       - name: Deploy test_edge_function function
         run: npx supabase functions deploy test_edge_function
 
-      - name: Set cron schedule to every 1 minute
-        run: npx supabase functions schedule set test_edge_function --cron "* * * * *"
+  call-function:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    steps:
+      - name: Call Edge Function
+        run: |
+          curl -X POST "https://mvlmpdjlmvhqbajcmqwv.supabase.co/functions/v1/test_edge_function" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}"

@@ -1,11 +1,13 @@
-name: Test Schedule
+name: Cron Test Every Minute
 
 on:
   schedule:
-    - cron: '* * * * *'
+    - cron: '*/1 * * * *' # ทุก 1 นาที
+  workflow_dispatch: # เผื่ออยากรันเองด้วยมือ
 
 jobs:
-  test:
+  run-every-minute:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Hello from schedule"
+      - name: Print current time
+        run: echo "⏰ Running at $(date)"

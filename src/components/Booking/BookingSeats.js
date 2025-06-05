@@ -566,7 +566,7 @@ function BookingSeats({
 
   return (
     <>
-      <div className="w-full bg-[--base-gray-100] md:bg-transparent md:basis-3/4 py-10 px-4 md:py-0 md:px-0">
+      <div className="w-full bg-[--background] md:bg-transparent md:basis-3/4 py-10 px-4 md:py-0 md:px-0">
         <div className="bg-gradient-to-r from-[#2C344E] to-[#516199] rounded-t-[80px] items-center flex justify-center text-[7.47px] md:text-base py-[4.67px] md:py-[10px] text-[--base-gray-400]">
           screen
         </div>
@@ -578,7 +578,7 @@ function BookingSeats({
             return (
               <div
                 key={rowLabel}
-                className="flex flex-row text-[7.47px] md:text-base text-[--base-gray-300] items-center gap-9 md:gap-[138px]"
+                className="flex flex-row text-[7.47px] md:text-base text-[--base-gray-300] items-center gap-10 md:gap-[138px]"
               >
                 {/* Left Row Label */}
                 <div className="flex flex-row gap-[11.2px] md:gap-6 items-center">
@@ -650,7 +650,7 @@ function BookingSeats({
 
         {/* Seat Status Legend */}
         <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-10 border-t-1 border-[--base-gray-100] pt-2 md:py-4 mt-7 md:mt-0">
-          <div className="bg-[--base-gray-200] md:bg-[--base-gray-100] rounded-md py-3 px-4 text-[--base-gray-400] text-2xl font-bold items-center w-[88px]">
+          <div className="bg-[--base-gray-100] rounded-md py-3 px-4 text-[--base-gray-400] text-2xl font-bold items-center w-[88px]">
             Hall 1
           </div>
           <div className="grid grid-cols-2 md:flex md:gap-10 md:grid-cols-none gap-y-8 gap-x-8 md:gap-y-0 text-[--base-gray-400]">

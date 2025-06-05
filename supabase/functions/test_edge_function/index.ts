@@ -32,11 +32,11 @@ serve(async (req) => {
       .select("coupon_id")
       .eq("booking_id", booking.booking_id);
 
-    // 3. คืนคูปองให้เป็น pending
+    // 3. คืนคูปองให้เป็น active
     for (const c of coupons ?? []) {
       await supabase
         .from("user_coupons")
-        .update({ coupon_status: "pending" })
+        .update({ coupon_status: "active", used_date: null })
         .eq("coupon_id", c.coupon_id)
         .eq("coupon_status", "pending"); // optional check
     }

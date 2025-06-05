@@ -1,7 +1,7 @@
-// components/AIIcon.js
-export default function ReservedIcon() {
+export default function ReservedIcon({className}) {
   return (
     <svg
+      className={className}
       width="40"
       height="40"
       viewBox="0 0 40 40"

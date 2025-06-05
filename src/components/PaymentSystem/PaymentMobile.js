@@ -47,6 +47,19 @@ const ELEMENT_OPTIONS = {
   },
 };
 
+const CARD_NUMBER_OPTIONS = {
+  ...ELEMENT_OPTIONS,
+  placeholder: "Card number",
+};
+const CARD_EXPIRY_OPTIONS = {
+  ...ELEMENT_OPTIONS,
+  placeholder: "MM/YY",
+};
+const CARD_CVC_OPTIONS = {
+  ...ELEMENT_OPTIONS,
+  placeholder: "CVC",
+};
+
 const StripeCardForm = forwardRef(function StripeCardForm(
   { setIsCardComplete, booking, userId },
   ref
@@ -138,17 +151,17 @@ const StripeCardForm = forwardRef(function StripeCardForm(
 
   return (
     <form
-      className="px-4 mb-10 sm:mb-0 space-y-4"
+      className="px-4 md:px-0 mb-10 md:mb-0 space-y-6"
       onSubmit={(e) => e.preventDefault()}
     >
-      <div className="md:flex md:space-x-4">
+      <div className="md:flex md:space-x-6">
         <div className="md:flex-1">
           <label className="block body-2-regular text-base-gray-400 mb-1">
             Card number
           </label>
           <CardNumberElement
-            options={ELEMENT_OPTIONS}
-            className="w-[343px] md:w-[384.5px] h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-[4px] pl-4 py-3 pr-3 text-base placeholder-base-gray-300 outline-none"
+            options={CARD_NUMBER_OPTIONS}
+            className="w-full text-center h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-[4px] pl-4 py-3 pr-3 text-base placeholder-base-gray-300 outline-none"
             onChange={(e) => setIsCardNumberComplete(e.complete)}
           />
         </div>
@@ -157,21 +170,21 @@ const StripeCardForm = forwardRef(function StripeCardForm(
             Card owner
           </label>
           <input
-            className="w-[343px] md:w-[384.5px] h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-md pl-4 py-3 pr-3 text-base placeholder-base-gray-300 outline-none"
+            className="w-full h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-[4px] pl-4 py-3 pr-3 text-base placeholder-base-gray-300 outline-none"
             placeholder="Card owner name"
             value={owner}
             onChange={(e) => setOwner(e.target.value)}
           />
         </div>
       </div>
-      <div className="md:flex md:space-x-4 items-center">
+      <div className="md:flex md:space-x-6">
         <div className="md:flex-1">
           <label className="block body-2-regular text-base-gray-400 mb-1">
             Expiry date
           </label>
           <CardExpiryElement
-            options={ELEMENT_OPTIONS}
-            className="w-[343px] md:w-[384.5px] h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-md pl-4 py-3 pr-3 text-base placeholder-base-gray-300 outline-none"
+            options={CARD_EXPIRY_OPTIONS}
+            className="w-full h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-[4px] pl-4 py-3 pr-3 text-base placeholder-base-gray-300 outline-none"
             onChange={(e) => setIsExpiryComplete(e.complete)}
           />
         </div>
@@ -180,8 +193,8 @@ const StripeCardForm = forwardRef(function StripeCardForm(
             CVC
           </label>
           <CardCvcElement
-            options={ELEMENT_OPTIONS}
-            className="w-[343px] md:w-[384.5px] h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-md pl-4 py-3 pr-3 text-base placeholder-base-gray-300 outline-none"
+            options={CARD_CVC_OPTIONS}
+            className="w-full h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-[4px] pl-4 py-3 pr-3 text-base placeholder-base-gray-300 outline-none"
             onChange={(e) => setIsCvcComplete(e.complete)}
           />
         </div>
@@ -466,7 +479,7 @@ export default function PaymentMobile({ setPaymentMethod }) {
         {/* ฝั่งซ้าย: ฟอร์ม */}
         <div className="w-full">
           {/* Tab */}
-          <div className="flex gap-4 items-baseline pt-10 pb-6 px-4 sm:pt-0 sm:px-0 sm:pb-6">
+          <div className="flex gap-4 items-baseline pt-10 pb-6 px-4 md:pt-0 md:px-0 md:pb-6">
             <button
               className="flex justify-center md:mb-[50px]"
               onClick={() => handleTabChange("credit")}

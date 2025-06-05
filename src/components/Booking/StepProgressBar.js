@@ -79,7 +79,7 @@ const StepProgressBar = ({ currentPath = "/booking/seats" }) => {
   }, []);
 
   return (
-    <div className="w-full bg-[--brand-gray-0] flex items-center justify-center p-2 sm:p-4 mt-[48px] sm:mt-[83.5px]">
+    <div className="w-full bg-[--base-gray-0] flex items-center justify-center p-2 md:p-4 mt-[48px] md:mt-[80px]">
       <div className="w-full max-w-[320px] h-auto md:w-[468px] sm:h-[75px] sm:max-w-none">
         <div className="flex items-center justify-between relative md:gap-6">
           {/* Dynamic background line */}

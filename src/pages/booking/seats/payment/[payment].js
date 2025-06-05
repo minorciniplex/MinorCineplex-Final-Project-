@@ -34,12 +34,11 @@ export default function Seats() {
     }
   }, [router.isReady]);
 
-
   return (
     <>
       <Navbar />
       <StepProgressBar currentPath="/booking/payment" />
-      <div className="flex flex-col sm:flex-row justify-center sm:py-[80px] sm:px-[120px] sm:gap-[102px]">
+      <div className="flex flex-col md:flex-row justify-center md:py-[80px] md:px-[120px] md:gap-[102px]">
         <PaymentMobile setPaymentMethod={setPaymentMethod} />
         <PaymentsCard
           time={time}
@@ -53,7 +52,7 @@ export default function Seats() {
           seatNumber={seat}
           bookingId={bookingId}
           showtimes={showtimes}
-            paymentMethod={paymentMethod}
+          paymentMethod={paymentMethod}
         />
       </div>
     </>

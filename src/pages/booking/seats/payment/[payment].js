@@ -24,6 +24,7 @@ export default function Seats() {
   const [language, setLanguage] = useState(null);
   const [seatNumber, setSeatNumber] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState("Credit card");
+  const { processPayment, resetPaymentState } = useBookingSeat();
 
   useEffect(() => {
     if (router.isReady) {
@@ -33,6 +34,31 @@ export default function Seats() {
       setSeatNumber(JSON.parse(seat));
     }
   }, [router.isReady]);
+
+    const handlePayment = async (e) => {
+    e.preventDefault();
+    
+    // Reset previous errors
+    resetPaymentState();
+
+
+    const result = await processPayment({
+      showtimeId : showtimes,
+      seatNumber,
+      sumPrice : price,
+      bookingId,
+    });
+
+    if (result.success) {
+      alert('Payment successful!');
+      // Redirect to success page or show success message
+    } else {
+      alert(`Payment failed: ${result.error}`);
+    }
+  };
+
+
+
 
 
   return (
@@ -53,8 +79,16 @@ export default function Seats() {
           seatNumber={seat}
           bookingId={bookingId}
           showtimes={showtimes}
-            paymentMethod={paymentMethod}
+          paymentMethod={paymentMethod}
         />
+      </div>
+      <div className="flex justify-center mt-8">
+        <button
+          onClick={handlePayment}
+          className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          Confirm Payment
+        </button>
       </div>
     </>
   );

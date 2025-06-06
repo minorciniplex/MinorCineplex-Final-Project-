@@ -70,6 +70,7 @@ const handler = async (req, res) => {
         message: "Payment successful, booking confirmed",
         booking: updatedBooking[0],
         seats: updatedSeats,
+        success: true
       });
 
     } catch (error) {

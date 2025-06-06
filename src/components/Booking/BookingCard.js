@@ -124,7 +124,7 @@ export default function BookingCard({
 
   return (
     <>
-      <div className="h-min sm:basis-1/4 flex flex-col p-4 bg-[--base-gray-0] rounded-lg shadow-md">
+      <div className="h-min w-min md:basis-1/5 flex flex-col p-4 bg-[--base-gray-0] rounded-lg shadow-md">
         <div className="flex rounded-t-lg">
           <Image
             src={poster}

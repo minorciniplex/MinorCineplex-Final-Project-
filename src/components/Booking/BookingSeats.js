@@ -649,7 +649,7 @@ function BookingSeats({
         </div>
 
         {/* Seat Status Legend */}
-        <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-10 border-t-1 border-[--base-gray-100] pt-2 md:py-4 mt-7 md:mt-0">
+        <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-10 border-t-2 border-[--base-gray-100] pt-2 md:py-4 mt-7 md:mt-0">
           <div className="bg-[--base-gray-100] rounded-md py-3 px-4 text-[--base-gray-400] text-2xl font-bold items-center w-[88px]">
             Hall 1
           </div>

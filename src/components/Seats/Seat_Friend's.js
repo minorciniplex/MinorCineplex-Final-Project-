@@ -1,7 +1,7 @@
-
-export default function FriendsIcon() {
+export default function FriendsIcon({className}) {
   return (
     <svg
+      className={className}
       width="40"
       height="40"
       viewBox="0 0 40 40"

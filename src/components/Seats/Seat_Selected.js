@@ -1,6 +1,7 @@
-export default function SelectedIcon() {
-  return (
+export default function SelectedIcon({className}) {
+return (
     <svg
+      className={className}
       width="40"
       height="40"
       viewBox="0 0 40 40"

@@ -566,8 +566,8 @@ function BookingSeats({
 
   return (
     <>
-      <div className="w-full sm:basis-3/4 py-10 px-4 sm:py-0 sm:px-0">
-        <div className="bg-gradient-to-r from-[#2C344E] to-[#516199] rounded-t-[80px] items-center flex justify-center text-[8px] sm:text-base py-[4.67px] sm:py-[10px] text-[--base-gray-400]">
+      <div className="w-full bg-[--background] md:bg-transparent md:basis-3/4 py-10 px-4 md:py-0 md:px-0">
+        <div className="bg-gradient-to-r from-[#2C344E] to-[#516199] rounded-t-[80px] items-center flex justify-center text-[7.47px] md:text-base py-[4.67px] md:py-[10px] text-[--base-gray-400]">
           screen
         </div>
 
@@ -578,28 +578,34 @@ function BookingSeats({
             return (
               <div
                 key={rowLabel}
-                className="flex flex-row text-[7.47px] md:text-base text-[--base-gray-300] items-center gap-9 md:gap-[138px]"
+                className="flex flex-row text-[7.47px] md:text-base text-[--base-gray-300] items-center gap-10 md:gap-[138px]"
               >
                 {/* Left Row Label */}
-                <div className="flex flex-row gap-3 sm:gap-6 items-center">
+                <div className="flex flex-row gap-[11.2px] md:gap-6 items-center">
                   <span className="text-left font-bold">{rowLabel}</span>
                   {rowSeats.slice(0, 5).map((seat) => {
                     const displayStatus = getSeatStatus(seat);
                     return (
                       <div
                         key={seat.id}
-                        className="w-4 h-4 md:w-10 md:h-10 rounded-md flex items-center justify-center cursor-pointer"
+                        className="rounded-md flex items-center justify-center cursor-pointer"
                         onClick={() => handleSeatClick(seat.id)}
                       >
-                        <div className="">
+                        <div>
                           {displayStatus === "available" && (
-                            <div className="">
-                              <AvailableIcon />
+                            <div>
+                              <AvailableIcon className="w-[18.67px] h-[18.67px] md:w-10 md:h-10" />
                             </div>
                           )}
-                          {displayStatus === "selected" && <SelectedIcon />}
-                          {displayStatus === "booked" && <BookedIcon />}
-                          {displayStatus === "reserved" && <ReservedIcon />}
+                          {displayStatus === "selected" && (
+                            <SelectedIcon className="w-[18.67px] h-[18.67px] md:w-10 md:h-10" />
+                          )}
+                          {displayStatus === "booked" && (
+                            <BookedIcon className="w-[18.67px] h-[18.67px] md:w-10 md:h-10" />
+                          )}
+                          {displayStatus === "reserved" && (
+                            <ReservedIcon className="w-[18.67px] h-[18.67px] md:w-10 md:h-10" />
+                          )}
                         </div>
                       </div>
                     );
@@ -607,24 +613,30 @@ function BookingSeats({
                 </div>
 
                 {/* Right Section Seats */}
-                <div className="flex flex-row gap-3 sm:gap-6 items-center">
+                <div className="flex flex-row gap-[11.2px] md:gap-6 items-center">
                   {rowSeats.slice(5, 10).map((seat) => {
                     const displayStatus = getSeatStatus(seat);
                     return (
                       <div
                         key={seat.id}
-                        className="w-4 h-4 md:w-10 md:h-10 rounded-md flex items-center justify-center cursor-pointer"
+                        className="rounded-md flex items-center justify-center cursor-pointer"
                         onClick={() => handleSeatClick(seat.id)}
                       >
-                        <div className="w-full h-full">
+                        <div>
                           {displayStatus === "available" && (
-                            <div className="w-full h-full">
-                              <AvailableIcon />
+                            <div>
+                              <AvailableIcon className="w-[18.67px] h-[18.67px] md:w-10 md:h-10" />
                             </div>
                           )}
-                          {displayStatus === "selected" && <SelectedIcon />}
-                          {displayStatus === "booked" && <BookedIcon />}
-                          {displayStatus === "reserved" && <ReservedIcon />}
+                          {displayStatus === "selected" && (
+                            <SelectedIcon className="w-[18.67px] h-[18.67px] md:w-10 md:h-10" />
+                          )}
+                          {displayStatus === "booked" && (
+                            <BookedIcon className="w-[18.67px] h-[18.67px] md:w-10 md:h-10" />
+                          )}
+                          {displayStatus === "reserved" && (
+                            <ReservedIcon className="w-[18.67px] h-[18.67px] md:w-10 md:h-10" />
+                          )}
                         </div>
                       </div>
                     );
@@ -637,20 +649,20 @@ function BookingSeats({
         </div>
 
         {/* Seat Status Legend */}
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-10 border-t-2 border-[--base-gray-100] pt-2 sm:py-4 mt-7 sm:mt-0">
-          <div className="bg-[--base-gray-100] rounded-sm py-3 px-4 text-[--base-gray-400] text-2xl font-bold items-center w-[88px]">
+        <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-10 border-t-2 border-[--base-gray-100] pt-2 md:py-4 mt-7 md:mt-0">
+          <div className="bg-[--base-gray-100] rounded-md py-3 px-4 text-[--base-gray-400] text-2xl font-bold items-center w-[88px]">
             Hall 1
           </div>
-          <div className="grid grid-cols-2 sm:flex sm:gap-10 sm:grid-cols-none gap-y-8 gap-x-8 sm:gap-y-0 text-[--base-gray-400]">
-            <div className="flex flex-row sm:flex-wrap gap-4 items-center">
+          <div className="grid grid-cols-2 md:flex md:gap-10 md:grid-cols-none gap-y-8 gap-x-8 md:gap-y-0 text-[--base-gray-400]">
+            <div className="flex flex-row md:flex-wrap gap-4 items-center">
               <AvailableIcon />
               <p className="basis-24">Available Seat THB{price}</p>
             </div>
-            <div className="flex flex-row sm:flex-wrap gap-4 items-center">
+            <div className="flex flex-row md:flex-wrap gap-4 items-center">
               <BookedIcon />
               <p>Booked Seat</p>
             </div>
-            <div className="flex flex-row sm:flex-wrap gap-4 items-center">
+            <div className="flex flex-row md:flex-wrap gap-4 items-center">
               <ReservedIcon />
               <p>Reserved Seat</p>
             </div>

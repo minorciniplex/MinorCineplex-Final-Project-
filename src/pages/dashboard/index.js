@@ -26,7 +26,7 @@ function Dashboard() {
   return (
     <>
       <Navbar />
-      <div className="flex flex-col lg:flex-row justify-start items-start pt-20 lg:pt-52 px-4 lg:pl-80 gap-14">
+      <div className="flex flex-col lg:flex-row justify-start pt-[48px] lg:pt-52 lg:pl-80 gap-10">
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:flex lg:flex-col w-full lg:w-[300px] h-auto lg:h-[288px] bg-[#070C1B] justify-evenly items-center lg:items-start px-4 rounded-lg ">
           <div
             className={`w-full body-2-regular hover:bg-[#2A3149] hover:text-white ${

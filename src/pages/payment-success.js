@@ -2,6 +2,12 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { supabase } from '@/utils/supabase';
 import Image from 'next/image';
+import Navbar from '@/components/Navbar/Navbar';
+import Button from '@/components/Button';
+import FmdGoodIcon from "@mui/icons-material/FmdGood";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
 
 export default function PaymentSuccess() {
   const router = useRouter();
@@ -18,17 +24,17 @@ export default function PaymentSuccess() {
     const fetchBooking = async () => {
       try {
         console.log('Fetching booking with ID:', bookingId);
-        
+
         // ดึงข้อมูล booking พื้นฐานก่อน
         const { data: bookingData, error: bookingError } = await supabase
           .from('bookings')
           .select('*')
           .eq('booking_id', bookingId)
           .single();
-        
+
         console.log('Basic booking data:', bookingData);
         console.log('Booking error:', bookingError);
-        
+
         if (bookingError || !bookingData) {
           console.error('Failed to fetch booking:', bookingError);
           setLoading(false);
@@ -92,7 +98,7 @@ export default function PaymentSuccess() {
 
         console.log('Formatted booking:', formattedBooking);
         setBooking(formattedBooking);
-        
+
       } catch (error) {
         console.error('Error in fetchBooking:', error);
       }
@@ -126,91 +132,171 @@ export default function PaymentSuccess() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#070C1B] text-white">
-      <div className="flex flex-col items-center">
-        <div className="bg-green-500 rounded-full w-20 h-20 flex items-center justify-center mb-6">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#101525] text-white">
+      <Navbar />
+      <div className="flex flex-col items-center mt-[40px] md:mt-[80px]">
+        <div className="bg-brand-green rounded-full w-20 h-20 flex items-center justify-center mb-6">
+          <Image
+            src={"/assets/images/done.png"}
+            width={32}
+            height={32}
+            alt="Success" />
         </div>
-        <h2 className="text-3xl font-bold mb-4">Booking success</h2>
-        <div className="bg-[#10162A] rounded-lg p-6 mb-6 w-full max-w-xs">
+        <h2 className="mb-4 headline-2">Booking success</h2>
+        <div className=" w-[344px] h-[288px] bg-base-gray-0 rounded-[8px] p-6 mb-6 md:w-[386px] md:h-[288px]">
           <div className="flex flex-col gap-2 mb-4">
-            <div className="flex items-center gap-2 text-base-gray-300">
-              <span>•</span>
+            <div className="flex items-center gap-[12px] body-2-regular text-base-gray-400 rounded">
+              <FmdGoodIcon
+                sx={{
+                  color: "base-gray-200",
+                  fontSize: "16px"
+                }}
+              />
               <span>{booking.cinema_name}</span>
             </div>
-            <div className="flex items-center gap-2 text-base-gray-300">
-              <span>•</span>
+            <div className="flex items-center gap-[12px] body-2-regular text-base-gray-400">
+              <CalendarMonthIcon
+                sx={{
+                  color: "base-gray-200",
+                  fontSize: "16px"
+                }}
+              />
               <span>{booking.show_date}</span>
             </div>
-            <div className="flex items-center gap-2 text-base-gray-300">
-              <span>•</span>
+            <div className="flex items-center gap-[12px] body-2-regular text-base-gray-400">
+              <AccessTimeIcon
+                sx={{
+                  color: "base-gray-200",
+                  fontSize: "16px"
+                }}
+              />
               <span>{booking.show_time}</span>
             </div>
-            <div className="flex items-center gap-2 text-base-gray-300">
-              <span>•</span>
+            <div className="flex items-center gap-[12px] body-2-regular text-base-gray-400">
+              <MeetingRoomIcon
+                sx={{
+                  color: "base-gray-200",
+                  fontSize: "16px"
+                }}
+              />
               <span>{booking.hall}</span>
             </div>
           </div>
           <div className="border-t border-[#232B47] my-2"></div>
           <div className="flex flex-col gap-2 mt-2">
             <div className="flex justify-between">
-              <span>Selected Seat</span>
-              <span className="font-bold">{Array.isArray(booking.seat) ? booking.seat.join(', ') : booking.seat}</span>
+              <span className="body-2-regular text-base-gray-300">Selected Seat</span>
+              <span className="body-1-medium text-white">{Array.isArray(booking.seat) ? booking.seat.join(', ') : booking.seat}</span>
             </div>
             <div className="flex justify-between">
-              <span>Payment method</span>
-              <span className="font-bold">{booking.payment_method}</span>
+              <span className="body-2-regular text-base-gray-300">Payment method</span>
+              <span className="body-1-medium text-white">{booking.payment_method}</span>
             </div>
             <div className="flex justify-between">
-              <span>Total</span>
-              <span className="font-bold">THB{booking.total}</span>
+              <span className="body-2-regular text-base-gray-300">Total</span>
+              <span className="body-1-medium text-white">THB{booking.total}</span>
             </div>
           </div>
         </div>
-        <div className="flex flex-col sm:flex-row gap-4 mb-4">
-          <button
+        <div className="flex flex-col sm:flex-row gap-2 md:gap-4 mb-4">
+          <Button
+            className='!w-[170px] !h-[48px] md:!w-[185px] md:!h-[48px] !rounded-[4px]'
+            variant="secondary"
             onClick={() => router.push('/')}
-            className="px-6 py-2 rounded border border-white text-white bg-transparent hover:bg-white hover:text-[#070C1B] transition"
           >
             Back to home
-          </button>
-          <button
+          </Button>
+          <Button
+            className='!w-[173px] !h-[48px] md:!w-[185px] md:!h-[48px] !rounded-[4px]'
+            variant="primary"
             onClick={() => router.push(`/booking-detail/${booking.booking_id || booking.id}`)}
-            className="px-6 py-2 rounded bg-brand-blue-200 text-white hover:bg-brand-blue-100 transition"
           >
             Booking detail
-          </button>
+          </Button>
         </div>
-        <div className="mt-2">
-          <a href="#" className="text-brand-blue-200 underline flex items-center gap-1" onClick={e => { e.preventDefault(); setShowShare(v => !v); }}>
-            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+        <div className="mt-6">
+          <a href="#" className=" body-1-medium text-white underline flex items-center gap-2 " onClick={e => { e.preventDefault(); setShowShare(v => !v); }}>
+            <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7" /><polyline points="16 6 12 2 8 6" /><line x1="12" y1="2" x2="12" y2="15" /></svg>
             Share this booking
           </a>
         </div>
         {showShare && (
-          <div className="mt-4 bg-[#232B47] rounded-lg p-4 flex flex-col items-center w-full max-w-xs shadow-lg">
-            <div className="mb-2 font-bold text-white text-center">Share Booking</div>
-            <div className="flex gap-4 justify-center">
-              <button onClick={handleShareLine} className="flex flex-col items-center">
-                <Image src={"/icons/line.svg"} alt="LINE" width={32} height={32} />
-                <span className="text-xs mt-1">LINE</span>
-              </button>
-              <button onClick={handleShareMessenger} className="flex flex-col items-center">
-                <Image src={"/icons/messenger.svg"} alt="Messenger" width={32} height={32} />
-                <span className="text-xs mt-1">Messenger</span>
-              </button>
-              <button onClick={handleShareFacebook} className="flex flex-col items-center">
-                <Image src={"/icons/facebook.svg"} alt="Facebook" width={32} height={32} />
-                <span className="text-xs mt-1">Facebook</span>
-              </button>
-              <button onClick={handleShareTwitter} className="flex flex-col items-center">
-                <Image src={"/icons/twitter.svg"} alt="Twitter" width={32} height={32} />
-                <span className="text-xs mt-1">Twitter</span>
-              </button>
-              <button onClick={handleCopyLink} className="flex flex-col items-center">
-                <Image src={"/icons/link.svg"} alt="Copy link" width={32} height={32} />
-                <span className="text-xs mt-1">Copy link</span>
-              </button>
+          <div className="w-[274px] h-[208px] mt-[-240px] bg-base-gray-100 rounded-[8px] p-4 flex flex-col items-center  shadow-lg 
+                          md:w-[432px] md:h-[128px] md:p-4 md:shadow-[4px_4px_30px_rgba(0,0,0,0.5)] md:mt-[-170px]">
+            <div className="mb-1 body-1-medium text-white text-center md:mb-4">Share Booking</div>
+            
+            {/* Mobile: 2 rows */}
+            <div className="flex flex-col gap-4 md:hidden">
+              {/* แถวแรก */}
+              <div className="flex gap-4 justify-center">
+                <Button variant="ghost" onClick={handleShareLine} className="flex flex-col items-center w-auto h-auto p-0">
+                  <div className="w-10 h-10 bg-base-gray-0 rounded-full flex items-center justify-center mb-2">
+                    <Image src={"/assets/images/Line.png"} alt="LINE" width={20} height={20} />
+                  </div>
+                  <span className="text-xs text-white">LINE</span>
+                </Button>
+                <Button variant="ghost" onClick={handleShareMessenger} className="flex flex-col items-center w-auto h-auto p-0">
+                  <div className="w-10 h-10 bg-base-gray-0 rounded-full flex items-center justify-center mb-2">
+                    <Image src={"/assets/images/Mesenger.png"} alt="Messenger" width={20} height={20} />
+                  </div>
+                  <span className="text-xs text-white">Messenger</span>
+                </Button>
+                <Button variant="ghost" onClick={handleShareFacebook} className="flex flex-col items-center w-auto h-auto p-0">
+                  <div className="w-10 h-10 bg-base-gray-0 rounded-full flex items-center justify-center mb-2">
+                    <Image src={"/assets/images/Facebook - Original.png"} alt="Facebook" width={20} height={20} />
+                  </div>
+                  <span className="text-xs text-white">Facebook</span>
+                </Button>
+              </div>
+              {/* แถวสอง */}
+              <div className="flex gap-4 justify-start mt-[-15px]">
+                <Button variant="ghost" onClick={handleShareTwitter} className="flex flex-col items-center w-auto h-auto p-0">
+                  <div className="w-10 h-10 bg-base-gray-0 rounded-full flex items-center justify-center mb-2">
+                    <Image src={"/assets/images/Twitter - Original.png"} alt="Twitter" width={20} height={20} />
+                  </div>
+                  <span className="text-xs text-white">Twitter</span>
+                </Button>
+                <Button variant="ghost" onClick={handleCopyLink} className="flex flex-col items-center w-auto h-auto p-0">
+                  <div className="w-10 h-10 bg-base-gray-0 rounded-full flex items-center justify-center mb-2">
+                    <Image src={"/assets/images/Copy_light.png"} alt="Copy link" width={20} height={20} />
+                  </div>
+                  <span className="text-xs text-white">Copy link</span>
+                </Button>
+              </div>
+            </div>
+
+            {/* Desktop: 1 row */}
+            <div className="hidden md:flex gap-2 justify-center md:mt-[-23px]">
+              <Button variant="ghost" onClick={handleShareLine} className="flex flex-col items-center w-auto h-auto p-0">
+                <div className="w-10 h-10 bg-base-gray-0 rounded-full flex items-center justify-center mb-2">
+                  <Image src={"/assets/images/Line.png"} alt="LINE" width={20} height={20} />
+                </div>
+                <span className="text-xs text-white">LINE</span>
+              </Button>
+              <Button variant="ghost" onClick={handleShareMessenger} className="flex flex-col items-center w-auto h-auto p-0">
+                <div className="w-10 h-10 bg-base-gray-0 rounded-full flex items-center justify-center mb-2">
+                  <Image src={"/assets/images/Mesenger.png"} alt="Messenger" width={20} height={20} />
+                </div>
+                <span className="text-xs text-white">Messenger</span>
+              </Button>
+              <Button variant="ghost" onClick={handleShareFacebook} className="flex flex-col items-center w-auto h-auto p-0">
+                <div className="w-10 h-10 bg-base-gray-0 rounded-full flex items-center justify-center mb-2">
+                  <Image src={"/assets/images/Facebook - Original.png"} alt="Facebook" width={20} height={20} />
+                </div>
+                <span className="text-xs text-white">Facebook</span>
+              </Button>
+              <Button variant="ghost" onClick={handleShareTwitter} className="flex flex-col items-center w-auto h-auto p-0">
+                <div className="w-10 h-10 bg-base-gray-0 rounded-full flex items-center justify-center mb-2">
+                  <Image src={"/assets/images/Twitter - Original.png"} alt="Twitter" width={20} height={20} />
+                </div>
+                <span className="text-xs text-white">Twitter</span>
+              </Button>
+              <Button variant="ghost" onClick={handleCopyLink} className="flex flex-col items-center w-auto h-auto p-0">
+                <div className="w-10 h-10 bg-base-gray-0 rounded-full flex items-center justify-center mb-2">
+                  <Image src={"/assets/images/Copy_light.png"} alt="Copy link" width={20} height={20} />
+                </div>
+                <span className="text-xs text-white">Copy link</span>
+              </Button>
             </div>
           </div>
         )}

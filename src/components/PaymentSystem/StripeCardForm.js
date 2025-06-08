@@ -31,13 +31,6 @@ const StripeCardForm = forwardRef(function StripeCardForm(
   const [isCvcComplete, setIsCvcComplete] = useState(false);
 
   useEffect(() => {
-    console.log("[DEBUG] Card state:", {
-      isCardNumberComplete,
-      isExpiryComplete,
-      isCvcComplete,
-      owner,
-      isCardComplete: isCardNumberComplete && isExpiryComplete && isCvcComplete && owner.trim() !== ""
-    });
     if (setIsCardComplete) {
       setIsCardComplete(
         isCardNumberComplete &&
@@ -56,16 +49,12 @@ const StripeCardForm = forwardRef(function StripeCardForm(
 
   useImperativeHandle(ref, () => ({
     async pay() {
-      console.log("[DEBUG] pay() called");
-      console.log("[DEBUG] booking in StripeCardForm:", booking);
-      console.log("[DEBUG] booking.total:", booking?.total, typeof booking?.total);
       let amount = booking?.total;
       if (typeof amount === "string") {
         amount = Number(amount.replace(/,/g, ""));
       }
       amount = Number(amount);
       if (!amount || isNaN(amount)) {
-        console.log("[DEBUG] amount after parse:", amount);
         return { error: "จำนวนเงินไม่ถูกต้อง" };
       }
       if (!stripe || !elements) return { error: "Stripe ยังไม่พร้อม" };
@@ -83,7 +72,6 @@ const StripeCardForm = forwardRef(function StripeCardForm(
           }),
         });
         const { clientSecret } = await res.json();
-        console.log("[DEBUG] clientSecret:", clientSecret);
         const cardNumberElement = elements.getElement(CardNumberElement);
         if (!cardNumberElement)
           return { error: "กรุณากรอกข้อมูลบัตรให้ครบถ้วน" };
@@ -94,21 +82,15 @@ const StripeCardForm = forwardRef(function StripeCardForm(
               billing_details: { name: owner },
             },
           });
-        console.log("[DEBUG] confirmError:", confirmError);
-        console.log("[DEBUG] paymentIntent:", paymentIntent);
         if (confirmError) {
-          console.log("[DEBUG] return error:", confirmError.message);
           return { error: confirmError.message };
         }
         if (!paymentIntent) {
-          console.log("[DEBUG] return error: paymentIntent is null");
           return { error: "ไม่สามารถสร้าง paymentIntent ได้" };
         }
         if (paymentIntent.status !== "succeeded") {
-          console.log("[DEBUG] return error: paymentIntent.status =", paymentIntent.status);
           return { error: "การชำระเงินไม่สำเร็จ กรุณาลองใหม่" };
         }
-        console.log("[DEBUG] return success");
         const paymentData = {
           payment_intent_id: paymentIntent.id,
           amount,
@@ -123,7 +105,6 @@ const StripeCardForm = forwardRef(function StripeCardForm(
           .from("movie_payments")
           .insert([paymentData]);
         if (supaError) {
-          console.log("[DEBUG] return error: supaError", supaError.message);
           return {
             error: "บันทึกข้อมูลลงฐานข้อมูลไม่สำเร็จ: " + supaError.message,
           };
@@ -140,7 +121,6 @@ const StripeCardForm = forwardRef(function StripeCardForm(
         }
         return { success: true };
       } catch (err) {
-        console.log("[DEBUG] return error: catch", err);
         return { error: "เกิดข้อผิดพลาดในการชำระเงิน กรุณาลองใหม่อีกครั้ง" };
       }
     },

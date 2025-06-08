@@ -23,7 +23,8 @@ export default function PaymentsCard({
   movieId,
   bookingId,
   paymentMethod,
-  isCardComplete
+  isCardComplete,
+  onSeatExpired
 }) {
   const router = useRouter();
   const {
@@ -32,13 +33,14 @@ export default function PaymentsCard({
     formatTime,
     startReservation,
     cancelReservation,
-  } = useCountdown(seatNumber, showtimes, bookingId);
+  } = useCountdown(seatNumber, showtimes, bookingId, null, null, onSeatExpired);
   //fix error 500
   useEffect(() => {
     if (router.isReady && bookingId && showtimes) {
       startReservation();
     }
   }, [router.isReady, bookingId, showtimes]);
+  
 
   // แปลง genres และ language ถ้ามาเป็น string
   let seatArr = [];
@@ -97,13 +99,13 @@ export default function PaymentsCard({
 
   return (
     <>
-      <div className="h-min sm:basis-1/4 flex flex-col sm:flex-1 p-4 bg-[--base-gray-0] rounded-lg shadow-md">
-        <div className="flex flex-col w-full bg-[--base-gray-0] rounded-lg shadow-md">
+      <div className="h-min w-full lg:w-auto flex flex-col p-4 lg:p-4 bg-[--base-gray-0] lg:rounded-lg lg:shadow-md">
+        <div className="flex flex-col w-full bg-[--base-gray-0] lg:rounded-lg lg:shadow-md">
           {isTimerActive && (
-            <div className="rounded-lg text-sm font-normal ">
-              <div className="text-[--base-gray-300] mb-3">
+            <div className="rounded-lg text-sm font-normal mb-4">
+              <div className="text-[--base-gray-300] text-center lg:text-left">
                 Time remaining:
-                <span className="text-[--brand-blue-100] ml-2">
+                <span className="text-[--brand-blue-100] ml-2 font-semibold">
                   {formatTime(Number(timeLeft))}
                 </span>
               </div>
@@ -113,21 +115,21 @@ export default function PaymentsCard({
             <img
               src={poster}
               alt="Movie Poster"
-              className="w-[82px] object-cover rounded-lg"
+              className="w-[82px] lg:w-[82px] object-cover rounded-lg flex-shrink-0"
             />
-            <div className="flex flex-col w-[300px] pl-4 rounded-t-lg">
-              <h2 className="text-white text-2xl font-bold mb-3">{title}</h2>
+            <div className="flex flex-col flex-1 pl-4 rounded-t-lg">
+              <h2 className="text-white text-xl lg:text-2xl font-bold mb-3 leading-tight">{title}</h2>
               <div className="flex flex-wrap gap-2">
                 {genreArr?.map((genre, index) => (
                   <span
                     key={index}
-                    className="bg-[--base-gray-100] py-[4px] md:py-[6px] px-3 rounded text-xs md:text-sm text-[--base-gray-300] font-normal"
+                    className="bg-[--base-gray-100] py-[4px] lg:py-[6px] px-3 rounded text-xs lg:text-sm text-[--base-gray-300] font-normal"
                   >
                     {genre?.movie_genres?.name || genre?.name || genre || ""}
                   </span>
                 ))}
                 {lang && (
-                  <span className="bg-[--base-gray-100] py-[4px] md:py-[6px] px-3 rounded text-xs md:text-sm text-[#C8CEDD] font-normal">
+                  <span className="bg-[--base-gray-100] py-[4px] lg:py-[6px] px-3 rounded text-xs lg:text-sm text-[#C8CEDD] font-normal">
                     {lang.toUpperCase()}
                   </span>
                 )}
@@ -164,7 +166,7 @@ export default function PaymentsCard({
               <span>Hall {screenNumber}</span>
             </div>
             <>
-              <div className="flex flex-col justify-between items-center gap-2">
+              <div className="flex flex-col justify-between items-center gap-2 w-full">
                 <CouponPaymentCard 
                   showtimes={showtimes}
                   bookingId={bookingId}

@@ -1,9 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
-
 import axios from 'axios';
 const RESERVATION_TIME = 15 * 60; // 15 minutes in seconds
 
-const useCountdown = (seatNumber, showtimes, bookingId, couponId, booking_coupon_id) => {
+const useCountdown = (seatNumber, showtimes, bookingId, couponId, booking_coupon_id, onSeatExpired) => {
   const [timeLeft, setTimeLeft] = useState(RESERVATION_TIME);
   const [isTimerActive, setIsTimerActive] = useState(false);
   const [reservationId, setReservationId] = useState(null);
@@ -146,7 +145,10 @@ const cancelCouponStatus = useCallback(async (couponIdParam) => {
   const handleExpire = useCallback(async () => {
     console.log('handleExpire called with:', { couponId, booking_coupon_id });
     try {
-      alert("Reservation cancelled");
+      // แสดง popup แทน alert
+      if (onSeatExpired) {
+        onSeatExpired();
+      }
       await cancelReservation();
       
       // เรียก cancel coupon functions ถ้ามี coupon
@@ -157,8 +159,8 @@ const cancelCouponStatus = useCallback(async (couponIdParam) => {
     } catch (error) {
       console.error('Error in handleExpire:', error);
     }
-  }, [cancelReservation, cancelCoupon, cancelCouponStatus, couponId, booking_coupon_id]);
-
+  }, [cancelReservation, cancelCoupon, cancelCouponStatus, couponId, booking_coupon_id, onSeatExpired]);
+// ทำงานเมื่อเวลาหมด
   useEffect(() => {
     if (onTimeExpire) {
       handleExpire();
@@ -168,11 +170,13 @@ const cancelCouponStatus = useCallback(async (couponIdParam) => {
   // เมื่อ onTimeExpire เป็น true ให้ cancelReservation
   useEffect(() => {
     if (onTimeExpire) {
-      alert("Reservation cancelled");
       cancelReservation();
-
+      // แสดง popup แทน alert และไม่ redirect ที่นี่
+      if (onSeatExpired) {
+        onSeatExpired();
+      }
     }
-  }, [onTimeExpire, cancelReservation,  seatNumber]);
+  }, [onTimeExpire, cancelReservation, seatNumber, onSeatExpired]);
 
   // Update timer
   useEffect(() => {

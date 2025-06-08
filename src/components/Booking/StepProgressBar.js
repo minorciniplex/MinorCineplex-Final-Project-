@@ -23,12 +23,12 @@ const StepProgressBar = ({ currentPath = "/booking/seats" }) => {
 
   const StepCircle = ({ step, status, index }) => {
     const baseClasses =
-      "w-[44px] h-[44px] rounded-full flex items-center justify-center text-[20px] font-bold transition-all duration-300 relative z-10";
+      "w-[44px] h-[44px] lg:w-[44px] lg:h-[44px] rounded-full flex items-center justify-center headline-4 lg:text-[20px] font-bold transition-all duration-300 relative z-10";
 
     if (status === "completed") {
       return (
         <div ref={(el) => (stepRefs.current[index] = el)} className={`${baseClasses} bg-[--brand-blue-200] text-white`}>
-          <Check size={26} />
+          <Check size={20} className="lg:w-[26px] lg:h-[26px]" />
         </div>
       );
     }
@@ -79,13 +79,13 @@ const StepProgressBar = ({ currentPath = "/booking/seats" }) => {
   }, []);
 
   return (
-    <div className="w-full bg-[--brand-gray-0] flex items-center justify-center p-2 sm:p-4 mt-[48px] sm:mt-[83.5px]">
-      <div className="w-full max-w-[320px] h-auto md:w-[468px] sm:h-[75px] sm:max-w-none">
-        <div className="flex items-center justify-between relative md:gap-6">
+    <div className="w-full h-[102px] bg-base-gray-0 flex items-center justify-center px-4 py-4 lg:p-4 mt-[48px] lg:mt-[83.5px]">
+      <div className="w-full max-w-lg lg:max-w-none h-auto lg:w-[468px] lg:h-[75px]">
+        <div className="flex items-center justify-between relative gap-2 lg:gap-6">
           {/* Dynamic background line */}
           <div
             ref={lineRef}
-            className="absolute top-[22px] h-px bg-gray-700 z-0 transition-all duration-300"
+            className="absolute top-[20px] lg:top-[22px] h-px bg-gray-700 z-0 transition-all duration-300"
             style={lineStyle}
           ></div>
 
@@ -93,9 +93,9 @@ const StepProgressBar = ({ currentPath = "/booking/seats" }) => {
             const status = getStepStatus(step.path);
 
             return (
-              <div key={step.id} className="flex flex-col items-center w-[100px] md:w-[140px] gap-2">
+              <div key={step.id} className="flex flex-col items-center flex-1 lg:w-[140px] gap-2">
                 <StepCircle step={step} status={status} index={index} />
-                <span className="text-sm md:text-base font-medium transition-colors text-white">
+                <span className="body-2-regular lg:text-base font-medium transition-colors text-white text-center leading-tight">
                   {step.label}
                 </span>
               </div>

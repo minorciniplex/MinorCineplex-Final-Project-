@@ -11,7 +11,6 @@ export default function CouponPaymentCard({ showtimes, bookingId, bookingSeats, 
   const { user } = useStatus();
   const { couponsInWallet, loading: loadingCoupons } = useCouponWallet(user);
   const selectedCoupon = couponsInWallet.find(c => c.coupons.coupon_id === selectedCouponId);
-  console.log(selectedCouponId);
 
 
   return (

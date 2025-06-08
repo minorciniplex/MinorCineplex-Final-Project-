@@ -56,8 +56,9 @@ export default function SumPaymentDiscount({
   const [openConfirmPopup, setOpenConfirmPopup] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [confirmError, setConfirmError] = useState("");
-  const { cardFormRef, setBookingData, setUserId: setPaymentUserId } = usePayment();
+  const { cardFormRef, setBookingData, setUserId: setPaymentUserId, setCardFormRef } = usePayment();
   const { user } = useStatus();
+  const localCardFormRef = useRef(null);
 
   // อัพเดท showBookingError เมื่อมี bookingError
   useEffect(() => {
@@ -76,16 +77,7 @@ export default function SumPaymentDiscount({
   // เช็คคูปองเมื่อมีการเลือกคูปอง
   useEffect(() => {
     const checkCouponValidity = async () => {
-      console.log("Checking coupon validity with:", {
-        coupon,
-        bookingId: data?.booking_id,
-      });
-
       if (!coupon?.coupons?.coupon_id || !data?.booking_id) {
-        console.log("Missing required data:", {
-          hasCouponId: !!coupon?.coupons?.coupon_id,
-          hasBookingId: !!data?.booking_id,
-        });
         return;
       }
 
@@ -95,14 +87,8 @@ export default function SumPaymentDiscount({
           coupon.coupons.coupon_id,
           data.total_price
         );
-        console.log("Coupon check result:", result);
         setCheckResult(result);
       } catch (error) {
-        console.error("Error checking coupon:", {
-          message: error.message,
-          response: error.response?.data,
-          status: error.response?.status,
-        });
         setCheckResult(null);
       }
     };
@@ -136,18 +122,19 @@ export default function SumPaymentDiscount({
     if (user?.id && setPaymentUserId) {
       setPaymentUserId(user.id);
     }
-      }, [data, user?.id, setBookingData, setPaymentUserId]);
+    // เชื่อมต่อ cardFormRef ใน Context
+    if (setCardFormRef && localCardFormRef.current) {
+      setCardFormRef(localCardFormRef);
+    }
+  }, [data, user?.id, setBookingData, setPaymentUserId, setCardFormRef]);
 
   // handleNext เปลี่ยนเป็นเปิด popup
   const handleNext = (e) => {
     e.preventDefault();
-    console.log("[DEBUG] handleNext called", { isCardComplete, data: !!data });
     if (paymentMethod === "Credit card" && !isCardComplete) {
-      console.log("[DEBUG] Card not complete");
       return;
     }
     if (!data) {
-      console.log("[DEBUG] No booking data");
       return;
     }
     setOpenConfirmPopup(true);
@@ -159,13 +146,31 @@ export default function SumPaymentDiscount({
     setConfirmError("");
     try {
       let paymentStatus = "pending";
-      console.log("[DEBUG] cardFormRef:", cardFormRef);
-      console.log("[DEBUG] cardFormRef?.current:", cardFormRef?.current);
+      // Debug logs removed for cleaner console
       if (paymentMethod === "Credit card") {
-        // สำหรับ QR Code Payment บน SumPaymentDiscount, ใช้ redirect แทน
-        setConfirmError("การจ่ายเงินด้วยบัตรเครดิตยังไม่สามารถใช้งานได้ในหน้านี้ กรุณาใช้ QR Code");
-        setConfirmLoading(false);
-        return;
+        // สำหรับ Credit Card Payment
+        if (cardFormRef?.current?.pay) {
+          try {
+            const result = await cardFormRef.current.pay();
+            if (result.success) {
+              setOpenConfirmPopup(false);
+              router.push(`/payment-success?bookingId=${data.booking_id}`);
+              return;
+            } else {
+              setConfirmError(result.error || "เกิดข้อผิดพลาดในการชำระเงิน");
+              setConfirmLoading(false);
+              return;
+            }
+          } catch (error) {
+            setConfirmError("เกิดข้อผิดพลาดในการชำระเงิน");
+            setConfirmLoading(false);
+            return;
+          }
+        } else {
+          setConfirmError("ระบบชำระเงินยังไม่พร้อม กรุณาลองใหม่");
+          setConfirmLoading(false);
+          return;
+        }
       } else if (paymentMethod === "QR code" || paymentMethod === "QR Code") {
         // สำหรับ QR Code Payment
         try {
@@ -232,7 +237,6 @@ export default function SumPaymentDiscount({
   try {
     seatNumber = bookingSeats ? JSON.parse(bookingSeats) : [];
   } catch (e) {
-    console.error("bookingSeats ไม่ใช่ JSON ที่ถูกต้อง:", bookingSeats);
     seatNumber = [];
   }
 
@@ -262,6 +266,24 @@ export default function SumPaymentDiscount({
           <span>THB{finalTotal || 0} </span>
         </div>
       </div>
+
+      {/* Hidden Stripe Card Form สำหรับ Credit Card Payment */}
+      {paymentMethod === "Credit card" && (
+        <div className="hidden">
+          <Elements stripe={stripePromise}>
+            <StripeCardForm
+              ref={localCardFormRef}
+              setIsCardComplete={() => {}}
+              booking={{
+                id: data?.booking_id,
+                total: finalPrice || data?.total_price || 0,
+                movie_id: data?.movie_id
+              }}
+              userId={user?.id}
+            />
+          </Elements>
+        </div>
+      )}
       <CouponAlert
         open={showBookingError}
         onClose={() => setShowBookingError(false)}

@@ -71,7 +71,9 @@ export default function BookingCard({
   const handleSumbit = async () => {
     if (!isLoggedIn) {
       console.log("User not logged in, redirecting to login page");
-      router.push("/auth/login");
+      // เก็บ current URL เพื่อให้ redirect กลับมาหลัง login
+      const currentUrl = router.asPath;
+      router.push(`/auth/login?redirect=${encodeURIComponent(currentUrl)}`);
       return;
     }
 

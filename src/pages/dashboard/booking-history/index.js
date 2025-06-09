@@ -160,8 +160,8 @@ const BookingHistory = () => {
                     </div>
                   </div>
                   <div className="w-full flex flex-col ml-6 text-sm md:gap-1">
-                    <div className="flex justify-between">
-                      <span className="text-[--base-gray-300] inline-block w-35">
+                    <div className="flex justify-between md:gap-4">
+                      <span className="text-[--base-gray-300] inline-block">
                         Selected Seat
                       </span>
                       <span className="text-[--base-gray-400] font-medium">
@@ -169,7 +169,7 @@ const BookingHistory = () => {
                       </span>
                     </div>
                     <div className="flex justify-between md:gap-4">
-                      <span className="text-[--base-gray-300] inline-block w-35">
+                      <span className="text-[--base-gray-300] inline-block">
                         Payment method
                       </span>
                       <span className="text-[--base-gray-400] font-medium">
@@ -322,7 +322,7 @@ const BookingHistory = () => {
                   <div className="flex mb-1 gap-2">
                     <div>Booking No.</div>
                     <div className="font-medium">
-                      {(selectedBooking.booking_id || "AKT1223")
+                      {(selectedBooking.booking_id)
                         .toString()
                         .substring(0, 8)
                         .toUpperCase()}
@@ -346,7 +346,7 @@ const BookingHistory = () => {
                     </div>
                   </div>
                   <div className="flex-1 text-sm md:gap-1">
-                    <div className="flex mb-1 justify-between">
+                    <div className="flex mb-1 justify-between md:gap-4">
                       <span className="text-[--base-gray-300]">
                         Selected Seat{" "}
                       </span>

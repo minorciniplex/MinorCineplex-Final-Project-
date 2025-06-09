@@ -48,7 +48,8 @@ export default async function handler(req, res) {
           reserved_by,
           row,
           seat_number,
-          showtime_id
+          showtime_id,
+          seat_status
         ),
         bookings (
           booking_id,
@@ -83,7 +84,7 @@ export default async function handler(req, res) {
         row: item.seats.row,
         seat_number: item.seats.seat_number,
         showtime_id: item.seats.showtime_id,
-        booking_status: item.bookings.status // Add booking status for debugging
+        seat_status: item.seats.seat_status
       }));
 
     // Filter out expired reservations (optional safety check)

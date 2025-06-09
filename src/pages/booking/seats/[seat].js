@@ -20,9 +20,11 @@ export default function Seats() {
     showtimeId,
     movieId,
     price,
+    friendSeats: friendSeatsQuery,
   } = router.query;
   const [genres, setGenres] = useState(null);
   const [language, setLanguage] = useState(null);
+  const [friendSeats, setFriendSeats] = useState([]);
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
   const { isLoggedIn } = useStatus();
@@ -31,7 +33,6 @@ export default function Seats() {
   // Use useCallback to prevent functions from changing on every render
   const handleSeatsChange = useCallback((seatsData) => {
     setSelectedSeats(seatsData.seats);
-    console.log("Selected seats:", seatsData.seats);
   }, []);
 
   const handlePriceChange = useCallback((price) => {
@@ -45,13 +46,30 @@ export default function Seats() {
 
   useEffect(() => {
     if (router.isReady) {
+      const {
+        genres,
+        language,
+        friendSeats: friendSeatsFromQuery,
+      } = router.query;
       // Use safe JSON parsing helper
       setGenres(parseQueryParam(router.query, 'genres', null));
       setLanguage(parseQueryParam(router.query, 'language', null));
+
+      if (friendSeatsFromQuery) {
+        try {
+          const parsedFriendSeats = JSON.parse(friendSeatsFromQuery);
+          setFriendSeats(
+            Array.isArray(parsedFriendSeats) ? parsedFriendSeats : []
+          );
+        } catch (error) {
+          console.error("Error parsing friendSeats:", error);
+          setFriendSeats([]);
+        }
+      } else {
+        setFriendSeats([]);
+      }
     }
   }, [router.isReady, router.query]);
-
-
 
   return (
     <>
@@ -64,6 +82,7 @@ export default function Seats() {
           onSeatsChange={handleSeatsChange}
           onPriceChange={handlePriceChange}
           onBookingIdChange={handleExistingBookingIdChange}
+          friendSeats={["A1", "A2"]}
         />
         <BookingCard
           className="py-10 px-4"

@@ -23,7 +23,7 @@ export const useTestBooking = (showtimes, bookingId) => {
         if (showtimes && bookingId) {
             fetchData();
         } else {
-            console.log('Missing parameters:', { showtimes, bookingId });
+            console.log('Missing parameters:', JSON.stringify({ showtimes, bookingId }, null, 2));
             setLoading(false);
         }
     }, [showtimes, bookingId]);

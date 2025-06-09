@@ -13,7 +13,7 @@ export function useMyCoupons(userId) {
     setError(null);
     supabase
       .from('user_coupons')
-      .select('id, coupon_code, description, discount, expired_at')
+      .select('*')
       .eq('user_id', userId)
       .then(({ data, error }) => {
         if (error) setError(error);

@@ -27,6 +27,7 @@ import { useRouter } from "next/navigation";
 import ConfirmBookingPopup from "./ConfirmBookingPopup";
 import CouponPaymentCard from "../Coupon-PaymentCard/CouponApply";
 import { usePayment } from "@/context/PaymentContext";
+import { useStatus } from "../../context/StatusContext";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
@@ -60,29 +61,85 @@ const StripeCardForm = forwardRef(function StripeCardForm(
   const [isExpiryComplete, setIsExpiryComplete] = useState(false);
   const [isCvcComplete, setIsCvcComplete] = useState(false);
 
+  // เพิ่ม validation states สำหรับแสดง error messages
+  const [cardNumberError, setCardNumberError] = useState("");
+  const [ownerError, setOwnerError] = useState("");
+  const [expiryError, setExpiryError] = useState("");
+  const [cvcError, setCvcError] = useState("");
+  const [touched, setTouched] = useState({
+    cardNumber: false,
+    owner: false,
+    expiry: false,
+    cvc: false
+  });
+
   useEffect(() => {
-    setIsCardComplete(
-      isCardNumberComplete &&
+    const cardComplete = isCardNumberComplete &&
         isExpiryComplete &&
         isCvcComplete &&
-        owner.trim() !== ""
-    );
+        owner.trim() !== "";
+    
+    // Validation logic เมื่อ user ได้แตะฟิลด์แล้ว
+    if (touched.cardNumber && !isCardNumberComplete) {
+      setCardNumberError("Card number is not valid");
+    } else {
+      setCardNumberError("");
+    }
+    
+    if (touched.owner && owner.trim() === "") {
+      setOwnerError("Card owner name is not valid");
+    } else {
+      setOwnerError("");
+    }
+    
+    if (touched.expiry && !isExpiryComplete) {
+      setExpiryError("Expiry date is not valid");
+    } else {
+      setExpiryError("");
+    }
+    
+    if (touched.cvc && !isCvcComplete) {
+      setCvcError("CVC is not valid");
+    } else {
+      setCvcError("");
+    }
+    
+    console.log('[StripeCardForm] Card validation:', JSON.stringify({ 
+      isCardNumberComplete, 
+      isExpiryComplete, 
+      isCvcComplete, 
+      owner: owner?.length > 0,
+      ownerValue: owner,
+      cardComplete,
+      allFieldsStatus: {
+        cardNumber: isCardNumberComplete ? '✅' : '❌',
+        expiry: isExpiryComplete ? '✅' : '❌', 
+        cvc: isCvcComplete ? '✅' : '❌',
+        owner: (owner?.length > 0) ? '✅' : '❌'
+      }
+    }, null, 2));
+    
+    setIsCardComplete(cardComplete);
   }, [
     isCardNumberComplete,
     isExpiryComplete,
     isCvcComplete,
     owner,
     setIsCardComplete,
+    touched.cardNumber,
+    touched.owner,
+    touched.expiry,
+    touched.cvc,
   ]);
 
   // expose ฟังก์ชันจ่ายเงินผ่าน ref
   useImperativeHandle(ref, () => ({
     async pay() {
       console.log("[DEBUG] pay() called in PaymentMobile");
-      console.log("[DEBUG] booking in PaymentMobile:", booking);
+      console.log("[DEBUG] booking in PaymentMobile:", JSON.stringify(booking, null, 2));
       
       // แปลงและตรวจสอบ amount
-      let amount = booking?.total;
+      let amount = booking?.total_price || booking?.total;
       if (typeof amount === "string") {
         amount = Number(amount.replace(/,/g, ""));
       }
@@ -94,8 +151,8 @@ const StripeCardForm = forwardRef(function StripeCardForm(
       
       if (!stripe || !elements) return { error: "Stripe ยังไม่พร้อม" };
       
-      const bookingIdReal = booking?.id;
-      const movieId = booking?.movie_id;
+              const bookingIdReal = booking?.booking_id || booking?.id;
+        const movieId = booking?.movie_id;
       
       try {
         const res = await fetch("/api/create-payment-intent", {
@@ -128,6 +185,7 @@ const StripeCardForm = forwardRef(function StripeCardForm(
         
         if (confirmError) {
           console.log("[DEBUG] return error:", confirmError.message);
+          console.log("[DEBUG] confirmError details:", JSON.stringify(confirmError, null, 2));
           return { error: confirmError.message };
         }
         
@@ -203,8 +261,14 @@ const StripeCardForm = forwardRef(function StripeCardForm(
           <CardNumberElement
             options={ELEMENT_OPTIONS}
             className="w-full h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-[4px] pl-4 py-3 pr-3 text-base placeholder-base-gray-300 outline-none"
-            onChange={(e) => setIsCardNumberComplete(e.complete)}
+            onChange={(e) => {
+              setIsCardNumberComplete(e.complete);
+              setTouched(prev => ({ ...prev, cardNumber: true }));
+            }}
           />
+          {cardNumberError && (
+            <p className="text-red-500 text-sm mt-1">{cardNumberError}</p>
+          )}
         </div>
         <div className="lg:flex-1 mt-4 lg:mt-0">
           <label className="block text-sm text-base-gray-400 mb-1">
@@ -214,8 +278,14 @@ const StripeCardForm = forwardRef(function StripeCardForm(
             className="w-full h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-md pl-4 py-3 pr-3 text-base placeholder-base-gray-300 outline-none"
             placeholder="Card owner name"
             value={owner}
-            onChange={(e) => setOwner(e.target.value)}
+            onChange={(e) => {
+              setOwner(e.target.value);
+              setTouched(prev => ({ ...prev, owner: true }));
+            }}
           />
+          {ownerError && (
+            <p className="text-red-500 text-sm mt-1">{ownerError}</p>
+          )}
         </div>
       </div>
       <div className="lg:flex lg:space-x-4 items-center">
@@ -226,8 +296,14 @@ const StripeCardForm = forwardRef(function StripeCardForm(
           <CardExpiryElement
             options={ELEMENT_OPTIONS}
             className="w-full h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-md pl-4 py-3 pr-3 text-base placeholder-base-gray-300 outline-none"
-            onChange={(e) => setIsExpiryComplete(e.complete)}
+            onChange={(e) => {
+              setIsExpiryComplete(e.complete);
+              setTouched(prev => ({ ...prev, expiry: true }));
+            }}
           />
+          {expiryError && (
+            <p className="text-red-500 text-sm mt-1">{expiryError}</p>
+          )}
         </div>
         <div className="lg:flex-1 mt-4 lg:mt-0">
           <label className="block text-sm text-base-gray-400 mb-1">
@@ -236,8 +312,14 @@ const StripeCardForm = forwardRef(function StripeCardForm(
           <CardCvcElement
             options={ELEMENT_OPTIONS}
             className="w-full h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-md pl-4 py-3 pr-3 text-base placeholder-base-gray-300 outline-none"
-            onChange={(e) => setIsCvcComplete(e.complete)}
+            onChange={(e) => {
+              setIsCvcComplete(e.complete);
+              setTouched(prev => ({ ...prev, cvc: true }));
+            }}
           />
+          {cvcError && (
+            <p className="text-red-500 text-sm mt-1">{cvcError}</p>
+          )}
         </div>
       </div>
     </form>
@@ -360,7 +442,7 @@ function PromptPayQR() {
   );
 }
 
-export default function PaymentMobile({ setPaymentMethod, isCardComplete, setIsCardComplete }) {
+export default function PaymentMobile({ setPaymentMethod, isCardComplete, setIsCardComplete, bookingId: propBookingId }) {
   const router = useRouter();
   const [tab, setTab] = useState("credit");
   const { setCardFormRef, bookingData, userId: paymentUserId } = usePayment();
@@ -382,23 +464,36 @@ export default function PaymentMobile({ setPaymentMethod, isCardComplete, setIsC
 
   // ส่ง cardFormRef ให้ Context
   useEffect(() => {
-    if (setCardFormRef && cardFormRef) {
+    if (setCardFormRef && cardFormRef?.current) {
+      console.log('[PaymentMobile] Setting cardFormRef to context:', cardFormRef.current);
       setCardFormRef(cardFormRef);
     }
-  }, [setCardFormRef, cardFormRef]);
+  }, [setCardFormRef, cardFormRef?.current]);
   const [qrUrl, setQrUrl] = useState(null);
   const [qrLoading, setQrLoading] = useState(false);
   const [qrError, setQrError] = useState(null);
   const [chargeId, setChargeId] = useState(null);
   const [qrStatus, setQrStatus] = useState(null);
 
-  // ดึง bookingId จาก route, prop หรือ mock (ตัวอย่างนี้ใช้จริง)
-  const bookingId = "b260cb11-1f32-4fd0-9250-7c5a3f2a672e";
+  // ดึง bookingId และ userId จาก props และ context
+  const { bookingId: contextBookingId, user } = usePayment();
+  const { user: statusUser } = useStatus();
+  
+  const bookingId = propBookingId || contextBookingId || "189fedc3-e260-4073-8ac1-7a6dac9a1498"; // fallback to latest booking
+  const userId = user?.id || statusUser?.id || "b16e32f8-86b8-4f74-bcbe-3c3d1472027a";
+  
   const { booking, loading } = useBookingDetail(bookingId);
-
-  // ดึง userId จริง (ตัวอย่างนี้ใช้ user sanya bochoun)
-  const userId = "b16e32f8-86b8-4f74-bcbe-3c3d1472027a";
   const { coupons, loading: loadingCoupons } = useMyCoupons(userId);
+  
+  console.log('[PaymentMobile] bookingId sources:', JSON.stringify({ 
+    propBookingId, 
+    contextBookingId, 
+    finalBookingId: bookingId,
+    type: typeof bookingId,
+    isReady: !!bookingId 
+  }, null, 2));
+  console.log('[PaymentMobile] booking data:', JSON.stringify(booking, null, 2));
+  console.log('[PaymentMobile] booking loading:', loading);
 
   // ฟังก์ชันเมื่อกด Next
   const handleNext = (e) => {
@@ -411,16 +506,30 @@ export default function PaymentMobile({ setPaymentMethod, isCardComplete, setIsC
   const handleConfirmPayment = async () => {
     setConfirmLoading(true);
     setConfirmError(null);
+    
+    console.log('[PaymentMobile] handleConfirmPayment called');
+    console.log('[PaymentMobile] cardFormRef:', cardFormRef.current);
+    console.log('[PaymentMobile] isCardComplete:', isCardComplete);
+    console.log('[PaymentMobile] booking data for payment:', JSON.stringify(booking, null, 2));
+    
     if (cardFormRef.current && cardFormRef.current.pay) {
-      const result = await cardFormRef.current.pay();
-      if (result.success) {
-        setConfirmLoading(false);
-        setOpenConfirmPopup(false);
-        router.push(`/payment-success?bookingId=${booking?.id}`);
-      } else {
-        setConfirmError(
-          result.error || "เกิดข้อผิดพลาดในการชำระเงิน กรุณาลองใหม่อีกครั้ง"
-        );
+      try {
+        const result = await cardFormRef.current.pay();
+        console.log('[PaymentMobile] Payment result:', result);
+        
+        if (result.success) {
+          setConfirmLoading(false);
+          setOpenConfirmPopup(false);
+          router.push(`/payment-success?bookingId=${booking?.booking_id || booking?.id}`);
+        } else {
+          setConfirmError(
+            result.error || "เกิดข้อผิดพลาดในการชำระเงิน กรุณาลองใหม่อีกครั้ง"
+          );
+          setConfirmLoading(false);
+        }
+      } catch (error) {
+        console.error('[PaymentMobile] Payment error:', error);
+        setConfirmError(error.message || "เกิดข้อผิดพลาดในการชำระเงิน");
         setConfirmLoading(false);
       }
     } else {
@@ -437,7 +546,7 @@ export default function PaymentMobile({ setPaymentMethod, isCardComplete, setIsC
       const res = await fetch("/api/create-promptpay", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: booking?.total * 100 }),
+        body: JSON.stringify({ amount: (booking?.total_price || booking?.total) * 100 }),
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
@@ -446,7 +555,7 @@ export default function PaymentMobile({ setPaymentMethod, isCardComplete, setIsC
       setQrStatus(data.status);
       setOpenConfirmPopup(false);
       router.push(
-        `/payment-qr?chargeId=${data.chargeId}&amount=${booking?.total}&bookingId=${booking?.id}`
+        `/payment-qr?chargeId=${data.chargeId}&amount=${booking?.total_price || booking?.total}&bookingId=${booking?.booking_id || booking?.id}`
       );
     } catch (err) {
       setQrError(err.message);
@@ -598,7 +707,7 @@ export default function PaymentMobile({ setPaymentMethod, isCardComplete, setIsC
                     Minor Cineplex Public limited company
                   </div>
                   <div className="mt-2 text-white font-bold text-lg lg:text-xl">
-                    THB{(booking?.total || 0).toLocaleString()}
+                    THB{(booking?.total_price || booking?.total || 0).toLocaleString()}
                   </div>
                   <div className="mt-2 text-xs text-center w-full text-white">
                     {qrStatus && `สถานะ: ${qrStatus}`}

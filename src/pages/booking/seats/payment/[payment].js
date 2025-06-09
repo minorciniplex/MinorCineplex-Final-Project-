@@ -31,6 +31,10 @@ export default function Seats() {
 
   useEffect(() => {
     if (router.isReady) {
+      console.log('[Payment] router.query:', JSON.stringify(router.query, null, 2));
+      console.log('[Payment] bookingId from query:', router.query.bookingId);
+      console.log('[Payment] bookingId type:', typeof router.query.bookingId);
+      console.log('[Payment] all query params:', Object.keys(router.query));
       // Use safe JSON parsing helper
       setGenres(parseQueryParam(router.query, 'genres', null));
       setLanguage(parseQueryParam(router.query, 'language', null));
@@ -50,7 +54,8 @@ export default function Seats() {
             <PaymentMobile 
               setPaymentMethod={setPaymentMethod} 
               isCardComplete={isCardComplete} 
-              setIsCardComplete={setIsCardComplete} 
+              setIsCardComplete={setIsCardComplete}
+              bookingId={router.isReady ? bookingId : undefined}
             />
           </div>
           

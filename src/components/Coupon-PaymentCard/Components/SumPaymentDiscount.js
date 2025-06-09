@@ -7,13 +7,8 @@ import useCountdown from "@/hooks/useCountdown";
 import useApplyPayment from "@/hooks/useApplyPayment";
 import { useRouter } from "next/router";
 import ConfirmBookingPopup from "../../PaymentSystem/ConfirmBookingPopup";
-import { Elements } from "@stripe/react-stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
-import StripeCardForm from "../../PaymentSystem/StripeCardForm";
 import { usePayment } from "@/context/PaymentContext";
 import { useStatus } from "@/context/StatusContext";
-
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
 
 export default function SumPaymentDiscount({
   coupon,
@@ -56,9 +51,8 @@ export default function SumPaymentDiscount({
   const [openConfirmPopup, setOpenConfirmPopup] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [confirmError, setConfirmError] = useState("");
-  const { cardFormRef, setBookingData, setUserId: setPaymentUserId, setCardFormRef } = usePayment();
+  const { cardFormRef, setBookingData, setUserId: setPaymentUserId } = usePayment();
   const { user } = useStatus();
-  const localCardFormRef = useRef(null);
 
   // อัพเดท showBookingError เมื่อมี bookingError
   useEffect(() => {
@@ -122,21 +116,27 @@ export default function SumPaymentDiscount({
     if (user?.id && setPaymentUserId) {
       setPaymentUserId(user.id);
     }
-    // เชื่อมต่อ cardFormRef ใน Context
-    if (setCardFormRef && localCardFormRef.current) {
-      setCardFormRef(localCardFormRef);
-    }
-  }, [data, user?.id, setBookingData, setPaymentUserId, setCardFormRef]);
+    // ไม่ต้องเชื่อมต่อ localCardFormRef เพราะเราลบ hidden form ออกแล้ว
+    // cardFormRef จะมาจาก PaymentMobile.js แทน
+  }, [data, user?.id, setBookingData, setPaymentUserId]);
 
   // handleNext เปลี่ยนเป็นเปิด popup
   const handleNext = (e) => {
     e.preventDefault();
+    console.log('[SumPaymentDiscount] handleNext called');
+    console.log('[SumPaymentDiscount] paymentMethod:', paymentMethod);
+    console.log('[SumPaymentDiscount] isCardComplete:', isCardComplete);
+    console.log('[SumPaymentDiscount] data:', JSON.stringify(data, null, 2));
+    
     if (paymentMethod === "Credit card" && !isCardComplete) {
+      console.log('[SumPaymentDiscount] Card not complete, returning');
       return;
     }
     if (!data) {
+      console.log('[SumPaymentDiscount] No data, returning');
       return;
     }
+    console.log('[SumPaymentDiscount] Opening confirm popup');
     setOpenConfirmPopup(true);
   };
 
@@ -144,33 +144,35 @@ export default function SumPaymentDiscount({
   const handleConfirmPayment = async () => {
     setConfirmLoading(true);
     setConfirmError("");
+    console.log('[SumPaymentDiscount] handleConfirmPayment called');
+    console.log('[SumPaymentDiscount] paymentMethod:', paymentMethod);
+    console.log('[SumPaymentDiscount] cardFormRef:', cardFormRef);
+    console.log('[SumPaymentDiscount] cardFormRef.current:', cardFormRef?.current);
+    
     try {
       let paymentStatus = "pending";
-      // Debug logs removed for cleaner console
       if (paymentMethod === "Credit card") {
-        // สำหรับ Credit Card Payment
-        if (cardFormRef?.current?.pay) {
-          try {
-            const result = await cardFormRef.current.pay();
-            if (result.success) {
-              setOpenConfirmPopup(false);
-              router.push(`/payment-success?bookingId=${data.booking_id}`);
-              return;
-            } else {
-              setConfirmError(result.error || "เกิดข้อผิดพลาดในการชำระเงิน");
-              setConfirmLoading(false);
-              return;
-            }
-          } catch (error) {
-            setConfirmError("เกิดข้อผิดพลาดในการชำระเงิน");
-            setConfirmLoading(false);
-            return;
-          }
-        } else {
-          setConfirmError("ระบบชำระเงินยังไม่พร้อม กรุณาลองใหม่");
+        // ใช้ cardFormRef.current.pay() แทนการ hardcode
+        if (!cardFormRef?.current) {
+          setConfirmError("ไม่พบข้อมูลบัตรเครดิต กรุณาลองใหม่");
           setConfirmLoading(false);
           return;
         }
+        
+        console.log('[SumPaymentDiscount] Processing credit card payment via cardFormRef...');
+        const paymentResult = await cardFormRef.current.pay();
+        
+        if (paymentResult.error) {
+          setConfirmError(paymentResult.error);
+          setConfirmLoading(false);
+          return;
+        }
+        
+        console.log('[SumPaymentDiscount] Payment completed successfully');
+        setOpenConfirmPopup(false);
+        router.push(`/payment-success?bookingId=${data.booking_id}`);
+        return;
+        
       } else if (paymentMethod === "QR code" || paymentMethod === "QR Code") {
         // สำหรับ QR Code Payment
         try {
@@ -193,6 +195,8 @@ export default function SumPaymentDiscount({
           return;
         }
       }
+      
+      // สำหรับ payment method อื่นๆ
       if (checkResult && checkResult.discount_amount > 0) {
         await applyCoupon(
           data.booking_id,
@@ -267,23 +271,7 @@ export default function SumPaymentDiscount({
         </div>
       </div>
 
-      {/* Hidden Stripe Card Form สำหรับ Credit Card Payment */}
-      {paymentMethod === "Credit card" && (
-        <div className="hidden">
-          <Elements stripe={stripePromise}>
-            <StripeCardForm
-              ref={localCardFormRef}
-              setIsCardComplete={() => {}}
-              booking={{
-                id: data?.booking_id,
-                total: finalPrice || data?.total_price || 0,
-                movie_id: data?.movie_id
-              }}
-              userId={user?.id}
-            />
-          </Elements>
-        </div>
-      )}
+
       <CouponAlert
         open={showBookingError}
         onClose={() => setShowBookingError(false)}

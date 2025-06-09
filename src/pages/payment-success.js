@@ -51,7 +51,7 @@ export default function PaymentSuccess() {
         // เพิ่ม order by created_at desc เพื่อได้ payment ล่าสุด
         const { data: paymentData, error: paymentError } = await supabase
           .from('movie_payments')
-          .select('payment_method, payment_details')
+          .select('payment_method, payment_details, status')
           .eq('booking_id', bookingData.booking_id)
           .order('created_at', { ascending: false })
           .limit(1)
@@ -62,26 +62,52 @@ export default function PaymentSuccess() {
         console.log('Payment error:', paymentError);
 
         // แปลง payment method ให้แสดงผลถูกต้อง
-        let displayPaymentMethod = 'Unknown'; // default แปลง
+        let displayPaymentMethod = 'ไม่ระบุ'; // เปลี่ยน default เป็น 'ไม่ระบุ'
         if (paymentData?.payment_method) {
-          switch (paymentData.payment_method) {
+          const paymentMethod = paymentData.payment_method.toLowerCase();
+          console.log('Original payment method from DB:', paymentData.payment_method);
+          console.log('Lowercase payment method:', paymentMethod);
+          
+          switch (paymentMethod) {
             case 'omise_promptpay':
             case 'promptpay':
             case 'qr_code':
-              displayPaymentMethod = 'QR code';
+            case 'qr':
+              displayPaymentMethod = 'QR Code';
               break;
             case 'card':
             case 'credit_card':
             case 'stripe':
+            case 'credit card':
               displayPaymentMethod = 'Credit card';
               break;
             default:
-              displayPaymentMethod = paymentData.payment_method;
+              // ถ้าไม่ใช่ type ที่รู้จัก ให้ใช้ค่าจาก database โดยตรง
+              displayPaymentMethod = paymentData.payment_method.replace(/_/g, ' ');
+              // Capitalize first letter
+              displayPaymentMethod = displayPaymentMethod.charAt(0).toUpperCase() + displayPaymentMethod.slice(1);
+              break;
           }
         } else {
-          // ถ้าไม่มี payment data แต่มา successful แสดงว่าเป็น QR code (เพราะ Credit card จะมี payment data)
-          displayPaymentMethod = 'QR code';
+          // ถ้าไม่มีข้อมูล payment 
+          if (bookingData.status === 'paid' || bookingData.status === 'booked') {
+            // ใช้ QR Code เป็น default เพราะระบบใช้ QR Code เป็นหลัก
+            displayPaymentMethod = 'QR Code';
+          } else {
+            displayPaymentMethod = 'ไม่ระบุ';
+          }
         }
+
+        console.log('Payment method from DB:', paymentData?.payment_method);
+        console.log('Display payment method:', displayPaymentMethod);
+
+        console.log('=== DEBUG INFO ===');
+        console.log('Booking ID:', bookingId);
+        console.log('Booking data exists:', !!bookingData);
+        console.log('Payment data exists:', !!paymentData);
+        console.log('Payment method raw:', paymentData?.payment_method);
+        console.log('Display payment method final:', displayPaymentMethod);
+        console.log('Debug URL:', `http://localhost:3000/api/debug/payment-status?bookingId=${bookingId}`);
 
         // สร้าง formatted booking object
         const formattedBooking = {

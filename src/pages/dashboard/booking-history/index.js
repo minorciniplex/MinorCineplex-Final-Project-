@@ -110,7 +110,11 @@ const BookingHistory = () => {
                           <AccessTimeIcon style={{ fontSize: 16 }} />
                         </span>
                         <span className="text-[--base-gray-400]">
-                          {booking.showtime.start_time}
+                          {booking.showtime.start_time
+                            ? booking.showtime.start_time
+                                .slice(0, 5)
+                                .replace(":", ":")
+                            : ""}
                         </span>
                       </div>
 
@@ -119,7 +123,7 @@ const BookingHistory = () => {
                           <MeetingRoomIcon style={{ fontSize: 16 }} />
                         </span>
                         <span className="text-[--base-gray-400]">
-                          Hall {booking.cinema.hall || "1"}
+                          Hall {booking.screen.screen_number}
                         </span>
                       </div>
                     </div>
@@ -131,7 +135,7 @@ const BookingHistory = () => {
                   <div className="flex gap-2 mb-1">
                     <div className="">Booking No.</div>
                     <div className="font-medium">
-                      {(booking.booking_id || "AKT1223")
+                      {booking.booking_id
                         .toString()
                         .substring(0, 8)
                         .toUpperCase()}
@@ -180,7 +184,7 @@ const BookingHistory = () => {
                       Paid
                     </div>
                   ) : (
-                    <div className="bg-red-500 text-white py-2 px-5 rounded-full font-bold text-center">
+                    <div className="bg-[--brand-red] text-white py-2 px-5 rounded-full font-bold text-center">
                       {booking.status}
                     </div>
                   )}
@@ -198,13 +202,13 @@ const BookingHistory = () => {
       {/* Modal */}
       {showModal && selectedBooking && (
         <div className="fixed inset-0 bg-[#070C1B] bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-[--base-gray-100] rounded-lg max-w-md w-full mx-4 relative border-[--base-gray-200] border">
+          <div className="bg-[--base-gray-100] rounded-lg w-[93%] md:w-2/5 relative border-[--base-gray-200] border">
             {/* Modal Header */}
             <div className="flex relative items-center">
               <h3 className="flex-1 text-xl font-bold py-3 px-4 text-center">
                 Booking Detail
               </h3>
-              <div className="flex absolute right-0 gap-4 pr-4">
+              <div className="flex absolute right-0 gap-4 pr-4 w-auto">
                 {/* Share Button */}
                 <button className="text-gray-400 w-6 h-6 flex items-center justify-center">
                   <svg
@@ -215,8 +219,13 @@ const BookingHistory = () => {
                     xmlns="http://www.w3.org/2000/svg"
                   >
                     <path
-                      d="M18 16.08C17.24 16.08 16.56 16.38 16.04 16.85L8.91 12.7C8.96 12.47 9 12.24 9 12C9 11.76 8.96 11.53 8.91 11.3L15.96 7.19C16.5 7.69 17.21 8 18 8C19.66 8 21 6.66 21 5C21 3.34 19.66 2 18 2C16.34 2 15 3.34 15 5C15 5.24 15.04 5.47 15.09 5.7L8.04 9.81C7.5 9.31 6.79 9 6 9C4.34 9 3 10.34 3 12C3 13.66 4.34 15 6 15C6.79 15 7.5 14.69 8.04 14.19L15.16 18.34C15.11 18.55 15.08 18.77 15.08 19C15.08 20.61 16.39 21.92 18 21.92C19.61 21.92 20.92 20.61 20.92 19C20.92 17.39 19.61 16.08 18 16.08Z"
-                      fill="currentColor"
+                      d="M20 3V2.5H20.5V3H20ZM10.3536 13.3536C10.1583 13.5488 9.84171 13.5488 9.64645 13.3536C9.45118 13.1583 9.45118 12.8417 9.64645 12.6464L10.3536 13.3536ZM19.5 11V3H20.5V11H19.5ZM20 3.5H12V2.5H20V3.5ZM20.3536 3.35355L10.3536 13.3536L9.64645 12.6464L19.6464 2.64645L20.3536 3.35355Z"
+                      fill="white"
+                    />
+                    <path
+                      d="M18 14.625V14.625C18 15.9056 18 16.5459 17.8077 17.0568C17.5034 17.8653 16.8653 18.5034 16.0568 18.8077C15.5459 19 14.9056 19 13.625 19H10C7.17157 19 5.75736 19 4.87868 18.1213C4 17.2426 4 15.8284 4 13V9.375C4 8.09442 4 7.45413 4.19228 6.94325C4.4966 6.1347 5.1347 5.4966 5.94325 5.19228C6.45413 5 7.09442 5 8.375 5V5"
+                      stroke="white"
+                      stroke-linecap="round"
                     />
                   </svg>
                 </button>
@@ -226,15 +235,34 @@ const BookingHistory = () => {
                   className="text-gray-400 w-6 h-6 flex items-center justify-center text-2xl"
                   style={{ fontSize: 24 }}
                 >
-                  ×
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M18 6L6 18"
+                      stroke="#C8CEDD"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                    <path
+                      d="M6 6L18 18"
+                      stroke="#C8CEDD"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
                 </button>
               </div>
             </div>
 
             {/* Movie Info in Modal */}
             <div className="p-4 bg-[--base-gray-0]">
-              <div className="flex flex-col gap-4">
-                <div className="flex items-center gap-4">
+              <div className="flex flex-col md:flex-row md:justify-between gap-4">
+                <div className="flex items-center gap-6 md:mb-6">
                   <div className="w-max h-36 bg-slate-600 rounded-lg flex items-center">
                     <img
                       src={
@@ -306,7 +334,7 @@ const BookingHistory = () => {
               </div>
 
               {/* Ticket Info */}
-              <div className="flex flex-col border-t border-[--base-gray-100] mt-4 pt-4 md:pt-6 md:pb-0 md:m-0 gap-4">
+              <div className="flex flex-col md:flex-row border-t border-[--base-gray-100] mt-4 pt-4 md:pt-6 md:pb-0 md:m-0 gap-4">
                 <div className="flex flex-row gap-6 md:flex-none">
                   <div className="bg-[#21263F] py-3 px-4 rounded-sm text-center text-nowrap">
                     <div className="text-[--base-gray-400] font-bold">
@@ -322,7 +350,7 @@ const BookingHistory = () => {
                         {selectedBooking.seats.join(", ")}
                       </span>
                     </div>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between md:gap-4">
                       <span className="text-[--base-gray-300]">
                         Payment method{" "}
                       </span>
@@ -333,11 +361,11 @@ const BookingHistory = () => {
 
                 <div className="flex justify-end items-center md:ml-auto">
                   {selectedBooking.status === "booked" ? (
-                    <div className="bg-green-500 text-white py-1 px-3 rounded-full font-bold text-sm ml-auto md:ml-0">
+                    <div className="bg-[--brand-green] text-white py-[6px] px-4 rounded-full font-bold text-sm ml-auto md:ml-0">
                       Paid
                     </div>
                   ) : (
-                    <div className="bg-red-500 text-white py-1 px-3 rounded-full font-bold text-sm">
+                    <div className="bg-[--brand-green] text-white py-1 px-3 rounded-full font-bold text-sm">
                       {selectedBooking.status}
                     </div>
                   )}
@@ -346,51 +374,58 @@ const BookingHistory = () => {
             </div>
 
             {/* Payment Details */}
-            <div className="bg-[#21263F] rounded-lg p-4">
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <div className="text-gray-400">Payment method</div>
-                  <div className="text-white"></div>
-                </div>
-                <div className="">
-                  <div className="text-gray-400 text-right">Credit card</div>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4 text-sm mt-2">
-                <div>
-                  <div className="text-gray-400">
-                    Ticket x{selectedBooking.seats.length}
+            <div className="bg-[#21263F] md:flex md:justify-between rounded-lg p-4 md:p-6">
+              <div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <div className="text-[--base-gray-400]">Payment method</div>
+                  </div>
+                  <div className="">
+                    <div className="text-white font-bold text-right">
+                      Credit card
+                    </div>
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-gray-400">
-                    THB{selectedBooking.total_price}
+                <div className="grid grid-cols-2 gap-4 mt-2">
+                  <div>
+                    <div className="text-[--base-gray-400]">
+                      Ticket x{selectedBooking.seats.length}
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-white font-bold">
+                      THB{selectedBooking.total_price}
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4 text-sm mt-2">
-                <div>
-                  <div className="text-gray-400">Coupon</div>
+                <div className="grid grid-cols-2 gap-4 mt-2">
+                  <div>
+                    <div className="text-[--base-gray-400]">Coupon</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-[--brand-red] font-bold">-THB50</div>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-red-400">-THB50</div>
-                </div>
-              </div>
-              <hr className="border-gray-600 my-3" />
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <div className="text-white font-bold">Total</div>
-                </div>
-                <div className="text-right">
-                  <div className="text-white font-bold">
-                    THB{selectedBooking.total_price - 50}
+                <hr className="border-gray-600 my-3" />
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <div className="text-[--base-gray-400] font-bold">
+                      Total
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-white font-bold">
+                      THB{selectedBooking.total_price - 50}
+                    </div>
                   </div>
                 </div>
               </div>
               {/* Cancel Button */}
-              <button className="w-max bg-transparent border border-[--base-gray-300] text-white py-3 px-10 rounded-sm font-bold mt-6">
-                Cancel booking
-              </button>
+              <div className="flex items-end">
+                <button className="w-max md:h-min bg-transparent border border-[--base-gray-300] text-white py-3 px-10 rounded-sm font-bold mt-6 md:mt-0">
+                  Cancel booking
+                </button>
+              </div>
             </div>
           </div>
         </div>

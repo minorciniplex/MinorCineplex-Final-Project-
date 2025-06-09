@@ -4,7 +4,7 @@ import Navbar from "@/components/Navbar/Navbar";
 import PaymentsCard from "@/components/Booking/PaymentsCard";
 import PaymentMobile from "@/components/PaymentSystem/PaymentMobile";
 import StepProgressBar from "@/components/Booking/StepProgressBar";
-import useBookingSeat from "@/hooks/useBookingSeat";
+
 import { PaymentProvider } from "@/context/PaymentContext";
 import { parseQueryParam } from "@/utils/jsonHelper";
 
@@ -42,27 +42,7 @@ export default function Seats() {
     }
   }, [router.isReady]);
 
-    const handlePayment = async (e) => {
-    e.preventDefault();
-    
-    // Reset previous errors
-    resetPaymentState();
 
-
-    const result = await processPayment({
-      showtimeId : showtimes,
-      seatNumber,
-      sumPrice : price,
-      bookingId,
-    });
-
-    if (result.success) {
-      alert('Payment successful!');
-      // Redirect to success page or show success message
-    } else {
-      alert(`Payment failed: ${result.error}`);
-    }
-  };
 
 
 
@@ -72,7 +52,6 @@ export default function Seats() {
     <div className="w-full h-screen overflow-y-auto bg-background">
       <Navbar />
       <StepProgressBar currentPath="/booking/payment" />
-<<<<<<< HEAD
       <PaymentProvider>
         <div className="flex flex-col lg:flex-row justify-center py-0 px-0 lg:py-[80px] lg:px-[120px] lg:gap-[102px] mt-0 lg:mt-0 flex-1">
           {/* Mobile: PaymentMobile แสดงบน */}
@@ -151,33 +130,5 @@ export default function Seats() {
         </div>
       )}
     </div>
-=======
-      <div className="flex flex-col md:flex-row justify-center md:py-[80px] md:px-[120px] md:gap-[102px]">
-        <PaymentMobile setPaymentMethod={setPaymentMethod} />
-        <PaymentsCard
-          time={time}
-          cinemaName={cinemaName}
-          screenNumber={screenNumber}
-          poster={poster}
-          title={title}
-          genres={genres}
-          language={language}
-          date={date}
-          seatNumber={seat}
-          bookingId={bookingId}
-          showtimes={showtimes}
-          paymentMethod={paymentMethod}
-        />
-      </div>
-      <div className="flex justify-center mt-8">
-        <button
-          onClick={handlePayment}
-          className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          Confirm Payment
-        </button>
-      </div>
-    </>
->>>>>>> origin/feat/booking
   );
 }

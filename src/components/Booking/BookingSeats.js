@@ -634,13 +634,8 @@ function BookingSeats({
 
   return (
     <>
-<<<<<<< HEAD
-      <div className="w-full sm:basis-3/4 py-10 px-4 sm:py-0 sm:px-0">
-        <div className="bg-gradient-to-r from-[#2C344E] to-[#516199] rounded-t-[80px] items-center flex justify-center text-[8px] sm:text-base py-[4.67px] sm:py-[10px] text-[--base-gray-400] relative">
-=======
       <div className="w-full bg-[--background] md:bg-transparent md:basis-3/4 py-10 px-4 md:py-0 md:px-0">
-        <div className="bg-gradient-to-r from-[#2C344E] to-[#516199] rounded-t-[80px] items-center flex justify-center text-[7.47px] md:text-base py-[4.67px] md:py-[10px] text-[--base-gray-400]">
->>>>>>> origin/feat/booking
+        <div className="bg-gradient-to-r from-[#2C344E] to-[#516199] rounded-t-[80px] items-center flex justify-center text-[7.47px] md:text-base py-[4.67px] md:py-[10px] text-[--base-gray-400] relative">
           screen
           <button
             onClick={() => {
@@ -679,11 +674,7 @@ function BookingSeats({
                     return (
                       <div
                         key={seat.id}
-<<<<<<< HEAD
                         className={`w-4 h-4 md:w-10 md:h-10 rounded-md flex items-center justify-center transition-opacity ${cursorClass}`}
-=======
-                        className="rounded-md flex items-center justify-center cursor-pointer"
->>>>>>> origin/feat/booking
                         onClick={() => handleSeatClick(seat.id)}
                         title={
                           displayStatus === "booked" ? "ที่นั่งถูกจองแล้ว" :
@@ -723,11 +714,7 @@ function BookingSeats({
                     return (
                       <div
                         key={seat.id}
-<<<<<<< HEAD
                         className={`w-4 h-4 md:w-10 md:h-10 rounded-md flex items-center justify-center transition-opacity ${cursorClass}`}
-=======
-                        className="rounded-md flex items-center justify-center cursor-pointer"
->>>>>>> origin/feat/booking
                         onClick={() => handleSeatClick(seat.id)}
                         title={
                           displayStatus === "booked" ? "ที่นั่งถูกจองแล้ว" :

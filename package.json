@@ -33,11 +33,8 @@
     "clsx": "^2.1.1",
     "daisyui": "^5.0.30",
     "date-fns": "^4.1.0",
-<<<<<<< HEAD
     "dotenv": "^16.5.0",
-=======
     "formidable": "^3.5.4",
->>>>>>> origin/feat/booking
     "geolib": "^3.3.4",
     "jose": "^6.0.11",
     "jsonwebtoken": "^9.0.2",

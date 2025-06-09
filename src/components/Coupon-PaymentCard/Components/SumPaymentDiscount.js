@@ -169,12 +169,24 @@ export default function SumPaymentDiscount({
         }
         
         console.log('[SumPaymentDiscount] Payment completed successfully');
+        
+        // บันทึกว่าจ่ายด้วย credit card
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem('lastPaymentMethod', 'Credit card');
+        }
+        
         setOpenConfirmPopup(false);
-        router.push(`/payment-success?bookingId=${data.booking_id}`);
+        router.push(`/payment-success?bookingId=${data.booking_id}&fromCard=true`);
         return;
         
       } else if (paymentMethod === "QR code" || paymentMethod === "QR Code") {
         // สำหรับ QR Code Payment
+        
+        // บันทึกว่าจ่ายด้วย QR Code
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem('lastPaymentMethod', 'QR Code');
+        }
+        
         try {
           const res = await fetch("/api/create-promptpay", {
             method: "POST",

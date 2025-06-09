@@ -63,7 +63,14 @@ export default function PaymentSuccess() {
 
         // แปลง payment method ให้แสดงผลถูกต้อง
         let displayPaymentMethod = 'ไม่ระบุ'; // เปลี่ยน default เป็น 'ไม่ระบุ'
-        if (paymentData?.payment_method) {
+        
+        // ใช้ sessionStorage เป็นอันดับแรก
+        const lastPaymentMethod = typeof window !== 'undefined' ? sessionStorage.getItem('lastPaymentMethod') : null;
+        
+        if (lastPaymentMethod) {
+          console.log('Using payment method from sessionStorage:', lastPaymentMethod);
+          displayPaymentMethod = lastPaymentMethod;
+        } else if (paymentData?.payment_method) {
           const paymentMethod = paymentData.payment_method.toLowerCase();
           console.log('Original payment method from DB:', paymentData.payment_method);
           console.log('Lowercase payment method:', paymentMethod);
@@ -99,6 +106,7 @@ export default function PaymentSuccess() {
         }
 
         console.log('Payment method from DB:', paymentData?.payment_method);
+        console.log('Payment method from sessionStorage:', lastPaymentMethod);
         console.log('Display payment method:', displayPaymentMethod);
 
         console.log('=== DEBUG INFO ===');
@@ -106,8 +114,15 @@ export default function PaymentSuccess() {
         console.log('Booking data exists:', !!bookingData);
         console.log('Payment data exists:', !!paymentData);
         console.log('Payment method raw:', paymentData?.payment_method);
+        console.log('Payment method from sessionStorage:', lastPaymentMethod);
         console.log('Display payment method final:', displayPaymentMethod);
         console.log('Debug URL:', `http://localhost:3000/api/debug/payment-status?bookingId=${bookingId}`);
+        
+        // ล้าง sessionStorage หลังจากใช้เสร็จ
+        if (typeof window !== 'undefined' && lastPaymentMethod) {
+          sessionStorage.removeItem('lastPaymentMethod');
+          console.log('Cleared lastPaymentMethod from sessionStorage');
+        }
 
         // สร้าง formatted booking object
         const formattedBooking = {

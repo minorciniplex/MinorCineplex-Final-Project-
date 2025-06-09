@@ -518,9 +518,15 @@ export default function PaymentMobile({ setPaymentMethod, isCardComplete, setIsC
         console.log('[PaymentMobile] Payment result:', result);
         
         if (result.success) {
+          // บันทึกว่าจ่ายด้วย credit card
+          if (typeof window !== 'undefined') {
+            sessionStorage.setItem('lastPaymentMethod', 'Credit card');
+            console.log('[PaymentMobile] Set sessionStorage lastPaymentMethod to Credit card');
+          }
+          
           setConfirmLoading(false);
           setOpenConfirmPopup(false);
-          router.push(`/payment-success?bookingId=${booking?.booking_id || booking?.id}`);
+          router.push(`/payment-success?bookingId=${booking?.booking_id || booking?.id}&fromCard=true`);
         } else {
           setConfirmError(
             result.error || "เกิดข้อผิดพลาดในการชำระเงิน กรุณาลองใหม่อีกครั้ง"
@@ -542,6 +548,12 @@ export default function PaymentMobile({ setPaymentMethod, isCardComplete, setIsC
   const handleConfirmQR = async () => {
     setConfirmLoading(true);
     setQrError(null);
+    
+    // บันทึกว่าจ่ายด้วย QR Code
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('lastPaymentMethod', 'QR Code');
+    }
+    
     try {
       const res = await fetch("/api/create-promptpay", {
         method: "POST",

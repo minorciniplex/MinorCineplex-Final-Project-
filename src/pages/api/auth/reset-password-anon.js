@@ -23,6 +23,17 @@ const handler = async (req, res) => {
         return res.status(400).json({ error: "Invalid or expired reset code" });
       }
 
+      // เพิ่มการตรวจสอบ password เดิม
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: newPassword
+      });
+
+      // ถ้า signIn สำเร็จแสดงว่าเป็น password เดิม
+      if (!signInError && signInData.user) {
+        return res.status(400).json({ error: "New password must be different from your current password" });
+      }
+
       // Update the password
       const { data, error } = await supabase.auth.updateUser({
         password: newPassword,

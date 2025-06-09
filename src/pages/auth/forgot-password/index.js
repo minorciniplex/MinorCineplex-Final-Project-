@@ -67,45 +67,45 @@ const ForgotPassword = () => {
       <NavbarLoading />
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="bg-[#070C1B] backdrop-blur-sm rounded-2xl shadow-2xl p-8 w-full max-w-md border border-slate-600/30">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-blue-500 rounded-full mx-auto mb-4 flex items-center justify-center">
-              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-              </svg>
-            </div>
-            <h2 className="text-2xl font-bold text-white mb-2">
-              Forgot Password
-            </h2>
-            {!isEmailSent ? (
-              <p className="text-slate-300 text-sm leading-relaxed">
-                Enter your email address and we'll send you a link to reset your password
-              </p>
-            ) : (
-              <p className="text-slate-300 text-sm leading-relaxed">
-                Check your email for the password reset link
-              </p>
-            )}
-          </div>
+        
+          {/* Header - แสดงเฉพาะเมื่อยังไม่ได้ส่งอีเมลล์ */}
+          {!isEmailSent && (
+            <>
+              {/* Header */}
+              <div className="text-center mb-8">
+                <div className="w-16 h-16 bg-blue-500 rounded-full mx-auto mb-4 flex items-center justify-center">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                </div>
+                <h2 className="text-2xl font-bold text-white mb-2">
+                  Forgot Password
+                </h2>
+                <p className="text-slate-300 text-sm leading-relaxed">
+                  Enter your email address and we'll send you a link to reset your password
+                </p>
+              </div>
 
-          {/* Success Message */}
-          {message && (
-            <div className="bg-green-500/20 border border-green-500/30 text-green-300 px-4 py-3 rounded-lg mb-6 text-center text-sm">
-              <svg className="w-4 h-4 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              {message}
-            </div>
-          )}
+              {/* Success Message */}
+              {message && (
+                <div className="bg-green-500/20 border border-green-500/30 text-green-300 px-4 py-3 rounded-lg mb-6 text-center text-sm">
+                  <svg className="w-4 h-4 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  {message}
+                </div>
+              )}
 
-          {/* Error Message */}
-          {error && (
-            <div className="bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-3 rounded-lg mb-6 text-center text-sm">
-              <svg className="w-4 h-4 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-              </svg>
-              {error}
-            </div>
+              {/* Error Message */}
+              {error && (
+                <div className="bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-3 rounded-lg mb-6 text-center text-sm">
+                  <svg className="w-4 h-4 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  {error}
+                </div>
+              )}
+            </>
           )}
 
           {/* Form - แสดงเฉพาะเมื่อยังไม่ได้ส่งอีเมลล์ */}

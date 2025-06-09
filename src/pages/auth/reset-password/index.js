@@ -95,11 +95,6 @@ const ResetPassword = () => {
           newPassword: passwords.newPassword,
           confirmPassword: passwords.confirmPassword,
         },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
       );
 
       if (response.status === 200) {
@@ -118,19 +113,26 @@ const ResetPassword = () => {
         }, 4000);
       }
     } catch (err) {
-      console.error("Reset password error:", err);
+      // ลบ console.error ออกเพื่อไม่ให้แสดง error ใน console
+      // console.error("Reset password error:", err);
+      // console.error("Error response:", err.response?.data);
+      
       if (err.response) {
-        setError(
-          err.response.data.error ||
-            "An error occurred while resetting your password"
-        );
+        // ดึง error message จาก response.data.error
+        const errorMessage = err.response.data?.error || 
+                            err.response.data?.message || 
+                            "An error occurred while resetting your password";
+        
+        // console.log("Setting error message:", errorMessage);
+        setError(errorMessage);
       } else if (err.request) {
-        setError(
-          "Connection error. Please check your internet connection and try again"
-        );
+        setError("Connection error. Please check your internet connection and try again");
       } else {
         setError("An unexpected error occurred. Please try again");
       }
+      
+      // Return early เพื่อป้องกัน error propagation
+      return;
     } finally {
       setIsLoading(false);
     }

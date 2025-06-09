@@ -173,7 +173,7 @@ const BookingHistory = () => {
                         Payment method
                       </span>
                       <span className="text-[--base-gray-400] font-medium">
-                        Credit card
+                        {booking.payment.payment_method}
                       </span>
                     </div>
                   </div>
@@ -183,11 +183,15 @@ const BookingHistory = () => {
                     <div className="bg-[--brand-green] text-white py-[6px] px-4 rounded-full font-bold text-center">
                       Paid
                     </div>
-                  ) : (
-                    <div className="bg-[--brand-red] text-white py-2 px-5 rounded-full font-bold text-center">
-                      {booking.status}
+                  ) : booking.status === "cancelled" ? (
+                    <div className="bg-[#565F7E] text-white py-[6px] px-4 rounded-full font-bold text-center">
+                      Cancelled
                     </div>
-                  )}
+                  ) : booking.status === "completed" ? (
+                    <div className="bg-[--brand-blue] text-white py-[6px] px-4 rounded-full font-bold text-center">
+                      Complete
+                    </div>
+                  ) : null}
                 </div>
               </div>
             </div>
@@ -354,7 +358,7 @@ const BookingHistory = () => {
                       <span className="text-[--base-gray-300]">
                         Payment method{" "}
                       </span>
-                      <span className="">Credit card</span>
+                      <span className="">{selectedBooking.payment.payment_method}</span>
                     </div>
                   </div>
                 </div>
@@ -382,7 +386,7 @@ const BookingHistory = () => {
                   </div>
                   <div className="">
                     <div className="text-white font-bold text-right">
-                      Credit card
+                      {selectedBooking.payment.payment_method}
                     </div>
                   </div>
                 </div>

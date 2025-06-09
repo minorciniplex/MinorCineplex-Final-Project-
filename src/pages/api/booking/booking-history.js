@@ -16,6 +16,7 @@ const handler = async (req, res) => {
         `
       )
       .eq("user_id", user.id)
+      .neq("status", "reserved") // เพิ่มบรรทัดนี้
       .order("created_at", { ascending: false });
 
     if (error) {

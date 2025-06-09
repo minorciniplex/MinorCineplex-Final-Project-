@@ -10,7 +10,7 @@
     const [booking, setBooking] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-
+    console.log(booking);
     useEffect(() => {
       const fetchBookingHistory = async () => {
         try {
@@ -73,6 +73,10 @@
                   <div className="flex items-center gap-2 text-base-gray-300">
                     <span>•</span>
                     <span>{booking.cinema.name}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-base-gray-300">
+                    <span>•</span>
+                    <img src={booking.movie.poster_url} alt={booking.movie.title}  />
                   </div>
                 </div>
                 <div className="border-t border-[#232B47] my-2"></div>

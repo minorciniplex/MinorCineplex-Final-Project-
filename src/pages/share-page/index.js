@@ -48,7 +48,7 @@ export default function SharePage() {
     };
 
     const shareToMessenger = (booking) => {
-        const link = `https://d9f3-171-97-99-145.ngrok-free.app/booking-detail/${booking.booking_id}`;
+        const link = `https://d9f3-171-97-99-145.ngrok-free.app/booking-detail/${booking.booking_id}`; 
         const appId = '1257229256034525';
       
         const url = `https://www.facebook.com/dialog/send?` +
@@ -65,12 +65,12 @@ export default function SharePage() {
         window.open(url, '_blank', 'width=600,height=400');
     };
 
-    const copyLink = async (bookingId) => {
+    const copyLink = async (booking) => {
         try {
-            await navigator.clipboard.writeText(getShareUrl(bookingId));
-            setCopyStatus(prev => ({ ...prev, [bookingId]: true }));
+            await navigator.clipboard.writeText(getShareUrl(booking.booking_id));
+            setCopyStatus(prev => ({ ...prev, [booking.booking_id]: true }));
             setTimeout(() => {
-                setCopyStatus(prev => ({ ...prev, [bookingId]: false }));
+                setCopyStatus(prev => ({ ...prev, [booking.booking_id]: false }));
             }, 2000);
         } catch (err) {
             console.error('Failed to copy link:', err);
@@ -161,7 +161,7 @@ export default function SharePage() {
                             Share on Line
                         </button>
                         <button
-                            onClick={() => copyLink(booking.booking_id)}
+                            onClick={() => copyLink(booking)}
                             className={`flex items-center gap-2 px-6 py-2 rounded-lg transition-colors ${
                                 copyStatus[booking.booking_id]
                                     ? 'bg-green-600 text-white'

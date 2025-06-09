@@ -2,51 +2,47 @@ import { createSupabaseServerClient } from "@/utils/supabaseCookie";
 
 const handler = async (req, res) => {
   const supabase = createSupabaseServerClient(req, res);
-  const { user_id } = req.query;
+  const { booking_id } = req.query;
 
   if (req.method !== "GET") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  if (!user_id) {
-    return res.status(400).json({ error: "User ID is required" });
+  if (!booking_id) {
+    return res.status(400).json({ error: "Booking ID is required" });
   }
 
   try {
-    // Validate user_id format if needed
-    if (typeof user_id !== 'string' || user_id.trim() === '') {
-      return res.status(400).json({ error: "Invalid user ID format" });
+    // Validate booking_id format if needed
+    if (typeof booking_id !== 'string' || booking_id.trim() === '') {
+      return res.status(400).json({ error: "Invalid booking ID format" });
     }
 
     const { data: bookings, error: bookingsError } = await supabase
       .from("bookings")
       .select("*")
-      .eq("user_id", user_id)
-      .order("created_at", { ascending: false });
+      .eq("booking_id", booking_id)
+      .single();
 
     if (bookingsError) {
-      console.error("Error fetching bookings:", bookingsError);
+      console.error("Error fetching booking:", bookingsError);
       return res.status(500).json({ 
-        error: "Failed to fetch bookings",
+        error: "Failed to fetch booking",
         details: bookingsError.message 
       });
     }
 
-    if (!bookings || bookings.length === 0) {
+    if (!bookings) {
       return res.status(404).json({ 
-        message: "No bookings found",
-        user_id: user_id 
+        message: "No booking found",
+        booking_id: booking_id 
       });
     }
-
-    const bookingIds = bookings.map((booking) => booking.booking_id);
-    const showtimeIds = bookings.map((booking) => booking.showtime_id);
 
     const { data: bookingSeats, error: bookingSeatsError } = await supabase
       .from("booking_seats")
       .select("*")
-      .in("booking_id", bookingIds)
-      .in("showtime_id", showtimeIds);
+      .eq("booking_id", booking_id);
 
     if (bookingSeatsError) {
       console.error("Error fetching booking seats:", bookingSeatsError);
@@ -59,138 +55,127 @@ const handler = async (req, res) => {
     if (!bookingSeats || bookingSeats.length === 0) {
       return res.status(404).json({ 
         message: "No booking seats found",
-        booking_ids: bookingIds 
+        booking_id: booking_id 
       });
     }
 
     const { data: showtimes, error: showtimesError } = await supabase
       .from("showtimes")
       .select("*")
-      .in("showtime_id", showtimeIds);
+      .eq("showtime_id", bookings.showtime_id)
+      .single();
 
     if (showtimesError) {
-      console.error("Error fetching showtimes:", showtimesError);
+      console.error("Error fetching showtime:", showtimesError);
       return res.status(500).json({ 
-        error: "Failed to fetch showtimes",
+        error: "Failed to fetch showtime",
         details: showtimesError.message 
       });
     }
 
-    if (!showtimes || showtimes.length === 0) {
+    if (!showtimes) {
       return res.status(404).json({ 
-        message: "No showtimes found",
-        showtime_ids: showtimeIds 
+        message: "No showtime found",
+        showtime_id: bookings.showtime_id 
       });
     }
 
     const { data: screens, error: screensError } = await supabase
       .from("screens")
       .select("*")
-      .in("screen_id", showtimes.map((showtime) => showtime.screen_id));
+      .eq("screen_id", showtimes.screen_id)
+      .single();
 
     if (screensError) {
-      console.error("Error fetching screens:", screensError);
+      console.error("Error fetching screen:", screensError);
       return res.status(500).json({ 
-        error: "Failed to fetch screens",
+        error: "Failed to fetch screen",
         details: screensError.message 
       });
     }
 
-    if (!screens || screens.length === 0) {
+    if (!screens) {
       return res.status(404).json({ 
-        message: "No screens found",
-        screen_ids: showtimes.map((showtime) => showtime.screen_id) 
+        message: "No screen found",
+        screen_id: showtimes.screen_id 
       });
     }
 
     const { data: cinemas, error: cinemasError } = await supabase
       .from("cinemas")
       .select("*")
-      .in("cinema_id", screens.map((screen) => screen.cinema_id));
+      .eq("cinema_id", screens.cinema_id)
+      .single();
 
     if (cinemasError) {
-      console.error("Error fetching cinemas:", cinemasError);
+      console.error("Error fetching cinema:", cinemasError);
       return res.status(500).json({ 
-        error: "Failed to fetch cinemas",
+        error: "Failed to fetch cinema",
         details: cinemasError.message 
       });
     }
 
-    if (!cinemas || cinemas.length === 0) {
+    if (!cinemas) {
       return res.status(404).json({ 
-        message: "No cinemas found",
-        cinema_ids: screens.map((screen) => screen.cinema_id) 
+        message: "No cinema found",
+        cinema_id: screens.cinema_id 
       });
     }
 
     const { data: movies, error: moviesError } = await supabase
       .from("movies")
       .select("*")
-      .in("movie_id", showtimes.map((showtime) => showtime.movie_id));
+      .eq("movie_id", showtimes.movie_id)
+      .single();
 
     if (moviesError) {
-      console.error("Error fetching movies:", moviesError);
+      console.error("Error fetching movie:", moviesError);
       return res.status(500).json({ 
-        error: "Failed to fetch movies",
+        error: "Failed to fetch movie",
         details: moviesError.message 
       });
     }
 
-    if (!movies || movies.length === 0) {
+    if (!movies) {
       return res.status(404).json({ 
-        message: "No movies found",
-        movie_ids: showtimes.map((showtime) => showtime.movie_id) 
+        message: "No movie found",
+        movie_id: showtimes.movie_id 
       });
     }
 
-    const groupedBookings = bookings.map((booking) => {
-      const relatedShowtime = showtimes.find(
-        (s) => s.showtime_id === booking.showtime_id
-      );
-      const relatedMovie = movies.find(
-        (m) => m.movie_id === relatedShowtime.movie_id
-      );
-      const relatedScreen = screens.find(
-        (sc) => sc.screen_id === relatedShowtime.screen_id
-      );
-      const relatedSeats = bookingSeats
-        .filter((bs) => bs.booking_id === booking.booking_id)
-        .map((bs) => bs.seat_id);
-      const relatedCinema = cinemas.find(
-        (c) => c.cinema_id === relatedScreen.cinema_id
-      );  
+    const relatedSeats = bookingSeats.map((bs) => bs.seat_id);
 
-      return {
-        booking_id: booking.booking_id,
-        booking_date: booking.booking_date,
-        total_price: booking.total_price,
-        status: booking.status,
-        movie: {
-          title: relatedMovie.title,
-          duration: relatedMovie.duration,
-          rating: relatedMovie.rating,
-          age_rating: relatedMovie.age_rating,
-          poster_url: relatedMovie.poster_url,
-          description: relatedMovie.description,
-        },
-        showtime: {
-          date: relatedShowtime.date,
-          start_time: relatedShowtime.start_time,
-        },
-        screen: {
-          screen_number: relatedScreen.screen_number,
-          screen_type: relatedScreen.screen_type,
-          price_per_seat: relatedScreen.price,
-        },
-        seats: relatedSeats,
-        cinema: {
-          name: relatedCinema.name,
-          address: relatedCinema.address,
-        },
-      };
-    });
+    const groupedBooking = {
+      booking_id: bookings.booking_id,
+      showtime_id: bookings.showtime_id,
+      booking_date: bookings.booking_date,
+      total_price: bookings.total_price,
+      status: bookings.status,
+      movie: {
+        title: movies.title,
+        duration: movies.duration,
+        rating: movies.rating,
+        age_rating: movies.age_rating,
+        poster_url: movies.poster_url,
+        description: movies.description,
+      },
+      showtime: {
+        date: showtimes.date,
+        start_time: showtimes.start_time,
+      },
+      screen: {
+        screen_number: screens.screen_number,
+        screen_type: screens.screen_type,
+        price_per_seat: screens.price,
+      },
+      seats: relatedSeats,
+      cinema: {
+        name: cinemas.name,
+        address: cinemas.address,
+      },
+    };
 
-    return res.status(200).json({ data: groupedBookings });
+    return res.status(200).json({ data: groupedBooking });
   } catch (error) {
     console.error("Unexpected error in booking history handler:", error);
     return res.status(500).json({ 

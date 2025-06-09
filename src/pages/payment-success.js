@@ -8,14 +8,15 @@ import FmdGoodIcon from "@mui/icons-material/FmdGood";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
-
+import SharePage from './share-page';
 export default function PaymentSuccess() {
   const router = useRouter();
   const { bookingId } = router.query;
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showShare, setShowShare] = useState(false);
-
+  console.log(booking);
+  
   useEffect(() => {
     if (!bookingId) {
       console.log('No bookingId in query');
@@ -40,7 +41,8 @@ export default function PaymentSuccess() {
           setLoading(false);
           return;
         }
-
+        console.log(bookingData);
+        
         // ดึงข้อมูล booking_seats
         const { data: seatData, error: seatError } = await supabase
           .from('booking_seats')
@@ -110,26 +112,7 @@ export default function PaymentSuccess() {
   if (loading) return <div className="text-white">Loading...</div>;
   if (!booking) return <div className="text-white">ไม่พบข้อมูลการจอง</div>;
 
-  const url = typeof window !== 'undefined' ? `${window.location.origin}/booking-detail/${bookingId}` : '';
-  const text = `Let's watch together! Join me & book now! ${url}`;
-  const fbAppId = 'YOUR_FACEBOOK_APP_ID'; // ใส่ app id จริงถ้ามี
 
-  const handleShareLine = () => {
-    window.open(`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(url)}`, '_blank');
-  };
-  const handleShareMessenger = () => {
-    window.open(`https://www.facebook.com/dialog/send?link=${encodeURIComponent(url)}&app_id=${fbAppId}&redirect_uri=${encodeURIComponent(url)}`, '_blank');
-  };
-  const handleShareFacebook = () => {
-    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
-  };
-  const handleShareTwitter = () => {
-    window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
-  };
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(url);
-    alert('คัดลอกลิงก์แล้ว');
-  };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#101525] text-white">
@@ -214,92 +197,10 @@ export default function PaymentSuccess() {
             Booking detail
           </Button>
         </div>
-        <div className="mt-6">
-          <a href="#" className=" body-1-medium text-white underline flex items-center gap-2 " onClick={e => { e.preventDefault(); setShowShare(v => !v); }}>
-            <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7" /><polyline points="16 6 12 2 8 6" /><line x1="12" y1="2" x2="12" y2="15" /></svg>
-            Share this booking
-          </a>
+        <div className=' text-white flex items-center justify-center cursor-pointer pt-[10px]' onClick={() => setShowShare(!showShare)}>
+          Share this booking
         </div>
-        {showShare && (
-          <div className="w-[274px] h-[208px] mt-[-240px] bg-base-gray-100 rounded-[8px] p-4 flex flex-col items-center  shadow-lg 
-                          md:w-[432px] md:h-[128px] md:p-4 md:shadow-[4px_4px_30px_rgba(0,0,0,0.5)] md:mt-[-170px]">
-            <div className="mb-1 body-1-medium text-white text-center md:mb-4">Share Booking</div>
-            
-            {/* Mobile: 2 rows */}
-            <div className="flex flex-col gap-4 md:hidden">
-              {/* แถวแรก */}
-              <div className="flex gap-4 justify-center">
-                <Button variant="ghost" onClick={handleShareLine} className="flex flex-col items-center w-auto h-auto p-0">
-                  <div className="w-10 h-10 bg-base-gray-0 rounded-full flex items-center justify-center mb-2">
-                    <Image src={"/assets/images/Line.png"} alt="LINE" width={20} height={20} />
-                  </div>
-                  <span className="text-xs text-white">LINE</span>
-                </Button>
-                <Button variant="ghost" onClick={handleShareMessenger} className="flex flex-col items-center w-auto h-auto p-0">
-                  <div className="w-10 h-10 bg-base-gray-0 rounded-full flex items-center justify-center mb-2">
-                    <Image src={"/assets/images/Mesenger.png"} alt="Messenger" width={20} height={20} />
-                  </div>
-                  <span className="text-xs text-white">Messenger</span>
-                </Button>
-                <Button variant="ghost" onClick={handleShareFacebook} className="flex flex-col items-center w-auto h-auto p-0">
-                  <div className="w-10 h-10 bg-base-gray-0 rounded-full flex items-center justify-center mb-2">
-                    <Image src={"/assets/images/Facebook - Original.png"} alt="Facebook" width={20} height={20} />
-                  </div>
-                  <span className="text-xs text-white">Facebook</span>
-                </Button>
-              </div>
-              {/* แถวสอง */}
-              <div className="flex gap-4 justify-start mt-[-15px]">
-                <Button variant="ghost" onClick={handleShareTwitter} className="flex flex-col items-center w-auto h-auto p-0">
-                  <div className="w-10 h-10 bg-base-gray-0 rounded-full flex items-center justify-center mb-2">
-                    <Image src={"/assets/images/Twitter - Original.png"} alt="Twitter" width={20} height={20} />
-                  </div>
-                  <span className="text-xs text-white">Twitter</span>
-                </Button>
-                <Button variant="ghost" onClick={handleCopyLink} className="flex flex-col items-center w-auto h-auto p-0">
-                  <div className="w-10 h-10 bg-base-gray-0 rounded-full flex items-center justify-center mb-2">
-                    <Image src={"/assets/images/Copy_light.png"} alt="Copy link" width={20} height={20} />
-                  </div>
-                  <span className="text-xs text-white">Copy link</span>
-                </Button>
-              </div>
-            </div>
-
-            {/* Desktop: 1 row */}
-            <div className="hidden md:flex gap-2 justify-center md:mt-[-23px]">
-              <Button variant="ghost" onClick={handleShareLine} className="flex flex-col items-center w-auto h-auto p-0">
-                <div className="w-10 h-10 bg-base-gray-0 rounded-full flex items-center justify-center mb-2">
-                  <Image src={"/assets/images/Line.png"} alt="LINE" width={20} height={20} />
-                </div>
-                <span className="text-xs text-white">LINE</span>
-              </Button>
-              <Button variant="ghost" onClick={handleShareMessenger} className="flex flex-col items-center w-auto h-auto p-0">
-                <div className="w-10 h-10 bg-base-gray-0 rounded-full flex items-center justify-center mb-2">
-                  <Image src={"/assets/images/Mesenger.png"} alt="Messenger" width={20} height={20} />
-                </div>
-                <span className="text-xs text-white">Messenger</span>
-              </Button>
-              <Button variant="ghost" onClick={handleShareFacebook} className="flex flex-col items-center w-auto h-auto p-0">
-                <div className="w-10 h-10 bg-base-gray-0 rounded-full flex items-center justify-center mb-2">
-                  <Image src={"/assets/images/Facebook - Original.png"} alt="Facebook" width={20} height={20} />
-                </div>
-                <span className="text-xs text-white">Facebook</span>
-              </Button>
-              <Button variant="ghost" onClick={handleShareTwitter} className="flex flex-col items-center w-auto h-auto p-0">
-                <div className="w-10 h-10 bg-base-gray-0 rounded-full flex items-center justify-center mb-2">
-                  <Image src={"/assets/images/Twitter - Original.png"} alt="Twitter" width={20} height={20} />
-                </div>
-                <span className="text-xs text-white">Twitter</span>
-              </Button>
-              <Button variant="ghost" onClick={handleCopyLink} className="flex flex-col items-center w-auto h-auto p-0">
-                <div className="w-10 h-10 bg-base-gray-0 rounded-full flex items-center justify-center mb-2">
-                  <Image src={"/assets/images/Copy_light.png"} alt="Copy link" width={20} height={20} />
-                </div>
-                <span className="text-xs text-white">Copy link</span>
-              </Button>
-            </div>
-          </div>
-        )}
+        {showShare && <SharePage bookingData={booking} />}
       </div>
     </div>
   );

@@ -6,6 +6,7 @@ import FmdGoodIcon from "@mui/icons-material/FmdGood";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
+import SharePage from "@/pages/share-page";
 
 const BookingHistory = () => {
   const router = useRouter();
@@ -13,6 +14,7 @@ const BookingHistory = () => {
   const [bookingHistory, setBookingHistory] = useState([]);
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [showShare, setShowShare] = useState(false);
   console.log("Booking History:", bookingHistory);
 
   // Function to format date as "4 JUN 2025"
@@ -212,9 +214,10 @@ const BookingHistory = () => {
               <h3 className="flex-1 text-xl font-bold py-3 px-4 text-center">
                 Booking Detail
               </h3>
-              <div className="flex absolute right-0 gap-4 pr-4 w-auto">
+              <div className="flex absolute right-0 gap-4 pr-4 w-auto ">
                 {/* Share Button */}
-                <button className="text-gray-400 w-6 h-6 flex items-center justify-center">
+                <div>
+                <button className="text-gray-400 w-6 h-6 flex items-center justify-center" onClick={() => setShowShare(!showShare)}>
                   <svg
                     width="24"
                     height="24"
@@ -233,7 +236,11 @@ const BookingHistory = () => {
                     />
                   </svg>
                 </button>
+                {showShare && <SharePage 
+                bookingData={selectedBooking} />}
+                </div>
                 {/* Close Button */}
+                <div>
                 <button
                   onClick={closeModal}
                   className="text-gray-400 w-6 h-6 flex items-center justify-center text-2xl"
@@ -260,6 +267,7 @@ const BookingHistory = () => {
                     />
                   </svg>
                 </button>
+              </div>
               </div>
             </div>
 

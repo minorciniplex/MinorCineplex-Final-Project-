@@ -113,10 +113,6 @@ const ResetPassword = () => {
         }, 4000);
       }
     } catch (err) {
-      // ลบ console.error ออกเพื่อไม่ให้แสดง error ใน console
-      // console.error("Reset password error:", err);
-      // console.error("Error response:", err.response?.data);
-      
       if (err.response) {
         // ดึง error message จาก response.data.error
         const errorMessage = err.response.data?.error || 

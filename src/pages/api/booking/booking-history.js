@@ -24,7 +24,7 @@ const handler = async (req, res) => {
     }
 
     if (!bookings || bookings.length === 0) {
-      return res.status(404).json({ message: "No bookings found" });
+      return res.status(200).json({ data: [] });
     }
 
     const bookingIds = bookings.map((booking) => booking.booking_id);
@@ -44,7 +44,7 @@ const handler = async (req, res) => {
     }
 
     if (!bookingSeats || bookingSeats.length === 0) {
-      return res.status(404).json({ message: "No booking seats found" });
+      return res.status(200).json({ data: [] });
     }
 
     const { data: showtimes, error: showtimesError } = await supabase
@@ -60,7 +60,7 @@ const handler = async (req, res) => {
       return res.status(500).json({ error: showtimesError });
     }
     if (!showtimes || showtimes.length === 0) {
-      return res.status(404).json({ message: "No showtimes found" });
+      return res.status(200).json({ data: [] });
     }
 
     const { data: screens, error: screensError } = await supabase
@@ -80,7 +80,7 @@ const handler = async (req, res) => {
     }
 
     if (!screens || screens.length === 0) {
-      return res.status(404).json({ message: "No screens found" });
+      return res.status(200).json({ data: [] });
     }
     const { data: cinemas, error: cinemasError } = await supabase
       .from("cinemas")
@@ -99,7 +99,7 @@ const handler = async (req, res) => {
       return res.status(500).json({ error: cinemasError });
     }
     if (!cinemas || cinemas.length === 0) {
-      return res.status(404).json({ message: "No cinemas found" });
+      return res.status(200).json({ data: [] });
     }
     const { data: movies, error: moviesError } = await supabase
       .from("movies")
@@ -117,6 +117,25 @@ const handler = async (req, res) => {
       console.error("Error fetching movies:", moviesError);
       return res.status(500).json({ error: moviesError });
     }
+
+    const { data: payment, error: paymentError } = await supabase
+      .from("payments")
+      .select(
+        `
+            *
+        `
+      )
+      .in(
+        "booking_id",
+        bookings.map((booking) => booking.booking_id)
+      );
+
+    if (paymentError) {
+      console.error("Error fetching payments:", paymentError);
+      return res.status(500).json({ error: paymentError });
+    }
+
+
     const groupedBookings = bookings.map((booking) => {
       const relatedShowtime = showtimes.find(
         (s) => s.showtime_id === booking.showtime_id
@@ -132,7 +151,10 @@ const handler = async (req, res) => {
         .map((bs) => bs.seat_id);
       const relatedCinema = cinemas.find(
         (c) => c.cinema_id === relatedScreen.cinema_id
-      );  
+      );
+      const relatedPayment = payment.find(
+        (p) => p.booking_id === booking.booking_id
+      );
 
       return {
         booking_id: booking.booking_id,
@@ -160,6 +182,12 @@ const handler = async (req, res) => {
         cinema: {
           name: relatedCinema.name,
           address: relatedCinema.address,
+        },
+        payment: {
+          payment_id: relatedPayment ? relatedPayment.payment_id : null,
+          amount: relatedPayment ? relatedPayment.amount : null,
+          payment_method: relatedPayment ? relatedPayment.payment_method : null,
+          payment_status: relatedPayment ? relatedPayment.payment_status : null,
         },
       };
     });

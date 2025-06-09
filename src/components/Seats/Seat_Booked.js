@@ -1,6 +1,7 @@
-export default function BookedIcon() {
+export default function BookedIcon({className}) {
   return (
     <svg
+      className={className}
       width="40"
       height="40"
       viewBox="0 0 40 40"

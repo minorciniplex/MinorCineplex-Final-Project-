@@ -5,9 +5,12 @@ import ProfileUpload from "./profile/index";
 import { useEffect, useState } from "react";
 import MyCoupon from "./my-coupons/index";
 import ResetPassword from "./reset-password/index";
+import BookingHistory from "./booking-history/index";
+import { useStatus } from "@/context/StatusContext";
 function Dashboard() {
   const router = useRouter();
   const [activeComponent, setActiveComponent] = useState("");
+  const { isLoggedIn, user } = useStatus();
 
   const handleComponentChange = (component) => {
     setActiveComponent(component);
@@ -19,11 +22,12 @@ function Dashboard() {
     }
   }, [router.query.tab]);
 
+
   return (
     <>
       <Navbar />
-      <div className="flex flex-col lg:flex-row justify-start items-start pt-20 lg:pt-52 px-4 lg:pl-80 gap-14">
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:flex lg:flex-col w-full lg:w-[300px] h-auto lg:h-[288px] bg-[#070C1B] justify-evenly items-center lg:items-start px-4 rounded-lg ">
+      <div className="flex flex-col lg:flex-row justify-start pt-[48px] lg:pt-52 lg:pl-80 gap-10">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:flex lg:flex-col w-full lg:w-[300px] h-auto lg:h-[288px] bg-[#070C1B] justify-evenly items-center lg:items-start px-4 rounded-lg shadow-[4px_4px_30px_0px_rgba(0,0,0,0.5)]">
           <div
             className={`w-full body-2-regular hover:bg-[#2A3149] hover:text-white ${
               activeComponent === "booking" ? "bg-[#21263F] text-black" : ""
@@ -81,40 +85,41 @@ function Dashboard() {
               </span>
             </Button>
           </div>
-          <div    className={`w-full body-2-regular hover:bg-[#2A3149]  ${
+          <div
+            className={`w-full body-2-regular hover:bg-[#2A3149]  ${
               activeComponent === "coupons" ? "bg-[#21263F] text-white" : ""
-            }`}>
-          <Button
-            variant="ghost"
-         
-            onClick={() => handleComponentChange("coupons")}
+            }`}
           >
-            <svg
-              width="40"
-              height="40"
-              viewBox="0 0 20 20"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              className="px-2"
+            <Button
+              variant="ghost"
+              onClick={() => handleComponentChange("coupons")}
             >
-              <path
-                d="M8.12535 11.4212L11.8754 7.74477M8.12535 7.74477H8.1336M11.8671 11.4212H11.8754M2.84829 7.63007C2.66229 7.63007 2.49204 7.48154 2.50029 7.28815C2.55054 6.15433 2.69154 5.4161 3.08529 4.83227C3.30989 4.49957 3.59156 4.20751 3.9178 3.96904C4.79156 3.33301 6.02533 3.33301 8.49436 3.33301H11.5049C13.9739 3.33301 15.2077 3.33301 16.0829 3.96904C16.4062 4.20433 16.6882 4.49624 16.9147 4.83227C17.3085 5.4161 17.4495 6.15433 17.4997 7.28815C17.508 7.48154 17.3377 7.63007 17.151 7.63007C16.1114 7.63007 15.2684 8.50433 15.2684 9.58301C15.2684 10.6617 16.1114 11.5359 17.151 11.5359C17.3377 11.5359 17.508 11.6845 17.4997 11.8786C17.4495 13.0117 17.3085 13.7499 16.9147 14.3345C16.69 14.6669 16.4084 14.9587 16.0822 15.197C15.2077 15.833 13.9739 15.833 11.5049 15.833H8.49511C6.02608 15.833 4.79231 15.833 3.91705 15.197C3.59107 14.9584 3.30967 14.6664 3.08529 14.3337C2.69154 13.7499 2.55054 13.0117 2.50029 11.8779C2.49204 11.6845 2.66229 11.5359 2.84829 11.5359C3.8878 11.5359 4.73081 10.6617 4.73081 9.58301C4.73081 8.50433 3.8878 7.63007 2.84829 7.63007Z"
-                stroke={activeComponent === "coupons" ? "#FFFFFF" : "#8B93B0"}
-                strokeWidth="1.2"
-                strokeLinecap="round"
-              />
-            </svg>
-            <span
-              className={`w-full text-left font-bold ${
-                activeComponent === "coupons"
-                  ? "text-white"
-                  : "text-base-gray-400"
-              }`}
-            >
-              My coupons
-            </span>
-          </Button>
-              </div>
+              <svg
+                width="40"
+                height="40"
+                viewBox="0 0 20 20"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="px-2"
+              >
+                <path
+                  d="M8.12535 11.4212L11.8754 7.74477M8.12535 7.74477H8.1336M11.8671 11.4212H11.8754M2.84829 7.63007C2.66229 7.63007 2.49204 7.48154 2.50029 7.28815C2.55054 6.15433 2.69154 5.4161 3.08529 4.83227C3.30989 4.49957 3.59156 4.20751 3.9178 3.96904C4.79156 3.33301 6.02533 3.33301 8.49436 3.33301H11.5049C13.9739 3.33301 15.2077 3.33301 16.0829 3.96904C16.4062 4.20433 16.6882 4.49624 16.9147 4.83227C17.3085 5.4161 17.4495 6.15433 17.4997 7.28815C17.508 7.48154 17.3377 7.63007 17.151 7.63007C16.1114 7.63007 15.2684 8.50433 15.2684 9.58301C15.2684 10.6617 16.1114 11.5359 17.151 11.5359C17.3377 11.5359 17.508 11.6845 17.4997 11.8786C17.4495 13.0117 17.3085 13.7499 16.9147 14.3345C16.69 14.6669 16.4084 14.9587 16.0822 15.197C15.2077 15.833 13.9739 15.833 11.5049 15.833H8.49511C6.02608 15.833 4.79231 15.833 3.91705 15.197C3.59107 14.9584 3.30967 14.6664 3.08529 14.3337C2.69154 13.7499 2.55054 13.0117 2.50029 11.8779C2.49204 11.6845 2.66229 11.5359 2.84829 11.5359C3.8878 11.5359 4.73081 10.6617 4.73081 9.58301C4.73081 8.50433 3.8878 7.63007 2.84829 7.63007Z"
+                  stroke={activeComponent === "coupons" ? "#FFFFFF" : "#8B93B0"}
+                  strokeWidth="1.2"
+                  strokeLinecap="round"
+                />
+              </svg>
+              <span
+                className={`w-full text-left font-bold ${
+                  activeComponent === "coupons"
+                    ? "text-white"
+                    : "text-base-gray-400"
+                }`}
+              >
+                My coupons
+              </span>
+            </Button>
+          </div>
           <div
             className={`w-full body-2-regular hover:bg-[#2A3149] hover:text-white ${
               activeComponent === "profile" ? "bg-[#21263F] text-white" : ""
@@ -202,9 +207,7 @@ function Dashboard() {
         <div className="flex-1">
           {activeComponent === "profile" && <ProfileUpload />}
           {activeComponent === "coupons" && <MyCoupon />}
-          {activeComponent === "booking" && (
-            <div>Booking History Component</div>
-          )}
+          {activeComponent === "booking" && <BookingHistory />}
           {activeComponent === "reset" && <ResetPassword />}
         </div>
       </div>

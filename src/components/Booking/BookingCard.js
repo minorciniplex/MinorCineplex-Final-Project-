@@ -8,7 +8,6 @@ import { useEffect, useState, useCallback } from "react";
 import { useStatus } from "@/context/StatusContext";
 import axios from "axios";
 
-
 export default function BookingCard({
   time,
   screenNumber,
@@ -74,7 +73,9 @@ export default function BookingCard({
   const handleSumbit = async () => {
     if (!isLoggedIn) {
       console.log("User not logged in, redirecting to login page");
-      router.push("/auth/login");
+      // เก็บ current URL เพื่อให้ redirect กลับมาหลัง login
+      const currentUrl = router.asPath;
+      router.push(`/auth/login?redirect=${encodeURIComponent(currentUrl)}`);
       return;
     }
 
@@ -198,14 +199,10 @@ export default function BookingCard({
     router.push(`/booking/seats/payment/payment?${query}`);
   };
 
-
-
-
-
   return (
     <>
-      <div className="h-min sm:basis-1/4 flex flex-col p-4 bg-[--base-gray-0] rounded-lg shadow-md">
-        <div className="flex w-full rounded-t-lg">
+      <div className="h-min w-min md:basis-1/5 flex flex-col p-4 bg-[--base-gray-0] rounded-lg shadow-md">
+        <div className="flex rounded-t-lg">
           <Image
             src={poster}
             alt="Movie Poster"
@@ -213,7 +210,7 @@ export default function BookingCard({
             height={120}
             className="object-cover rounded-lg"
           />
-          <div className="flex flex-col w-[300px] pl-4 rounded-t-lg">
+          <div className="flex flex-col w-auto pl-4 rounded-t-lg">
             <h2 className="text-white text-wrap text-xl font-bold mb-3">
               {title}
             </h2>

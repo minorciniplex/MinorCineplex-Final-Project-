@@ -50,6 +50,19 @@ const ELEMENT_OPTIONS = {
   },
 };
 
+const CARD_NUMBER_OPTIONS = {
+  ...ELEMENT_OPTIONS,
+  placeholder: "Card number",
+};
+const CARD_EXPIRY_OPTIONS = {
+  ...ELEMENT_OPTIONS,
+  placeholder: "MM/YY",
+};
+const CARD_CVC_OPTIONS = {
+  ...ELEMENT_OPTIONS,
+  placeholder: "CVC",
+};
+
 const StripeCardForm = forwardRef(function StripeCardForm(
   { setIsCardComplete, booking, userId },
   ref
@@ -250,6 +263,7 @@ const StripeCardForm = forwardRef(function StripeCardForm(
 
   return (
     <form
+<<<<<<< HEAD
       className="px-4 mb-10 lg:mb-0 space-y-4"
       onSubmit={(e) => e.preventDefault()}
     >
@@ -265,6 +279,20 @@ const StripeCardForm = forwardRef(function StripeCardForm(
               setIsCardNumberComplete(e.complete);
               setTouched(prev => ({ ...prev, cardNumber: true }));
             }}
+=======
+      className="px-4 md:px-0 mb-10 md:mb-0 space-y-6"
+      onSubmit={(e) => e.preventDefault()}
+    >
+      <div className="md:flex md:space-x-6">
+        <div className="md:flex-1">
+          <label className="block body-2-regular text-base-gray-400 mb-1">
+            Card number
+          </label>
+          <CardNumberElement
+            options={CARD_NUMBER_OPTIONS}
+            className="w-full text-center h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-[4px] pl-4 py-3 pr-3 text-base placeholder-base-gray-300 outline-none"
+            onChange={(e) => setIsCardNumberComplete(e.complete)}
+>>>>>>> origin/feat/booking
           />
           {cardNumberError && (
             <p className="text-red-500 text-sm mt-1">{cardNumberError}</p>
@@ -275,7 +303,11 @@ const StripeCardForm = forwardRef(function StripeCardForm(
             Card owner
           </label>
           <input
+<<<<<<< HEAD
             className="w-full h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-md pl-4 py-3 pr-3 text-base placeholder-base-gray-300 outline-none"
+=======
+            className="w-full h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-[4px] pl-4 py-3 pr-3 text-base placeholder-base-gray-300 outline-none"
+>>>>>>> origin/feat/booking
             placeholder="Card owner name"
             value={owner}
             onChange={(e) => {
@@ -288,6 +320,7 @@ const StripeCardForm = forwardRef(function StripeCardForm(
           )}
         </div>
       </div>
+<<<<<<< HEAD
       <div className="lg:flex lg:space-x-4 items-center">
         <div className="lg:flex-1">
           <label className="block text-sm text-base-gray-400 mb-1">
@@ -300,6 +333,17 @@ const StripeCardForm = forwardRef(function StripeCardForm(
               setIsExpiryComplete(e.complete);
               setTouched(prev => ({ ...prev, expiry: true }));
             }}
+=======
+      <div className="md:flex md:space-x-6">
+        <div className="md:flex-1">
+          <label className="block body-2-regular text-base-gray-400 mb-1">
+            Expiry date
+          </label>
+          <CardExpiryElement
+            options={CARD_EXPIRY_OPTIONS}
+            className="w-full h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-[4px] pl-4 py-3 pr-3 text-base placeholder-base-gray-300 outline-none"
+            onChange={(e) => setIsExpiryComplete(e.complete)}
+>>>>>>> origin/feat/booking
           />
           {expiryError && (
             <p className="text-red-500 text-sm mt-1">{expiryError}</p>
@@ -310,12 +354,18 @@ const StripeCardForm = forwardRef(function StripeCardForm(
             CVC
           </label>
           <CardCvcElement
+<<<<<<< HEAD
             options={ELEMENT_OPTIONS}
             className="w-full h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-md pl-4 py-3 pr-3 text-base placeholder-base-gray-300 outline-none"
             onChange={(e) => {
               setIsCvcComplete(e.complete);
               setTouched(prev => ({ ...prev, cvc: true }));
             }}
+=======
+            options={CARD_CVC_OPTIONS}
+            className="w-full h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-[4px] pl-4 py-3 pr-3 text-base placeholder-base-gray-300 outline-none"
+            onChange={(e) => setIsCvcComplete(e.complete)}
+>>>>>>> origin/feat/booking
           />
           {cvcError && (
             <p className="text-red-500 text-sm mt-1">{cvcError}</p>
@@ -647,7 +697,11 @@ export default function PaymentMobile({ setPaymentMethod, isCardComplete, setIsC
         {/* ฝั่งซ้าย: ฟอร์ม */}
         <div className="w-full">
           {/* Tab */}
+<<<<<<< HEAD
           <div className="flex gap-4 items-baseline pt-6 pb-6 px-4 lg:pt-0 lg:px-0 lg:pb-6">
+=======
+          <div className="flex gap-4 items-baseline pt-10 pb-6 px-4 md:pt-0 md:px-0 md:pb-6">
+>>>>>>> origin/feat/booking
             <button
               className="flex justify-center lg:mb-[50px]"
               onClick={() => handleTabChange("credit")}

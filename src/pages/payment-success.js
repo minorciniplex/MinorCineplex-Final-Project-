@@ -8,6 +8,7 @@ import FmdGoodIcon from "@mui/icons-material/FmdGood";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
+import SharePage from '@/pages/share-page';
 
 export default function PaymentSuccess() {
   const router = useRouter();
@@ -153,7 +154,7 @@ export default function PaymentSuccess() {
   if (!booking) return <div className="text-white">ไม่พบข้อมูลการจอง</div>;
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#101525] text-white">
+    <div className="pt-[50px] flex flex-col items-center justify-center bg-[#101525] text-white">
       <Navbar />
       <div className="flex flex-col items-center mt-[40px] md:mt-[80px]">
         <div className="bg-brand-green rounded-full w-20 h-20 flex items-center justify-center mb-6">
@@ -240,50 +241,28 @@ export default function PaymentSuccess() {
             Back to Home
           </button>
         </div>
-      </div>
-
-      {/* Share Modal */}
-      {showShare && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4">
-          <div className="bg-[#232B47] rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-xl font-bold mb-4">Share Booking</h3>
-            <p className="text-base-gray-300 mb-4">
-              Share your booking details with friends and family
-            </p>
-            
-            <div className="flex gap-3 mb-4">
-              <button
-                className="flex-1 bg-[#4E7BEE] text-white py-2 px-4 rounded hover:bg-[#3E6BDE] transition-colors"
-                onClick={() => {
-                  const shareUrl = `${window.location.origin}/booking-detail/${bookingId}`;
-                  navigator.clipboard.writeText(shareUrl);
-                  alert('Link copied to clipboard!');
-                }}
-              >
-                Copy Link
-              </button>
-              
-              <button
-                className="flex-1 bg-[#25D366] text-white py-2 px-4 rounded hover:bg-[#20B858] transition-colors"
-                onClick={() => {
-                  const shareUrl = `${window.location.origin}/booking-detail/${bookingId}`;
-                  const message = `Check out my movie booking: ${booking.movie_title} at ${booking.cinema_name} on ${booking.show_date} ${booking.show_time}. ${shareUrl}`;
-                  window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
-                }}
-              >
-                WhatsApp
-              </button>
-            </div>
-            
-            <button
-              className="w-full bg-transparent border border-base-gray-200 text-white py-2 px-4 rounded hover:bg-base-gray-100 transition-colors"
-              onClick={() => setShowShare(false)}
-            >
-              Close
-            </button>
-          </div>
+        <div className='text-white flex items-center justify-center cursor-pointer pt-[10px] relative' onClick={() => setShowShare(!showShare)}>
+          Share this booking
         </div>
-      )}
+        {/* popup box */}
+        {showShare && (
+          <div 
+            className="fixed inset-0 z-50" 
+            onClick={(e) => {
+              if (e.target === e.currentTarget) {
+                setShowShare(false);
+              }
+            }}
+          >
+            <div className="relative">
+              <SharePage 
+                bookingData={booking}
+                isSuccessPage={true} 
+              />
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 } 

@@ -41,27 +41,33 @@ const MoviesContent = () => {
         ...filters
       });
 
+      console.log('Fetching movies with params:', queryParams.toString()); // Debug log
+
       const response = await fetch(`/api/admin/movies?${queryParams}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
         }
       });
-      
+
+      const data = await response.json();
+      console.log('Movies response:', data); // Debug log
+
       if (response.ok) {
-        const data = await response.json();
-        console.log('📽️ Movies API Response:', data);
-        console.log('🎭 First movie genre:', data.movies[0]?.genre);
-        setMovies(data.movies);
+        setMovies(data.movies || []);
         setPagination(prev => ({
           ...prev,
-          total: data.pagination.total,
-          totalPages: data.pagination.totalPages
+          total: data.pagination?.total || 0,
+          totalPages: data.pagination?.totalPages || 0
         }));
       } else {
-        console.error('Failed to fetch movies');
+        console.error('API Error:', data);
+        alert(data.error || data.message || 'เกิดข้อผิดพลาดในการโหลดข้อมูลหนัง');
+        setMovies([]);
       }
     } catch (error) {
       console.error('Error fetching movies:', error);
+      alert('เกิดข้อผิดพลาดในการเชื่อมต่อ: ' + error.message);
+      setMovies([]);
     } finally {
       setLoading(false);
     }

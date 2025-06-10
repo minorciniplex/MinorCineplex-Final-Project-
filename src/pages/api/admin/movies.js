@@ -110,6 +110,7 @@ async function createMovie(req, res, admin) {
 
   try {
     const movieData = req.body;
+    console.log('Received movie data:', movieData); // Debug log
 
     // Validation
     const requiredFields = ['title', 'duration', 'genre', 'rating'];
@@ -117,6 +118,16 @@ async function createMovie(req, res, admin) {
       if (!movieData[field]) {
         return res.status(400).json({ error: `${field} is required` });
       }
+    }
+
+    // จัดการ cast field - ให้รองรับทั้ง array และ string
+    let castValue = movieData.cast;
+    if (Array.isArray(castValue)) {
+      castValue = castValue.join(', ');
+    } else if (typeof castValue === 'string') {
+      castValue = castValue.trim();
+    } else {
+      castValue = '';
     }
 
     // Clean and sanitize data
@@ -131,6 +142,7 @@ async function createMovie(req, res, admin) {
       subtitle: movieData.subtitle?.trim(),
       poster_url: movieData.poster_url?.trim() || null,
       trailer_url: movieData.trailer_url?.trim() || null,
+      cast: castValue || null,
     };
 
     // Add audit fields
@@ -142,6 +154,8 @@ async function createMovie(req, res, admin) {
       updated_at: new Date().toISOString()
     };
 
+    console.log('Inserting movie:', newMovie); // Debug log
+
     const { data: movie, error } = await supabase
       .from('movies')
       .insert([newMovie])
@@ -151,7 +165,10 @@ async function createMovie(req, res, admin) {
       `)
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase insert error:', error);
+      throw error;
+    }
 
     res.status(201).json({
       success: true,
@@ -160,7 +177,17 @@ async function createMovie(req, res, admin) {
     });
   } catch (error) {
     console.error('Create movie error:', error);
-    res.status(500).json({ error: 'Failed to create movie' });
+    
+    // ส่ง error message ที่ชัดเจนขึ้น
+    let errorMessage = 'Failed to create movie';
+    if (error.message) {
+      errorMessage += ': ' + error.message;
+    }
+    if (error.details) {
+      errorMessage += ' (' + error.details + ')';
+    }
+    
+    res.status(500).json({ error: errorMessage });
   }
 }
 
@@ -172,6 +199,7 @@ async function updateMovie(req, res, admin) {
   try {
     const { id } = req.query;
     const updateData = req.body;
+    console.log('Updating movie ID:', id, 'with data:', updateData); // Debug log
 
     if (!id) {
       return res.status(400).json({ error: 'Movie ID is required' });
@@ -188,6 +216,16 @@ async function updateMovie(req, res, admin) {
       return res.status(404).json({ error: 'Movie not found' });
     }
 
+    // จัดการ cast field - ให้รองรับทั้ง array และ string
+    let castValue = updateData.cast;
+    if (Array.isArray(castValue)) {
+      castValue = castValue.join(', ');
+    } else if (typeof castValue === 'string') {
+      castValue = castValue.trim();
+    } else {
+      castValue = '';
+    }
+
     // Clean and sanitize data
     const cleanedData = {
       ...updateData,
@@ -200,6 +238,7 @@ async function updateMovie(req, res, admin) {
       subtitle: updateData.subtitle?.trim(),
       poster_url: updateData.poster_url?.trim() || null,
       trailer_url: updateData.trailer_url?.trim() || null,
+      cast: castValue || null,
     };
 
     // Add audit fields
@@ -208,6 +247,8 @@ async function updateMovie(req, res, admin) {
       updated_by: admin.id,
       updated_at: new Date().toISOString()
     };
+
+    console.log('Updating movie with:', updatedMovie); // Debug log
 
     const { data: movie, error } = await supabase
       .from('movies')
@@ -219,7 +260,10 @@ async function updateMovie(req, res, admin) {
       `)
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase update error:', error);
+      throw error;
+    }
 
     res.json({
       success: true,
@@ -228,7 +272,17 @@ async function updateMovie(req, res, admin) {
     });
   } catch (error) {
     console.error('Update movie error:', error);
-    res.status(500).json({ error: 'Failed to update movie' });
+    
+    // ส่ง error message ที่ชัดเจนขึ้น
+    let errorMessage = 'Failed to update movie';
+    if (error.message) {
+      errorMessage += ': ' + error.message;
+    }
+    if (error.details) {
+      errorMessage += ' (' + error.details + ')';
+    }
+    
+    res.status(500).json({ error: errorMessage });
   }
 }
 

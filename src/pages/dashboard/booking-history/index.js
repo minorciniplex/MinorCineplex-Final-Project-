@@ -16,6 +16,7 @@ const BookingHistory = () => {
   const [showModal, setShowModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [cancellationReason, setCancellationReason] = useState("");
+  const [showShare, setShowShare] = useState(false);
   console.log("Booking History:", bookingHistory);
 
   // Function to format date as "4 JUN 2025"

@@ -114,7 +114,7 @@ const BannerByCinema = ({
       </div>
 
       {/* Search Filters */}
-      <div className="relative z-10 mt-[300px] md:mt-0 max-w-[344px] w-[344px] rounded-[4px] p-[16px] bg-[#070C1B] md:bg-base-gray-0 md:p-[40px] md:rounded-[4px] shadow-[0_4px_30px_0_rgba(0,0,0,0.5)] md:absolute md:bottom-[-61.5px] md:left-1/2 md:transform md:-translate-x-1/2 md:w-[1200px] md:h-[128px] md:max-w-none">
+      <div className="relative z-10 mt-[300px] md:mt-0 max-w-[344px] w-[344px] rounded-[4px] p-[16px] bg-base-gray-0 md:bg-base-gray-0 md:p-[40px] md:rounded-[4px] shadow-[0_4px_30px_0_rgba(0,0,0,0.5)] md:absolute md:bottom-[-61.5px] md:left-1/2 md:transform md:-translate-x-1/2 md:w-[1200px] md:h-[128px] md:max-w-none">
         {/* Desktop layout */}
         <div className="hidden md:flex md:flex-row md:gap-[10px] w-full">
           <div className="relative">

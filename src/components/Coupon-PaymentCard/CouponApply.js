@@ -5,13 +5,12 @@ import CouponSelectPopup from './Components/CouponSelectPopup';
 import useCouponWallet from '@/hooks/useCouponWallet';
 import { useStatus } from "@/context/StatusContext";
 
-export default function CouponPaymentCard({ showtimes, bookingId, bookingSeats, paymentMethod }) {
+export default function CouponPaymentCard({ showtimes, bookingId, bookingSeats, paymentMethod, isCardComplete }) {
   const [openCouponPopup, setOpenCouponPopup] = useState(false);
   const [selectedCouponId, setSelectedCouponId] = useState(null);
   const { user } = useStatus();
   const { couponsInWallet, loading: loadingCoupons } = useCouponWallet(user);
   const selectedCoupon = couponsInWallet.find(c => c.coupons.coupon_id === selectedCouponId);
-  console.log(selectedCouponId);
 
 
   return (
@@ -32,6 +31,7 @@ export default function CouponPaymentCard({ showtimes, bookingId, bookingSeats, 
           couponId={selectedCouponId}
           bookingSeats={bookingSeats}
           paymentMethod={paymentMethod}
+          isCardComplete={isCardComplete}
         />
       </div>
       <CouponSelectPopup

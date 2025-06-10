@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar/Navbar";
 import StepProgressBar from "@/components/Booking/StepProgressBar";
 import { useStatus } from "@/context/StatusContext";
 import BookingSeats from "@/components/Booking/BookingSeats";
+import { parseQueryParam } from "@/utils/jsonHelper";
 
 
 export default function Seats() {
@@ -44,9 +45,9 @@ export default function Seats() {
 
   useEffect(() => {
     if (router.isReady) {
-      const { genres, language } = router.query;
-      setGenres(JSON.parse(genres));
-      setLanguage(JSON.parse(language));
+      // Use safe JSON parsing helper
+      setGenres(parseQueryParam(router.query, 'genres', null));
+      setLanguage(parseQueryParam(router.query, 'language', null));
     }
   }, [router.isReady, router.query]);
 
@@ -56,7 +57,7 @@ export default function Seats() {
     <>
       <Navbar />
       <StepProgressBar />
-      <div className="flex flex-col md:flex-row justify-center md:py-[80px] md:px-[120px] md:gap-[102px]">
+      <div className="flex flex-col md:flex-row justify-center md:py-[80px] md:px-[120px] md:gap-[102px] mt-20 sm:mt-0">
         <BookingSeats
           showtimeId={showtimeId}
           price={price}

@@ -1,76 +1,100 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import supabase from '@/utils/supabase';
+import { supabase } from '@/utils/supabase';
+import Head from 'next/head';
+import axios from 'axios';
+import Navbar from '@/components/Navbar/Navbar';
 
 export default function BookingDetailPage() {
   const router = useRouter();
   const { bookingId } = router.query;
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
-
+  const [error, setError] = useState(null);
+  console.log(booking);
+  
   useEffect(() => {
-    if (!bookingId) return;
-    const fetchBooking = async () => {
-      const { data, error } = await supabase
-        .from('booking_detail')
-        .select('*')
-        .eq('id', bookingId)
-        .single();
-      setBooking(data);
-      setLoading(false);
+    const fetchBookingHistory = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await axios.get(`/api/booking/booking-history-for-share?booking_id=${bookingId}`);
+        if (response.data.data) {
+          setBooking(response.data.data);
+        } else {
+          setError('ไม่พบข้อมูลการจอง');
+        }
+      } catch (error) {
+        setError('เกิดข้อผิดพลาดในการโหลดข้อมูล');
+      } finally {
+        setLoading(false);
+      }
     };
-    fetchBooking();
+    if (bookingId) {
+      fetchBookingHistory();
+    }
   }, [bookingId]);
 
-  if (loading) return <div className="text-white">Loading...</div>;
-  if (!booking) return <div className="text-white">ไม่พบข้อมูลการจอง</div>;
-
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#070C1B] text-white">
-      <div className="flex flex-col items-center">
-        <h2 className="text-3xl font-bold mb-4">Booking Detail</h2>
-        <div className="bg-[#10162A] rounded-lg p-6 mb-6 w-full max-w-xs">
-          <div className="flex flex-col gap-2 mb-4">
-            <div className="flex items-center gap-2 text-base-gray-300">
-              <span>•</span>
-              <span>{booking.cinema_name}</span>
+    <>
+      {booking && (
+        <Head>
+          <title>{booking.movie.title} | Booking Detail</title>
+          <meta property="og:title" content={`จองตั๋วหนังที่ ${booking.cinema.name}`} />
+          <meta property="og:description" content={`ดูหนังที่ ${booking.cinema.name} วันที่ ${booking.showtime.date} เวลา ${booking.showtime.start_time} ที่นั่ง ${Array.isArray(booking.seats) ? booking.seats.join(', ') : booking.seats}`} />
+          <meta property="og:type" content="website" />
+          <meta property="og:url" content={`https://6881-171-97-99-145.ngrok-free.app/booking-detail/${booking.booking_id}`} />
+          <meta property="og:image" content={booking.movie.poster_url} />
+        </Head>
+      )}
+      <div className="min-h-screentext-white flex flex-col justify-center items-center">
+        <Navbar />
+        <div className='mt-[100px] '>
+          <h1 className='text-3xl font-bold mb-10'>Booking Detail</h1>
+        <div className="flex justify-center items-start gap-12">
+          {/* Poster */}
+          {booking && (
+            <img
+              src={booking.movie.poster_url}
+              alt={booking.movie.title}
+              className="w-[300px] h-[440px] rounded-lg shadow-lg object-cover"
+            />
+          )}
+          {/* Details */}
+          {booking && (
+            <div className="bg-[#101525] rounded-xl p-8 w-[420px] shadow-lg">
+              
+              <h2 className="text-3xl font-bold mb-4">{booking.movie.title}</h2>
+              <div className="flex gap-2 mb-4">
+                <span className="bg-[#232B47] text-xs px-3 py-1 rounded-full">Action</span>
+                <span className="bg-[#232B47] text-xs px-3 py-1 rounded-full">Crime</span>
+                <span className="bg-[#232B47] text-xs px-3 py-1 rounded-full">TH</span>
+              </div>
+              <div className="mb-4 space-y-2 text-base-gray-300">
+                <div>🎬 {booking.cinema.name}</div>
+                <div>📅 {booking.showtime.date}</div>
+                <div>⏰ {booking.showtime.start_time}</div>
+                <div>🏛 Hall {booking.hall || 1}</div>
+              </div>
+              <div className="flex items-center gap-4 mb-4">
+                <span className="bg-[#232B47] px-4 py-2 rounded text-white">{Array.isArray(booking.seats) ? booking.seats.length : 0} Tickets</span>
+                <span>Selected Seat <b>{Array.isArray(booking.seats) ? booking.seats.join(', ') : '-'}</b></span>
+              </div>
+              <button
+                className="bg-[#4F7BFF] hover:bg-blue-700 text-white font-bold py-2 px-6 rounded transition mb-6"
+              >
+                Book more seats
+              </button>
+              <div className="text-base-gray-400 mt-6 text-sm leading-relaxed">
+                {booking.movie.description}
+              </div>
             </div>
-            <div className="flex items-center gap-2 text-base-gray-300">
-              <span>•</span>
-              <span>{booking.show_date}</span>
-            </div>
-            <div className="flex items-center gap-2 text-base-gray-300">
-              <span>•</span>
-              <span>{booking.show_time}</span>
-            </div>
-            <div className="flex items-center gap-2 text-base-gray-300">
-              <span>•</span>
-              <span>{booking.hall}</span>
-            </div>
-          </div>
-          <div className="border-t border-[#232B47] my-2"></div>
-          <div className="flex flex-col gap-2 mt-2">
-            <div className="flex justify-between">
-              <span>Selected Seat</span>
-              <span className="font-bold">{Array.isArray(booking.seat) ? booking.seat.join(', ') : booking.seat}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Payment method</span>
-              <span className="font-bold">{booking.payment_method}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Total</span>
-              <span className="font-bold">THB{booking.total}</span>
-            </div>
-          </div>
+          )}
         </div>
-        <button
-          onClick={() => router.back()}
-          className="px-6 py-2 rounded border border-white text-white bg-transparent hover:bg-white hover:text-[#070C1B] transition"
-        >
-          Back
-        </button>
+          {loading && <div className="text-xl text-center mt-12">กำลังโหลด...</div>}
+          {error && <div className="text-xl text-red-500 text-center mt-12">{error}</div>}
+        </div>
       </div>
-    </div>
+    </>
   );
-} 
+}     

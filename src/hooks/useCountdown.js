@@ -1,17 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
-
 import axios from 'axios';
 const RESERVATION_TIME = 15 * 60; // 15 minutes in seconds
 
-const useCountdown = (seatNumber, showtimes, bookingId, couponId, booking_coupon_id) => {
+const useCountdown = (seatNumber, showtimes, bookingId, couponId, booking_coupon_id, onSeatExpired) => {
   const [timeLeft, setTimeLeft] = useState(RESERVATION_TIME);
   const [isTimerActive, setIsTimerActive] = useState(false);
   const [reservationId, setReservationId] = useState(null);
   const [onTimeExpire, setOnTimeExpire] = useState(false);
   const [couponIdForCancel, setCouponIdForCancel] = useState(null);
   const [bookingCouponIdForCancel, setBookingCouponIdForCancel] = useState(null);
-  console.log(couponId);
-  console.log(booking_coupon_id);
   const formatTime = useCallback((seconds) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
@@ -101,61 +98,69 @@ const useCountdown = (seatNumber, showtimes, bookingId, couponId, booking_coupon
     }
   }, [bookingId, seatNumber, showtimes]);
 
-  const cancelCoupon = useCallback(async (couponId, booking_coupon_id) => {
-    console.log(couponId);
-    console.log(booking_coupon_id);
-    if (!couponId || !booking_coupon_id) {
-      console.error('Missing required parameters for cancelCoupon');
+  const cancelCoupon = useCallback(async (couponIdParam, booking_coupon_idParam) => {
+    const finalCouponId = couponIdParam || couponId;
+    const finalBookingCouponId = booking_coupon_idParam || booking_coupon_id;
+    
+    console.log('cancelCoupon called with:', { finalCouponId, finalBookingCouponId });
+    
+    if (!finalCouponId || !finalBookingCouponId) {
+      console.log('Missing required parameters for cancelCoupon, skipping...');
       return;
     }
     try {
       const response = await axios.post('/api/booking/cancel-coupon', {
-        couponId: couponId,
-        booking_coupon_id: booking_coupon_id,
+        couponId: finalCouponId,
+        booking_coupon_id: finalBookingCouponId,
       });
+      console.log('Cancel coupon success:', response.data);
     } catch (error) {
       console.error('Error cancelling coupon:', error);
       if (error.response) {
         console.error('Error response:', error.response.data);
       }
-      throw error;
     }
-  }, []);
+  }, [couponId, booking_coupon_id]);
 
-const cancelCouponStatus = useCallback(async (couponId) => {
-  console.log(couponId);
-  if (!couponId ) {
-    console.error('Missing required parameters for cancelCouponStatus');
+const cancelCouponStatus = useCallback(async (couponIdParam) => {
+  const finalCouponId = couponIdParam || couponId;
+  
+  console.log('cancelCouponStatus called with:', finalCouponId);
+  
+  if (!finalCouponId) {
+    console.log('Missing required parameters for cancelCouponStatus, skipping...');
     return;
   }
   try {
     const response = await axios.put('/api/booking/cancel-coupon-status', {
-      couponId: couponId,
-     
+      couponId: finalCouponId,
     });
+    console.log('Cancel coupon status success:', response.data);
   } catch (error) {
     console.error('Error cancelling coupon status:', error);
   }
-}, []);
+}, [couponId]);
 
   // ฟังก์ชันเมื่อเวลาหมด
   const handleExpire = useCallback(async () => {
-    if (!couponIdForCancel || !bookingCouponIdForCancel) {
-      console.error('Missing couponIdForCancel or bookingCouponIdForCancel');
-      return;
-    }
-    console.log('couponIdForCancel:', couponIdForCancel);
-    console.log('bookingCouponIdForCancel:', bookingCouponIdForCancel);
+    console.log('handleExpire called with:', { couponId, booking_coupon_id });
     try {
-      alert("Reservation cancelled");
+      // แสดง popup แทน alert
+      if (onSeatExpired) {
+        onSeatExpired();
+      }
       await cancelReservation();
-      await cancelCoupon(); // ลบ booking_coupon
-      await cancelCouponStatus(); // เปลี่ยน user_coupons เป็น active
+      
+      // เรียก cancel coupon functions ถ้ามี coupon
+      if (couponId || booking_coupon_id) {
+        await cancelCoupon(couponId, booking_coupon_id);
+        await cancelCouponStatus(couponId);
+      }
     } catch (error) {
       console.error('Error in handleExpire:', error);
     }
-  }, []);
-
+  }, [cancelReservation, cancelCoupon, cancelCouponStatus, couponId, booking_coupon_id, onSeatExpired]);
+// ทำงานเมื่อเวลาหมด
   useEffect(() => {
     if (onTimeExpire) {
       handleExpire();
@@ -165,11 +170,13 @@ const cancelCouponStatus = useCallback(async (couponId) => {
   // เมื่อ onTimeExpire เป็น true ให้ cancelReservation
   useEffect(() => {
     if (onTimeExpire) {
-      alert("Reservation cancelled");
       cancelReservation();
-
+      // แสดง popup แทน alert และไม่ redirect ที่นี่
+      if (onSeatExpired) {
+        onSeatExpired();
+      }
     }
-  }, [onTimeExpire, cancelReservation,  seatNumber]);
+  }, [onTimeExpire, cancelReservation, seatNumber, onSeatExpired]);
 
   // Update timer
   useEffect(() => {

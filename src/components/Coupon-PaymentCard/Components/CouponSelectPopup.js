@@ -18,38 +18,43 @@ export default function CouponSelectPopup({ open, coupons, onClose, onApply }) {
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center">
-      <div className="bg-[#181F36] rounded-xl w-[360px] md:w-[600px] p-6">
+      <div className="bg-[#181F36] rounded-xl sm:w-[360px] sm:h-[500px] md:w-[600px] lg:w-[1000px] lg:h-[600px] p-4 overflow-y-auto h-full hide-scrollbar">
         <div className="flex justify-between items-center mb-4">
           <span className="headline-4 text-white">Select coupon</span>
           <button onClick={onClose} className="text-white text-xl hover:text-base-gray-300 transition-colors">×</button>
         </div>
-        <div className="space-y-3 max-h-[300px] md:max-h-[400px] overflow-y-auto">
+        <div className="space-y-3 max-h-[300px] bg-base-gray-100 md:max-h-[400px] overflow-y-auto">
           {coupons.length === 0 && (
             <div className="text-base-gray-300 text-center py-8">No coupons</div>
           )}
+          <div className="lg:grid lg:grid-cols-2 gap-4">
           {coupons.map(coupon => (
+            <div className="flex flex-col gap-4">
             <div
               key={coupon.id}
-              className={`rounded flex items-center gap-3 p-3 cursor-pointer transition-all hover:bg-[#2A3349] ${activeCouponId === coupon.coupons.coupon_id ? 'border-2 border-white bg-[#353B4A]' : 'border border-transparent bg-[#232B47] hover:bg-[#2A3349]'}`}
+              className={` lg:w-[464px] lg:h-[174px] lg:grid lg:grid-cols-2 sm:mb-[5px]
+                 rounded flex items-center gap-3 p-3 cursor-pointer transition-all hover:bg-[#2A3349] ${activeCouponId === coupon.coupons.coupon_id ? 'border-2 border-white bg-[#353B4A]' : 'border border-transparent bg-[#232B47] hover:bg-[#2A3349]'}`}
               onClick={() => {
                 setActiveCouponId(coupon.coupons.coupon_id);
                 setSelected(coupon);
               }}
             >
-              <div className="w-[60px] h-[60px] md:w-[80px] md:h-[80px] bg-base-gray-100 rounded flex items-center justify-center text-white text-2xl md:text-3xl font-bold">
+              <div className="lg:w-[174px] lg:h-full sm:w-[100px] sm:h-[100px] md:w-[100px] md:h-[100px] 
+    bg-base-gray-100 rounded-xl flex items-center justify-center overflow-hidden shadow-md 
+    aspect-square">
                 {coupon.coupons.image ? (
                   <Image 
                     src={coupon.coupons.image} 
                     alt={coupon.coupons.title} 
-                    width={80} 
-                    height={80} 
-                    className="object-cover"
+                    width={174} 
+                    height={174} 
+                    className="w-full h-full object-contain"
                     onError={(e) => {
                       e.target.src = '/assets/images/default-coupon.png';
                     }}
                   />
                 ) : (
-                  <span>{coupon.coupons.title.charAt(0)}</span>
+                  <span className="text-white text-3xl font-bold">t</span>
                 )}
               </div>
               <div className="flex-1">
@@ -59,8 +64,10 @@ export default function CouponSelectPopup({ open, coupons, onClose, onApply }) {
                 onClick={() => router.push(`/coupons/viewcoupon/${coupon.coupons.coupon_id}`)}
                 >View details</button>
               </div>
+              </div>
             </div>
           ))}
+        </div>
         </div>
         <div className="flex gap-2 mt-6">
           <button 

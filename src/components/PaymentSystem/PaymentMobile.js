@@ -25,6 +25,8 @@ import {
 import { supabase } from "@/utils/supabase";
 import { useRouter } from "next/navigation";
 import ConfirmBookingPopup from "./ConfirmBookingPopup";
+import CouponPaymentCard from "../Coupon-PaymentCard/CouponApply";
+import { usePayment } from "@/context/PaymentContext";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
@@ -89,10 +91,25 @@ const StripeCardForm = forwardRef(function StripeCardForm(
   // expose ฟังก์ชันจ่ายเงินผ่าน ref
   useImperativeHandle(ref, () => ({
     async pay() {
+      console.log("[DEBUG] pay() called in PaymentMobile");
+      console.log("[DEBUG] booking in PaymentMobile:", booking);
+      
+      // แปลงและตรวจสอบ amount
+      let amount = booking?.total;
+      if (typeof amount === "string") {
+        amount = Number(amount.replace(/,/g, ""));
+      }
+      amount = Number(amount);
+      if (!amount || isNaN(amount)) {
+        console.log("[DEBUG] amount after parse:", amount);
+        return { error: "จำนวนเงินไม่ถูกต้อง" };
+      }
+      
       if (!stripe || !elements) return { error: "Stripe ยังไม่พร้อม" };
-      const amount = booking?.total;
+      
       const bookingIdReal = booking?.id;
       const movieId = booking?.movie_id;
+      
       try {
         const res = await fetch("/api/create-payment-intent", {
           method: "POST",
@@ -105,10 +122,12 @@ const StripeCardForm = forwardRef(function StripeCardForm(
           }),
         });
         const { clientSecret } = await res.json();
-        console.log("clientSecret", clientSecret);
+        console.log("[DEBUG] clientSecret:", clientSecret);
+        
         const cardNumberElement = elements.getElement(CardNumberElement);
         if (!cardNumberElement)
           return { error: "กรุณากรอกข้อมูลบัตรให้ครบถ้วน" };
+          
         const { error: confirmError, paymentIntent } =
           await stripe.confirmCardPayment(clientSecret, {
             payment_method: {
@@ -116,13 +135,29 @@ const StripeCardForm = forwardRef(function StripeCardForm(
               billing_details: { name: owner },
             },
           });
-        console.log(
-          "confirmError",
-          confirmError,
-          "paymentIntent",
-          paymentIntent
-        );
-        if (confirmError) return { error: confirmError.message };
+          
+        console.log("[DEBUG] confirmError:", confirmError);
+        console.log("[DEBUG] paymentIntent:", paymentIntent);
+        
+        if (confirmError) {
+          console.log("[DEBUG] return error:", confirmError.message);
+          return { error: confirmError.message };
+        }
+        
+        // ตรวจสอบสถานะการชำระเงิน
+        if (!paymentIntent) {
+          console.log("[DEBUG] return error: paymentIntent is null");
+          return { error: "ไม่สามารถสร้าง paymentIntent ได้" };
+        }
+        
+        if (paymentIntent.status !== "succeeded") {
+          console.log("[DEBUG] return error: paymentIntent.status =", paymentIntent.status);
+          return { error: "การชำระเงินไม่สำเร็จ กรุณาลองใหม่" };
+        }
+        
+        console.log("[DEBUG] Payment succeeded, saving to database...");
+        
+        // บันทึกข้อมูลการชำระเงิน
         const paymentData = {
           payment_intent_id: paymentIntent.id,
           amount,
@@ -136,14 +171,33 @@ const StripeCardForm = forwardRef(function StripeCardForm(
         const { data, error: supaError } = await supabase
           .from("movie_payments")
           .insert([paymentData]);
-        console.log("supabase insert", data, supaError);
-        if (supaError)
+        console.log("[DEBUG] supabase insert result:", data, supaError);
+        
+        if (supaError) {
+          console.log("[DEBUG] return error: supaError", supaError.message);
           return {
             error: "บันทึกข้อมูลลงฐานข้อมูลไม่สำเร็จ: " + supaError.message,
           };
+        }
+          
+        // เรียก mark-paid API หลังจ่ายเงินสำเร็จ
+        console.log("[DEBUG] Calling mark-paid API...");
+        const markPaidRes = await fetch("/api/booking/mark-paid", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ bookingId: bookingIdReal }),
+        });
+        const markPaidData = await markPaidRes.json();
+        console.log("[DEBUG] mark-paid API result:", markPaidData);
+        
+        if (!markPaidData.success) {
+          return { error: "อัปเดต booking ไม่สำเร็จ: " + (markPaidData.error || "") };
+        }
+        
+        console.log("[DEBUG] Payment completed successfully");
         return { success: true };
       } catch (err) {
-        console.log("catch error", err);
+        console.log("[DEBUG] catch error:", err);
         return { error: "เกิดข้อผิดพลาดในการชำระเงิน กรุณาลองใหม่อีกครั้ง" };
       }
     },
@@ -151,50 +205,50 @@ const StripeCardForm = forwardRef(function StripeCardForm(
 
   return (
     <form
-      className="px-4 md:px-0 mb-10 md:mb-0 space-y-6"
+      className="px-4 mb-10 lg:mb-0 space-y-4"
       onSubmit={(e) => e.preventDefault()}
     >
-      <div className="md:flex md:space-x-6">
-        <div className="md:flex-1">
-          <label className="block body-2-regular text-base-gray-400 mb-1">
+      <div className="lg:flex lg:space-x-4">
+        <div className="lg:flex-1">
+          <label className="block text-sm text-base-gray-400 mb-1">
             Card number
           </label>
           <CardNumberElement
-            options={CARD_NUMBER_OPTIONS}
-            className="w-full text-center h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-[4px] pl-4 py-3 pr-3 text-base placeholder-base-gray-300 outline-none"
+            options={ELEMENT_OPTIONS}
+            className="w-full h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-[4px] pl-4 py-3 pr-3 text-base placeholder-base-gray-300 outline-none"
             onChange={(e) => setIsCardNumberComplete(e.complete)}
           />
         </div>
-        <div className="md:flex-1 mt-4 md:mt-0">
-          <label className="block body-2-regular text-base-gray-400 mb-1">
+        <div className="lg:flex-1 mt-4 lg:mt-0">
+          <label className="block text-sm text-base-gray-400 mb-1">
             Card owner
           </label>
           <input
-            className="w-full h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-[4px] pl-4 py-3 pr-3 text-base placeholder-base-gray-300 outline-none"
+            className="w-full h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-md pl-4 py-3 pr-3 text-base placeholder-base-gray-300 outline-none"
             placeholder="Card owner name"
             value={owner}
             onChange={(e) => setOwner(e.target.value)}
           />
         </div>
       </div>
-      <div className="md:flex md:space-x-6">
-        <div className="md:flex-1">
-          <label className="block body-2-regular text-base-gray-400 mb-1">
+      <div className="lg:flex lg:space-x-4 items-center">
+        <div className="lg:flex-1">
+          <label className="block text-sm text-base-gray-400 mb-1">
             Expiry date
           </label>
           <CardExpiryElement
-            options={CARD_EXPIRY_OPTIONS}
-            className="w-full h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-[4px] pl-4 py-3 pr-3 text-base placeholder-base-gray-300 outline-none"
+            options={ELEMENT_OPTIONS}
+            className="w-full h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-md pl-4 py-3 pr-3 text-base placeholder-base-gray-300 outline-none"
             onChange={(e) => setIsExpiryComplete(e.complete)}
           />
         </div>
-        <div className="md:flex-1 mt-4 md:mt-0">
-          <label className="block body-2-regular text-base-gray-400 mb-1">
+        <div className="lg:flex-1 mt-4 lg:mt-0">
+          <label className="block text-sm text-base-gray-400 mb-1">
             CVC
           </label>
           <CardCvcElement
-            options={CARD_CVC_OPTIONS}
-            className="w-full h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-[4px] pl-4 py-3 pr-3 text-base placeholder-base-gray-300 outline-none"
+            options={ELEMENT_OPTIONS}
+            className="w-full h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-md pl-4 py-3 pr-3 text-base placeholder-base-gray-300 outline-none"
             onChange={(e) => setIsCvcComplete(e.complete)}
           />
         </div>
@@ -319,9 +373,10 @@ function PromptPayQR() {
   );
 }
 
-export default function PaymentMobile({ setPaymentMethod }) {
+export default function PaymentMobile({ setPaymentMethod, isCardComplete, setIsCardComplete }) {
   const router = useRouter();
   const [tab, setTab] = useState("credit");
+  const { setCardFormRef, bookingData, userId: paymentUserId } = usePayment();
   const [card, setCard] = useState({
     number: "",
     owner: "",
@@ -333,11 +388,17 @@ export default function PaymentMobile({ setPaymentMethod }) {
   const [selectedCoupon, setSelectedCoupon] = useState(null);
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState(null);
-  const [isCardComplete, setIsCardComplete] = useState(false);
   const [openConfirmPopup, setOpenConfirmPopup] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [confirmError, setConfirmError] = useState(null);
   const cardFormRef = useRef();
+
+  // ส่ง cardFormRef ให้ Context
+  useEffect(() => {
+    if (setCardFormRef && cardFormRef) {
+      setCardFormRef(cardFormRef);
+    }
+  }, [setCardFormRef, cardFormRef]);
   const [qrUrl, setQrUrl] = useState(null);
   const [qrLoading, setQrLoading] = useState(false);
   const [qrError, setQrError] = useState(null);
@@ -347,7 +408,6 @@ export default function PaymentMobile({ setPaymentMethod }) {
   // ดึง bookingId จาก route, prop หรือ mock (ตัวอย่างนี้ใช้จริง)
   const bookingId = "b260cb11-1f32-4fd0-9250-7c5a3f2a672e";
   const { booking, loading } = useBookingDetail(bookingId);
-  console.log("booking", booking);
 
   // ดึง userId จริง (ตัวอย่างนี้ใช้ user sanya bochoun)
   const userId = "b16e32f8-86b8-4f74-bcbe-3c3d1472027a";
@@ -474,18 +534,18 @@ export default function PaymentMobile({ setPaymentMethod }) {
     : mockBooking;
 
   return (
-    <div className="flex basis-3/4 bg-background text-white font-sans overflow-x-hidden flex-col md:items-start">
-      <div className="flex flex-col md:flex-row justify-between items-start w-full max-w-[1200px]">
+    <div className="flex bg-background text-white font-sans overflow-x-hidden flex-col w-full">
+      <div className="flex flex-col justify-between items-start w-full">
         {/* ฝั่งซ้าย: ฟอร์ม */}
         <div className="w-full">
           {/* Tab */}
-          <div className="flex gap-4 items-baseline pt-10 pb-6 px-4 md:pt-0 md:px-0 md:pb-6">
+          <div className="flex gap-4 items-baseline pt-6 pb-6 px-4 lg:pt-0 lg:px-0 lg:pb-6">
             <button
-              className="flex justify-center md:mb-[50px]"
+              className="flex justify-center lg:mb-[50px]"
               onClick={() => handleTabChange("credit")}
             >
               <span
-                className={`headline-3 pb-1 px-[7px] inline-block ${
+                className={`text-lg lg:text-xl font-semibold pb-1 px-[7px] inline-block ${
                   tab === "credit"
                     ? "border-b-[1px] border-[#565F7E] text-white"
                     : "border-b-0 text-[#8B93B0]"
@@ -495,11 +555,11 @@ export default function PaymentMobile({ setPaymentMethod }) {
               </span>
             </button>
             <button
-              className="flex justify-center md:ml-8"
+              className="flex justify-center lg:ml-8"
               onClick={() => handleTabChange("qr")}
             >
               <span
-                className={`headline-3 pb-1 inline-block ${
+                className={`text-lg lg:text-xl font-semibold pb-1 inline-block ${
                   tab === "qr"
                     ? "border-b-[1px] border-[#565F7E] text-white"
                     : "border-b-0 text-[#8B93B0]"
@@ -516,22 +576,22 @@ export default function PaymentMobile({ setPaymentMethod }) {
               <StripeCardForm
                 ref={cardFormRef}
                 setIsCardComplete={setIsCardComplete}
-                booking={booking}
-                userId={userId}
+                booking={bookingData || booking}
+                userId={paymentUserId || userId}
               />
             </Elements>
           )}
 
           {/* QR Code Tab */}
           {tab === "qr" && (
-            <div className="px-4 mt-4 flex flex-col items-center text-gray-400 w-full md:ml-[120px]">
+            <div className="px-4 mt-4 flex flex-col items-center text-gray-400 w-full">
               {/* ถ้ายังไม่มี qrUrl ให้แสดงปุ่ม Next -> Confirm -> สร้าง QR */}
               {!qrUrl ? (
                 <>
-                  <div className="bg-[#232B47] rounded py-10 md:w-[793px] md:h-[104px] flex items-center justify-center w-full flex-col">
-                    <span className="text-white">QR Code Payment</span>
+                  <div className="bg-[#232B47] rounded py-10 w-full lg:w-[793px] min-h-[104px] flex items-center justify-center flex-col">
+                    <span className="text-white text-lg font-medium">QR Code Payment</span>
                     {qrError && (
-                      <div className="text-red-500 mt-2">{qrError}</div>
+                      <div className="text-red-500 mt-2 text-sm text-center">{qrError}</div>
                     )}
                   </div>
                   <div className="mt-2 text-xs text-center w-full">
@@ -539,17 +599,18 @@ export default function PaymentMobile({ setPaymentMethod }) {
                   </div>
                 </>
               ) : (
-                <div className="bg-[#232B47] rounded py-10 md:w-[793px] flex flex-col items-center justify-center w-full">
+                <div className="bg-[#232B47] rounded py-10 w-full lg:w-[793px] flex flex-col items-center justify-center">
                   <img
                     src={qrUrl}
                     alt="PromptPay QR"
                     width={180}
                     height={180}
+                    className="max-w-[160px] lg:max-w-[180px]"
                   />
-                  <div className="mt-4 text-white font-bold text-lg">
+                  <div className="mt-4 text-white font-bold text-base lg:text-lg text-center">
                     Minor Cineplex Public limited company
                   </div>
-                  <div className="mt-2 text-white font-bold text-xl">
+                  <div className="mt-2 text-white font-bold text-lg lg:text-xl">
                     THB{(booking?.total || 0).toLocaleString()}
                   </div>
                   <div className="mt-2 text-xs text-center w-full text-white">

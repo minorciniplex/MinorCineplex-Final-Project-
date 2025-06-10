@@ -5,7 +5,6 @@ export const useCoupon = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [discountAmount, setDiscountAmount] = useState(0);
-    console.log(discountAmount);
     
     const checkCoupon = async (bookingId, couponId, totalPrice) => {
         setLoading(true);

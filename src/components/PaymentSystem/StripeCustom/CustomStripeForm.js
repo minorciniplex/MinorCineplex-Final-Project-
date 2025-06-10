@@ -110,7 +110,7 @@ function MyCustomCardForm({ amount, userId, bookingId, movieId, onSuccess }) {
       </div>
       <div className="mb-4">
         <label className="block text-gray-700 mb-2">Expiry date</label>
-        <CardExpiryElement options={{ style: { base: { fontSize: "16px" } } }} className="p-2 border rounded w-full" />
+        <CardExpiryElement options={{ style: { base: { fontSize: "16px" } } }} className="p-2 border rounded w-full " />
       </div>
       <div className="mb-4">
         <label className="block text-gray-700 mb-2">CVC</label>

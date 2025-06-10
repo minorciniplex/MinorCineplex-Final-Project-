@@ -38,11 +38,35 @@ export default async function handler(req, res) {
 
     const totalRevenue = revenues?.reduce((sum, booking) => sum + (booking.total_price || 0), 0) || 0;
 
+    // ดึงสถิติการคืนเงิน (ถ้ามี table refunds)
+    let totalRefunds = 0;
+    let totalRefundAmount = 0;
+
+    try {
+      // ตรวจสอบว่ามี table refunds หรือไม่
+      const { count: refundCount } = await supabase
+        .from('refunds')
+        .select('*', { count: 'exact', head: true });
+
+      const { data: refundData } = await supabase
+        .from('refunds')
+        .select('amount')
+        .eq('status', 'completed');
+
+      totalRefunds = refundCount || 0;
+      totalRefundAmount = refundData?.reduce((sum, refund) => sum + (refund.amount || 0), 0) || 0;
+    } catch (refundError) {
+      // Table refunds อาจยังไม่มี ใช้ค่า default
+      console.log('Refunds table not found, using default values');
+    }
+
     res.json({
       totalMovies: totalMovies || 0,
       totalBookings: totalBookings || 0,
       todayBookings: todayBookings || 0,
-      totalRevenue: totalRevenue
+      totalRevenue: totalRevenue,
+      totalRefunds: totalRefunds,
+      totalRefundAmount: totalRefundAmount
     });
 
   } catch (error) {

@@ -193,6 +193,145 @@ export const sendBookingConfirmationEmail = async (userEmail, bookingData) => {
   console.log('Booking confirmation email will be implemented here');
 };
 
+// Function to send refund confirmation email
+export const sendRefundConfirmationEmail = async (userEmail, refundData) => {
+  try {
+    if (!emailConfigured) {
+      console.warn('Email service not configured - skipping refund confirmation email');
+      return {
+        success: false,
+        error: 'Email service not configured',
+        message: 'Email service not available'
+      };
+    }
+
+    const {
+      userName,
+      bookingId,
+      refundId,
+      refundAmount,
+      estimatedDays,
+      refundMethod
+    } = refundData;
+
+    const transporter = createTransporter();
+    
+    const mailOptions = {
+      from: {
+        name: 'Minor Cineplex',
+        address: EMAIL_USER
+      },
+      to: userEmail,
+      subject: `การคืนเงินเสร็จสิ้น - Booking #${bookingId}`,
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: linear-gradient(135deg, #4caf50 0%, #45a049 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+            .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+            .refund-success { background: #e8f5e8; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #4caf50; }
+            .refund-details { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+            .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+            .amount { font-size: 24px; font-weight: bold; color: #4caf50; }
+            .success-icon { font-size: 48px; margin-bottom: 10px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <div class="success-icon">✅</div>
+              <h1>🎬 Minor Cineplex</h1>
+              <h2>การคืนเงินเสร็จสิ้น</h2>
+            </div>
+            
+            <div class="content">
+              <div class="refund-success">
+                <h3>🎉 การคืนเงินสำเร็จแล้ว!</h3>
+                <p>สวัสดี คุณ${userName},</p>
+                <p>เราได้ดำเนินการคืนเงินสำหรับการยกเลิกการจองของคุณเรียบร้อยแล้ว</p>
+              </div>
+              
+              <div class="refund-details">
+                <h3>💰 รายละเอียดการคืนเงิน</h3>
+                <p><strong>Booking ID:</strong> #${bookingId}</p>
+                <p><strong>Refund ID:</strong> ${refundId}</p>
+                <p><strong>จำนวนเงินที่คืน:</strong> <span class="amount">THB ${refundAmount}</span></p>
+                <p><strong>วิธีการคืนเงิน:</strong> ${refundMethod}</p>
+                <p><strong>เวลาที่ดำเนินการ:</strong> ${new Date().toLocaleString('th-TH')}</p>
+                <p><strong>ระยะเวลาที่คาดว่าจะได้รับเงิน:</strong> ${estimatedDays}</p>
+              </div>
+              
+              <div style="background: #fff3cd; padding: 15px; border-radius: 8px; border-left: 4px solid #ffc107; margin: 20px 0;">
+                <h4>📌 ข้อมูลสำคัญ</h4>
+                <ul>
+                  <li>เงินจะถูกโอนกลับไปยังบัญชี/บัตรที่ใช้ชำระเงิน</li>
+                  <li>กรุณาตรวจสอบบัญชีของคุณภายใน ${estimatedDays}</li>
+                  <li>หากไม่ได้รับเงินภายในเวลาที่กำหนด กรุณาติดต่อเรา</li>
+                </ul>
+              </div>
+              
+              <p>หากคุณมีคำถามเกี่ยวกับการคืนเงิน กรุณาติดต่อเราที่:</p>
+              <p>📞 โทร: 02-123-4567<br>
+                 📧 อีเมล: support@minorcineplex.com<br>
+                 🕒 เวลาทำการ: จันทร์-อาทิตย์ 9:00-22:00</p>
+                 
+              <p style="margin-top: 30px;">ขอบคุณที่ใช้บริการ Minor Cineplex</p>
+            </div>
+            
+            <div class="footer">
+              <p>&copy; 2024 Minor Cineplex. All rights reserved.</p>
+              <p>Refund ID: ${refundId} | Transaction Date: ${new Date().toLocaleDateString('th-TH')}</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `,
+      text: `
+การคืนเงินเสร็จสิ้น - Minor Cineplex
+
+สวัสดี คุณ${userName},
+
+การคืนเงินสำหรับการยกเลิกการจองของคุณเสร็จสิ้นแล้ว
+
+รายละเอียดการคืนเงิน:
+- Booking ID: #${bookingId}
+- Refund ID: ${refundId}
+- จำนวนเงินที่คืน: THB ${refundAmount}
+- วิธีการคืนเงิน: ${refundMethod}
+- ระยะเวลาที่คาดว่าจะได้รับเงิน: ${estimatedDays}
+
+เงินจะถูกโอนกลับไปยังบัญชี/บัตรที่ใช้ชำระเงิน
+กรุณาตรวจสอบบัญชีของคุณภายใน ${estimatedDays}
+
+ติดต่อเรา: 02-123-4567
+อีเมล: support@minorcineplex.com
+
+ขอบคุณที่ใช้บริการ Minor Cineplex
+      `
+    };
+
+    const result = await transporter.sendMail(mailOptions);
+    console.log('Refund confirmation email sent successfully:', result.messageId);
+    
+    return {
+      success: true,
+      messageId: result.messageId,
+      message: 'Refund confirmation email sent successfully'
+    };
+  } catch (error) {
+    console.error('Error sending refund confirmation email:', error);
+    return {
+      success: false,
+      error: error.message,
+      message: 'Failed to send refund confirmation email'
+    };
+  }
+};
+
 // Function to check if email service is available
 export const isEmailServiceAvailable = () => {
   return emailConfigured;

@@ -635,7 +635,7 @@ function BookingSeats({
   return (
     <>
       <div className="w-full bg-[--background] md:bg-transparent md:basis-3/4 py-10 px-4 md:py-0 md:px-0">
-        <div className="bg-gradient-to-r from-[#2C344E] to-[#516199] rounded-t-[80px] items-center flex justify-center text-[7.47px] md:text-base py-[4.67px] md:py-[10px] text-[--base-gray-400]">
+        <div className="bg-gradient-to-r from-[#2C344E] to-[#516199] rounded-t-[80px] items-center flex justify-center text-[7.47px] md:text-base py-[4.67px] md:py-[10px] text-[--base-gray-400] relative">
           screen
           <button
             onClick={() => {
@@ -674,7 +674,7 @@ function BookingSeats({
                     return (
                       <div
                         key={seat.id}
-                        className="rounded-md flex items-center justify-center cursor-pointer"
+                        className={`w-4 h-4 md:w-10 md:h-10 rounded-md flex items-center justify-center transition-opacity ${cursorClass}`}
                         onClick={() => handleSeatClick(seat.id)}
                         title={
                           displayStatus === "booked" ? "ที่นั่งถูกจองแล้ว" :
@@ -714,8 +714,14 @@ function BookingSeats({
                     return (
                       <div
                         key={seat.id}
-                        className="rounded-md flex items-center justify-center cursor-pointer"
+                        className={`w-4 h-4 md:w-10 md:h-10 rounded-md flex items-center justify-center transition-opacity ${cursorClass}`}
                         onClick={() => handleSeatClick(seat.id)}
+                        title={
+                          displayStatus === "booked" ? "ที่นั่งถูกจองแล้ว" :
+                          displayStatus === "reserved" ? "ที่นั่งถูกจองชั่วคราว" :
+                          displayStatus === "available" ? "ที่นั่งว่าง - คลิกเพื่อเลือก" :
+                          "ที่นั่งที่เลือก - คลิกเพื่อยกเลิก"
+                        }
                       >
                         <div>
                           {displayStatus === "available" && (

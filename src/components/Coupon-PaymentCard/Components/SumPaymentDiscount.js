@@ -131,12 +131,20 @@ export default function SumPaymentDiscount({
   // handleNext เปลี่ยนเป็นเปิด popup
   const handleNext = (e) => {
     e.preventDefault();
+    console.log('[SumPaymentDiscount] handleNext called');
+    console.log('[SumPaymentDiscount] paymentMethod:', paymentMethod);
+    console.log('[SumPaymentDiscount] isCardComplete:', isCardComplete);
+    console.log('[SumPaymentDiscount] data:', JSON.stringify(data, null, 2));
+    
     if (paymentMethod === "Credit card" && !isCardComplete) {
+      console.log('[SumPaymentDiscount] Card not complete, returning');
       return;
     }
     if (!data) {
+      console.log('[SumPaymentDiscount] No data, returning');
       return;
     }
+    console.log('[SumPaymentDiscount] Opening confirm popup');
     setOpenConfirmPopup(true);
   };
 
@@ -144,17 +152,26 @@ export default function SumPaymentDiscount({
   const handleConfirmPayment = async () => {
     setConfirmLoading(true);
     setConfirmError("");
+    console.log('[SumPaymentDiscount] handleConfirmPayment called');
+    console.log('[SumPaymentDiscount] paymentMethod:', paymentMethod);
+    console.log('[SumPaymentDiscount] cardFormRef:', cardFormRef);
+    console.log('[SumPaymentDiscount] cardFormRef.current:', cardFormRef?.current);
+    
     try {
       let paymentStatus = "pending";
-      // Debug logs removed for cleaner console
       if (paymentMethod === "Credit card") {
         // สำหรับ Credit Card Payment
         if (cardFormRef?.current?.pay) {
           try {
+            console.log('[SumPaymentDiscount] Processing credit card payment...');
             const result = await cardFormRef.current.pay();
             if (result.success) {
+              // บันทึกว่าจ่ายด้วย credit card
+              if (typeof window !== 'undefined') {
+                sessionStorage.setItem('lastPaymentMethod', 'Credit card');
+              }
               setOpenConfirmPopup(false);
-              router.push(`/payment-success?bookingId=${data.booking_id}`);
+              router.push(`/payment-success?bookingId=${data.booking_id}&fromCard=true`);
               return;
             } else {
               setConfirmError(result.error || "เกิดข้อผิดพลาดในการชำระเงิน");
@@ -173,6 +190,12 @@ export default function SumPaymentDiscount({
         }
       } else if (paymentMethod === "QR code" || paymentMethod === "QR Code") {
         // สำหรับ QR Code Payment
+        
+        // บันทึกว่าจ่ายด้วย QR Code
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem('lastPaymentMethod', 'QR Code');
+        }
+        
         try {
           const res = await fetch("/api/create-promptpay", {
             method: "POST",
@@ -193,6 +216,8 @@ export default function SumPaymentDiscount({
           return;
         }
       }
+      
+      // สำหรับ payment method อื่นๆ
       if (checkResult && checkResult.discount_amount > 0) {
         await applyCoupon(
           data.booking_id,
@@ -284,6 +309,7 @@ export default function SumPaymentDiscount({
           </Elements>
         </div>
       )}
+
       <CouponAlert
         open={showBookingError}
         onClose={() => setShowBookingError(false)}

@@ -14,7 +14,8 @@ const BookingHistory = () => {
   const [bookingHistory, setBookingHistory] = useState([]);
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [showShare, setShowShare] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [cancellationReason, setCancellationReason] = useState("");
   console.log("Booking History:", bookingHistory);
 
   // Function to format date as "4 JUN 2025"
@@ -38,6 +39,72 @@ const BookingHistory = () => {
     setSelectedBooking(null);
   };
 
+  const openCancelModal = () => {
+    setShowModal(false); // ปิด Booking Detail modal ก่อน
+    setShowCancelModal(true);
+  };
+
+  const closeCancelModal = () => {
+    setShowCancelModal(false);
+    setCancellationReason("");
+    setShowModal(true); // เปิด Booking Detail modal กลับมา
+  };
+
+  const handleCancelBooking = async () => {
+    try {
+      console.log("Starting cancel booking process...");
+      console.log("Selected booking:", selectedBooking);
+      console.log("Cancellation reason:", cancellationReason);
+      
+      if (!selectedBooking || !selectedBooking.booking_id) {
+        alert("ไม่พบข้อมูลการจอง");
+        return;
+      }
+
+      if (!cancellationReason.trim()) {
+        alert("กรุณาเลือกเหตุผลในการยกเลิก");
+        return;
+      }
+
+      console.log("Sending request to API...");
+      const response = await axios.post("/api/booking/cancel-booking-with-notifications", {
+        bookingId: selectedBooking.booking_id,
+        cancellationReason: cancellationReason
+      });
+
+      console.log("API Response:", response.data);
+      console.log("API Response structure:", JSON.stringify(response.data, null, 2));
+
+      if (response.data && response.data.success) {
+        // แสดงข้อความสำเร็จ
+        const responseData = response.data.data || {};
+        const refundAmount = responseData.refundAmount || 0;
+        const refundPercentage = responseData.refundPercentage || 0;
+        
+        console.log("Extracted values:", { refundAmount, refundPercentage });
+        alert(`การยกเลิกสำเร็จ!\nจำนวนเงินคืน: THB${refundAmount}\nเปอร์เซ็นต์คืน: ${refundPercentage}%`);
+        
+        console.log("Refreshing booking history...");
+        // รีเฟรชข้อมูล booking history
+        const historyResponse = await axios.get("/api/booking/booking-history");
+        setBookingHistory(historyResponse.data.data);
+        
+        // ปิด modal
+        setShowCancelModal(false);
+        setCancellationReason("");
+        setSelectedBooking(null);
+      } else {
+        alert("การยกเลิกไม่สำเร็จ");
+      }
+    } catch (error) {
+      console.error("Error cancelling booking:", error);
+      console.error("Error details:", error.response?.data);
+      
+      const errorMessage = error.response?.data?.error || error.message || "เกิดข้อผิดพลาดในการยกเลิกการจอง";
+      alert(`ไม่สามารถยกเลิกการจองได้: ${errorMessage}`);
+    }
+  };
+
   useEffect(() => {
     const fetchBookingHistory = async () => {
       try {
@@ -53,9 +120,17 @@ const BookingHistory = () => {
 
   return (
     <div className="max-w md:w-2/3 text-white">
-      <h1 className="text-white text-4xl font-bold mb-6 pl-4 md:pl-0">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 pl-4 md:pl-0 gap-4">
+        <h1 className="text-white text-4xl font-bold">
         Booking History
       </h1>
+        <button
+          onClick={() => router.push("/dashboard/cancellation-history")}
+          className="bg-[--brand-red] hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm md:text-base"
+        >
+          View Cancellation History
+        </button>
+      </div>
       {bookingHistory.length > 0 ? (
         <div>
           {bookingHistory.map((booking) => (
@@ -434,7 +509,137 @@ const BookingHistory = () => {
               </div>
               {/* Cancel Button */}
               <div className="flex items-end">
-                <button className="w-max md:h-min bg-transparent border border-[--base-gray-300] text-white py-3 px-10 rounded-sm font-bold mt-6 md:mt-0">
+                <button 
+                  onClick={openCancelModal}
+                  className="w-max md:h-min bg-transparent border border-[--base-gray-300] text-white py-3 px-10 rounded-sm font-bold mt-6 md:mt-0"
+                >
+                  Cancel booking
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Cancel Booking Modal */}
+      {showCancelModal && selectedBooking && (
+        <div className="fixed inset-0 bg-[#070C1B] bg-opacity-80 flex items-center justify-center z-50">
+          <div className="bg-[#21263F] rounded-lg w-[93%] md:w-[654px] relative border border-[--base-gray-200]">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-[--base-gray-200]">
+              <h3 className="text-xl font-bold text-white">Cancel booking</h3>
+              <button
+                onClick={closeCancelModal}
+                className="text-gray-400 hover:text-white w-6 h-6 flex items-center justify-center"
+              >
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M18 6L6 18"
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M6 6L18 18"
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            <div className="p-6">
+              <div className="flex flex-col lg:flex-row gap-6">
+                {/* Left Side - Reason Selection */}
+                <div className="flex-1">
+                  <h4 className="text-white font-semibold mb-4">Reason for cancellation</h4>
+                  <div className="space-y-3">
+                    {[
+                      "I had changed my mind",
+                      "I found an alternative", 
+                      "The booking was created by accident",
+                      "Other reasons"
+                    ].map((reason) => (
+                      <label key={reason} className="flex items-center gap-3 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="cancellation-reason"
+                          value={reason}
+                          checked={cancellationReason === reason}
+                          onChange={(e) => setCancellationReason(e.target.value)}
+                          className="w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500"
+                        />
+                        <span className="text-[--base-gray-300] text-sm">{reason}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Right Side - Booking Summary */}
+                <div className="w-full lg:w-[300px] bg-[#070C1B] rounded-lg p-4">
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-[--base-gray-300] text-sm">Ticket x{selectedBooking.seats.length}</span>
+                      <span className="text-white font-bold">THB{selectedBooking.total_price}</span>
+                    </div>
+                    
+                    <div className="flex justify-between items-center">
+                      <span className="text-[--base-gray-300] text-sm">Coupon</span>
+                      <span className="text-[--brand-red] font-bold">-THB50</span>
+                    </div>
+                    
+                    <hr className="border-[--base-gray-200]" />
+                    
+                    <div className="flex justify-between items-center">
+                      <span className="text-[--base-gray-300] text-sm">Total</span>
+                      <span className="text-white font-bold">THB{selectedBooking.total_price - 50}</span>
+                    </div>
+                    
+                    <hr className="border-[--base-gray-200]" />
+                    
+                    <div className="flex justify-between items-center">
+                      <span className="text-[--base-gray-300] text-sm font-bold">Total refund</span>
+                      <span className="text-white font-bold">THB{selectedBooking.total_price - 50}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Warning Text */}
+              <div className="mt-6 text-[--base-gray-400] text-sm">
+                <p>
+                  Cancel booking before 15:30 24 Jun 2024, Refunds will be done according to{" "}
+                  <a 
+                    href="/cancellation-policy" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-white underline cursor-pointer hover:text-[--brand-blue] transition-colors"
+                  >
+                    Cancellation Policy
+                  </a>
+                </p>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-4 mt-8">
+                <button
+                  onClick={closeCancelModal}
+                  className="flex-1 bg-transparent border border-[--base-gray-300] text-white py-3 px-6 rounded-md font-bold hover:bg-[--base-gray-100] transition-colors"
+                >
+                  Back
+                </button>
+                <button
+                  onClick={handleCancelBooking}
+                  disabled={!cancellationReason}
+                  className="flex-1 bg-[#565F7E] text-white py-3 px-6 rounded-md font-bold hover:bg-[#6B7280] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
                   Cancel booking
                 </button>
               </div>

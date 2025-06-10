@@ -90,7 +90,7 @@ export default function PaymentQR() {
             body: JSON.stringify({ 
               bookingId: bookingId,
               paymentIntentId: chargeId,
-              paymentMethod: 'omise_promptpay'
+              paymentMethod: 'promptpay'
             }),
           });
           

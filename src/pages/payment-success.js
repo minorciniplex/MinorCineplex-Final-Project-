@@ -8,7 +8,7 @@ import FmdGoodIcon from "@mui/icons-material/FmdGood";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
-import SharePage from './share-page';
+
 export default function PaymentSuccess() {
   const router = useRouter();
   const { bookingId } = router.query;
@@ -41,8 +41,7 @@ export default function PaymentSuccess() {
           setLoading(false);
           return;
         }
-        console.log(bookingData);
-        
+
         // ดึงข้อมูล booking_seats
         const { data: seatData, error: seatError } = await supabase
           .from('booking_seats')
@@ -53,7 +52,7 @@ export default function PaymentSuccess() {
         // เพิ่ม order by created_at desc เพื่อได้ payment ล่าสุด
         const { data: paymentData, error: paymentError } = await supabase
           .from('movie_payments')
-          .select('payment_method, payment_details')
+          .select('payment_method, payment_details, status')
           .eq('booking_id', bookingData.booking_id)
           .order('created_at', { ascending: false })
           .limit(1)
@@ -64,25 +63,66 @@ export default function PaymentSuccess() {
         console.log('Payment error:', paymentError);
 
         // แปลง payment method ให้แสดงผลถูกต้อง
-        let displayPaymentMethod = 'Unknown'; // default แปลง
-        if (paymentData?.payment_method) {
-          switch (paymentData.payment_method) {
+        let displayPaymentMethod = 'ไม่ระบุ'; // เปลี่ยน default เป็น 'ไม่ระบุ'
+        
+        // ใช้ sessionStorage เป็นอันดับแรก
+        const lastPaymentMethod = typeof window !== 'undefined' ? sessionStorage.getItem('lastPaymentMethod') : null;
+        
+        if (lastPaymentMethod) {
+          console.log('Using payment method from sessionStorage:', lastPaymentMethod);
+          displayPaymentMethod = lastPaymentMethod;
+        } else if (paymentData?.payment_method) {
+          const paymentMethod = paymentData.payment_method.toLowerCase();
+          console.log('Original payment method from DB:', paymentData.payment_method);
+          console.log('Lowercase payment method:', paymentMethod);
+          
+          switch (paymentMethod) {
             case 'omise_promptpay':
             case 'promptpay':
             case 'qr_code':
-              displayPaymentMethod = 'QR code';
+            case 'qr':
+              displayPaymentMethod = 'QR Code';
               break;
             case 'card':
             case 'credit_card':
             case 'stripe':
+            case 'credit card':
               displayPaymentMethod = 'Credit card';
               break;
             default:
-              displayPaymentMethod = paymentData.payment_method;
+              // ถ้าไม่ใช่ type ที่รู้จัก ให้ใช้ค่าจาก database โดยตรง
+              displayPaymentMethod = paymentData.payment_method.replace(/_/g, ' ');
+              // Capitalize first letter
+              displayPaymentMethod = displayPaymentMethod.charAt(0).toUpperCase() + displayPaymentMethod.slice(1);
+              break;
           }
         } else {
-          // ถ้าไม่มี payment data แต่มา successful แสดงว่าเป็น QR code (เพราะ Credit card จะมี payment data)
-          displayPaymentMethod = 'QR code';
+          // ถ้าไม่มีข้อมูล payment 
+          if (bookingData.status === 'paid' || bookingData.status === 'booked') {
+            // ใช้ QR Code เป็น default เพราะระบบใช้ QR Code เป็นหลัก
+            displayPaymentMethod = 'QR Code';
+          } else {
+            displayPaymentMethod = 'ไม่ระบุ';
+          }
+        }
+
+        console.log('Payment method from DB:', paymentData?.payment_method);
+        console.log('Payment method from sessionStorage:', lastPaymentMethod);
+        console.log('Display payment method:', displayPaymentMethod);
+
+        console.log('=== DEBUG INFO ===');
+        console.log('Booking ID:', bookingId);
+        console.log('Booking data exists:', !!bookingData);
+        console.log('Payment data exists:', !!paymentData);
+        console.log('Payment method raw:', paymentData?.payment_method);
+        console.log('Payment method from sessionStorage:', lastPaymentMethod);
+        console.log('Display payment method final:', displayPaymentMethod);
+        console.log('Debug URL:', `http://localhost:3000/api/debug/payment-status?bookingId=${bookingId}`);
+        
+        // ล้าง sessionStorage หลังจากใช้เสร็จ
+        if (typeof window !== 'undefined' && lastPaymentMethod) {
+          sessionStorage.removeItem('lastPaymentMethod');
+          console.log('Cleared lastPaymentMethod from sessionStorage');
         }
 
         // สร้าง formatted booking object
@@ -112,8 +152,6 @@ export default function PaymentSuccess() {
   if (loading) return <div className="text-white">Loading...</div>;
   if (!booking) return <div className="text-white">ไม่พบข้อมูลการจอง</div>;
 
-
-
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#101525] text-white">
       <Navbar />
@@ -125,83 +163,127 @@ export default function PaymentSuccess() {
             height={32}
             alt="Success" />
         </div>
-        <h2 className="mb-4 headline-2">Booking success</h2>
-        <div className=" w-[344px] h-[288px] bg-base-gray-0 rounded-[8px] p-6 mb-6 md:w-[386px] md:h-[288px]">
-          <div className="flex flex-col gap-2 mb-4">
-            <div className="flex items-center gap-[12px] body-2-regular text-base-gray-400 rounded">
-              <FmdGoodIcon
-                sx={{
-                  color: "base-gray-200",
-                  fontSize: "16px"
-                }}
-              />
-              <span>{booking.cinema_name}</span>
+        <h1 className="text-3xl font-bold mb-2">Payment Successful!</h1>
+        <p className="text-base-gray-300 mb-8 text-center">
+          Your booking has been confirmed. Check your email for details.
+        </p>
+
+        {/* Booking Details Card */}
+        <div className="bg-[#232B47] rounded-lg p-6 w-full max-w-md mb-6">
+          <h2 className="text-xl font-semibold mb-4">Booking Details</h2>
+          
+          <div className="space-y-3">
+            <div className="flex items-center gap-3 text-sm">
+              <FmdGoodIcon style={{ fontSize: 16 }} className="text-base-gray-300" />
+              <span className="text-base-gray-300">{booking.cinema_name}</span>
             </div>
-            <div className="flex items-center gap-[12px] body-2-regular text-base-gray-400">
-              <CalendarMonthIcon
-                sx={{
-                  color: "base-gray-200",
-                  fontSize: "16px"
-                }}
-              />
-              <span>{booking.show_date}</span>
+            
+            <div className="flex items-center gap-3 text-sm">
+              <CalendarMonthIcon style={{ fontSize: 16 }} className="text-base-gray-300" />
+              <span className="text-base-gray-300">{booking.show_date}</span>
             </div>
-            <div className="flex items-center gap-[12px] body-2-regular text-base-gray-400">
-              <AccessTimeIcon
-                sx={{
-                  color: "base-gray-200",
-                  fontSize: "16px"
-                }}
-              />
-              <span>{booking.show_time}</span>
+            
+            <div className="flex items-center gap-3 text-sm">
+              <AccessTimeIcon style={{ fontSize: 16 }} className="text-base-gray-300" />
+              <span className="text-base-gray-300">{booking.show_time}</span>
             </div>
-            <div className="flex items-center gap-[12px] body-2-regular text-base-gray-400">
-              <MeetingRoomIcon
-                sx={{
-                  color: "base-gray-200",
-                  fontSize: "16px"
-                }}
-              />
-              <span>{booking.hall}</span>
+            
+            <div className="flex items-center gap-3 text-sm">
+              <MeetingRoomIcon style={{ fontSize: 16 }} className="text-base-gray-300" />
+              <span className="text-base-gray-300">{booking.hall}</span>
             </div>
           </div>
-          <div className="border-t border-[#232B47] my-2"></div>
-          <div className="flex flex-col gap-2 mt-2">
-            <div className="flex justify-between">
-              <span className="body-2-regular text-base-gray-300">Selected Seat</span>
-              <span className="body-1-medium text-white">{Array.isArray(booking.seat) ? booking.seat.join(', ') : booking.seat}</span>
+
+          <div className="border-t border-base-gray-200 mt-4 pt-4">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-base-gray-300">Movie:</span>
+              <span className="text-white font-medium">{booking.movie_title}</span>
             </div>
-            <div className="flex justify-between">
-              <span className="body-2-regular text-base-gray-300">Payment method</span>
-              <span className="body-1-medium text-white">{booking.payment_method}</span>
+            
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-base-gray-300">Seats:</span>
+              <span className="text-white font-medium">{booking.seat}</span>
             </div>
-            <div className="flex justify-between">
-              <span className="body-2-regular text-base-gray-300">Total</span>
-              <span className="body-1-medium text-white">THB{booking.total}</span>
+            
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-base-gray-300">Payment Method:</span>
+              <span className="text-white font-medium">{booking.payment_method}</span>
+            </div>
+            
+            <div className="flex justify-between items-center">
+              <span className="text-base-gray-300">Total:</span>
+              <span className="text-white font-bold">THB{booking.total}</span>
             </div>
           </div>
         </div>
-        <div className="flex flex-col sm:flex-row gap-2 md:gap-4 mb-4">
+
+        {/* Action Buttons */}
+        <div className="flex flex-col gap-3 w-full max-w-md">
           <Button
-            className='!w-[170px] !h-[48px] md:!w-[185px] md:!h-[48px] !rounded-[4px]'
-            variant="secondary"
+            className="!w-full !h-[48px] !rounded-[4px]"
+            onClick={() => router.push(`/booking-detail/${bookingId}`)}
+          >
+            View Booking Details
+          </Button>
+          
+          <button
+            className="w-full h-[48px] bg-transparent border border-base-gray-200 text-white rounded-[4px] hover:bg-base-gray-100 transition-colors"
+            onClick={() => setShowShare(true)}
+          >
+            Share Booking
+          </button>
+          
+          <button
+            className="w-full h-[48px] bg-transparent text-base-gray-300 rounded-[4px] hover:text-white transition-colors"
             onClick={() => router.push('/')}
           >
-            Back to home
-          </Button>
-          <Button
-            className='!w-[173px] !h-[48px] md:!w-[185px] md:!h-[48px] !rounded-[4px]'
-            variant="primary"
-            onClick={() => router.push(`/booking-detail/${booking.booking_id || booking.id}`)}
-          >
-            Booking detail
-          </Button>
+            Back to Home
+          </button>
         </div>
-        <div className=' text-white flex items-center justify-center cursor-pointer pt-[10px]' onClick={() => setShowShare(!showShare)}>
-          Share this booking
-        </div>
-        {showShare && <SharePage bookingData={booking} />}
       </div>
+
+      {/* Share Modal */}
+      {showShare && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4">
+          <div className="bg-[#232B47] rounded-lg p-6 w-full max-w-md">
+            <h3 className="text-xl font-bold mb-4">Share Booking</h3>
+            <p className="text-base-gray-300 mb-4">
+              Share your booking details with friends and family
+            </p>
+            
+            <div className="flex gap-3 mb-4">
+              <button
+                className="flex-1 bg-[#4E7BEE] text-white py-2 px-4 rounded hover:bg-[#3E6BDE] transition-colors"
+                onClick={() => {
+                  const shareUrl = `${window.location.origin}/booking-detail/${bookingId}`;
+                  navigator.clipboard.writeText(shareUrl);
+                  alert('Link copied to clipboard!');
+                }}
+              >
+                Copy Link
+              </button>
+              
+              <button
+                className="flex-1 bg-[#25D366] text-white py-2 px-4 rounded hover:bg-[#20B858] transition-colors"
+                onClick={() => {
+                  const shareUrl = `${window.location.origin}/booking-detail/${bookingId}`;
+                  const message = `Check out my movie booking: ${booking.movie_title} at ${booking.cinema_name} on ${booking.show_date} ${booking.show_time}. ${shareUrl}`;
+                  window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+                }}
+              >
+                WhatsApp
+              </button>
+            </div>
+            
+            <button
+              className="w-full bg-transparent border border-base-gray-200 text-white py-2 px-4 rounded hover:bg-base-gray-100 transition-colors"
+              onClick={() => setShowShare(false)}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 } 

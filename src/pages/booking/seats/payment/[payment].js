@@ -4,7 +4,6 @@ import Navbar from "@/components/Navbar/Navbar";
 import PaymentsCard from "@/components/Booking/PaymentsCard";
 import PaymentMobile from "@/components/PaymentSystem/PaymentMobile";
 import StepProgressBar from "@/components/Booking/StepProgressBar";
-import useBookingSeat from "@/hooks/useBookingSeat";
 import { PaymentProvider } from "@/context/PaymentContext";
 import { parseQueryParam } from "@/utils/jsonHelper";
 
@@ -26,44 +25,21 @@ export default function Seats() {
   const [language, setLanguage] = useState(null);
   const [seatNumber, setSeatNumber] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState("Credit card");
-  const { processPayment, resetPaymentState } = useBookingSeat();
   const [isCardComplete, setIsCardComplete] = useState(false);
   const [showSeatExpiredPopup, setShowSeatExpiredPopup] = useState(false);
 
   useEffect(() => {
     if (router.isReady) {
+      console.log('[Payment] router.query:', JSON.stringify(router.query, null, 2));
+      console.log('[Payment] bookingId from query:', router.query.bookingId);
+      console.log('[Payment] bookingId type:', typeof router.query.bookingId);
+      console.log('[Payment] all query params:', Object.keys(router.query));
       // Use safe JSON parsing helper
       setGenres(parseQueryParam(router.query, 'genres', null));
       setLanguage(parseQueryParam(router.query, 'language', null));
       setSeatNumber(parseQueryParam(router.query, 'seat', null));
     }
   }, [router.isReady]);
-
-    const handlePayment = async (e) => {
-    e.preventDefault();
-    
-    // Reset previous errors
-    resetPaymentState();
-
-
-    const result = await processPayment({
-      showtimeId : showtimes,
-      seatNumber,
-      sumPrice : price,
-      bookingId,
-    });
-
-    if (result.success) {
-      alert('Payment successful!');
-      // Redirect to success page or show success message
-    } else {
-      alert(`Payment failed: ${result.error}`);
-    }
-  };
-
-
-
-
 
   return (
     <div className="w-full h-screen overflow-y-auto bg-background">
@@ -76,7 +52,8 @@ export default function Seats() {
             <PaymentMobile 
               setPaymentMethod={setPaymentMethod} 
               isCardComplete={isCardComplete} 
-              setIsCardComplete={setIsCardComplete} 
+              setIsCardComplete={setIsCardComplete}
+              bookingId={router.isReady ? bookingId : undefined}
             />
           </div>
           

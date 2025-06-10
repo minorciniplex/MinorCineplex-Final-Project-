@@ -16,7 +16,7 @@ const handler = async (req, res) => {
     return res.status(405).json({ error: "Method Not Allowed" });
   }
 
-  const { bookingId, paymentIntentId, paymentMethod } = req.body;
+  const { bookingId, paymentIntentId, paymentMethod, paymentData } = req.body;
   if (!bookingId) {
     return res.status(400).json({ error: "Missing bookingId" });
   }
@@ -70,11 +70,11 @@ const handler = async (req, res) => {
     console.log("Seats updated successfully:", updatedSeats);
 
     // 3. บันทึกข้อมูลการจ่ายเงินลงตาราง movie_payments (ใช้ service key เพื่อ bypass RLS)
-    let paymentData = null;
-    if (paymentIntentId && paymentMethod) {
+    let insertedPaymentData = null;
+    if (paymentData || (paymentIntentId && paymentMethod)) {
       // ดึงข้อมูล payment details จาก Omise ถ้าเป็น promptpay
       let paymentDetails = null;
-      if (paymentMethod === 'omise_promptpay') {
+      if (paymentMethod === 'omise_promptpay' || paymentMethod === 'promptpay') {
         try {
           const Omise = require('omise');
           const omise = Omise({
@@ -83,25 +83,31 @@ const handler = async (req, res) => {
           });
           const charge = await omise.charges.retrieve(paymentIntentId);
           paymentDetails = charge;
+          console.log('Omise charge details retrieved:', charge);
         } catch (omiseError) {
           console.error('Error fetching Omise charge details:', omiseError);
         }
       }
 
+      // ใช้ paymentData ถ้ามี หรือสร้างจากข้อมูลที่ส่งมา
+      const paymentToInsert = paymentData || {
+        payment_intent_id: paymentIntentId,
+        amount: updatedBooking[0].total_price,
+        currency: "thb",
+        status: "successful",
+        payment_method: paymentMethod,
+        payment_details: paymentDetails,
+        user_id: user.id,
+        booking_id: bookingId,
+        movie_id: updatedBooking[0].movie_id,
+        created_at: new Date().toISOString()
+      };
+
+      console.log('About to insert payment data:', paymentToInsert);
+
       const { data: insertedPayment, error: paymentError } = await supabaseService
         .from("movie_payments")
-        .insert({
-          payment_intent_id: paymentIntentId,
-          amount: updatedBooking[0].total_price,
-          currency: "thb",
-          status: "successful",
-          payment_method: paymentMethod,
-          payment_details: paymentDetails,
-          user_id: user.id,
-          booking_id: bookingId,
-          movie_id: updatedBooking[0].movie_id,
-          created_at: new Date().toISOString()
-        })
+        .insert(paymentToInsert)
         .select()
         .single();
 
@@ -110,7 +116,7 @@ const handler = async (req, res) => {
         // ไม่ return error เพราะ booking และ seat update สำเร็จแล้ว
       } else {
         console.log("Payment data inserted successfully:", insertedPayment);
-        paymentData = insertedPayment;
+        insertedPaymentData = insertedPayment;
       }
     }
 
@@ -118,7 +124,7 @@ const handler = async (req, res) => {
       success: true, 
       booking: updatedBooking[0],
       updatedSeats: updatedSeats,
-      payment: paymentData
+      payment: insertedPaymentData
     });
   } catch (err) {
     console.error("Error in mark-paid:", err);

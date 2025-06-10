@@ -2,6 +2,8 @@ import Image from 'next/image';
 import Button from '@/components/Button';
 
 const MovieTable = ({ movies, loading, pagination, onEdit, onDelete, onPageChange }) => {
+  // Debug logging
+  console.log('MovieTable movies:', movies);
   const formatDate = (dateString) => {
     if (!dateString) return '-';
     return new Date(dateString).toLocaleDateString('th-TH', {
@@ -56,26 +58,64 @@ const MovieTable = ({ movies, loading, pagination, onEdit, onDelete, onPageChang
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                หนัง
+                🎬 หนัง
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                ข้อมูลพื้นฐาน
+                📋 ข้อมูลพื้นฐาน
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                สถานะ
+                📊 สถานะ
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                วันที่สร้าง
+                📅 วันที่สร้าง
               </th>
               {(onEdit || onDelete) && (
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  จัดการ
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  ⚙️ จัดการ
                 </th>
               )}
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {movies.length === 0 ? (
+            {loading ? (
+              // Loading state
+              [...Array(3)].map((_, i) => (
+                <tr key={i} className="animate-pulse">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0 h-16 w-12 bg-gray-200 rounded"></div>
+                      <div className="ml-4">
+                        <div className="h-4 bg-gray-200 rounded w-32 mb-2"></div>
+                        <div className="h-3 bg-gray-200 rounded w-24"></div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="space-y-2">
+                      <div className="h-3 bg-gray-200 rounded w-24"></div>
+                      <div className="h-3 bg-gray-200 rounded w-20"></div>
+                      <div className="h-3 bg-gray-200 rounded w-16"></div>
+                      <div className="h-3 bg-gray-200 rounded w-28"></div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="h-6 bg-gray-200 rounded-full w-20"></div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="h-4 bg-gray-200 rounded w-24 mb-1"></div>
+                    <div className="h-3 bg-gray-200 rounded w-16"></div>
+                  </td>
+                  {(onEdit || onDelete) && (
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                      <div className="flex items-center justify-center space-x-1">
+                        <div className="h-8 bg-gray-200 rounded w-16"></div>
+                        <div className="h-8 bg-gray-200 rounded w-12"></div>
+                      </div>
+                    </td>
+                  )}
+                </tr>
+              ))
+            ) : movies.length === 0 ? (
               <tr>
                 <td colSpan="5" className="px-6 py-12 text-center">
                   <div className="text-gray-500">
@@ -92,15 +132,29 @@ const MovieTable = ({ movies, loading, pagination, onEdit, onDelete, onPageChang
                 <tr key={movie.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      <div className="flex-shrink-0 h-16 w-12">
-                        {movie.poster_url ? (
-                          <Image
-                            src={movie.poster_url}
-                            alt={movie.title}
-                            width={48}
-                            height={64}
-                            className="h-16 w-12 object-cover rounded"
-                          />
+                      <div className="flex-shrink-0 h-16 w-12 relative">
+                        {movie.poster_url && movie.poster_url.trim() ? (
+                          <>
+                            <Image
+                              src={movie.poster_url.trim()}
+                              alt={movie.title || 'Movie poster'}
+                              width={48}
+                              height={64}
+                              className="h-16 w-12 object-cover rounded"
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                                const fallback = e.target.parentNode.querySelector('.fallback-poster');
+                                if (fallback) {
+                                  fallback.style.display = 'flex';
+                                }
+                              }}
+                            />
+                            <div className="fallback-poster h-16 w-12 bg-gray-200 rounded flex items-center justify-center absolute top-0 left-0" style={{ display: 'none' }}>
+                              <svg className="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              </svg>
+                            </div>
+                          </>
                         ) : (
                           <div className="h-16 w-12 bg-gray-200 rounded flex items-center justify-center">
                             <svg className="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -113,19 +167,47 @@ const MovieTable = ({ movies, loading, pagination, onEdit, onDelete, onPageChang
                         <div className="text-sm font-medium text-gray-900">
                           {movie.title}
                         </div>
-                        <div className="text-sm text-gray-500">
-                          {movie.title_en || 'ไม่มีชื่อภาษาอังกฤษ'}
-                        </div>
+                        {movie.title_en && (
+                          <div className="text-sm text-gray-500">
+                            {movie.title_en}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </td>
                   
                   <td className="px-6 py-4">
-                    <div className="text-sm text-gray-900">
-                      <div><strong>ประเภท:</strong> {movie.genre}</div>
-                      <div><strong>ระยะเวลา:</strong> {formatDuration(movie.duration)}</div>
-                      <div><strong>เรทติ้ง:</strong> {movie.rating}</div>
-                      <div><strong>วันที่เข้าฉาย:</strong> {formatDate(movie.release_date)}</div>
+                    <div className="text-sm text-gray-900 space-y-1">
+                      <div className="flex items-center flex-wrap">
+                        <span className="text-gray-600 font-medium">🎭 ประเภท:</span>
+                        <div className="ml-2 flex flex-wrap gap-1">
+                          {movie.movie_genre_mapping && movie.movie_genre_mapping.length > 0 ? (
+                            movie.movie_genre_mapping.map((mapping, index) => (
+                              <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
+                                {mapping.movie_genres?.name || 'ไม่ระบุ'}
+                              </span>
+                            ))
+                          ) : (
+                            <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">
+                              ไม่ระบุ
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center">
+                        <span className="text-gray-600 font-medium">⏱️ ระยะเวลา:</span>
+                        <span className="ml-2">{formatDuration(movie.duration)}</span>
+                      </div>
+                      <div className="flex items-center">
+                        <span className="text-gray-600 font-medium">⭐ เรทติ้ง:</span>
+                        <span className="ml-2 px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs font-medium">
+                          {movie.rating || 'ไม่ระบุ'}
+                        </span>
+                      </div>
+                      <div className="flex items-center">
+                        <span className="text-gray-600 font-medium">📅 เข้าฉาย:</span>
+                        <span className="ml-2">{formatDate(movie.release_date)}</span>
+                      </div>
                     </div>
                   </td>
                   
@@ -143,30 +225,32 @@ const MovieTable = ({ movies, loading, pagination, onEdit, onDelete, onPageChang
                   </td>
                   
                   {(onEdit || onDelete) && (
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex items-center justify-end space-x-2">
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                      <div className="flex items-center justify-center space-x-1">
                         {onEdit && (
-                          <Button
-                            variant="ghost"
+                          <button
                             onClick={() => onEdit(movie)}
-                            className="!w-auto !h-auto p-2 text-blue-600 hover:text-blue-800"
+                            className="inline-flex items-center px-3 py-2 border border-blue-300 rounded-md text-sm leading-4 font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                            title="แก้ไขหนัง"
                           >
-                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                             </svg>
-                          </Button>
+                            แก้ไข
+                          </button>
                         )}
                         
                         {onDelete && (
-                          <Button
-                            variant="ghost"
+                          <button
                             onClick={() => onDelete(movie.id)}
-                            className="!w-auto !h-auto p-2 text-red-600 hover:text-red-800"
+                            className="inline-flex items-center px-3 py-2 border border-red-300 rounded-md text-sm leading-4 font-medium text-red-700 bg-red-50 hover:bg-red-100 hover:border-red-400 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors"
+                            title="ลบหนัง"
                           >
-                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1-1H8a1 1 0 00-1 1v3M4 7h16" />
                             </svg>
-                          </Button>
+                            ลบ
+                          </button>
                         )}
                       </div>
                     </td>

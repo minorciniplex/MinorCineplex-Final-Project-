@@ -65,12 +65,18 @@ const MovieForm = ({ movie, onClose, onSuccess }) => {
       newErrors.release_date = 'วันที่เข้าฉายเป็นข้อมูลที่จำเป็น';
     }
 
-    if (formData.poster_url && !isValidUrl(formData.poster_url)) {
-      newErrors.poster_url = 'URL รูปโปสเตอร์ไม่ถูกต้อง';
+    if (formData.poster_url) {
+      const cleanPosterUrl = formData.poster_url.trim();
+      if (cleanPosterUrl && !isValidUrl(cleanPosterUrl)) {
+        newErrors.poster_url = 'URL รูปโปสเตอร์ไม่ถูกต้อง';
+      }
     }
 
-    if (formData.trailer_url && !isValidUrl(formData.trailer_url)) {
-      newErrors.trailer_url = 'URL ตัวอย่างหนังไม่ถูกต้อง';
+    if (formData.trailer_url) {
+      const cleanTrailerUrl = formData.trailer_url.trim();
+      if (cleanTrailerUrl && !isValidUrl(cleanTrailerUrl)) {
+        newErrors.trailer_url = 'URL ตัวอย่างหนังไม่ถูกต้อง';
+      }
     }
 
     setErrors(newErrors);
@@ -112,6 +118,8 @@ const MovieForm = ({ movie, onClose, onSuccess }) => {
           ...formData,
           duration: parseInt(formData.duration),
           cast: formData.cast.split(',').map(c => c.trim()).filter(c => c),
+          poster_url: formData.poster_url.trim(),
+          trailer_url: formData.trailer_url.trim(),
         })
       });
 

@@ -2,7 +2,7 @@ import React from "react";
 import Button from "@/components/Button";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 
@@ -10,6 +10,12 @@ import CloseIcon from '@mui/icons-material/Close';
 const NavbarWithOutLogin = () => {
      const router = useRouter();
      const [menuOpen, setMenuOpen] = useState(false);
+     const [isClient, setIsClient] = useState(false);
+
+     // ป้องกัน hydration error
+     useEffect(() => {
+          setIsClient(true);
+     }, []);
 
      const handleLogin = () => {
           router.push("/auth/login");
@@ -63,13 +69,13 @@ const NavbarWithOutLogin = () => {
                {/* Hamburger for mobile */}
                <button
                  className="block md:hidden text-white focus:outline-none"
-                 onClick={() => setMenuOpen((open) => !open)}
+                 onClick={() => isClient && setMenuOpen((open) => !open)}
                  aria-label="Toggle menu"
                >
                  <MenuIcon className="w-6 h-6 md:w-8 md:h-8" />
                </button>
                {/* Mobile Menu Overlay */}
-               {menuOpen && (
+               {isClient && menuOpen && (
                  <div className="fixed left-0 right-0 top-12 z-[9999] w-full min-h-[176px] flex items-start justify-center">
                    <div className="w-full h-[200px] max-w-full mx-auto rounded-none rounded-b-[16px] border-b border-[#21263F] bg-black/40 backdrop-blur-[15px] pt-6 pr-4 pb-6 pl-4 flex flex-col items-center justify-center gap-6">
                      <Button

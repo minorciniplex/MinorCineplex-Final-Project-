@@ -47,7 +47,13 @@ async function getMovies(req, res, admin) {
       .from('movies')
       .select(`
         *,
-        created_by_admin:admin_users!movies_created_by_fkey(first_name, last_name)
+        created_by_admin:admin_users!movies_created_by_fkey(first_name, last_name),
+        movie_genre_mapping(
+          movie_genres(
+            genre_id,
+            name
+          )
+        )
       `, { count: 'exact' });
 
     // Search filter
@@ -113,9 +119,23 @@ async function createMovie(req, res, admin) {
       }
     }
 
+    // Clean and sanitize data
+    const cleanedData = {
+      ...movieData,
+      title: movieData.title?.trim(),
+      title_en: movieData.title_en?.trim(),
+      description: movieData.description?.trim(),
+      genre: movieData.genre?.trim(),
+      director: movieData.director?.trim(),
+      language: movieData.language?.trim(),
+      subtitle: movieData.subtitle?.trim(),
+      poster_url: movieData.poster_url?.trim() || null,
+      trailer_url: movieData.trailer_url?.trim() || null,
+    };
+
     // Add audit fields
     const newMovie = {
-      ...movieData,
+      ...cleanedData,
       created_by: admin.id,
       status: movieData.status || 'active',
       created_at: new Date().toISOString(),
@@ -168,9 +188,23 @@ async function updateMovie(req, res, admin) {
       return res.status(404).json({ error: 'Movie not found' });
     }
 
+    // Clean and sanitize data
+    const cleanedData = {
+      ...updateData,
+      title: updateData.title?.trim(),
+      title_en: updateData.title_en?.trim(),
+      description: updateData.description?.trim(),
+      genre: updateData.genre?.trim(),
+      director: updateData.director?.trim(),
+      language: updateData.language?.trim(),
+      subtitle: updateData.subtitle?.trim(),
+      poster_url: updateData.poster_url?.trim() || null,
+      trailer_url: updateData.trailer_url?.trim() || null,
+    };
+
     // Add audit fields
     const updatedMovie = {
-      ...updateData,
+      ...cleanedData,
       updated_by: admin.id,
       updated_at: new Date().toISOString()
     };

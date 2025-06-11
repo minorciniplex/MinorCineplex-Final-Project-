@@ -87,11 +87,11 @@ const CancellationPolicy = () => {
             <div className="space-y-3 text-[--base-gray-300]">
               <div className="flex items-start gap-3">
                 <span className="bg-[--brand-blue] text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">1</span>
-                <p>Log in to your account and go to "Booking History"</p>
+                <p>Log in to your account and go to &quot;Booking History&quot;</p>
               </div>
               <div className="flex items-start gap-3">
                 <span className="bg-[--brand-blue] text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">2</span>
-                <p>Find your booking and click "Cancel booking"</p>
+                <p>Find your booking and click &quot;Cancel booking&quot;</p>
               </div>
               <div className="flex items-start gap-3">
                 <span className="bg-[--brand-blue] text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">3</span>

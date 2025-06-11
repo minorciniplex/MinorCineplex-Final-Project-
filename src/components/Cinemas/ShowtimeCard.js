@@ -43,7 +43,6 @@ export default function ShowtimeCard({ showtimes, date }) {
   }, []);
 
   const handleSelect = ({ time, movie, date, hall, showtime_id }) => {
-    // ตัวอย่างการ push ไปหน้าจองตั๋ว
     const query = new URLSearchParams({
       poster: movie.posterUrl,
       title: movie.title,
@@ -127,9 +126,8 @@ export default function ShowtimeCard({ showtimes, date }) {
               </div>
 
               {/* Right Column: Only Halls & Showtimes */}
-              <div className="space-y-10 sm:space-y-14">
+              <div className="w-full space-y-10 px-4 py-6 sm:space-y-14 md:p-10">
                 {Object.entries(movie?.halls).map(([hall, timesArray]) => {
-                  // 1️⃣ Flatten times into an array of strings (as before)
                   const formattedTimes = timesArray.map((t) => t.time);
 
                   return (
@@ -155,7 +153,7 @@ export default function ShowtimeCard({ showtimes, date }) {
                             movie,
                             hall,
                             date,
-                            showtime_id, // Pass the ID along
+                            showtime_id,
                           });
                         }}
                       />

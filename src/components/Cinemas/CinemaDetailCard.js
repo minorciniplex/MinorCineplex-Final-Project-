@@ -43,18 +43,17 @@ export default function CinemaDetailCard({ cinemaId }) {
     return <div className="text-gray-500 p-4">Cinema not found</div>;
   }
 
-  // Parse facilities from JSON if stored as a string
   const facilities = cinema?.facilities || [];
 
   return (
     <>
       {/* Overlay desktop*/}
-      <div className="hidden md:flex absolute inset-0 bg-black bg-opacity-70 backdrop-blur-sm z-10 items-center justify-center md:px-4 md:py-12">
+      <div className="hidden md:flex absolute inset-0 bg-black bg-opacity-70 backdrop-blur-sm z-10 items-center justify-center md:px-4 md:pb-[60px] md:pt-[120px]">
         {/* Cinema detail card*/}
-        <div className="w-full max-w-6xl overflow-hidden rounded-lg shadow-lg bg-[#070C1BB2] bg-opacity-70 text-white flex flex-col md:flex-row">
+        <div className="w-full max-w-7xl overflow-hidden rounded-lg shadow-lg bg-[#070C1BB2] bg-opacity-70 text-white flex flex-col md:flex-row">
           {/* Left side with cinema image */}
-          <div className="md:w-1/3">
-            <div className="h-64 relative">
+          <div className="md:w-[274px]">
+            <div className="h-[400px] relative">
               <Image
                 src={cinema?.pic_url}
                 alt={cinema?.name}
@@ -67,11 +66,10 @@ export default function CinemaDetailCard({ cinemaId }) {
           </div>
 
           {/* Right side with cinema details */}
-          <div className="md:w-2/3 p-6 overflow-y-auto max-h-[580px]">
+          <div className="md:w-full p-[60px] pb-[104px] overflow-y-auto max-h-[580px]">
             <h2 className="text-4xl font-bold mb-4">{cinema.name}</h2>
-
             {/* Facilities badges */}
-            <div className="flex flex-wrap gap-2 mb-8">
+            <div className="flex flex-wrap gap-2 mb-12">
               {facilities.map((facility, index) => (
                 <span
                   key={index}
@@ -85,7 +83,7 @@ export default function CinemaDetailCard({ cinemaId }) {
             {/* Description paragraphs */}
             {cinema.description &&
               cinema.description.split("\n").map((paragraph, index) => (
-                <p key={index} className="text-gray-300 mb-4">
+                <p key={index} className="text-gray-300">
                   {paragraph}
                 </p>
               ))}
@@ -94,10 +92,10 @@ export default function CinemaDetailCard({ cinemaId }) {
       </div>
 
       {/*mobile*/}
-      <div className="bg-[#070C1BB2] flex flex-col gap-2 md:hidden items-center justify-center px-4 pt-12">
+      <div className="bg-[#070C1BB2] flex flex-col gap-6 md:hidden items-center justify-center pb-4 px-4 pt-12">
         {/* Top section with image and title */}
-        <div className="flex flex-row justify-between gap-6 w-full p-4">
-          <div className="relative w-full md:w-1/2 h-40 md:h-auto">
+        <div className="flex flex-row justify-between gap-6 w-full">
+          <div className="relative w-1/2 h-40 ">
             <Image
               src={cinema?.pic_url}
               alt={cinema?.name}
@@ -123,10 +121,8 @@ export default function CinemaDetailCard({ cinemaId }) {
         </div>
 
         {/* Description section */}
-        <div className="px-4 pb-4 text-base space-y-4">
-          <p>
-            {cinema?.description}
-          </p>
+        <div className="text-base space-y-4">
+          <p>{cinema?.description}</p>
         </div>
       </div>
     </>

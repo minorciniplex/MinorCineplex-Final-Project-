@@ -682,16 +682,6 @@ export default function BookingSeats({
       <div className="w-full bg-[--background] md:bg-transparent md:basis-3/4 py-10 px-4 md:py-0 md:px-0">
         <div className="bg-gradient-to-r from-[#2C344E] to-[#516199] rounded-t-[80px] items-center flex justify-center text-[7.47px] md:text-base py-[4.67px] md:py-[10px] text-[--base-gray-400] relative">
           screen
-          <button
-            onClick={() => {
-              console.log('Refreshing seat data...');
-              initializeSeats();
-            }}
-            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-300 text-sm"
-            title="รีเฟรชข้อมูลที่นั่ง"
-          >
-            🔄
-          </button>
         </div>
 
         {/* Seat Layout */}

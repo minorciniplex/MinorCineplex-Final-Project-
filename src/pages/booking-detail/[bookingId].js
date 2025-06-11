@@ -19,14 +19,16 @@ export default function BookingDetailPage() {
       try {
         setLoading(true);
         setError(null);
-        const response = await axios.get(`/api/booking/booking-history-for-share?booking_id=${bookingId}`);
+        const response = await axios.get(
+          `/api/booking/booking-history-for-share?booking_id=${bookingId}`
+        );
         if (response.data.data) {
           setBooking(response.data.data);
         } else {
-          setError('ไม่พบข้อมูลการจอง');
+          setError("ไม่พบข้อมูลการจอง");
         }
       } catch (error) {
-        setError('เกิดข้อผิดพลาดในการโหลดข้อมูล');
+        setError("เกิดข้อผิดพลาดในการโหลดข้อมูล");
       } finally {
         setLoading(false);
       }
@@ -36,15 +38,49 @@ export default function BookingDetailPage() {
     }
   }, [bookingId]);
 
+  const handleClick = (booking) => {
+    const query = new URLSearchParams({
+      time: booking.showtime.start_time,
+      screenNumber: booking.screen.screen_number,
+      cinemaName: booking.cinema.name,
+      poster: booking.movie.poster_url,
+      title: booking.movie.title,
+      date: booking.showtime.date,
+      showtimeId: booking.showtime_id,
+      movieId: booking.movie.movie_id,
+      price: booking.screen.price_per_seat,
+      friendSeats: JSON.stringify(booking.seats),
+      genres: JSON.stringify(booking.movie.genre), 
+      language: JSON.stringify(booking.movie.languages), 
+    }).toString();
+
+    router.push(`/booking/seats/seat?${query}`);
+  };
+
   return (
     <>
       {booking && (
         <Head>
           <title>{booking.movie.title} | Booking Detail</title>
-          <meta property="og:title" content={`จองตั๋วหนังที่ ${booking.cinema.name}`} />
-          <meta property="og:description" content={`ดูหนังที่ ${booking.cinema.name} วันที่ ${booking.showtime.date} เวลา ${booking.showtime.start_time} ที่นั่ง ${Array.isArray(booking.seats) ? booking.seats.join(', ') : booking.seats}`} />
+          <meta
+            property="og:title"
+            content={`จองตั๋วหนังที่ ${booking.cinema.name}`}
+          />
+          <meta
+            property="og:description"
+            content={`ดูหนังที่ ${booking.cinema.name} วันที่ ${
+              booking.showtime.date
+            } เวลา ${booking.showtime.start_time} ที่นั่ง ${
+              Array.isArray(booking.seats)
+                ? booking.seats.join(", ")
+                : booking.seats
+            }`}
+          />
           <meta property="og:type" content="website" />
-          <meta property="og:url" content={`https://6881-171-97-99-145.ngrok-free.app/booking-detail/${booking.booking_id}`} />
+          <meta
+            property="og:url"
+            content={`https://6881-171-97-99-145.ngrok-free.app/booking-detail/${booking.booking_id}`}
+          />
           <meta property="og:image" content={booking.movie.poster_url} />
         </Head>
       )}
@@ -69,9 +105,17 @@ export default function BookingDetailPage() {
 
                 <h2 className="text-3xl font-bold mb-4">{booking.movie.title}</h2>
                 <div className="flex gap-2 mb-4">
-                  <span className="bg-[#232B47] text-xs px-3 py-1 rounded-full">Action</span>
-                  <span className="bg-[#232B47] text-xs px-3 py-1 rounded-full">Crime</span>
-                  <span className="bg-[#232B47] text-xs px-3 py-1 rounded-full">TH</span>
+                  {booking.movie.genre.map((genre, index) => (
+                    <span
+                      key={index}
+                      className="bg-[#232B47] text-xs px-3 py-1 rounded-full"
+                    >
+                      {genre || ""}
+                    </span>
+                  ))}
+                  <span className="bg-[#232B47] text-xs px-3 py-1 rounded-full">
+                    {booking.movie.languages}
+                  </span>
                 </div>
                 <div className="mb-4 space-y-2 text-base-gray-300">
                   <div>🎬 {booking.cinema.name}</div>
@@ -100,4 +144,4 @@ export default function BookingDetailPage() {
       </div>
     </>
   );
-}     
+}

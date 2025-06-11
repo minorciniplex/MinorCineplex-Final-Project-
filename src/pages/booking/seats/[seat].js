@@ -47,8 +47,6 @@ export default function Seats() {
   useEffect(() => {
     if (router.isReady) {
       const {
-        genres,
-        language,
         friendSeats: friendSeatsFromQuery,
       } = router.query;
       // Use safe JSON parsing helper
@@ -82,7 +80,7 @@ export default function Seats() {
           onSeatsChange={handleSeatsChange}
           onPriceChange={handlePriceChange}
           onBookingIdChange={handleExistingBookingIdChange}
-          friendSeats={["A1", "A2"]}
+          friendSeats={friendSeats}
         />
         <BookingCard
           className="py-10 px-4"

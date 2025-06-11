@@ -14,7 +14,7 @@ const handler = async (req, res) => {
 
   try {
     // Validate booking_id format if needed
-    if (typeof booking_id !== 'string' || booking_id.trim() === '') {
+    if (typeof booking_id !== "string" || booking_id.trim() === "") {
       return res.status(400).json({ error: "Invalid booking ID format" });
     }
 
@@ -26,16 +26,16 @@ const handler = async (req, res) => {
 
     if (bookingsError) {
       console.error("Error fetching booking:", bookingsError);
-      return res.status(500).json({ 
+      return res.status(500).json({
         error: "Failed to fetch booking",
-        details: bookingsError.message 
+        details: bookingsError.message,
       });
     }
 
     if (!bookings) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         message: "No booking found",
-        booking_id: booking_id 
+        booking_id: booking_id,
       });
     }
 
@@ -46,16 +46,16 @@ const handler = async (req, res) => {
 
     if (bookingSeatsError) {
       console.error("Error fetching booking seats:", bookingSeatsError);
-      return res.status(500).json({ 
+      return res.status(500).json({
         error: "Failed to fetch booking seats",
-        details: bookingSeatsError.message 
+        details: bookingSeatsError.message,
       });
     }
 
     if (!bookingSeats || bookingSeats.length === 0) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         message: "No booking seats found",
-        booking_id: booking_id 
+        booking_id: booking_id,
       });
     }
 
@@ -67,16 +67,16 @@ const handler = async (req, res) => {
 
     if (showtimesError) {
       console.error("Error fetching showtime:", showtimesError);
-      return res.status(500).json({ 
+      return res.status(500).json({
         error: "Failed to fetch showtime",
-        details: showtimesError.message 
+        details: showtimesError.message,
       });
     }
 
     if (!showtimes) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         message: "No showtime found",
-        showtime_id: bookings.showtime_id 
+        showtime_id: bookings.showtime_id,
       });
     }
 
@@ -88,16 +88,16 @@ const handler = async (req, res) => {
 
     if (screensError) {
       console.error("Error fetching screen:", screensError);
-      return res.status(500).json({ 
+      return res.status(500).json({
         error: "Failed to fetch screen",
-        details: screensError.message 
+        details: screensError.message,
       });
     }
 
     if (!screens) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         message: "No screen found",
-        screen_id: showtimes.screen_id 
+        screen_id: showtimes.screen_id,
       });
     }
 
@@ -109,16 +109,16 @@ const handler = async (req, res) => {
 
     if (cinemasError) {
       console.error("Error fetching cinema:", cinemasError);
-      return res.status(500).json({ 
+      return res.status(500).json({
         error: "Failed to fetch cinema",
-        details: cinemasError.message 
+        details: cinemasError.message,
       });
     }
 
     if (!cinemas) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         message: "No cinema found",
-        cinema_id: screens.cinema_id 
+        cinema_id: screens.cinema_id,
       });
     }
 
@@ -130,16 +130,67 @@ const handler = async (req, res) => {
 
     if (moviesError) {
       console.error("Error fetching movie:", moviesError);
-      return res.status(500).json({ 
+      return res.status(500).json({
         error: "Failed to fetch movie",
-        details: moviesError.message 
+        details: moviesError.message,
       });
     }
 
     if (!movies) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         message: "No movie found",
-        movie_id: showtimes.movie_id 
+        movie_id: showtimes.movie_id,
+      });
+    }
+
+    const { data: movie_genres, error: movie_genresError } = await supabase
+      .from("movie_genre_mapping")
+      .select(
+        `
+    movie_genres:genre_id!inner (
+      name
+    )
+  `
+      )
+      .eq("movie_id", showtimes.movie_id);
+
+    if (movie_genresError) {
+      console.error("Error fetching movie:", movie_genresError);
+      return res.status(500).json({
+        error: "Failed to fetch movie genres",
+        details: movie_genresError.message,
+      });
+    }
+
+    if (!movie_genres) {
+      return res.status(404).json({
+        message: "No movie found",
+        movie_id: showtimes.movie_id,
+      });
+    }
+
+    const { data: movie_languages, error: movie_languagesError } =
+      await supabase
+        .from("movie_languages")
+        .select(
+          `
+          languages:language_id (
+          code
+          )`
+        )
+        .eq("movie_id", showtimes.movie_id);
+    if (movie_languagesError) {
+      console.error("Error fetching movie:", movie_languagesError);
+      return res.status(500).json({
+        error: "Failed to fetch movie languages",
+        details: movie_languagesError.message,
+      });
+    }
+
+    if (!movie_languages) {
+      return res.status(404).json({
+        message: "No movie found",
+        movie_id: showtimes.movie_id,
       });
     }
 
@@ -158,6 +209,10 @@ const handler = async (req, res) => {
         age_rating: movies.age_rating,
         poster_url: movies.poster_url,
         description: movies.description,
+        movie_id: movies.movie_id,
+        genre: movie_genres?.map((item) => item.movie_genres.name) || [],
+        languages:
+          movie_languages?.map((l) => l.languages.code).join("/ ") || "",
       },
       showtime: {
         date: showtimes.date,
@@ -178,10 +233,10 @@ const handler = async (req, res) => {
     return res.status(200).json({ data: groupedBooking });
   } catch (error) {
     console.error("Unexpected error in booking history handler:", error);
-    return res.status(500).json({ 
+    return res.status(500).json({
       error: "Internal Server Error",
       details: error.message,
-      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
     });
   }
 };

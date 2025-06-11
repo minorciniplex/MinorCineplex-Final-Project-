@@ -42,7 +42,6 @@ export default function ShowtimeCard({ showtimes, date }) {
     fetchMovieDetails();
   }, []);
 
-  console.log("showtimes", showtimes);
   const handleSelect = ({ time, movie, date, hall, showtime_id }) => {
     // ตัวอย่างการ push ไปหน้าจองตั๋ว
     const query = new URLSearchParams({

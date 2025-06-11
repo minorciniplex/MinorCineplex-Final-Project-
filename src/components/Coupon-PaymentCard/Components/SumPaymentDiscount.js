@@ -220,13 +220,16 @@ export default function SumPaymentDiscount({
         payment_status: paymentStatus,
       });
 
-      const couponResult = await applyCoupon(
-        data.booking_id,
-        coupon.coupons.coupon_id,
-        discountAmount
-      );
+      // ตรวจสอบว่ามีคูปองก่อนเรียกใช้ applyCoupon
+      if (coupon?.coupons?.coupon_id) {
+        const couponResult = await applyCoupon(
+          data.booking_id,
+          coupon.coupons.coupon_id,
+          discountAmount
+        );
+        console.log("ผลการบันทึก coupon:", couponResult);
+      }
 
-      console.log("ผลการบันทึก coupon:", couponResult);
       console.log("ผลการบันทึก payment:", paymentResult);
 
       if (paymentMethod === "Credit card") {

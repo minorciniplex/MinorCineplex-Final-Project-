@@ -496,7 +496,7 @@ const BookingHistory = () => {
                     <div className="text-[--base-gray-400]">Coupon</div>
                   </div>
                   <div className="text-right">
-                    <div className="text-[--brand-red] font-bold">-THB50</div>
+                    <div className="text-[--brand-red] font-bold">-THB{selectedBooking.couple_discount.discount_amount}</div>
                   </div>
                 </div>
                 <hr className="border-gray-600 my-3" />
@@ -508,7 +508,7 @@ const BookingHistory = () => {
                   </div>
                   <div className="text-right">
                     <div className="text-white font-bold">
-                      THB{selectedBooking.total_price - 50}
+                      THB{selectedBooking.total_price - selectedBooking.couple_discount.discount_amount}
                     </div>
                   </div>
                 </div>

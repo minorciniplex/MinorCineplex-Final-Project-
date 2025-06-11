@@ -136,6 +136,23 @@ const handler = async (req, res) => {
       return res.status(500).json({ error: paymentError });
     }
 
+    const { data: coupleDiscounts, error: coupleDiscountsError } =
+      await supabase
+      .from("booking_coupons")
+      .select(
+        `
+            *
+        `
+      );
+    if (coupleDiscountsError) {
+      console.error("Error fetching couple discounts:", coupleDiscountsError);
+      return res.status(500).json({ error: coupleDiscountsError });
+    }
+    if (!coupleDiscounts || coupleDiscounts.length === 0) {
+      return res.status(200).json({ data: [] });
+    }
+
+
 
     const groupedBookings = bookings.map((booking) => {
       const relatedShowtime = showtimes.find(
@@ -155,6 +172,9 @@ const handler = async (req, res) => {
       );
       const relatedPayment = payment.find(
         (p) => p.booking_id === booking.booking_id
+      );
+      const coupleDiscount = coupleDiscounts.find(
+        (cd) => cd.booking_id === booking.booking_id
       );
 
       return {
@@ -190,6 +210,11 @@ const handler = async (req, res) => {
           payment_method: relatedPayment ? relatedPayment.payment_method : null,
           payment_status: relatedPayment ? relatedPayment.payment_status : null,
         },
+        couple_discount: coupleDiscount
+          ? {
+              discount_amount: coupleDiscount.discount_amount,
+            }
+          : null,
       };
     });
 

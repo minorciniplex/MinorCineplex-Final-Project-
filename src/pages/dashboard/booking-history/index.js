@@ -598,21 +598,21 @@ const BookingHistory = () => {
                     
                     <div className="flex justify-between items-center">
                       <span className="text-[--base-gray-300] text-sm">Coupon</span>
-                      <span className="text-[--brand-red] font-bold">-THB50</span>
+                      <span className="text-[--brand-red] font-bold">-THB{selectedBooking.couple_discount.discount_amount}</span>
                     </div>
                     
                     <hr className="border-[--base-gray-200]" />
                     
                     <div className="flex justify-between items-center">
                       <span className="text-[--base-gray-300] text-sm">Total</span>
-                      <span className="text-white font-bold">THB{selectedBooking.total_price - 50}</span>
+                      <span className="text-white font-bold">THB{selectedBooking.total_price - selectedBooking.couple_discount.discount_amount}</span>
                     </div>
-                    
+
                     <hr className="border-[--base-gray-200]" />
                     
                     <div className="flex justify-between items-center">
                       <span className="text-[--base-gray-300] text-sm font-bold">Total refund</span>
-                      <span className="text-white font-bold">THB{selectedBooking.total_price - 50}</span>
+                      <span className="text-white font-bold">THB{selectedBooking.total_price - selectedBooking.couple_discount.discount_amount}</span>
                     </div>
                   </div>
                 </div>

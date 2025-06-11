@@ -355,12 +355,14 @@ const BookingHistory = () => {
               <div className="flex flex-col md:flex-row md:justify-between gap-4">
                 <div className="flex items-center gap-6 md:mb-6">
                   <div className="w-max h-36 bg-slate-600 rounded-lg flex items-center">
-                    <img
+                    <Image
                       src={
                         selectedBooking.movie.poster_url ||
                         "/placeholder-poster.png"
                       }
                       alt={selectedBooking.movie.title}
+                      width={144}
+                      height={144}
                       className="w-full h-full object-cover rounded-lg"
                     />
                   </div>

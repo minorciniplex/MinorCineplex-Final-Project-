@@ -15,10 +15,12 @@ export default async function handler(req, res) {
         return await createMovie(req, res, admin);
       case 'PUT':
         return await updateMovie(req, res, admin);
+      case 'PATCH':
+        return await patchMovie(req, res, admin);
       case 'DELETE':
         return await deleteMovie(req, res, admin);
       default:
-        res.setHeader('Allow', ['GET', 'POST', 'PUT', 'DELETE']);
+        res.setHeader('Allow', ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']);
         return res.status(405).end(`Method ${req.method} Not Allowed`);
     }
   } catch (error) {
@@ -275,6 +277,88 @@ async function updateMovie(req, res, admin) {
     
     // ส่ง error message ที่ชัดเจนขึ้น
     let errorMessage = 'Failed to update movie';
+    if (error.message) {
+      errorMessage += ': ' + error.message;
+    }
+    if (error.details) {
+      errorMessage += ' (' + error.details + ')';
+    }
+    
+    res.status(500).json({ error: errorMessage });
+  }
+}
+
+async function patchMovie(req, res, admin) {
+  if (!checkPermission(admin.permissions, 'movies.write')) {
+    return res.status(403).json({ error: 'Insufficient permissions' });
+  }
+
+  try {
+    const { id, status } = req.body;
+    console.log('Patching movie ID:', id, 'new status:', status); // Debug log
+
+    if (!id) {
+      return res.status(400).json({ error: 'Movie ID is required' });
+    }
+
+    if (!status) {
+      return res.status(400).json({ error: 'Status is required' });
+    }
+
+    // Validate status value
+    const validStatuses = ['active', 'inactive', 'coming_soon'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ 
+        error: `Invalid status. Must be one of: ${validStatuses.join(', ')}` 
+      });
+    }
+
+    // Check if movie exists
+    const { data: existingMovie } = await supabase
+      .from('movies')
+      .select('id, status')
+      .eq('id', id)
+      .single();
+
+    if (!existingMovie) {
+      return res.status(404).json({ error: 'Movie not found' });
+    }
+
+    // Update only the status
+    const { data: movie, error } = await supabase
+      .from('movies')
+      .update({
+        status: status,
+        updated_by: admin.id,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', id)
+      .select(`
+        *,
+        created_by_admin:admin_users!movies_created_by_fkey(first_name, last_name)
+      `)
+      .single();
+
+    if (error) {
+      console.error('Supabase patch error:', error);
+      throw error;
+    }
+
+    const statusTexts = {
+      'active': 'เปิดใช้งาน',
+      'inactive': 'ปิดใช้งาน',
+      'coming_soon': 'เร็วๆ นี้'
+    };
+
+    res.json({
+      success: true,
+      movie: movie,
+      message: `อัปเดตสถานะเป็น "${statusTexts[status]}" เรียบร้อยแล้ว`
+    });
+  } catch (error) {
+    console.error('Patch movie error:', error);
+    
+    let errorMessage = 'Failed to update movie status';
     if (error.message) {
       errorMessage += ': ' + error.message;
     }

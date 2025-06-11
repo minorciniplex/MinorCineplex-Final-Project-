@@ -1,12 +1,9 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useState, useEffect } from 'react';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
 
-const AdminSidebar = ({ isOpen, onClose }) => {
-  const router = useRouter();
-  const { hasPermission } = useAdminAuth();
-
-  const menuItems = [
+const menuItems = [
     {
       name: 'Dashboard',
       href: '/admin',
@@ -79,9 +76,50 @@ const AdminSidebar = ({ isOpen, onClose }) => {
     }
   ];
 
-  const filteredMenuItems = menuItems.filter(item => 
-    !item.permission || hasPermission(item.permission)
-  );
+const AdminSidebar = ({ isOpen, onClose }) => {
+  const router = useRouter();
+  const { hasPermission } = useAdminAuth();
+  const [filteredMenuItems, setFilteredMenuItems] = useState([]);
+  const [isClient, setIsClient] = useState(false);
+
+  // ใช้ useEffect เพื่อหลีกเลี่ยง hydration mismatch
+  useEffect(() => {
+    setIsClient(true);
+    setFilteredMenuItems(
+      menuItems.filter(item => 
+        !item.permission || hasPermission(item.permission)
+      )
+    );
+  }, [hasPermission]);
+
+  // แสดง loading สำหรับ client-side render
+  if (!isClient) {
+    return (
+      <>
+        {/* Mobile overlay - ซ่อนใน server render */}
+        
+        {/* Sidebar - แสดงแค่โครงสร้างพื้นฐาน */}
+        <div className="fixed inset-y-0 left-0 z-50 w-64 bg-gray-900 transform -translate-x-full transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0">
+          <div className="flex items-center justify-center h-16 bg-gray-800">
+            <h2 className="text-xl font-bold text-white">Admin Panel</h2>
+          </div>
+          <nav className="mt-8">
+            <div className="px-4 space-y-2">
+              {/* แสดงโครงสร้างพื้นฐานสำหรับ server render */}
+              <div className="flex items-center px-4 py-3 text-sm font-medium rounded-lg bg-gray-700 text-white">
+                <span className="mr-3">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+                  </svg>
+                </span>
+                Dashboard
+              </div>
+            </div>
+          </nav>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>

@@ -106,23 +106,28 @@ export default function PaymentSuccess() {
           }
         }
 
-        console.log('Payment method from DB:', paymentData?.payment_method);
-        console.log('Payment method from sessionStorage:', lastPaymentMethod);
-        console.log('Display payment method:', displayPaymentMethod);
+        // Debug logging เฉพาะใน development environment
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Payment method from DB:', paymentData?.payment_method);
+          console.log('Payment method from sessionStorage:', lastPaymentMethod);
+          console.log('Display payment method:', displayPaymentMethod);
 
-        console.log('=== DEBUG INFO ===');
-        console.log('Booking ID:', bookingId);
-        console.log('Booking data exists:', !!bookingData);
-        console.log('Payment data exists:', !!paymentData);
-        console.log('Payment method raw:', paymentData?.payment_method);
-        console.log('Payment method from sessionStorage:', lastPaymentMethod);
-        console.log('Display payment method final:', displayPaymentMethod);
-        console.log('Debug URL:', `http://localhost:3000/api/debug/payment-status?bookingId=${bookingId}`);
+          console.log('=== DEBUG INFO ===');
+          console.log('Booking ID:', bookingId);
+          console.log('Booking data exists:', !!bookingData);
+          console.log('Payment data exists:', !!paymentData);
+          console.log('Payment method raw:', paymentData?.payment_method);
+          console.log('Payment method from sessionStorage:', lastPaymentMethod);
+          console.log('Display payment method final:', displayPaymentMethod);
+          console.log('Debug URL:', `http://localhost:3000/api/debug/payment-status?bookingId=${bookingId}`);
+        }
         
         // ล้าง sessionStorage หลังจากใช้เสร็จ
         if (typeof window !== 'undefined' && lastPaymentMethod) {
           sessionStorage.removeItem('lastPaymentMethod');
-          console.log('Cleared lastPaymentMethod from sessionStorage');
+          if (process.env.NODE_ENV === 'development') {
+            console.log('Cleared lastPaymentMethod from sessionStorage');
+          }
         }
 
         // สร้าง formatted booking object
@@ -138,7 +143,9 @@ export default function PaymentSuccess() {
           total: bookingData.total_price || 0
         };
 
-        console.log('Formatted booking:', formattedBooking);
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Formatted booking:', formattedBooking);
+        }
         setBooking(formattedBooking);
 
       } catch (error) {

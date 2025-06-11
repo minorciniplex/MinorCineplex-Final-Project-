@@ -1,7 +1,10 @@
 import Image from 'next/image';
 import Button from '@/components/Button';
+import { useState } from 'react';
 
-const MovieTable = ({ movies, loading, pagination, onEdit, onDelete, onPageChange }) => {
+const MovieTable = ({ movies, loading, pagination, onEdit, onDelete, onPageChange, onStatusChange }) => {
+  const [statusLoading, setStatusLoading] = useState({});
+  
   // Debug logging
   console.log('MovieTable movies:', movies);
   const formatDate = (dateString) => {
@@ -33,6 +36,130 @@ const MovieTable = ({ movies, loading, pagination, onEdit, onDelete, onPageChang
       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.color}`}>
         {config.text}
       </span>
+    );
+  };
+
+  const handleStatusChange = async (movieId, newStatus) => {
+    if (!onStatusChange) return;
+    
+    setStatusLoading(prev => ({ ...prev, [movieId]: true }));
+    
+    try {
+      await onStatusChange(movieId, newStatus);
+    } catch (error) {
+      console.error('Error updating status:', error);
+    } finally {
+      setStatusLoading(prev => ({ ...prev, [movieId]: false }));
+    }
+  };
+
+  const StatusDropdown = ({ movie }) => {
+    const statusOptions = [
+      { 
+        value: 'active', 
+        label: 'เปิดใช้งาน', 
+        icon: '🟢',
+        color: 'text-green-700',
+        bgColor: 'bg-green-50',
+        borderColor: 'border-green-200',
+        hoverBg: 'hover:bg-green-100'
+      },
+      { 
+        value: 'inactive', 
+        label: 'ปิดใช้งาน', 
+        icon: '🔴',
+        color: 'text-red-700',
+        bgColor: 'bg-red-50',
+        borderColor: 'border-red-200',
+        hoverBg: 'hover:bg-red-100'
+      },
+      { 
+        value: 'coming_soon', 
+        label: 'เร็วๆ นี้', 
+        icon: '🟡',
+        color: 'text-yellow-700',
+        bgColor: 'bg-yellow-50',
+        borderColor: 'border-yellow-200',
+        hoverBg: 'hover:bg-yellow-100'
+      }
+    ];
+
+    const currentStatus = statusOptions.find(option => option.value === movie.status);
+    const isLoading = statusLoading[movie.id];
+
+    if (!onStatusChange) {
+      // ถ้าไม่มี onStatusChange แสดงเป็น badge ที่สวยกว่า
+      return (
+        <div className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium ${currentStatus?.bgColor} ${currentStatus?.color} ${currentStatus?.borderColor} border`}>
+          <span className="mr-1.5">{currentStatus?.icon}</span>
+          {currentStatus?.label || movie.status}
+        </div>
+      );
+    }
+
+    return (
+      <div className="relative group">
+        <div className={`
+          relative inline-flex items-center rounded-lg border transition-all duration-200 shadow-sm
+          ${currentStatus?.bgColor || 'bg-gray-50'} 
+          ${currentStatus?.borderColor || 'border-gray-200'}
+          ${isLoading ? 'opacity-60' : `${currentStatus?.hoverBg || 'hover:bg-gray-100'} hover:shadow-md hover:scale-105`}
+        `}>
+          <select
+            value={movie.status}
+            onChange={(e) => handleStatusChange(movie.id, e.target.value)}
+            disabled={isLoading}
+            className={`
+              appearance-none bg-transparent border-none rounded-lg pl-4 pr-10 py-3
+              text-sm font-semibold cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+              ${currentStatus?.color || 'text-gray-700'}
+              ${isLoading ? 'cursor-not-allowed' : 'cursor-pointer'}
+              min-w-[150px] transition-all duration-200
+            `}
+          >
+            {statusOptions.map(option => (
+              <option key={option.value} value={option.value}>
+                {option.icon} {option.label}
+              </option>
+            ))}
+          </select>
+          
+          {/* Loading spinner */}
+          {isLoading && (
+            <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+              <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-600 border-t-transparent"></div>
+            </div>
+          )}
+          
+          {/* Dropdown arrow */}
+          {!isLoading && (
+            <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+              <svg className={`w-4 h-4 transition-all duration-200 group-hover:rotate-180 ${currentStatus?.color || 'text-gray-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          )}
+          
+          {/* Status indicator dot */}
+          <div className={`absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full border-2 border-white shadow-sm ${
+            movie.status === 'active' ? 'bg-green-400' :
+            movie.status === 'inactive' ? 'bg-red-400' :
+            movie.status === 'coming_soon' ? 'bg-yellow-400' : 'bg-gray-400'
+          } ${isLoading ? 'animate-pulse' : 'animate-bounce'}`}></div>
+        </div>
+        
+        {/* Tooltip แสดงเมื่อ hover */}
+        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-3 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 whitespace-nowrap z-20 shadow-lg">
+          <div className="flex items-center">
+            <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+            </svg>
+            คลิกเพื่อเปลี่ยนสถานะ
+          </div>
+          {/* Tooltip arrow */}
+          <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+        </div>
+      </div>
     );
   };
 
@@ -212,7 +339,7 @@ const MovieTable = ({ movies, loading, pagination, onEdit, onDelete, onPageChang
                   </td>
                   
                   <td className="px-6 py-4 whitespace-nowrap">
-                    {getStatusBadge(movie.status)}
+                    <StatusDropdown movie={movie} />
                   </td>
                   
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

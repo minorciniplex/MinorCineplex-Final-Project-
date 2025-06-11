@@ -30,7 +30,7 @@ const handler = async (req, res) => {
     const { data: updatedBooking, error: bookingError } = await supabase
       .from("bookings")
       .update({
-        status: "paid",
+        status: "booked",
         updated_at: new Date().toISOString(),
         reserved_until: null,
       })

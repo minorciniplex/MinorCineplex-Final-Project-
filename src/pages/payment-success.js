@@ -118,7 +118,7 @@ export default function PaymentSuccess() {
         console.log('Payment method raw:', paymentData?.payment_method);
         console.log('Payment method from sessionStorage:', lastPaymentMethod);
         console.log('Display payment method final:', displayPaymentMethod);
-        console.log('Debug URL:', `http://localhost:3000/api/debug/payment-status?bookingId=${bookingId}`);
+        // console.log('Debug URL:', `http://localhost:3000/api/debug/payment-status?bookingId=${bookingId}`);
         
         // ล้าง sessionStorage หลังจากใช้เสร็จ
         if (typeof window !== 'undefined' && lastPaymentMethod) {

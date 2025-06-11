@@ -1,10 +1,10 @@
-import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
-import { supabase } from '@/utils/supabase';
-import Head from 'next/head';
-import axios from 'axios';
-import Navbar from '@/components/Navbar/Navbar';
-import Image from 'next/image';
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import { supabase } from "@/utils/supabase";
+import Head from "next/head";
+import axios from "axios";
+import Navbar from "@/components/Navbar/Navbar";
+import Image from "next/image";
 
 export default function BookingDetailPage() {
   const router = useRouter();
@@ -50,8 +50,8 @@ export default function BookingDetailPage() {
       movieId: booking.movie.movie_id,
       price: booking.screen.price_per_seat,
       friendSeats: JSON.stringify(booking.seats),
-      genres: JSON.stringify(booking.movie.genre), 
-      language: JSON.stringify(booking.movie.languages), 
+      genres: JSON.stringify(booking.movie.genre),
+      language: JSON.stringify(booking.movie.languages),
     }).toString();
 
     router.push(`/booking/seats/seat?${query}`);
@@ -86,8 +86,8 @@ export default function BookingDetailPage() {
       )}
       <div className="min-h-screentext-white flex flex-col justify-center items-center">
         <Navbar />
-        <div className='mt-[100px] '>
-          <h1 className='text-3xl font-bold mb-10'>Booking Detail</h1>
+        <div className="mt-[100px] ">
+          <h1 className="text-3xl font-bold mb-10">Booking Detail</h1>
           <div className="flex justify-center items-start gap-12">
             {/* Poster */}
             {booking && (
@@ -102,8 +102,9 @@ export default function BookingDetailPage() {
             {/* Details */}
             {booking && (
               <div className="bg-[#101525] rounded-xl p-8 w-[420px] shadow-lg">
-
-                <h2 className="text-3xl font-bold mb-4">{booking.movie.title}</h2>
+                <h2 className="text-3xl font-bold mb-4">
+                  {booking.movie.title}
+                </h2>
                 <div className="flex gap-2 mb-4">
                   {booking.movie.genre.map((genre, index) => (
                     <span
@@ -124,11 +125,22 @@ export default function BookingDetailPage() {
                   <div>🏛 Hall {booking.hall || 1}</div>
                 </div>
                 <div className="flex items-center gap-4 mb-4">
-                  <span className="bg-[#232B47] px-4 py-2 rounded text-white">{Array.isArray(booking.seats) ? booking.seats.length : 0} Tickets</span>
-                  <span>Selected Seat <b>{Array.isArray(booking.seats) ? booking.seats.join(', ') : '-'}</b></span>
+                  <span className="bg-[#232B47] px-4 py-2 rounded text-white">
+                    {Array.isArray(booking.seats) ? booking.seats.length : 0}{" "}
+                    Tickets
+                  </span>
+                  <span>
+                    Selected Seat{" "}
+                    <b>
+                      {Array.isArray(booking.seats)
+                        ? booking.seats.join(", ")
+                        : "-"}
+                    </b>
+                  </span>
                 </div>
                 <button
                   className="bg-[#4F7BFF] hover:bg-blue-700 text-white font-bold py-2 px-6 rounded transition mb-6"
+                  onClick={() => handleClick(booking)}
                 >
                   Book more seats
                 </button>
@@ -138,8 +150,14 @@ export default function BookingDetailPage() {
               </div>
             )}
           </div>
-          {loading && <div className="text-xl text-center mt-12">กำลังโหลด...</div>}
-          {error && <div className="text-xl text-red-500 text-center mt-12">{error}</div>}
+          {loading && (
+            <div className="text-xl text-center mt-12">กำลังโหลด...</div>
+          )}
+          {error && (
+            <div className="text-xl text-red-500 text-center mt-12">
+              {error}
+            </div>
+          )}
         </div>
       </div>
     </>

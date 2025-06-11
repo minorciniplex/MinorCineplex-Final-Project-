@@ -444,7 +444,7 @@ function PromptPayQR() {
   }
   return (
     <>
-      <img src={qrUrl} alt="PromptPay QR" width={180} height={180} />
+      <Image src={qrUrl} alt="PromptPay QR" width={180} height={180} />
       <div className="mt-2 text-xs text-center w-full text-white">
         สแกน QR ด้วยแอปธนาคารเพื่อชำระเงิน
       </div>
@@ -721,7 +721,7 @@ export default function PaymentMobile({ setPaymentMethod, isCardComplete, setIsC
                 </>
               ) : (
                 <div className="bg-[#232B47] rounded py-10 w-full lg:w-[793px] flex flex-col items-center justify-center">
-                  <img
+                  <Image
                     src={qrUrl}
                     alt="PromptPay QR"
                     width={180}

@@ -7,6 +7,7 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
 import SharePage from "@/pages/share-page";
+import Image from "next/image";
 
 const BookingHistory = () => {
   const router = useRouter();
@@ -146,9 +147,11 @@ const BookingHistory = () => {
                 <div className="flex">
                   <div className="w-30 h-40 rounded-lg overflow-hidden flex-shrink-0">
                     {booking.movie.poster_url ? (
-                      <img
+                      <Image
                         src={booking.movie.poster_url}
                         alt={booking.movie.title}
+                        width={120}
+                        height={160}
                         className="w-full h-full object-cover"
                       />
                     ) : (

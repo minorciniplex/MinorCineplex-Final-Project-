@@ -8,6 +8,7 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import CancelIcon from "@mui/icons-material/Cancel";
 import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import Image from "next/image";
 
 const CancellationHistory = () => {
   const router = useRouter();
@@ -135,9 +136,11 @@ const CancellationHistory = () => {
                 <div className="flex gap-6">
                   <div className="w-20 h-28 rounded-lg overflow-hidden flex-shrink-0">
                     {cancellation.movie.poster_url ? (
-                      <img
+                      <Image
                         src={cancellation.movie.poster_url}
                         alt={cancellation.movie.title}
+                        width={80}
+                        height={112}
                         className="w-full h-full object-cover"
                       />
                     ) : (

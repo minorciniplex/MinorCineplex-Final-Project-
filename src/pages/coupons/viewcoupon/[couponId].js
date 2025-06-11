@@ -7,6 +7,7 @@ import { useCouponClaim } from "@/hooks/useCouponClaim";
 import Navbar from "@/components/Navbar/Navbar";
 import FooterSection from '@/components/sections/FooterSection/FooterSection';
 import CouponAlert from "@/components/Coupons-components/CouponAlert";
+import Image from "next/image";
 
 export default function Viewcoupon() {
   const router = useRouter();
@@ -69,9 +70,11 @@ export default function Viewcoupon() {
           <div className="flex flex-col md:flex-row gap-8 w-full max-w-5xl rounded-xl  p-6 md:p-10 ">
             {/* Image Section */}
             <div className="flex-shrink-0 flex items-center justify-center w-full md:w-[380px] h-[380px] md:h-[380px] bg-[#070C1B] rounded-lg overflow-hidden border border-[#232B3E]">
-              <img
+              <Image
                 src={data.image}
                 alt={data.title}
+                width={380}
+                height={380}
                 className="w-full h-full object-cover"
               />
             </div>

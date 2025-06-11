@@ -1,4 +1,5 @@
 import Button from "../Button";
+import Image from "next/image";
 
 const CouponCard = ({ coupon }) => {
 
@@ -18,9 +19,11 @@ const CouponCard = ({ coupon }) => {
         className="w-full h-[160px] md:w-[285px] md:h-[285px] bg-cover bg-center transition-transform duration-300 group-hover:scale-105 flex items-center justify-center"
       >
         {coupon.image_url ? (
-          <img
+          <Image
             src={coupon.image_url}
             alt={coupon.title}
+            width={285}
+            height={285}
             className="object-cover w-full h-full"
           />
         ) : (

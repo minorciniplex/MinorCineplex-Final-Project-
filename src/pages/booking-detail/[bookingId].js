@@ -4,6 +4,7 @@ import { supabase } from '@/utils/supabase';
 import Head from 'next/head';
 import axios from 'axios';
 import Navbar from '@/components/Navbar/Navbar';
+import Image from 'next/image';
 
 export default function BookingDetailPage() {
   const router = useRouter();
@@ -54,9 +55,11 @@ export default function BookingDetailPage() {
           <div className="flex justify-center items-start gap-12">
             {/* Poster */}
             {booking && (
-              <img
+              <Image
                 src={booking.movie.poster_url}
                 alt={booking.movie.title}
+                width={300}
+                height={440}
                 className="w-[300px] h-[440px] rounded-lg shadow-lg object-cover"
               />
             )}

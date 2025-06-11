@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 
@@ -15,6 +15,15 @@ export default function CouponSelectPopup({ open, coupons, onClose, onApply }) {
   const [activeCouponId, setActiveCouponId] = useState(null);
   const router = useRouter();
   
+  // กรองคูปองที่ยังไม่หมดอายุ
+  const validCoupons = useMemo(() => {
+    const now = new Date();
+    return coupons.filter(coupon => {
+      const endDate = new Date(coupon.coupons.end_date);
+      return endDate > now;
+    });
+  }, [coupons]);
+  
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center">
@@ -24,11 +33,11 @@ export default function CouponSelectPopup({ open, coupons, onClose, onApply }) {
           <button onClick={onClose} className="text-white text-xl hover:text-base-gray-300 transition-colors">×</button>
         </div>
         <div className="space-y-3 max-h-[300px] bg-base-gray-100 md:max-h-[400px] overflow-y-auto">
-          {coupons.length === 0 && (
-            <div className="text-base-gray-300 text-center py-8">No coupons</div>
+          {validCoupons.length === 0 && (
+            <div className="text-base-gray-300 text-center py-8">No valid coupons available</div>
           )}
           <div className="lg:grid lg:grid-cols-2 gap-4">
-          {coupons.map(coupon => (
+          {validCoupons.map(coupon => (
             <div key={coupon.coupons.coupon_id} className="flex flex-col gap-4">
             <div
               className={` lg:w-[464px] lg:h-[174px] lg:grid lg:grid-cols-2 sm:mb-[5px]

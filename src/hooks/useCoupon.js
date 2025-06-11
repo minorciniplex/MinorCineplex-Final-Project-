@@ -30,7 +30,9 @@ export const useCoupon = () => {
                     final_price
                 };
             } else {
-                throw new Error(response.data.error || 'เกิดข้อผิดพลาดในการตรวจสอบคูปอง');
+                const errorMessage = response.data.error || 'เกิดข้อผิดพลาดในการตรวจสอบคูปอง';
+                setError(errorMessage);
+                return { success: false, error: errorMessage };
             }
         } catch (error) {
             console.error('Error details:', {
@@ -40,7 +42,7 @@ export const useCoupon = () => {
             });
             const errorMessage = error.response?.data?.error || error.message || "เกิดข้อผิดพลาดในการตรวจสอบคูปอง";
             setError(errorMessage);
-            throw error;
+            return { success: false, error: errorMessage };
         } finally {
             setLoading(false);
         }
@@ -65,7 +67,9 @@ export const useCoupon = () => {
             if (response.data.success) {
                 return response.data;
             } else {
-                throw new Error(response.data.error || 'เกิดข้อผิดพลาดในการใช้งานคูปอง');
+                const errorMessage = response.data.error || 'เกิดข้อผิดพลาดในการใช้งานคูปอง';
+                setError(errorMessage);
+                return { success: false, error: errorMessage };
             }
         } catch (error) {
             console.error('Error details:', {
@@ -75,7 +79,7 @@ export const useCoupon = () => {
             });
             const errorMessage = error.response?.data?.error || error.message || "เกิดข้อผิดพลาดในการใช้งานคูปอง";
             setError(errorMessage);
-            throw error;
+            return { success: false, error: errorMessage };
         } finally {
             setLoading(false);
         }
@@ -86,6 +90,7 @@ export const useCoupon = () => {
         error,
         discountAmount,
         checkCoupon,
-        applyCoupon
+        applyCoupon,
+        setDiscountAmount
     };
 }; 

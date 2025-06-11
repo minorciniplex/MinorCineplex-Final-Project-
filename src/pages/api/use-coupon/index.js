@@ -9,12 +9,9 @@ export async function handler(req, res) {
     const user = req.user;
 
     if (!booking_id || !coupon_id) {
-        return res.status(401).json({ success: false, error: "Missing required fields: booking_id and coupon_id" });
+        return res.status(201).json({ success: false, error: "Missing required fields: booking_id and coupon_id" });
     }
 
-    if (!user) {
-        return res.status(401).json({ success: false, error: "Unauthorized: Please login first." });
-    }
 
     // 1. ดึงข้อมูล booking
     const { data: booking, error: bookingError } = await supabase
@@ -24,7 +21,7 @@ export async function handler(req, res) {
       .single();
 
     if (bookingError || !booking) {
-        return res.status(401).json({ success: false, error: "Booking not found" });
+        return res.status(201).json({ success: false, error: "Booking not found" });
     }
 
     // 2. ดึงข้อมูลคูปอง
@@ -37,25 +34,25 @@ export async function handler(req, res) {
       .single();
 
     if (couponError || !coupon) {
-        return res.status(401).json({ success: false, error: "Coupon not found" });
+        return res.status(201).json({ success: false, error: "Coupon not found" });
     }
 
     // เช็ค 1: วันหมดอายุ
     const now = new Date();
     const endDate = new Date(coupon.end_date);
     if (now > endDate) {
-        return res.status(401).json({ success: false, error: "คูปองนี้หมดอายุแล้ว" });
+        return res.status(201).json({ success: false, error: "คูปองนี้หมดอายุแล้ว" });
     }
 
     // เช็ค 2: ยอดขั้นต่ำ
     if (booking.total_price < coupon.min_purchase) {
         const diff = coupon.min_purchase - booking.total_price;
-        return res.status(401).json({ success: false, error: `ยอดซื้อขั้นต่ำไม่ถึง ขาดอีก ${diff} บาท` });
+        return res.status(201).json({ success: false, error: `ยอดซื้อขั้นต่ำไม่ถึง ขาดอีก ${diff} บาท` });
     }
 
     // เช็ค 3: สถานะคูปอง
     if (coupon.status !== "active") {
-        return res.status(403).json({ success: false, error: "คูปองนี้ไม่สามารถใช้งานได้" });
+        return res.status(201).json({ success: false, error: "คูปองนี้ไม่สามารถใช้งานได้" });
     }
 
     // เช็ค 4: ตรวจสอบว่าผู้ใช้มีคูปองนี้หรือไม่
@@ -67,11 +64,11 @@ export async function handler(req, res) {
       .eq("coupon_status", "active" );
 
     if (userCouponError) {
-        return res.status(401).json({ success: false, error: "เกิดข้อผิดพลาดในการตรวจสอบคูปอง" });
+        return res.status(201).json({ success: false, error: "เกิดข้อผิดพลาดในการตรวจสอบคูปอง" });
     }
 
     if (!userCoupons || userCoupons.length === 0) {
-        return res.status(200).json({ success: false, error: "คุณไม่มีคูปองนี้หรือคูปองนี้ถูกใช้งานไปแล้ว" });
+        return res.status(201).json({ success: false, error: "คุณไม่มีคูปองนี้หรือคูปองนี้ถูกใช้งานไปแล้ว" });
     }
 
     // คำนวณส่วนลด

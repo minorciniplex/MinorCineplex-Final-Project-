@@ -9,7 +9,8 @@ export default function useApplyPayment() {
   const applyPayment = async ({
     bookingId,
     finalPrice,
-    paymentMethod
+    paymentMethod,
+    payment_status
   }) => {
     if (!bookingId) {
       setError("bookingId ไม่มีค่า");
@@ -26,13 +27,13 @@ export default function useApplyPayment() {
       console.log("applyPayment ส่ง:", {
         booking_id: bookingId,
         payment_method: paymentMethod,
-        payment_status: 'pending',
+        payment_status: payment_status || 'pending',
         amount: finalPrice,
       });
       const response = await axios.post("/api/booking/apply-payment", {
         booking_id: bookingId,
         payment_method: paymentMethod,
-        payment_status: 'pending',
+        payment_status: payment_status || 'pending',
         amount: finalPrice,
       });
       console.log(response.data.data);

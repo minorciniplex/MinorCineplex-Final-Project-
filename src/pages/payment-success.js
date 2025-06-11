@@ -165,7 +165,7 @@ export default function PaymentSuccess() {
       <div className="flex flex-col items-center mt-[40px] md:mt-[80px]">
         <div className="bg-brand-green rounded-full w-20 h-20 flex items-center justify-center mb-6">
           <Image
-            src={"/assets/images/done.png"}
+            src={"/assets/images/Done.png"}
             width={32}
             height={32}
             alt="Success" />

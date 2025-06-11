@@ -82,7 +82,7 @@ const ForgotPassword = () => {
                   Forgot Password
                 </h2>
                 <p className="text-slate-300 text-sm leading-relaxed">
-                  Enter your email address and we'll send you a link to reset your password
+                  Enter your email address and we&apos;ll send you a link to reset your password
                 </p>
               </div>
 
@@ -157,7 +157,7 @@ const ForgotPassword = () => {
               <div>
                 <h3 className="text-xl font-bold text-white mb-2">Email Sent!</h3>
                 <p className="text-slate-300 text-sm mb-4">
-                  We've sent a password reset link to your email address. 
+                  We&apos;ve sent a password reset link to your email address. 
                   Please check your inbox and follow the instructions.
                 </p>
                 <button

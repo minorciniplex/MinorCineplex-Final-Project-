@@ -26,14 +26,35 @@ export default function PaymentSuccess() {
       try {
         console.log('Fetching booking with ID:', bookingId);
 
-        // ดึงข้อมูล booking พื้นฐานก่อน
+        // ดึงข้อมูล booking พร้อมกับ showtime, movie, screen, cinema ในครั้งเดียว
         const { data: bookingData, error: bookingError } = await supabase
           .from('bookings')
-          .select('*')
+          .select(`
+            *,
+            showtimes!inner (
+              date,
+              start_time,
+              movie_id,
+              screen_id,
+              movies!inner (
+                title,
+                poster_url
+              ),
+              screens!inner (
+                screen_number,
+                price,
+                cinemas!inner (
+                  name,
+                  address,
+                  province
+                )
+              )
+            )
+          `)
           .eq('booking_id', bookingId)
           .single();
 
-        console.log('Basic booking data:', bookingData);
+        console.log('Booking data with relations:', bookingData);
         console.log('Booking error:', bookingError);
 
         if (bookingError || !bookingData) {
@@ -106,39 +127,60 @@ export default function PaymentSuccess() {
           }
         }
 
-        console.log('Payment method from DB:', paymentData?.payment_method);
-        console.log('Payment method from sessionStorage:', lastPaymentMethod);
-        console.log('Display payment method:', displayPaymentMethod);
+        // Debug logging เฉพาะใน development environment
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Payment method from DB:', paymentData?.payment_method);
+          console.log('Payment method from sessionStorage:', lastPaymentMethod);
+          console.log('Display payment method:', displayPaymentMethod);
 
-        console.log('=== DEBUG INFO ===');
-        console.log('Booking ID:', bookingId);
-        console.log('Booking data exists:', !!bookingData);
-        console.log('Payment data exists:', !!paymentData);
-        console.log('Payment method raw:', paymentData?.payment_method);
-        console.log('Payment method from sessionStorage:', lastPaymentMethod);
-        console.log('Display payment method final:', displayPaymentMethod);
-        console.log('Debug URL:', `http://localhost:3000/api/debug/payment-status?bookingId=${bookingId}`);
+          console.log('=== DEBUG INFO ===');
+          console.log('Booking ID:', bookingId);
+          console.log('Booking data exists:', !!bookingData);
+          console.log('Payment data exists:', !!paymentData);
+          console.log('Payment method raw:', paymentData?.payment_method);
+          console.log('Payment method from sessionStorage:', lastPaymentMethod);
+          console.log('Display payment method final:', displayPaymentMethod);
+          console.log('Debug URL:', `http://localhost:3000/api/debug/payment-status?bookingId=${bookingId}`);
+        }
         
         // ล้าง sessionStorage หลังจากใช้เสร็จ
         if (typeof window !== 'undefined' && lastPaymentMethod) {
           sessionStorage.removeItem('lastPaymentMethod');
-          console.log('Cleared lastPaymentMethod from sessionStorage');
+          if (process.env.NODE_ENV === 'development') {
+            console.log('Cleared lastPaymentMethod from sessionStorage');
+          }
         }
 
-        // สร้าง formatted booking object
+        // ฟอร์แมตวันที่และเวลา
+        const formatDate = (dateString) => {
+          const date = new Date(dateString);
+          return date.toLocaleDateString('en-GB', { 
+            day: '2-digit', 
+            month: 'short', 
+            year: 'numeric' 
+          });
+        };
+
+        const formatTime = (timeString) => {
+          return timeString ? timeString.substring(0, 5) : 'ไม่ระบุ';
+        };
+
+        // สร้าง formatted booking object ด้วยข้อมูลจริงจากฐานข้อมูล
         const formattedBooking = {
           ...bookingData,
-          cinema_name: 'Minor Cineplex Big C Phatum Thani', // Default value for now
-          show_date: '05 Jun 2025', // Default value for now  
-          show_time: '23:30', // Default value for now
-          hall: 'Hall 3', // Default value for now
-          movie_title: 'Home Sweet Home: Rebirth', // Default value for now
+          cinema_name: bookingData.showtimes.screens.cinemas.name || 'ไม่ระบุโรงภาพยนตร์',
+          show_date: formatDate(bookingData.showtimes.date),
+          show_time: formatTime(bookingData.showtimes.start_time),
+          hall: `Hall ${bookingData.showtimes.screens.screen_number}`,
+          movie_title: bookingData.showtimes.movies.title || 'ไม่ระบุชื่อหนัง',
           seat: seatData?.map(s => s.seat_id).join(', ') || 'ไม่ระบุ',
           payment_method: displayPaymentMethod,
           total: bookingData.total_price || 0
         };
 
-        console.log('Formatted booking:', formattedBooking);
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Formatted booking:', formattedBooking);
+        }
         setBooking(formattedBooking);
 
       } catch (error) {
@@ -158,7 +200,7 @@ export default function PaymentSuccess() {
       <div className="flex flex-col items-center mt-[40px] md:mt-[80px]">
         <div className="bg-brand-green rounded-full w-20 h-20 flex items-center justify-center mb-6">
           <Image
-            src={"/assets/images/done.png"}
+            src={"/assets/images/Done.png"}
             width={32}
             height={32}
             alt="Success" />

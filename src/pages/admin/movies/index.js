@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Head from 'next/head';
 import { AdminAuthProvider, useAdminAuth } from '@/contexts/AdminAuthContext';
 import AdminLayout from '@/components/admin/AdminLayout';
@@ -7,7 +7,7 @@ import MovieForm from '@/components/admin/MovieForm';
 import Button from '@/components/Button';
 
 const MoviesContent = () => {
-  const { admin, hasPermission } = useAdminAuth();
+  const { admin, hasPermission, loading: authLoading, isClient } = useAdminAuth();
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -26,46 +26,59 @@ const MoviesContent = () => {
     order: 'desc'
   });
 
-  useEffect(() => {
-    if (admin && hasPermission('movies.read')) {
-      fetchMovies();
-    }
-  }, [admin, pagination.page, filters]);
-
-  const fetchMovies = async () => {
+  const fetchMovies = useCallback(async () => {
     try {
       setLoading(true);
+      
+      // ตรวจสอบว่าอยู่ฝั่ง client และมี localStorage
+      if (typeof window === 'undefined') {
+        setLoading(false);
+        return;
+      }
+
       const queryParams = new URLSearchParams({
         page: pagination.page,
         limit: pagination.limit,
         ...filters
       });
 
+      console.log('Fetching movies with params:', queryParams.toString()); // Debug log
+
       const response = await fetch(`/api/admin/movies?${queryParams}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
         }
       });
-      
+
+      const data = await response.json();
+      console.log('Movies response:', data); // Debug log
+
       if (response.ok) {
-        const data = await response.json();
-        console.log('📽️ Movies API Response:', data);
-        console.log('🎭 First movie genre:', data.movies[0]?.genre);
-        setMovies(data.movies);
+        setMovies(data.movies || []);
         setPagination(prev => ({
           ...prev,
-          total: data.pagination.total,
-          totalPages: data.pagination.totalPages
+          total: data.pagination?.total || 0,
+          totalPages: data.pagination?.totalPages || 0
         }));
       } else {
-        console.error('Failed to fetch movies');
+        console.error('API Error:', data);
+        alert(data.error || data.message || 'เกิดข้อผิดพลาดในการโหลดข้อมูลหนัง');
+        setMovies([]);
       }
     } catch (error) {
       console.error('Error fetching movies:', error);
+      alert('เกิดข้อผิดพลาดในการเชื่อมต่อ: ' + error.message);
+      setMovies([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, [pagination.page, pagination.limit, filters]);
+
+  useEffect(() => {
+    if (isClient && admin && hasPermission('movies.read')) {
+      fetchMovies();
+    }
+  }, [admin, isClient, hasPermission, fetchMovies]);
 
   const handleCreate = () => {
     setEditMovie(null);
@@ -110,6 +123,53 @@ const MoviesContent = () => {
     fetchMovies();
   };
 
+  const handleStatusChange = async (movieId, newStatus) => {
+    try {
+      console.log(`Updating movie ${movieId} status to:`, newStatus);
+      
+      const response = await fetch(`/api/admin/movies`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+        },
+        body: JSON.stringify({
+          id: movieId,
+          status: newStatus
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log('Status updated successfully');
+        // อัปเดตข้อมูลในตาราง
+        setMovies(prevMovies => 
+          prevMovies.map(movie => 
+            movie.id === movieId ? { ...movie, status: newStatus } : movie
+          )
+        );
+        
+        // แสดงข้อความสำเร็จ
+        const statusText = {
+          'active': 'เปิดใช้งาน',
+          'inactive': 'ปิดใช้งาน', 
+          'coming_soon': 'เร็วๆ นี้'
+        };
+        
+        alert(`เปลี่ยนสถานะเป็น "${statusText[newStatus]}" เรียบร้อยแล้ว`);
+      } else {
+        console.error('API Error:', data);
+        alert(data.error || 'เกิดข้อผิดพลาดในการอัปเดตสถานะ');
+        throw new Error(data.error || 'Failed to update status');
+      }
+    } catch (error) {
+      console.error('Error updating movie status:', error);
+      alert('เกิดข้อผิดพลาดในการเชื่อมต่อ: ' + error.message);
+      throw error;
+    }
+  };
+
   const handlePageChange = (newPage) => {
     setPagination(prev => ({ ...prev, page: newPage }));
   };
@@ -119,6 +179,21 @@ const MoviesContent = () => {
     setPagination(prev => ({ ...prev, page: 1 })); // Reset to first page
   };
 
+  // แสดง loading screen ขณะรอ auth
+  if (authLoading || !isClient) {
+    return (
+      <AdminLayout>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">กำลังโหลด...</p>
+          </div>
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  // ตรวจสอบสิทธิ์
   if (!hasPermission('movies.read')) {
     return (
       <AdminLayout>
@@ -415,6 +490,7 @@ const MoviesContent = () => {
             pagination={pagination}
             onEdit={hasPermission('movies.write') ? handleEdit : null}
             onDelete={hasPermission('movies.write') ? handleDelete : null}
+            onStatusChange={hasPermission('movies.write') ? handleStatusChange : null}
             onPageChange={handlePageChange}
           />
         )}
@@ -448,4 +524,4 @@ const MoviesPage = () => {
   );
 };
 
-export default MoviesPage; 
+export default MoviesPage;

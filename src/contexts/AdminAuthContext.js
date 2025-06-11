@@ -14,21 +14,33 @@ export const useAdminAuth = () => {
 export const AdminAuthProvider = ({ children }) => {
   const [admin, setAdmin] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isClient, setIsClient] = useState(false);
+  const [error, setError] = useState(null);
   const router = useRouter();
 
+  // แยก client-side initialization
   useEffect(() => {
+    setIsClient(true);
     checkAuth();
   }, []);
 
   // เพิ่ม effect สำหรับ redirect
   useEffect(() => {
-    if (!loading && !admin && router.pathname.startsWith('/admin') && router.pathname !== '/admin/login') {
+    if (isClient && !loading && !admin && router.pathname.startsWith('/admin') && router.pathname !== '/admin/login') {
       router.push('/admin/login');
     }
-  }, [admin, loading, router]);
+  }, [admin, loading, router, isClient]);
 
   const checkAuth = async () => {
     try {
+      setError(null);
+      
+      // ตรวจสอบว่าอยู่ฝั่ง client แล้วหรือยัง
+      if (typeof window === 'undefined') {
+        setLoading(false);
+        return;
+      }
+
       const token = localStorage.getItem('adminToken');
       if (!token) {
         setLoading(false);
@@ -47,10 +59,16 @@ export const AdminAuthProvider = ({ children }) => {
         setAdmin(data.admin);
       } else {
         localStorage.removeItem('adminToken');
+        if (response.status === 401) {
+          console.log('Token expired, redirecting to login');
+        }
       }
     } catch (error) {
       console.error('Auth check failed:', error);
-      localStorage.removeItem('adminToken');
+      setError('เกิดข้อผิดพลาดในการตรวจสอบสิทธิ์');
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('adminToken');
+      }
     } finally {
       setLoading(false);
     }
@@ -58,6 +76,7 @@ export const AdminAuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
+      setError(null);
       const response = await fetch('/api/admin/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -67,7 +86,9 @@ export const AdminAuthProvider = ({ children }) => {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        localStorage.setItem('adminToken', data.token);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('adminToken', data.token);
+        }
         setAdmin(data.admin);
         router.push('/admin');
         return { success: true };
@@ -81,7 +102,9 @@ export const AdminAuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    localStorage.removeItem('adminToken');
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('adminToken');
+    }
     setAdmin(null);
     router.push('/admin/login');
   };
@@ -91,6 +114,24 @@ export const AdminAuthProvider = ({ children }) => {
     return admin.permissions?.includes(permission) || admin.permissions?.includes('*');
   };
 
+  // แสดง error state หากมีปัญหา
+  if (error && isClient) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-red-600 mb-4">เกิดข้อผิดพลาด</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            โหลดใหม่
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <AdminAuthContext.Provider value={{
       admin,
@@ -98,7 +139,9 @@ export const AdminAuthProvider = ({ children }) => {
       login,
       logout,
       hasPermission,
-      isAuthenticated: !!admin
+      isAuthenticated: !!admin,
+      isClient,
+      error
     }}>
       {children}
     </AdminAuthContext.Provider>

@@ -26,14 +26,35 @@ export default function PaymentSuccess() {
       try {
         console.log('Fetching booking with ID:', bookingId);
 
-        // ดึงข้อมูล booking พื้นฐานก่อน
+        // ดึงข้อมูล booking พร้อมกับ showtime, movie, screen, cinema ในครั้งเดียว
         const { data: bookingData, error: bookingError } = await supabase
           .from('bookings')
-          .select('*')
+          .select(`
+            *,
+            showtimes!inner (
+              date,
+              start_time,
+              movie_id,
+              screen_id,
+              movies!inner (
+                title,
+                poster_url
+              ),
+              screens!inner (
+                screen_number,
+                price,
+                cinemas!inner (
+                  name,
+                  address,
+                  province
+                )
+              )
+            )
+          `)
           .eq('booking_id', bookingId)
           .single();
 
-        console.log('Basic booking data:', bookingData);
+        console.log('Booking data with relations:', bookingData);
         console.log('Booking error:', bookingError);
 
         if (bookingError || !bookingData) {
@@ -130,14 +151,28 @@ export default function PaymentSuccess() {
           }
         }
 
-        // สร้าง formatted booking object
+        // ฟอร์แมตวันที่และเวลา
+        const formatDate = (dateString) => {
+          const date = new Date(dateString);
+          return date.toLocaleDateString('en-GB', { 
+            day: '2-digit', 
+            month: 'short', 
+            year: 'numeric' 
+          });
+        };
+
+        const formatTime = (timeString) => {
+          return timeString ? timeString.substring(0, 5) : 'ไม่ระบุ';
+        };
+
+        // สร้าง formatted booking object ด้วยข้อมูลจริงจากฐานข้อมูล
         const formattedBooking = {
           ...bookingData,
-          cinema_name: 'Minor Cineplex Big C Phatum Thani', // Default value for now
-          show_date: '05 Jun 2025', // Default value for now  
-          show_time: '23:30', // Default value for now
-          hall: 'Hall 3', // Default value for now
-          movie_title: 'Home Sweet Home: Rebirth', // Default value for now
+          cinema_name: bookingData.showtimes.screens.cinemas.name || 'ไม่ระบุโรงภาพยนตร์',
+          show_date: formatDate(bookingData.showtimes.date),
+          show_time: formatTime(bookingData.showtimes.start_time),
+          hall: `Hall ${bookingData.showtimes.screens.screen_number}`,
+          movie_title: bookingData.showtimes.movies.title || 'ไม่ระบุชื่อหนัง',
           seat: seatData?.map(s => s.seat_id).join(', ') || 'ไม่ระบุ',
           payment_method: displayPaymentMethod,
           total: bookingData.total_price || 0

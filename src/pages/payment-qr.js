@@ -119,7 +119,13 @@ export default function PaymentQR() {
         <div className="bg-base-gray-100 rounded-[4px] py-10 px-8 flex flex-col items-center justify-center w-full max-w-md mt-8">
         <div className="mb-4 text-base-gray-200 text-center">Time remaining: <span className="text-brand-blue-200 font-bold">{timeRemaining || '00:00'}</span></div>
         {qr && (
-          <img src={qr} alt="PromptPay QR" width={220} height={220} className="mx-auto" />
+          <img
+            src={qr}
+            alt="PromptPay QR"
+            width={220}
+            height={220}
+            className="mx-auto"
+          />
         )}
         <div className="mt-6 text-white font-bold text-lg text-center">Minor Cineplex Public limited company</div>
         <div className="mt-2 text-white font-bold text-2xl text-center">THB{amount}</div>

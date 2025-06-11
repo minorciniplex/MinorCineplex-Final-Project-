@@ -2,18 +2,26 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
 
-export default function SharePage({ bookingData }) {
+export default function SharePage({ bookingData, isSuccessPage }) {
     const router = useRouter();
     const [booking, setBooking] = useState(bookingData);
     const [copyStatus, setCopyStatus] = useState(false);
-    
+
     console.log(bookingData);
 
-    const getShareUrl = () => `https://3536-171-97-99-145.ngrok-free.app/booking-detail/${bookingData.booking_id}`;
+    const getShareUrl = () => {
+        const baseUrl = `https://ffe9-171-97-99-145.ngrok-free.app/booking-detail/${bookingData.booking_id}`;
+        const ogParams = new URLSearchParams({
+            title: `Booking for ${bookingData?.movie_title}`,
+            description: `I'm going to watch ${bookingData?.movie_title} at ${bookingData?.cinema_name} on ${bookingData?.showtime_date}!`,
+            image: bookingData.movie.poster_url
+        });
+        return `${baseUrl}?${ogParams.toString()}`;
+    };
 
     const shareToFacebook = () => {
         const text = `I'm going to watch ${bookingData?.movie_title} at ${bookingData?.cinema_name} on ${bookingData?.showtime_date}!`;
-        const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(getShareUrl())}&quote=${encodeURIComponent(text)}`;
+        const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(getShareUrl())}&quote=${encodeURIComponent(text)}&picture=${encodeURIComponent(bookingData.movie.poster_url)}`;
         window.open(url, '_blank', 'width=600,height=400');
     };
 
@@ -28,6 +36,7 @@ export default function SharePage({ bookingData }) {
         const url = `https://www.facebook.com/dialog/send?` +
                     `app_id=${appId}&` +
                     `link=${encodeURIComponent(getShareUrl())}&` +
+                    `picture=${encodeURIComponent(bookingData.movie.poster_url)}&` +
                     `redirect_uri=${encodeURIComponent(getShareUrl())}`;
         window.open(url, '_blank', 'width=600,height=400');
     };
@@ -56,10 +65,15 @@ export default function SharePage({ bookingData }) {
     }
 
     return (
-        <div className="text-white p-8 bg-base-gray-100 shadow-[4px_4px_30px_0px_rgba(0,0,0,0.5)] rounded-[10px] z-[100] absolute top-9 right-[60px]">
-            <div className="max-w-4xl mx-auto ">
-                <h1 className="text-[20px] font-bold mb-4 text-center pb-[5px]">Share this booking</h1>
-                <div className="flex justify-center gap-4">
+        //popup box
+        <div className={`text-white p-8 bg-base-gray-100 shadow-[4px_4px_30px_0px_rgba(0,0,0,0.5)] rounded-[10px] z-[100] ${
+            isSuccessPage 
+            ? 'fixed top-[750px] left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[300px] h-[100px] sm:w-[400px] sm:h-[220px] md:w-[400px] md:h-[140px] lg:w-[432px] lg:h-[160px] flex items-center justify-center ' 
+            : 'absolute top-[30px] right-[0px] w-[300px] h-[100px] sm:w-[400px] sm:h-[220px] md:w-[400px] md:h-[140px] lg:w-[432px] lg:h-[160px] flex items-center justify-center '
+        }`}>
+            <div className="max-w-4xl ">
+                <h1 className="text-[20px] font-bold mb-5 text-center pb-[5px]">Share this booking</h1>
+                <div className="flex justify-center gap-4 md:grid md:grid-rows-2 md:gap-4 grid grid-rows-2 ">
                     <button
                         onClick={shareToFacebook}
                         className="flex items-center gap-2 bg-[#1877F2] text-white px-6 py-2 rounded-lg hover:bg-[#166FE5] transition-colors"

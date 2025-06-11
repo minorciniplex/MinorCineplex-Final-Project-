@@ -7,6 +7,7 @@ import useCountdown from "../../hooks/useCountdown";
 import { useEffect } from "react";
 import { useRouter } from "next/router";
 import SumPaymentDiscount from "../Coupon-PaymentCard/Components/SumPaymentDiscount";
+import Image from "next/image";
 
 export default function PaymentsCard({
   time,
@@ -112,9 +113,11 @@ export default function PaymentsCard({
             </div>
           )}
           <div className="flex w-full rounded-t-lg mb-4">
-            <img
+            <Image
               src={poster}
               alt="Movie Poster"
+              width={82}
+              height={123}
               className="w-[82px] lg:w-[82px] object-cover rounded-lg flex-shrink-0"
             />
             <div className="flex flex-col flex-1 pl-4 rounded-t-lg">

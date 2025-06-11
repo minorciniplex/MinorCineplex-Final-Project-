@@ -94,11 +94,13 @@ const NavbarWithLogin = () => {
         <nav className="hidden md:inline-flex items-center gap-6 relative self-stretch">
           <div className="px-5 flex flex-row items-center gap-4">
             {dataUser?.user_profile && (
-              <img
+              <Image
                 src={dataUser?.user_profile}
                 alt="user profile"
+                width={40}
+                height={40}
                 className="w-[40px] h-[40px] rounded-full"
-              ></img>
+              />
             )}
             <p className="body-2-regular text-base-gray-400 font-bold">
               {dataUser?.name}
@@ -327,11 +329,13 @@ const NavbarWithLogin = () => {
             <div className="w-full h-[400px] max-w-full mx-auto rounded-none rounded-b-[16px] border-b border-[#21263F] bg-black/40 backdrop-blur-[15px] pt-6 pr-4 pb-6 flex flex-col justify-center ">
               <div className="px-5 py-4 flex flex-row items-center gap-4">
                 {dataUser?.user_profile && (
-                  <img
+                  <Image
                     src={dataUser?.user_profile}
                     alt="user profile"
+                    width={40}
+                    height={40}
                     className="w-[40px] h-[40px] rounded-full "
-                  ></img>
+                  />
                 )}
                 <p className="body-2-regular text-base-gray-400 font-bold">
                   {dataUser?.name}

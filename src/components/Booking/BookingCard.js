@@ -72,8 +72,6 @@ export default function BookingCard({
 
   const handleSumbit = async () => {
     if (!isLoggedIn) {
-      console.log("User not logged in, redirecting to login page");
-      // เก็บ current URL เพื่อให้ redirect กลับมาหลัง login
       const currentUrl = router.asPath;
       router.push(`/auth/login?redirect=${encodeURIComponent(currentUrl)}`);
       return;
@@ -89,8 +87,6 @@ export default function BookingCard({
 
     try {
       if (existingBookingId) {
-        // UPDATE existing booking
-        console.log("Updating existing booking:", existingBookingId);
         try {
           const response = await axios.put(`/api/booking/${existingBookingId}`, {
             showtimeId: showtimes,

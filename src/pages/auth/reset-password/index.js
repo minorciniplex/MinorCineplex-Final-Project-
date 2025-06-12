@@ -189,33 +189,35 @@ const ResetPassword = () => {
       <NavbarLoading />
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="bg-slate-800/90 backdrop-blur-sm rounded-2xl shadow-2xl p-8 w-full max-w-md border border-slate-600/30">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-green-500 rounded-full mx-auto mb-4 flex items-center justify-center">
-              <svg
-                className="w-8 h-8 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
-                />
-              </svg>
+          {/* Header - ซ่อนเมื่อ reset สำเร็จ */}
+          {!isResetSuccessful && (
+            <div className="text-center mb-8">
+              <div className="w-16 h-16 bg-green-500 rounded-full mx-auto mb-4 flex items-center justify-center">
+                <svg
+                  className="w-8 h-8 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
+                  />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-white mb-2">
+                Reset Your Password
+              </h2>
+              <p className="text-slate-300 text-sm leading-relaxed">
+                Enter your new password below to complete the reset process
+              </p>
             </div>
-            <h2 className="text-2xl font-bold text-white mb-2">
-              Reset Your Password
-            </h2>
-            <p className="text-slate-300 text-sm leading-relaxed">
-              Enter your new password below to complete the reset process
-            </p>
-          </div>
+          )}
 
-          {/* Success Message */}
-          {message && (
+          {/* Success Message - ซ่อนเมื่อ reset สำเร็จ */}
+          {message && !isResetSuccessful && (
             <div className="bg-green-500/20 border border-green-500/30 text-green-300 px-4 py-3 rounded-lg mb-6 text-center text-sm">
               <svg
                 className="w-4 h-4 inline mr-2"
@@ -492,7 +494,7 @@ const ResetPassword = () => {
             </form>
           )}
 
-          {/* เพิ่มส่วนแสดงเมื่อ reset สำเร็จ */}
+          {/* แสดงเมื่อ reset สำเร็จ */}
           {isResetSuccessful && (
             <div className="text-center space-y-4">
               <div className="w-20 h-20 bg-green-500 rounded-full mx-auto flex items-center justify-center mb-4">

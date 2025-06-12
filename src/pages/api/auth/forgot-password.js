@@ -11,8 +11,14 @@ const handler = async (req, res) => {
     }
 
     try {
+      // ใช้ environment variable หรือ req.headers เพื่อหา base URL
+      const baseUrl = process.env.NEXTAUTH_URL || 
+                      process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` :
+                      `http://${req.headers.host}` ||
+                      'http://localhost:3000';
+
       const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `http://localhost:3000/auth/reset-password?email=${encodeURIComponent(email)}`,
+        redirectTo: `${baseUrl}/auth/reset-password?email=${encodeURIComponent(email)}`,
       });
 
 

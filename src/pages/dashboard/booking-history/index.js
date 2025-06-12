@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
 import { useStatus } from "@/context/StatusContext";
@@ -18,7 +18,21 @@ const BookingHistory = () => {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [cancellationReason, setCancellationReason] = useState("");
   const [showShare, setShowShare] = useState(false);
+
+  // Infinite scroll states
+  const [allBookings, setAllBookings] = useState([]);
+  const [displayedBookings, setDisplayedBookings] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [hasMore, setHasMore] = useState(true);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const ITEMS_PER_PAGE = 2; // จำนวนรายการต่อการโหลด
+  const observer = useRef();
+
   console.log("Booking History:", bookingHistory);
+  console.log("Displayed Bookings:", displayedBookings);
+  console.log("Current Index:", currentIndex);
+  console.log("Has More:", hasMore);
 
   // Function to format date as "4 JUN 2025"
   const formatDate = (dateString) => {
@@ -31,6 +45,85 @@ const BookingHistory = () => {
     return `${day} ${month} ${year}`;
   };
 
+  // Load more items
+  const loadMore = useCallback(() => {
+    if (loading || !hasMore) {
+      console.log("Cannot load more:", { loading, hasMore });
+      return;
+    }
+
+    console.log("Loading more items...", { currentIndex, hasMore, loading });
+    
+    setLoading(true);
+
+    // จำลองการ delay เหมือน API call
+    setTimeout(() => {
+      const nextIndex = currentIndex + ITEMS_PER_PAGE;
+      const newItems = allBookings.slice(currentIndex, nextIndex);
+
+      console.log("New items to add:", newItems.length);
+      console.log("Next index:", nextIndex);
+      console.log("Total bookings:", allBookings.length);
+
+      if (newItems.length > 0) {
+        setDisplayedBookings((prev) => {
+          const updated = [...prev, ...newItems];
+          console.log("Updated displayed bookings:", updated.length);
+          return updated;
+        });
+        setCurrentIndex(nextIndex);
+      }
+
+      // เช็คว่ามีข้อมูลเหลือหรือไม่
+      if (nextIndex >= allBookings.length) {
+        setHasMore(false);
+        console.log("No more items to load");
+      }
+
+      setLoading(false);
+    }, 500); // ลด loading time เป็น 1 วินาที
+  }, [allBookings, currentIndex, loading, hasMore]);
+
+  // Intersection Observer callback - แก้ไขให้ทำงานถูกต้อง
+  const lastBookingElementRef = useCallback(
+    (node) => {
+      if (loading) {
+        console.log("Loading in progress, skipping observer setup");
+        return;
+      }
+      
+      if (observer.current) {
+        observer.current.disconnect();
+      }
+
+      observer.current = new IntersectionObserver(
+        (entries) => {
+          console.log("Observer triggered:", {
+            isIntersecting: entries[0].isIntersecting,
+            hasMore,
+            loading
+          });
+          
+          if (entries[0].isIntersecting && hasMore && !loading) {
+            console.log("Last element is intersecting, loading more...");
+            loadMore();
+          }
+        },
+        {
+          // เพิ่ม threshold เพื่อให้ trigger ง่ายขึ้น
+          threshold: 0.9,
+          rootMargin: '0px 0px 100px 0px' // เพิ่ม rootMargin เพื่อให้ trigger ก่อนถึง bottom
+        }
+      );
+
+      if (node) {
+        console.log("Observing last element");
+        observer.current.observe(node);
+      }
+    },
+    [loading, hasMore, loadMore]
+  );
+
   const handleBookingClick = (booking) => {
     setSelectedBooking(booking);
     setShowModal(true);
@@ -42,14 +135,14 @@ const BookingHistory = () => {
   };
 
   const openCancelModal = () => {
-    setShowModal(false); // ปิด Booking Detail modal ก่อน
+    setShowModal(false);
     setShowCancelModal(true);
   };
 
   const closeCancelModal = () => {
     setShowCancelModal(false);
     setCancellationReason("");
-    setShowModal(true); // เปิด Booking Detail modal กลับมา
+    setShowModal(true);
   };
 
   const handleCancelBooking = async () => {
@@ -78,28 +171,26 @@ const BookingHistory = () => {
       );
 
       console.log("API Response:", response.data);
-      console.log(
-        "API Response structure:",
-        JSON.stringify(response.data, null, 2)
-      );
 
       if (response.data && response.data.success) {
-        // แสดงข้อความสำเร็จ
         const responseData = response.data.data || {};
         const refundAmount = responseData.refundAmount || 0;
         const refundPercentage = responseData.refundPercentage || 0;
 
-        console.log("Extracted values:", { refundAmount, refundPercentage });
         alert(
           `การยกเลิกสำเร็จ!\nจำนวนเงินคืน: THB${refundAmount}\nเปอร์เซ็นต์คืน: ${refundPercentage}%`
         );
 
-        console.log("Refreshing booking history...");
-        // รีเฟรชข้อมูล booking history
+        // รีเฟรชข้อมูลทั้งหมด
         const historyResponse = await axios.get("/api/booking/booking-history");
-        setBookingHistory(historyResponse.data.data);
+        const newBookings = historyResponse.data.data;
 
-        // ปิด modal
+        // รีเซ็ตข้อมูล infinite scroll
+        setAllBookings(newBookings);
+        setDisplayedBookings(newBookings.slice(0, ITEMS_PER_PAGE));
+        setCurrentIndex(ITEMS_PER_PAGE);
+        setHasMore(newBookings.length > ITEMS_PER_PAGE);
+
         setShowCancelModal(false);
         setCancellationReason("");
         setSelectedBooking(null);
@@ -108,8 +199,6 @@ const BookingHistory = () => {
       }
     } catch (error) {
       console.error("Error cancelling booking:", error);
-      console.error("Error details:", error.response?.data);
-
       const errorMessage =
         error.response?.data?.error ||
         error.message ||
@@ -120,11 +209,37 @@ const BookingHistory = () => {
 
   useEffect(() => {
     const fetchBookingHistory = async () => {
+      setInitialLoading(true);
       try {
         const response = await axios.get("/api/booking/booking-history");
-        setBookingHistory(response.data.data);
+        const bookings = response.data.data || [];
+
+        console.log("Fetched bookings:", bookings.length);
+
+        // เก็บข้อมูลทั้งหมด
+        setAllBookings(bookings);
+        setBookingHistory(bookings); // เก็บไว้เพื่อ backward compatibility
+
+        // แสดงเฉพาะข้อมูลหน้าแรก
+        const initialItems = bookings.slice(0, ITEMS_PER_PAGE);
+        setDisplayedBookings(initialItems);
+        setCurrentIndex(ITEMS_PER_PAGE);
+
+        // เช็คว่ามีข้อมูลเหลือหรือไม่
+        setHasMore(bookings.length > ITEMS_PER_PAGE);
+
+        console.log("Initial setup complete:", {
+          totalBookings: bookings.length,
+          initialItems: initialItems.length,
+          currentIndex: ITEMS_PER_PAGE,
+          hasMore: bookings.length > ITEMS_PER_PAGE
+        });
+
       } catch (error) {
         console.error("Error fetching booking history:", error);
+        setHasMore(false);
+      } finally {
+        setInitialLoading(false);
       }
     };
 
@@ -142,150 +257,185 @@ const BookingHistory = () => {
           View Cancellation History
         </button>
       </div>
-      {bookingHistory.length > 0 ? (
+
+      {/* Initial Loading */}
+      {initialLoading ? (
+        <div className="text-center py-8">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+          <p className="text-gray-400 mt-2">Loading booking history...</p>
+        </div>
+      ) : displayedBookings.length > 0 ? (
         <div>
-          {bookingHistory.map((booking) => (
-            <div
-              key={booking.booking_id}
-              className="bg-[#070C1B] max-w rounded-lg md:p-6 mb-4 cursor-pointer"
-              onClick={() => handleBookingClick(booking)}
-            >
-              {/* Movie Information Section */}
-              <div className="flex flex-col md:flex-row p-4 md:p-0 md:mb-6 gap-6 md:gap-0">
-                {/* Movie Poster */}
-                <div className="flex">
-                  <div className="w-30 h-40 rounded-lg overflow-hidden flex-shrink-0">
-                    {booking.movie.poster_url ? (
-                      <Image
-                        src={booking.movie.poster_url}
-                        alt={booking.movie.title}
-                        width={120}
-                        height={160}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-slate-600 rounded-lg flex items-center text-xs text-gray-400">
-                        Movie Poster
+          {displayedBookings.map((booking, index) => {
+            // เพิ่ม ref ให้กับ element สุดท้าย ONLY
+            const isLast = index === displayedBookings.length - 1;
+
+            return (
+              <div
+                key={`${booking.booking_id}-${index}`}
+                ref={isLast && hasMore ? lastBookingElementRef : null}
+                className="bg-[#070C1B] max-w rounded-lg md:p-6 mb-4 cursor-pointer"
+                onClick={() => handleBookingClick(booking)}
+              >
+                {/* Movie Information Section */}
+                <div className="flex flex-col md:flex-row p-4 md:p-0 md:mb-6 gap-6 md:gap-0">
+                  {/* Movie Poster */}
+                  <div className="flex">
+                    <div className="w-30 h-40 rounded-lg overflow-hidden flex-shrink-0">
+                      {booking.movie.poster_url ? (
+                        <Image
+                          src={booking.movie.poster_url}
+                          alt={booking.movie.title}
+                          width={120}
+                          height={160}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-slate-600 rounded-lg flex items-center text-xs text-gray-400">
+                          Movie Poster
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Movie Details */}
+                    <div className="flex flex-col justify-center ml-6">
+                      <h2 className="text-white text-xl mb-3 font-semibold">
+                        {booking.movie.title}
+                      </h2>
+
+                      <div className="flex flex-col text-sm gap-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[--base-gray-200]">
+                            <FmdGoodIcon style={{ fontSize: 16 }} />
+                          </span>
+                          <span className="text-[--base-gray-400]">
+                            {booking.cinema.name}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <span className="text-[--base-gray-200]">
+                            <CalendarMonthIcon style={{ fontSize: 16 }} />
+                          </span>
+                          <span className="text-[--base-gray-400]">
+                            {formatDate(booking.showtime.date)}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <span className="text-[--base-gray-200]">
+                            <AccessTimeIcon style={{ fontSize: 16 }} />
+                          </span>
+                          <span className="text-[--base-gray-400]">
+                            {booking.showtime.start_time
+                              ? booking.showtime.start_time
+                                  .slice(0, 5)
+                                  .replace(":", ":")
+                              : ""}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <span className="text-[--base-gray-200]">
+                            <MeetingRoomIcon style={{ fontSize: 16 }} />
+                          </span>
+                          <span className="text-[--base-gray-400]">
+                            Hall {booking.screen.screen_number}
+                          </span>
+                        </div>
                       </div>
-                    )}
+                    </div>
                   </div>
 
-                  {/* Movie Details */}
-                  <div className="flex flex-col justify-center ml-6">
-                    <h2 className="text-white text-xl mb-3 font-semibold">
-                      {booking.movie.title}
-                    </h2>
-
-                    <div className="flex flex-col text-sm gap-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-[--base-gray-200]">
-                          <FmdGoodIcon style={{ fontSize: 16 }} />
-                        </span>
-                        <span className="text-[--base-gray-400]">
-                          {booking.cinema.name}
-                        </span>
+                  {/* Booking Info */}
+                  <div className="items-stretch text-[--base-gray-300] text-sm md:ml-auto">
+                    <div className="flex gap-2 mb-1">
+                      <div className="">Booking No.</div>
+                      <div className="font-medium">
+                        {booking.booking_id
+                          .toString()
+                          .substring(0, 8)
+                          .toUpperCase()}
                       </div>
+                    </div>
 
-                      <div className="flex items-center gap-2">
-                        <span className="text-[--base-gray-200]">
-                          <CalendarMonthIcon style={{ fontSize: 16 }} />
-                        </span>
-                        <span className="text-[--base-gray-400]">
-                          {formatDate(booking.showtime.date)}
-                        </span>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <span className="text-[--base-gray-200]">
-                          <AccessTimeIcon style={{ fontSize: 16 }} />
-                        </span>
-                        <span className="text-[--base-gray-400]">
-                          {booking.showtime.start_time
-                            ? booking.showtime.start_time
-                                .slice(0, 5)
-                                .replace(":", ":")
-                            : ""}
-                        </span>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <span className="text-[--base-gray-200]">
-                          <MeetingRoomIcon style={{ fontSize: 16 }} />
-                        </span>
-                        <span className="text-[--base-gray-400]">
-                          Hall {booking.screen.screen_number}
-                        </span>
+                    <div className="flex gap-2">
+                      <div className="">Booked date</div>
+                      <div className="font-medium">
+                        {formatDate(booking.booking_date)}
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Booking Info */}
-                <div className="items-stretch text-[--base-gray-300] text-sm md:ml-auto">
-                  <div className="flex gap-2 mb-1">
-                    <div className="">Booking No.</div>
-                    <div className="font-medium">
-                      {booking.booking_id
-                        .toString()
-                        .substring(0, 8)
-                        .toUpperCase()}
+                {/* Booking Details Section */}
+                <div className="flex flex-col md:flex-row justify-center border-t border-[--base-gray-100] m-4 mt-0 py-4 md:pt-6 md:pb-0 md:m-0 gap-4">
+                  <div className="flex flex-row md:flex-none">
+                    <div className="bg-[--base-gray-100] py-3 px-4 rounded-sm text-center text-nowrap">
+                      <div className="text-[--base-gray-400] font-bold">
+                        {booking.seats.length} Tickets
+                      </div>
+                    </div>
+                    <div className="w-full flex flex-col ml-6 text-sm md:gap-1">
+                      <div className="flex justify-between md:gap-4">
+                        <span className="text-[--base-gray-300] inline-block">
+                          Selected Seat
+                        </span>
+                        <span className="text-[--base-gray-400] font-medium">
+                          {booking.seats.join(", ")}
+                        </span>
+                      </div>
+                      <div className="flex justify-between md:gap-4">
+                        <span className="text-[--base-gray-300] inline-block">
+                          Payment method
+                        </span>
+                        <span className="text-[--base-gray-400] font-medium">
+                          {booking.payment.payment_method}
+                        </span>
+                      </div>
                     </div>
                   </div>
-
-                  <div className="flex gap-2">
-                    <div className="">Booked date</div>
-                    <div className="font-medium">
-                      {formatDate(booking.booking_date)}
-                    </div>
+                  <div className="flex justify-end items-center md:ml-auto">
+                    {booking.status === "booked" ? (
+                      <div className="bg-[--brand-green] text-white py-[6px] px-4 rounded-full font-bold text-center">
+                        Paid
+                      </div>
+                    ) : booking.status === "cancelled" ? (
+                      <div className="bg-[#565F7E] text-white py-[6px] px-4 rounded-full font-bold text-center">
+                        Cancelled
+                      </div>
+                    ) : booking.status === "completed" ? (
+                      <div className="bg-[--brand-blue] text-white py-[6px] px-4 rounded-full font-bold text-center">
+                        Complete
+                      </div>
+                    ) : null}
                   </div>
                 </div>
               </div>
+            );
+          })}
 
-              {/* Booking Details Section */}
-              <div className="flex flex-col md:flex-row justify-center border-t border-[--base-gray-100] m-4 mt-0 py-4 md:pt-6 md:pb-0 md:m-0 gap-4">
-                <div className="flex flex-row md:flex-none">
-                  <div className="bg-[--base-gray-100] py-3 px-4 rounded-sm text-center text-nowrap">
-                    <div className="text-[--base-gray-400] font-bold">
-                      {booking.seats.length} Tickets
-                    </div>
-                  </div>
-                  <div className="w-full flex flex-col ml-6 text-sm md:gap-1">
-                    <div className="flex justify-between md:gap-4">
-                      <span className="text-[--base-gray-300] inline-block">
-                        Selected Seat
-                      </span>
-                      <span className="text-[--base-gray-400] font-medium">
-                        {booking.seats.join(", ")}
-                      </span>
-                    </div>
-                    <div className="flex justify-between md:gap-4">
-                      <span className="text-[--base-gray-300] inline-block">
-                        Payment method
-                      </span>
-                      <span className="text-[--base-gray-400] font-medium">
-                        {booking.payment.payment_method}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex justify-end items-center md:ml-auto">
-                  {booking.status === "booked" ? (
-                    <div className="bg-[--brand-green] text-white py-[6px] px-4 rounded-full font-bold text-center">
-                      Paid
-                    </div>
-                  ) : booking.status === "cancelled" ? (
-                    <div className="bg-[#565F7E] text-white py-[6px] px-4 rounded-full font-bold text-center">
-                      Cancelled
-                    </div>
-                  ) : booking.status === "completed" ? (
-                    <div className="bg-[--brand-blue] text-white py-[6px] px-4 rounded-full font-bold text-center">
-                      Complete
-                    </div>
-                  ) : null}
-                </div>
-              </div>
+          {/* Loading indicator สำหรับ infinite scroll */}
+          {loading && (
+            <div className="text-center py-8">
+              <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+              <p className="text-gray-400 text-sm mt-2">Loading more bookings...</p>
             </div>
-          ))}
+          )}
+
+          {/* ข้อความเมื่อไม่มีข้อมูลเพิ่มเติม */}
+          {!hasMore && displayedBookings.length < allBookings.length && (
+            <div className="text-center py-4">
+              <p className="text-gray-400 text-sm">All bookings loaded</p>
+            </div>
+          )}
+          
+          {/* ข้อความเมื่อโหลดครบทั้งหมดแล้ว */}
+          {!hasMore && displayedBookings.length === allBookings.length && allBookings.length > ITEMS_PER_PAGE && (
+            <div className="text-center py-4">
+              <p className="text-gray-400 text-sm">No more bookings to load</p>
+            </div>
+          )}
         </div>
       ) : (
         <p className="text-gray-400 text-center mt-12">

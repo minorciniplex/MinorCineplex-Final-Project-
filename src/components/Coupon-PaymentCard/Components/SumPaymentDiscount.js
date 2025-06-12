@@ -260,6 +260,24 @@ export default function SumPaymentDiscount({
                 sessionStorage.setItem("lastPaymentMethod", "Credit card");
               }
               setOpenConfirmPopup(false);
+              if (coupon?.coupons?.coupon_id) {
+                try {
+                  const updateCouponRes = await fetch(
+                    "/api/use-coupon/update-status-coupon",
+                    {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        coupon_id: coupon.coupons.coupon_id,
+                      }),
+                    }
+                  );
+                  const updateResult = await updateCouponRes.json();
+                  console.log("ผลการอัพเดทสถานะคูปอง:", updateResult);
+                } catch (error) {
+                  console.error("เกิดข้อผิดพลาดในการอัพเดทสถานะคูปอง:", error);
+                }
+              }
               router.push(
                 `/payment-success?bookingId=${data.booking_id}&fromCard=true`
               );
@@ -293,7 +311,7 @@ export default function SumPaymentDiscount({
 
           setOpenConfirmPopup(false);
           router.push(
-            `/payment-qr?chargeId=${qrData.chargeId}&amount=${finalPrice}&bookingId=${data.booking_id}`
+            `/payment-qr?chargeId=${qrData.chargeId}&amount=${finalPrice}&bookingId=${data.booking_id}&couponId=${couponId}`
           );
           return;
         } catch (error) {
@@ -366,6 +384,7 @@ export default function SumPaymentDiscount({
                 id: data?.booking_id,
                 total: finalPrice || data?.total_price || 0,
                 movie_id: data?.movie_id,
+                couponId: couponId || null,
               }}
               userId={user?.id}
             />

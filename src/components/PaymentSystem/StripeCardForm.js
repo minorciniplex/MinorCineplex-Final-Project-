@@ -20,7 +20,7 @@ const ELEMENT_OPTIONS = {
 };
 
 const StripeCardForm = forwardRef(function StripeCardForm(
-  { setIsCardComplete, booking, userId },
+  { setIsCardComplete, booking, userId, couponId },
   ref
 ) {
   const stripe = useStripe();
@@ -113,7 +113,7 @@ const StripeCardForm = forwardRef(function StripeCardForm(
         const markPaidRes = await fetch("/api/booking/mark-paid", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ bookingId: bookingIdReal }),
+          body: JSON.stringify({ bookingId: bookingIdReal, couponId }),
         });
         const markPaidData = await markPaidRes.json();
         if (!markPaidData.success) {

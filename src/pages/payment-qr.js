@@ -4,7 +4,7 @@ import Navbar from '@/components/Navbar/Navbar';
 
 export default function PaymentQR() {
   const router = useRouter();
-  const { chargeId, amount, bookingId } = router.query;
+  const { chargeId, amount, bookingId, couponId } = router.query;
   const [qr, setQr] = useState(null);
   const [status, setStatus] = useState(null);
   const [booking, setBooking] = useState(null);
@@ -90,7 +90,8 @@ export default function PaymentQR() {
             body: JSON.stringify({ 
               bookingId: bookingId,
               paymentIntentId: chargeId,
-              paymentMethod: 'promptpay'
+              paymentMethod: 'promptpay',
+              couponId: couponId,
             }),
           });
           

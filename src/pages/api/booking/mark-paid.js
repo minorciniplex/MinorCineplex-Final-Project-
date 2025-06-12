@@ -16,7 +16,7 @@ const handler = async (req, res) => {
     return res.status(405).json({ error: "Method Not Allowed" });
   }
 
-  const { bookingId, paymentIntentId, paymentMethod, paymentData } = req.body;
+  const { bookingId, paymentIntentId, paymentMethod, paymentData, couponId } = req.body;
   if (!bookingId) {
     return res.status(400).json({ error: "Missing bookingId" });
   }
@@ -74,8 +74,25 @@ const handler = async (req, res) => {
       .select();
 
     if (paymentError) {
-      console.error("Error updating seats:", seatsError);
-      return res.status(500).json({ error: seatsError.message });
+      console.error("Error updating seats:", paymentError);
+      return res.status(500).json({ error: paymentError.message });
+    }
+
+    if(couponId){
+      const { data: updatedCoupon, error: updateCouponError } = await supabase
+      .from("user_coupons")
+      .update({
+        coupon_status: "used",
+        used_date: new Date().toISOString(),
+      })
+      .eq("coupon_id", couponId)
+      .eq("user_id", user.id)
+      .select();
+
+    if (updateCouponError) {
+      console.error("Error updating coupon status:", updateCouponError);
+      return res.status(500).json({ error: updateCouponError.message });
+    }
     }
 
     let insertedPaymentData = null;

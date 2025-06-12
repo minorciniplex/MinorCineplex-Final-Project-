@@ -130,7 +130,7 @@ export default function PaymentSuccess() {
             displayPaymentMethod = "ไม่ระบุ";
           }
         }
-        
+
         // ล้าง sessionStorage หลังจากใช้เสร็จ
         if (typeof window !== "undefined" && lastPaymentMethod) {
           sessionStorage.removeItem("lastPaymentMethod");
@@ -187,132 +187,133 @@ export default function PaymentSuccess() {
   if (!booking) return <div className="text-white">ไม่พบข้อมูลการจอง</div>;
 
   return (
-    <div className="pt-[50px] flex flex-col items-center justify-center bg-[#101525] text-white">
+    <>
       <Navbar />
-      <div className="flex flex-col items-center mt-[40px] md:mt-[80px]">
-        <div className="bg-brand-green rounded-full w-20 h-20 flex items-center justify-center mb-6">
-          <Image
-            src={"/assets/images/Done.png"}
-            width={32}
-            height={32}
-            alt="Success"
-          />
-        </div>
-        <h1 className="text-3xl font-bold mb-2">Payment Successful!</h1>
-        <p className="text-base-gray-300 mb-8 text-center">
-          Your booking has been confirmed. Check your email for details.
-        </p>
+      <div className="flex flex-col items-center justify-center bg-[#101525] text-white mt-[56px] md:mt-[186px]">
+        <div className="flex flex-col items-center w-full p-4 md:w-[386px]">
+          <div className="bg-brand-green rounded-full w-20 h-20 flex items-center justify-center mb-6">
+            <Image
+              src={"/assets/images/Done.png"}
+              width={32}
+              height={32}
+              alt="Success"
+            />
+          </div>
+          <h1 className="text-3xl font-bold mb-12">Booking Success</h1>
 
-        {/* Booking Details Card */}
-        <div className="bg-[#232B47] rounded-lg p-6 w-full max-w-md mb-6">
-          <h2 className="text-xl font-semibold mb-4">Booking Details</h2>
+          {/* Booking Details Card */}
+          <div className="bg-[--base-gray-0] rounded-lg p-6 w-full  mb-12">
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <FmdGoodIcon
+                  style={{ fontSize: 16 }}
+                  className="text-base-gray-300"
+                />
+                <span className="text-base-gray-400">
+                  {booking.cinema_name}
+                </span>
+              </div>
 
-          <div className="space-y-3">
-            <div className="flex items-center gap-3 text-sm">
-              <FmdGoodIcon
-                style={{ fontSize: 16 }}
-                className="text-base-gray-300"
-              />
-              <span className="text-base-gray-300">{booking.cinema_name}</span>
+              <div className="flex items-center gap-3">
+                <CalendarMonthIcon
+                  style={{ fontSize: 16 }}
+                  className="text-base-gray-300"
+                />
+                <span className="text-base-gray-400">{booking.show_date}</span>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <AccessTimeIcon
+                  style={{ fontSize: 16 }}
+                  className="text-base-gray-300"
+                />
+                <span className="text-base-gray-400">{booking.show_time}</span>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <MeetingRoomIcon
+                  style={{ fontSize: 16 }}
+                  className="text-base-gray-300"
+                />
+                <span className="text-base-gray-400">{booking.hall}</span>
+              </div>
             </div>
 
-            <div className="flex items-center gap-3 text-sm">
-              <CalendarMonthIcon
-                style={{ fontSize: 16 }}
-                className="text-base-gray-300"
-              />
-              <span className="text-base-gray-300">{booking.show_date}</span>
-            </div>
+            <div className="border-t border-base-gray-100 mt-4 pt-4">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-base-gray-300">Selected Seat</span>
+                <span className="text-white font-bold">{booking.seat}</span>
+              </div>
 
-            <div className="flex items-center gap-3 text-sm">
-              <AccessTimeIcon
-                style={{ fontSize: 16 }}
-                className="text-base-gray-300"
-              />
-              <span className="text-base-gray-300">{booking.show_time}</span>
-            </div>
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-base-gray-300">Payment Method</span>
+                <span className="text-white font-bold">
+                  {booking.payment_method}
+                </span>
+              </div>
 
-            <div className="flex items-center gap-3 text-sm">
-              <MeetingRoomIcon
-                style={{ fontSize: 16 }}
-                className="text-base-gray-300"
-              />
-              <span className="text-base-gray-300">{booking.hall}</span>
+              <div className="flex justify-between items-center">
+                <span className="text-base-gray-300">Total</span>
+                <span className="text-white font-bold">THB{booking.total}</span>
+              </div>
             </div>
           </div>
 
-          <div className="border-t border-base-gray-200 mt-4 pt-4">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-base-gray-300">Movie:</span>
-              <span className="text-white font-medium">
-                {booking.movie_title}
-              </span>
-            </div>
-
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-base-gray-300">Seats:</span>
-              <span className="text-white font-medium">{booking.seat}</span>
-            </div>
-
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-base-gray-300">Payment Method:</span>
-              <span className="text-white font-medium">
-                {booking.payment_method}
-              </span>
-            </div>
-
-            <div className="flex justify-between items-center">
-              <span className="text-base-gray-300">Total:</span>
-              <span className="text-white font-bold">THB{booking.total-booking.discount_amount}</span>
-            </div>
+          {/* Action Buttons */}
+          <div className="flex flex-row gap-4 w-full">
+            <button
+              className="w-1/2 h-[48px] bg-transparent border border-base-gray-200 text-white rounded-[4px] hover:bg-base-gray-100 transition-colors"
+              onClick={() => router.push("/")}
+            >
+              Back to Home
+            </button>
+            <Button
+              className="!w-1/2 h-[48px] !rounded-[4px] whitespace-nowrap"
+              onClick={() => router.push(`/booking-detail/${bookingId}`)}
+            >
+              Booking Detail
+            </Button>
           </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex flex-col gap-3 w-full max-w-md">
-          <Button
-            className="!w-full !h-[48px] !rounded-[4px]"
-            onClick={() => router.push(`/booking-detail/${bookingId}`)}
-          >
-            View Booking Details
-          </Button>
-
-          <button
-            className="w-full h-[48px] bg-transparent border border-base-gray-200 text-white rounded-[4px] hover:bg-base-gray-100 transition-colors"
-            onClick={() => setShowShare(true)}
-          >
-            Share Booking
-          </button>
-
-          <button
-            className="w-full h-[48px] bg-transparent text-base-gray-300 rounded-[4px] hover:text-white transition-colors"
-            onClick={() => router.push("/")}
-          >
-            Back to Home
-          </button>
-        </div>
-        <div
-          className="text-white flex items-center justify-center cursor-pointer pt-[10px] relative"
-          onClick={() => setShowShare(!showShare)}
-        >
-          Share this booking
-        </div>
-        {/* popup box */}
-        {showShare && (
           <div
-            className="fixed inset-0 z-50"
-            onClick={(e) => {
-              if (e.target === e.currentTarget) {
-                setShowShare(false);
-              }
-            }}
+            className="text-white flex items-center justify-center cursor-pointer mt-12 mb-10 md:mb-0 relative underline gap-[6px]"
+            onClick={() => setShowShare(!showShare)}
           >
-            <div className="relative">
-              <SharePage bookingData={booking} isSuccessPage={true} />
-            </div>
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M20 3V2.5H20.5V3H20ZM10.3536 13.3536C10.1583 13.5488 9.84171 13.5488 9.64645 13.3536C9.45118 13.1583 9.45118 12.8417 9.64645 12.6464L10.3536 13.3536ZM19.5 11V3H20.5V11H19.5ZM20 3.5H12V2.5H20V3.5ZM20.3536 3.35355L10.3536 13.3536L9.64645 12.6464L19.6464 2.64645L20.3536 3.35355Z"
+                fill="white"
+              />
+              <path
+                d="M18 14.625V14.625C18 15.9056 18 16.5459 17.8077 17.0568C17.5034 17.8653 16.8653 18.5034 16.0568 18.8077C15.5459 19 14.9056 19 13.625 19H10C7.17157 19 5.75736 19 4.87868 18.1213C4 17.2426 4 15.8284 4 13V9.375C4 8.09442 4 7.45413 4.19228 6.94325C4.4966 6.1347 5.1347 5.4966 5.94325 5.19228C6.45413 5 7.09442 5 8.375 5V5"
+                stroke="white"
+                stroke-linecap="round"
+              />
+            </svg>
+            Share this booking
           </div>
-        )}
+          {/* popup box */}
+          {showShare && (
+            <div
+              className="inset-0 z-50"
+              onClick={(e) => {
+                if (e.target === e.currentTarget) {
+                  setShowShare(false);
+                }
+              }}
+            >
+              <div className="relative">
+                <SharePage bookingData={booking} isSuccessPage={true} />
+              </div>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }

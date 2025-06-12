@@ -197,7 +197,7 @@ export default function BookingCard({
 
   return (
     <>
-      <div className="h-min w-min md:basis-1/5 flex flex-col p-4 bg-[--base-gray-0] rounded-lg shadow-md">
+      <div className="h-min w-auto md:basis-1/5 flex flex-col p-4 bg-[--base-gray-0] rounded-lg shadow-md">
         <div className="flex rounded-t-lg">
           <Image
             src={poster}
@@ -214,7 +214,7 @@ export default function BookingCard({
               {genreArr?.map((genre, index) => (
                 <span
                   key={index}
-                  className=" bg-[--base-gray-100] py-[4px] md:py-[6px] px-3 rounded text-sm md:text-sm text-[--base-gray-300]"
+                  className="bg-[--base-gray-100] py-[4px] md:py-[6px] px-3 rounded text-sm md:text-sm text-[--base-gray-300]"
                 >
                   {genre?.movie_genres?.name || genre?.name || genre || ""}
                 </span>

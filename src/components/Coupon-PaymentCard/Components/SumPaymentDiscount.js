@@ -351,15 +351,15 @@ export default function SumPaymentDiscount({
       <div className="flex flex-col gap-2">
         <div className="flex justify-between items-center text-[--base-gray-300] text-base">
           <span>Booking seats</span>
-          <span>{seatNumber.join(", ")}</span>
+          <span className="font-bold text-white">{seatNumber.join(", ")}</span>
         </div>
         <div className="flex justify-between items-center text-[--base-gray-300] text-base">
           <span>Booking price</span>
-          <span>THB{data?.total_price || 0} </span>
+          <span className="font-bold text-white">THB{data?.total_price || 0} </span>
         </div>
         <div className="flex justify-between items-center text-[--base-gray-300] text-base">
           <span>Payment method</span>
-          <span>{paymentMethod}</span>
+          <span className="font-bold text-white">{paymentMethod}</span>
         </div>
         <div className="flex justify-between items-center text-[--base-gray-300] text-base">
           <span>Coupon</span>
@@ -369,7 +369,7 @@ export default function SumPaymentDiscount({
         </div>
         <div className="flex justify-between items-center text-[--base-gray-300] text-base">
           <span>Total</span>
-          <span>THB{finalTotal || 0} </span>
+          <span className="font-bold text-white">THB{finalTotal || 0} </span>
         </div>
       </div>
 

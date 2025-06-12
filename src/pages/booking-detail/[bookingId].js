@@ -4,7 +4,12 @@ import { supabase } from "@/utils/supabase";
 import Head from "next/head";
 import axios from "axios";
 import Navbar from "@/components/Navbar/Navbar";
+import FooterSection from "@/components/sections/FooterSection/FooterSection";
 import Image from "next/image";
+import FmdGoodIcon from "@mui/icons-material/FmdGood";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
 
 export default function BookingDetailPage() {
   const router = useRouter();
@@ -57,8 +62,27 @@ export default function BookingDetailPage() {
     router.push(`/booking/seats/seat?${query}`);
   };
 
+  function formatDate(dateStr) {
+    if (!dateStr) return "";
+    const date = new Date(dateStr);
+    if (isNaN(date)) return dateStr;
+    return date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  }
+
+  function formatTimes(timeStr) {
+    if (!timeStr) return "";
+    // รองรับทั้ง "13:00:00" หรือ "13:00"
+    const [hour, minute] = timeStr.split(":");
+    return `${hour.padStart(2, "0")}:${minute.padStart(2, "0")}`;
+  }
+
   return (
     <>
+      <Navbar />
       {booking && (
         <Head>
           <title>{booking.movie.title} | Booking Detail</title>
@@ -84,11 +108,10 @@ export default function BookingDetailPage() {
           <meta property="og:image" content={booking.movie.poster_url} />
         </Head>
       )}
-      <div className="min-h-screentext-white flex flex-col justify-center items-center">
-        <Navbar />
-        <div className="mt-[100px] ">
-          <h1 className="text-3xl font-bold mb-10">Booking Detail</h1>
-          <div className="flex justify-center items-start gap-12">
+      <div className="flex flex-col ">
+        <div className="mt-12 md:mt-[144px] md:px-[120px] md:pb-[88px]">
+          <h1 className="mt-10 ml-4 mb-6 md:ml-0 md:mt-0 md:mb-8 text-4xl font-bold">Booking Detail</h1>
+          <div className="flex flex-col md:flex-row justify-center items-start gap-6">
             {/* Poster */}
             {booking && (
               <Image
@@ -96,55 +119,66 @@ export default function BookingDetailPage() {
                 alt={booking.movie.title}
                 width={300}
                 height={440}
-                className="w-[300px] h-[440px] rounded-lg shadow-lg object-cover"
+                className="w-full md:w-fit rounded-sm object-cover"
               />
             )}
             {/* Details */}
             {booking && (
-              <div className="bg-[#101525] rounded-xl p-8 w-[420px] shadow-lg">
-                <h2 className="text-3xl font-bold mb-4">
+              <div className="bg-[--base-gray-0] backdrop-blur-[24px] rounded-xl p-4 md:p-10">
+                <h2 className="text-4xl font-bold mb-2">
                   {booking.movie.title}
                 </h2>
-                <div className="flex gap-2 mb-4">
+                <div className="flex gap-2 mb-6">
                   {booking.movie.genre.map((genre, index) => (
                     <span
                       key={index}
-                      className="bg-[#232B47] text-xs px-3 py-1 rounded-full"
+                      className="bg-[--base-gray-100] text-sm text-[--base-gray-300] px-3 py-[6px] rounded-sm"
                     >
                       {genre || ""}
                     </span>
                   ))}
-                  <span className="bg-[#232B47] text-xs px-3 py-1 rounded-full">
+                  <span className="bg-[--base-gray-100] text-sm text-[--base-gray-400] px-3 py-[6px] rounded-sm">
                     {booking.movie.languages}
                   </span>
                 </div>
-                <div className="mb-4 space-y-2 text-base-gray-300">
-                  <div>🎬 {booking.cinema.name}</div>
-                  <div>📅 {booking.showtime.date}</div>
-                  <div>⏰ {booking.showtime.start_time}</div>
-                  <div>🏛 Hall {booking.screen.screen_number || 1}</div>
+                <div className="mb-12 space-y-2 text-base-gray-300">
+                  <div className="flex items-center gap-2">
+                    <FmdGoodIcon fontSize="small" className="gap-22"/> {booking.cinema.name}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CalendarMonthIcon fontSize="small" className="gap-22"/>{" "}
+                    {formatDate(booking.showtime.date)}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <AccessTimeIcon fontSize="small" className="gap-22"/>{" "}
+                    {formatTimes(booking.showtime.start_time)}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <MeetingRoomIcon fontSize="small" className="gap-22"/> Hall{" "}
+                    {booking.hall || 1}
+                  </div>
                 </div>
-                <div className="flex items-center gap-4 mb-4">
-                  <span className="bg-[#232B47] px-4 py-2 rounded text-white">
+                <div className="flex items-center gap-6 mb-12">
+                  <div className="bg-[--base-gray-100] px-4 py-2 rounded text-[--base-gray-400]">
                     {Array.isArray(booking.seats) ? booking.seats.length : 0}{" "}
                     Tickets
-                  </span>
-                  <span>
+                  </div>
+                  <div className="text-[--base-gray-400]">
                     Selected Seat{" "}
-                    <b>
+                    <b className="text-white ml-6">
                       {Array.isArray(booking.seats)
                         ? booking.seats.join(", ")
                         : "-"}
                     </b>
-                  </span>
+                  </div>
                 </div>
                 <button
-                  className="bg-[#4F7BFF] hover:bg-blue-700 text-white font-bold py-2 px-6 rounded transition mb-6"
+                  className="bg-[--brand-blue-100] hover:bg-blue-700 text-white font-bold py-3 px-10 rounded-sm transition mb-12"
                   onClick={() => handleClick(booking)}
                 >
                   Book more seats
                 </button>
-                <div className="text-base-gray-400 mt-6 text-sm leading-relaxed">
+                <div className="text-base-gray-400 leading-relaxed border-t border-[--base-gray-100] pt-12">
                   {booking.movie.description}
                 </div>
               </div>
@@ -160,6 +194,7 @@ export default function BookingDetailPage() {
           )}
         </div>
       </div>
+      <FooterSection className="block md:hidden"/>
     </>
   );
 }

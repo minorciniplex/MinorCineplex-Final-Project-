@@ -77,7 +77,7 @@ function ResetPassword() {
 
   return (
     <>
-      <div className="flex flex-col items-start justify-start min-h-screen w-[400px] px-4 ">
+      <div className="flex flex-col items-start justify-start w-auto px-4 md:ml-8">
         <form
           className="flex flex-col justify-center item-center w-full max-w-sm text-white space-y-2 "
           onSubmit={(e) => {

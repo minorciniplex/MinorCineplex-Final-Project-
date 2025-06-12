@@ -36,9 +36,9 @@ function CouponsCard({ coupon_id, image, title, end_date }) {
 
   return (
     <>
-      <div className="w-full max-w-[161px] bg-[#10142A] flex flex-col rounded-[4px] shadow-[0_4px_16px_0_rgba(0,0,0,0.10)] overflow-hidden group cursor-pointer border border-[#23284A] transition-transform duration-200 hover:scale-[1.03] md:w-[285px] md:max-w-[285px] md:rounded-[8px] h-full">
+      <div className="w-full md:w-auto bg-[#10142A] flex flex-col rounded-[4px] shadow-[0_4px_16px_0_rgba(0,0,0,0.10)] overflow-hidden group cursor-pointer border border-[#23284A] transition-transform duration-200 hover:scale-[1.03] md:rounded-[8px] h-full">
         <div
-          className="w-full h-[161px] md:w-[285px] md:h-[285px] bg-cover bg-center flex items-center justify-center border-b border-[#23284A] md:bg-cover md:bg-center"
+          className="w-full h-[161px] md:h-[285px] bg-cover bg-center flex items-center justify-center border-b border-[#23284A] md:bg-cover md:bg-center"
           onClick={() => router.push(`/coupons/viewcoupon/${coupon_id}`)}
         >
           {image ? (

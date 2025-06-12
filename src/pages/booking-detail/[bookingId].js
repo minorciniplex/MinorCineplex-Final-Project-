@@ -108,9 +108,9 @@ export default function BookingDetailPage() {
           <meta property="og:image" content={booking.movie.poster_url} />
         </Head>
       )}
-      <div className="flex flex-col ">
+      <div className="flex flex-col">
         <div className="mt-12 md:mt-[144px] md:px-[120px] md:pb-[88px]">
-          <h1 className="mt-10 ml-4 mb-6 md:ml-0 md:mt-0 md:mb-8 text-4xl font-bold">Booking Detail</h1>
+          <h1 className="mt-10 ml-4 mb-6 md:ml-[120px] md:mt-0 md:mb-8 text-4xl font-bold">Booking Detail</h1>
           <div className="flex flex-col md:flex-row justify-center items-start gap-6">
             {/* Poster */}
             {booking && (
@@ -119,7 +119,7 @@ export default function BookingDetailPage() {
                 alt={booking.movie.title}
                 width={300}
                 height={440}
-                className="w-full md:w-fit rounded-sm object-cover"
+                className="w-auto rounded-sm object-cover"
               />
             )}
             {/* Details */}

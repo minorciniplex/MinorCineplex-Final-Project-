@@ -179,7 +179,7 @@ const ProfileUpload = () => {
   };
 
   return (
-    <div className="w-[400px] h-[596px] gap-10 px-4">
+    <div className="w-full md:w-max h-[596px] gap-10 px-4 md:px-0 md:ml-12">
       <h1 className="text-[36px] font-bold mb-4">Profile</h1>
       <h2 className="text-[#8B93B0] text-lg w-full lg:w-[550px]">
         Keep your personal details private.

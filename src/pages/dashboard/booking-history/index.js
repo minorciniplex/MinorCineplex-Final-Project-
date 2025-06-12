@@ -247,7 +247,7 @@ const BookingHistory = () => {
   }, []);
 
   return (
-    <div className="max-w md:w-2/3 text-white">
+    <div className="max-w md:w-2/3 text-white md:ml-12">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 pl-4 md:pl-0 gap-4">
         <h1 className="text-white text-4xl font-bold">Booking History</h1>
         <button

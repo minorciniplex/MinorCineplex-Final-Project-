@@ -122,7 +122,7 @@ export default function BookingDetailPage() {
                   <div>🎬 {booking.cinema.name}</div>
                   <div>📅 {booking.showtime.date}</div>
                   <div>⏰ {booking.showtime.start_time}</div>
-                  <div>🏛 Hall {booking.hall || 1}</div>
+                  <div>🏛 Hall {booking.screen.screen_number || 1}</div>
                 </div>
                 <div className="flex items-center gap-4 mb-4">
                   <span className="bg-[#232B47] px-4 py-2 rounded text-white">

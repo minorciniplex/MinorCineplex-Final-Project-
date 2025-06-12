@@ -76,6 +76,7 @@ export default function Seats() {
       <div className="flex flex-col md:flex-row justify-center md:py-[80px] md:px-[120px] md:gap-[102px] mt-20 sm:mt-0">
         <BookingSeats
           showtimeId={showtimeId}
+          screenNumber={screenNumber}
           price={price}
           onSeatsChange={handleSeatsChange}
           onPriceChange={handlePriceChange}

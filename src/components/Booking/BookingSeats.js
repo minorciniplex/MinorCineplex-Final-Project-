@@ -10,6 +10,7 @@ import { useStatus } from "@/context/StatusContext";
 
 export default function BookingSeats({
   showtimeId,
+  screenNumber,
   onSeatsChange,
   onPriceChange,
   price,
@@ -62,20 +63,21 @@ export default function BookingSeats({
 
   // Handle refresh parameter from URL (simplified - no longer needed for payment flow)
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       const urlParams = new URLSearchParams(window.location.search);
-      const shouldRefresh = urlParams.get('refresh');
-      
-      if (shouldRefresh === 'true' && showtimeId && isClient) {
-        console.log('=== REFRESHING SEATS ===');
+      const shouldRefresh = urlParams.get("refresh");
+
+      if (shouldRefresh === "true" && showtimeId && isClient) {
         // รีเฟรชข้อมูลที่นั่ง
         setTimeout(() => {
           initializeSeats();
         }, 1000);
-        
+
         // ลบ refresh parameter ออกจาก URL
-        const newUrl = window.location.pathname + window.location.search.replace(/[?&]refresh=true/, '');
-        window.history.replaceState({}, '', newUrl);
+        const newUrl =
+          window.location.pathname +
+          window.location.search.replace(/[?&]refresh=true/, "");
+        window.history.replaceState({}, "", newUrl);
       }
     }
   }, [showtimeId, isClient]);
@@ -127,8 +129,12 @@ export default function BookingSeats({
 
       if (userReservations.length > 0) {
         // Separate reserved and booked seats
-        const reservedSeats = userReservations.filter(seat => seat.seat_status === "reserved");
-        const bookedSeats = userReservations.filter(seat => seat.seat_status === "booked");
+        const reservedSeats = userReservations.filter(
+          (seat) => seat.seat_status === "reserved"
+        );
+        const bookedSeats = userReservations.filter(
+          (seat) => seat.seat_status === "booked"
+        );
 
         // Handle reserved seats (these should be selectable/modifiable)
         if (reservedSeats.length > 0) {
@@ -150,9 +156,11 @@ export default function BookingSeats({
         if (bookedSeats.length > 0) {
           const bookedSeatIds = bookedSeats.map((seat) => seat.seat_id);
           setUserBookedSeats(bookedSeatIds);
-          
+
           // IMPORTANT: Remove booked seats from selectedSeats if they exist
-          setSelectedSeats(current => current.filter(seatId => !bookedSeatIds.includes(seatId)));
+          setSelectedSeats((current) =>
+            current.filter((seatId) => !bookedSeatIds.includes(seatId))
+          );
         }
 
         // If user only has booked seats (no active reservations), reset booking ID
@@ -199,11 +207,8 @@ export default function BookingSeats({
   ) => {
     const seatLayout = [];
 
-    console.log("Creating seat layout with existing seats:", existingSeats.length);
-    
     // Create a map of existing seats for quick lookup
     const existingSeatMap = existingSeats.reduce((map, seat) => {
-      console.log(`Mapping seat ${seat.id} with status: ${seat.status}, reserved_by: ${seat.reserved_by}`);
       map[seat.id] = seat;
       return map;
     }, {});
@@ -219,18 +224,20 @@ export default function BookingSeats({
         if (existingSeat) {
           // PRIORITY: Use database status but allow local selection override for UI
           const isLocallySelected = preserveSelectedSeats.includes(seatId);
-          
+
           // Keep original database status unless locally selected
           const finalSeat = {
             ...existingSeat,
             // Only override to "selected" if locally selected AND seat is not booked by someone else
-            status: isLocallySelected && existingSeat.status !== "booked" && 
-                    (existingSeat.reserved_by === user?.id || existingSeat.status === "available")
-                    ? "selected" 
-                    : existingSeat.status
+            status:
+              isLocallySelected &&
+              existingSeat.status !== "booked" &&
+              (existingSeat.reserved_by === user?.id ||
+                existingSeat.status === "available")
+                ? "selected"
+                : existingSeat.status,
           };
-          
-          console.log(`Seat ${seatId}: database=${existingSeat.status}, localSelected=${isLocallySelected}, final=${finalSeat.status}`);
+
           seatLayout.push(finalSeat);
         } else {
           // For seats not in database, they are available or locally selected
@@ -244,14 +251,12 @@ export default function BookingSeats({
             reserved_until: null,
             showtime_id: showtimeId,
           };
-          
-          console.log(`New seat ${seatId}: status=${newSeat.status}`);
+
           seatLayout.push(newSeat);
         }
       }
     }
 
-    console.log("Final seat layout created with", seatLayout.length, "seats");
     return seatLayout;
   };
 
@@ -260,22 +265,12 @@ export default function BookingSeats({
       const response = await axios.get(`/api/seats/${showtimeId}`);
 
       const existingSeats = response.data || [];
-      
-      console.log("=== SEAT DATA LOADED ===");
-      console.log("Existing seats from API:", existingSeats);
-      console.log("Raw API response structure:", JSON.stringify(existingSeats[0], null, 2));
-      existingSeats.forEach(seat => {
-        console.log(`API Seat ${seat.id}: status=${seat.status}, reserved_by=${seat.reserved_by}, showtime_id=${seat.showtime_id}`);
-      });
-      console.log("Current selected seats:", selectedSeats);
-      console.log("Current user:", user?.id);
 
       const completeSeatLayout = createCompleteSeatLayout(
         existingSeats,
         selectedSeats
       );
 
-      console.log("Complete seat layout:", completeSeatLayout);
       setSeats(completeSeatLayout);
     } catch (err) {
       console.warn("Could not load existing seats, creating available seats");
@@ -359,9 +354,6 @@ export default function BookingSeats({
   };
 
   const handleRealtimeUpdate = (payload) => {
-    console.log("=== REALTIME UPDATE ===");
-    console.log("Payload:", payload);
-    
     const { eventType, new: newRecord, old: oldRecord } = payload;
     const seatId = newRecord?.seat_id || oldRecord?.seat_id;
 
@@ -712,12 +704,6 @@ export default function BookingSeats({
                           isClickable ? "cursor-pointer" : "cursor-not-allowed"
                         }`}
                         onClick={() => handleSeatClick(seat.id)}
-                        title={
-                          displayStatus === "booked" ? "ที่นั่งถูกจองแล้ว" :
-                          displayStatus === "reserved" ? "ที่นั่งถูกจองชั่วคราว" :
-                          displayStatus === "available" ? "ที่นั่งว่าง - คลิกเพื่อเลือก" :
-                          "ที่นั่งที่เลือก - คลิกเพื่อยกเลิก"
-                        }
                       >
                         <div>
                           {displayStatus === "available" && (
@@ -761,12 +747,6 @@ export default function BookingSeats({
                           isClickable ? "cursor-pointer" : "cursor-not-allowed"
                         }`}
                         onClick={() => handleSeatClick(seat.id)}
-                        title={
-                          displayStatus === "booked" ? "ที่นั่งถูกจองแล้ว" :
-                          displayStatus === "reserved" ? "ที่นั่งถูกจองชั่วคราว" :
-                          displayStatus === "available" ? "ที่นั่งว่าง - คลิกเพื่อเลือก" :
-                          "ที่นั่งที่เลือก - คลิกเพื่อยกเลิก"
-                        }
                       >
                         <div>
                           {displayStatus === "available" && (
@@ -800,7 +780,7 @@ export default function BookingSeats({
         {/* Seat Status Legend */}
         <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-10 border-t-2 border-[--base-gray-100] pt-2 md:py-4 mt-7 md:mt-0">
           <div className="bg-[--base-gray-100] rounded-md py-3 px-4 text-[--base-gray-400] text-2xl font-bold items-center w-[88px]">
-            Hall 1
+            Hall {screenNumber}
           </div>
           <div className="grid grid-cols-2 md:flex md:gap-10 md:grid-cols-none gap-y-8 gap-x-8 md:gap-y-0 text-[--base-gray-400]">
             <div className="flex flex-row md:flex-wrap gap-4 items-center">

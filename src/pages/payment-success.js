@@ -25,9 +25,6 @@ export default function PaymentSuccess() {
     }
     const fetchBooking = async () => {
       try {
-        console.log("Fetching booking with ID:", bookingId);
-
-        // ดึงข้อมูล booking พร้อมกับ showtime, movie, screen, cinema ในครั้งเดียว
         const { data: bookingData, error: bookingError } = await supabase
           .from("bookings")
           .select(
@@ -60,9 +57,6 @@ export default function PaymentSuccess() {
           .eq("booking_id", bookingId)
           .single();
 
-        console.log("Booking data with relations:", bookingData);
-        console.log("Booking error:", bookingError);
-
         if (bookingError || !bookingData) {
           console.error("Failed to fetch booking:", bookingError);
           setLoading(false);
@@ -85,10 +79,6 @@ export default function PaymentSuccess() {
           .limit(1)
           .maybeSingle();
 
-        console.log("Seat data:", seatData);
-        console.log("Payment data:", paymentData);
-        console.log("Payment error:", paymentError);
-
         // แปลง payment method ให้แสดงผลถูกต้อง
         let displayPaymentMethod = "ไม่ระบุ"; // เปลี่ยน default เป็น 'ไม่ระบุ'
 
@@ -99,19 +89,10 @@ export default function PaymentSuccess() {
             : null;
 
         if (lastPaymentMethod) {
-          console.log(
-            "Using payment method from sessionStorage:",
-            lastPaymentMethod
-          );
           displayPaymentMethod = lastPaymentMethod;
         } else if (paymentData?.payment_method) {
           const paymentMethod = paymentData.payment_method.toLowerCase();
-          console.log(
-            "Original payment method from DB:",
-            paymentData.payment_method
-          );
-          console.log("Lowercase payment method:", paymentMethod);
-
+          
           switch (paymentMethod) {
             case "omise_promptpay":
             case "promptpay":
@@ -149,26 +130,7 @@ export default function PaymentSuccess() {
             displayPaymentMethod = "ไม่ระบุ";
           }
         }
-
-        // Debug logging เฉพาะใน development environment
-        if (process.env.NODE_ENV === "development") {
-          console.log("Payment method from DB:", paymentData?.payment_method);
-          console.log("Payment method from sessionStorage:", lastPaymentMethod);
-          console.log("Display payment method:", displayPaymentMethod);
-
-          console.log("=== DEBUG INFO ===");
-          console.log("Booking ID:", bookingId);
-          console.log("Booking data exists:", !!bookingData);
-          console.log("Payment data exists:", !!paymentData);
-          console.log("Payment method raw:", paymentData?.payment_method);
-          console.log("Payment method from sessionStorage:", lastPaymentMethod);
-          console.log("Display payment method final:", displayPaymentMethod);
-          console.log(
-            "Debug URL:",
-            `http://localhost:3000/api/debug/payment-status?bookingId=${bookingId}`
-          );
-        }
-
+        
         // ล้าง sessionStorage หลังจากใช้เสร็จ
         if (typeof window !== "undefined" && lastPaymentMethod) {
           sessionStorage.removeItem("lastPaymentMethod");

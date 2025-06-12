@@ -57,7 +57,7 @@ const BookingHistory = () => {
       console.log("Starting cancel booking process...");
       console.log("Selected booking:", selectedBooking);
       console.log("Cancellation reason:", cancellationReason);
-      
+
       if (!selectedBooking || !selectedBooking.booking_id) {
         alert("ไม่พบข้อมูลการจอง");
         return;
@@ -69,28 +69,36 @@ const BookingHistory = () => {
       }
 
       console.log("Sending request to API...");
-      const response = await axios.post("/api/booking/cancel-booking-with-notifications", {
-        bookingId: selectedBooking.booking_id,
-        cancellationReason: cancellationReason
-      });
+      const response = await axios.post(
+        "/api/booking/cancel-booking-with-notifications",
+        {
+          bookingId: selectedBooking.booking_id,
+          cancellationReason: cancellationReason,
+        }
+      );
 
       console.log("API Response:", response.data);
-      console.log("API Response structure:", JSON.stringify(response.data, null, 2));
+      console.log(
+        "API Response structure:",
+        JSON.stringify(response.data, null, 2)
+      );
 
       if (response.data && response.data.success) {
         // แสดงข้อความสำเร็จ
         const responseData = response.data.data || {};
         const refundAmount = responseData.refundAmount || 0;
         const refundPercentage = responseData.refundPercentage || 0;
-        
+
         console.log("Extracted values:", { refundAmount, refundPercentage });
-        alert(`การยกเลิกสำเร็จ!\nจำนวนเงินคืน: THB${refundAmount}\nเปอร์เซ็นต์คืน: ${refundPercentage}%`);
-        
+        alert(
+          `การยกเลิกสำเร็จ!\nจำนวนเงินคืน: THB${refundAmount}\nเปอร์เซ็นต์คืน: ${refundPercentage}%`
+        );
+
         console.log("Refreshing booking history...");
         // รีเฟรชข้อมูล booking history
         const historyResponse = await axios.get("/api/booking/booking-history");
         setBookingHistory(historyResponse.data.data);
-        
+
         // ปิด modal
         setShowCancelModal(false);
         setCancellationReason("");
@@ -101,8 +109,11 @@ const BookingHistory = () => {
     } catch (error) {
       console.error("Error cancelling booking:", error);
       console.error("Error details:", error.response?.data);
-      
-      const errorMessage = error.response?.data?.error || error.message || "เกิดข้อผิดพลาดในการยกเลิกการจอง";
+
+      const errorMessage =
+        error.response?.data?.error ||
+        error.message ||
+        "เกิดข้อผิดพลาดในการยกเลิกการจอง";
       alert(`ไม่สามารถยกเลิกการจองได้: ${errorMessage}`);
     }
   };
@@ -123,9 +134,7 @@ const BookingHistory = () => {
   return (
     <div className="max-w md:w-2/3 text-white">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 pl-4 md:pl-0 gap-4">
-        <h1 className="text-white text-4xl font-bold">
-        Booking History
-      </h1>
+        <h1 className="text-white text-4xl font-bold">Booking History</h1>
         <button
           onClick={() => router.push("/dashboard/cancellation-history")}
           className="bg-[--brand-red] hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm md:text-base"
@@ -296,57 +305,59 @@ const BookingHistory = () => {
               <div className="flex absolute right-0 gap-4 pr-4 w-auto ">
                 {/* Share Button */}
                 <div>
-                <button className="text-gray-400 w-6 h-6 flex items-center justify-center" onClick={() => setShowShare(!showShare)}>
-                  <svg
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
+                  <button
+                    className="text-gray-400 w-6 h-6 flex items-center justify-center"
+                    onClick={() => setShowShare(!showShare)}
                   >
-                    <path
-                      d="M20 3V2.5H20.5V3H20ZM10.3536 13.3536C10.1583 13.5488 9.84171 13.5488 9.64645 13.3536C9.45118 13.1583 9.45118 12.8417 9.64645 12.6464L10.3536 13.3536ZM19.5 11V3H20.5V11H19.5ZM20 3.5H12V2.5H20V3.5ZM20.3536 3.35355L10.3536 13.3536L9.64645 12.6464L19.6464 2.64645L20.3536 3.35355Z"
-                      fill="white"
-                    />
-                    <path
-                      d="M18 14.625V14.625C18 15.9056 18 16.5459 17.8077 17.0568C17.5034 17.8653 16.8653 18.5034 16.0568 18.8077C15.5459 19 14.9056 19 13.625 19H10C7.17157 19 5.75736 19 4.87868 18.1213C4 17.2426 4 15.8284 4 13V9.375C4 8.09442 4 7.45413 4.19228 6.94325C4.4966 6.1347 5.1347 5.4966 5.94325 5.19228C6.45413 5 7.09442 5 8.375 5V5"
-                      stroke="white"
-                      stroke-linecap="round"
-                    />
-                  </svg>
-                </button>
-                {showShare && <SharePage 
-                bookingData={selectedBooking} />}
+                    <svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M20 3V2.5H20.5V3H20ZM10.3536 13.3536C10.1583 13.5488 9.84171 13.5488 9.64645 13.3536C9.45118 13.1583 9.45118 12.8417 9.64645 12.6464L10.3536 13.3536ZM19.5 11V3H20.5V11H19.5ZM20 3.5H12V2.5H20V3.5ZM20.3536 3.35355L10.3536 13.3536L9.64645 12.6464L19.6464 2.64645L20.3536 3.35355Z"
+                        fill="white"
+                      />
+                      <path
+                        d="M18 14.625V14.625C18 15.9056 18 16.5459 17.8077 17.0568C17.5034 17.8653 16.8653 18.5034 16.0568 18.8077C15.5459 19 14.9056 19 13.625 19H10C7.17157 19 5.75736 19 4.87868 18.1213C4 17.2426 4 15.8284 4 13V9.375C4 8.09442 4 7.45413 4.19228 6.94325C4.4966 6.1347 5.1347 5.4966 5.94325 5.19228C6.45413 5 7.09442 5 8.375 5V5"
+                        stroke="white"
+                        stroke-linecap="round"
+                      />
+                    </svg>
+                  </button>
+                  {showShare && <SharePage bookingData={selectedBooking} />}
                 </div>
                 {/* Close Button */}
                 <div>
-                <button
-                  onClick={closeModal}
-                  className="text-gray-400 w-6 h-6 flex items-center justify-center text-2xl"
-                  style={{ fontSize: 24 }}
-                >
-                  <svg
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
+                  <button
+                    onClick={closeModal}
+                    className="text-gray-400 w-6 h-6 flex items-center justify-center text-2xl"
+                    style={{ fontSize: 24 }}
                   >
-                    <path
-                      d="M18 6L6 18"
-                      stroke="#C8CEDD"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                    <path
-                      d="M6 6L18 18"
-                      stroke="#C8CEDD"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                </button>
-              </div>
+                    <svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M18 6L6 18"
+                        stroke="#C8CEDD"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                      <path
+                        d="M6 6L18 18"
+                        stroke="#C8CEDD"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -411,7 +422,7 @@ const BookingHistory = () => {
                   <div className="flex mb-1 gap-2">
                     <div>Booking No.</div>
                     <div className="font-medium">
-                      {(selectedBooking.booking_id)
+                      {selectedBooking.booking_id
                         .toString()
                         .substring(0, 8)
                         .toUpperCase()}
@@ -447,7 +458,9 @@ const BookingHistory = () => {
                       <span className="text-[--base-gray-300]">
                         Payment method{" "}
                       </span>
-                      <span className="">{selectedBooking.payment.payment_method}</span>
+                      <span className="">
+                        {selectedBooking.payment.payment_method}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -496,7 +509,11 @@ const BookingHistory = () => {
                     <div className="text-[--base-gray-400]">Coupon</div>
                   </div>
                   <div className="text-right">
-                    <div className="text-[--brand-red] font-bold">-THB{selectedBooking.couple_discount.discount_amount}</div>
+                    <div className="text-[--brand-red] font-bold">
+                      {selectedBooking?.couple_discount?.discount_amount
+                        ? `-THB${selectedBooking.couple_discount.discount_amount}`
+                        : "-"}
+                    </div>
                   </div>
                 </div>
                 <hr className="border-gray-600 my-3" />
@@ -508,14 +525,19 @@ const BookingHistory = () => {
                   </div>
                   <div className="text-right">
                     <div className="text-white font-bold">
-                      THB{selectedBooking.total_price - selectedBooking.couple_discount.discount_amount}
+                      {selectedBooking?.couple_discount?.discount_amount
+                        ? `THB${
+                            selectedBooking.total_price -
+                            selectedBooking.couple_discount.discount_amount
+                          }`
+                        : `THB${selectedBooking.total_price}`}
                     </div>
                   </div>
                 </div>
               </div>
               {/* Cancel Button */}
               <div className="flex items-end">
-                <button 
+                <button
                   onClick={openCancelModal}
                   className="w-max md:h-min bg-transparent border border-[--base-gray-300] text-white py-3 px-10 rounded-sm font-bold mt-6 md:mt-0"
                 >
@@ -565,24 +587,33 @@ const BookingHistory = () => {
               <div className="flex flex-col lg:flex-row gap-6">
                 {/* Left Side - Reason Selection */}
                 <div className="flex-1">
-                  <h4 className="text-white font-semibold mb-4">Reason for cancellation</h4>
+                  <h4 className="text-white font-semibold mb-4">
+                    Reason for cancellation
+                  </h4>
                   <div className="space-y-3">
                     {[
                       "I had changed my mind",
-                      "I found an alternative", 
+                      "I found an alternative",
                       "The booking was created by accident",
-                      "Other reasons"
+                      "Other reasons",
                     ].map((reason) => (
-                      <label key={reason} className="flex items-center gap-3 cursor-pointer">
+                      <label
+                        key={reason}
+                        className="flex items-center gap-3 cursor-pointer"
+                      >
                         <input
                           type="radio"
                           name="cancellation-reason"
                           value={reason}
                           checked={cancellationReason === reason}
-                          onChange={(e) => setCancellationReason(e.target.value)}
+                          onChange={(e) =>
+                            setCancellationReason(e.target.value)
+                          }
                           className="w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500"
                         />
-                        <span className="text-[--base-gray-300] text-sm">{reason}</span>
+                        <span className="text-[--base-gray-300] text-sm">
+                          {reason}
+                        </span>
                       </label>
                     ))}
                   </div>
@@ -592,27 +623,55 @@ const BookingHistory = () => {
                 <div className="w-full lg:w-[300px] bg-[#070C1B] rounded-lg p-4">
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
-                      <span className="text-[--base-gray-300] text-sm">Ticket x{selectedBooking.seats.length}</span>
-                      <span className="text-white font-bold">THB{selectedBooking.total_price}</span>
+                      <span className="text-[--base-gray-300] text-sm">
+                        Ticket x{selectedBooking.seats.length}
+                      </span>
+                      <span className="text-white font-bold">
+                        THB{selectedBooking.total_price}
+                      </span>
                     </div>
-                    
+
                     <div className="flex justify-between items-center">
-                      <span className="text-[--base-gray-300] text-sm">Coupon</span>
-                      <span className="text-[--brand-red] font-bold">-THB{selectedBooking.couple_discount.discount_amount}</span>
-                    </div>
-                    
-                    <hr className="border-[--base-gray-200]" />
-                    
-                    <div className="flex justify-between items-center">
-                      <span className="text-[--base-gray-300] text-sm">Total</span>
-                      <span className="text-white font-bold">THB{selectedBooking.total_price - selectedBooking.couple_discount.discount_amount}</span>
+                      <span className="text-[--base-gray-300] text-sm">
+                        Coupon
+                      </span>
+                      <span className="text-[--brand-red] font-bold">
+                      {selectedBooking?.couple_discount?.discount_amount
+                        ? `-THB${selectedBooking.couple_discount.discount_amount}`
+                        : "-"}
+                      </span>
                     </div>
 
                     <hr className="border-[--base-gray-200]" />
-                    
+
                     <div className="flex justify-between items-center">
-                      <span className="text-[--base-gray-300] text-sm font-bold">Total refund</span>
-                      <span className="text-white font-bold">THB{selectedBooking.total_price - selectedBooking.couple_discount.discount_amount}</span>
+                      <span className="text-[--base-gray-300] text-sm">
+                        Total
+                      </span>
+                      <span className="text-white font-bold">
+                        {selectedBooking?.couple_discount?.discount_amount
+                          ? `THB${
+                              selectedBooking.total_price -
+                              selectedBooking.couple_discount.discount_amount
+                            }`
+                          : `THB${selectedBooking.total_price}`}
+                      </span>
+                    </div>
+
+                    <hr className="border-[--base-gray-200]" />
+
+                    <div className="flex justify-between items-center">
+                      <span className="text-[--base-gray-300] text-sm font-bold">
+                        Total refund
+                      </span>
+                      <span className="text-white font-bold">
+                        {selectedBooking?.couple_discount?.discount_amount
+                          ? `THB${
+                              selectedBooking.total_price -
+                              selectedBooking.couple_discount.discount_amount
+                            }`
+                          : `THB${selectedBooking.total_price}`}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -621,10 +680,11 @@ const BookingHistory = () => {
               {/* Warning Text */}
               <div className="mt-6 text-[--base-gray-400] text-sm">
                 <p>
-                  Cancel booking before 15:30 24 Jun 2024, Refunds will be done according to{" "}
-                  <a 
-                    href="/cancellation-policy" 
-                    target="_blank" 
+                  Cancel booking before 15:30 24 Jun 2024, Refunds will be done
+                  according to{" "}
+                  <a
+                    href="/cancellation-policy"
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="text-white underline cursor-pointer hover:text-[--brand-blue] transition-colors"
                   >

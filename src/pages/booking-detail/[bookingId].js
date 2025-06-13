@@ -109,23 +109,24 @@ export default function BookingDetailPage() {
       )}
       <div className="flex flex-col">
         <div className="mt-12 md:mt-[144px] md:px-[120px] md:pb-[88px]">
-          <h1 className="mt-10 ml-4 mb-6 md:ml-[120px] md:mt-0 md:mb-8 text-4xl font-bold">
+          <h1 className="mt-10 ml-4 mb-6 md:ml-[0] md:mt-0 md:mb-8 text-4xl font-bold">
             Booking Detail
           </h1>
-          <div className="flex flex-col md:flex-row justify-center items-start gap-6">
+          <div className="flex flex-col md:flex-row justify-center items-start ">
             {/* Poster */}
             {booking && (
               <Image
                 src={booking.movie.poster_url}
                 alt={booking.movie.title}
-                width={300}
-                height={440}
-                className="w-auto rounded-sm object-cover"
+                width={387}
+                height={545}
+                
+                className="w-full rounded-sm object-cover md:w-[387px] md:h-[585px] w-[375px] h-[600px]"
               />
             )}
             {/* Details */}
             {booking && (
-              <div className="bg-[--base-gray-0] backdrop-blur-[24px] rounded-xl p-4 md:p-10">
+              <div className="bg-[--base-gray-0] backdrop-blur-[24px] rounded-xl p-4 md:p-10 md:ml-[32px]">
                 <h2 className="text-4xl font-bold mb-2">
                   {booking.movie.title}
                 </h2>

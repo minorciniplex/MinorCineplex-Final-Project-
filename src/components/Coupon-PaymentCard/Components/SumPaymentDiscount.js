@@ -82,6 +82,11 @@ export default function SumPaymentDiscount({
     }
   }, [coupon]);
 
+  // รีเซ็ต alert box เมื่อมีการเปลี่ยนคูปอง
+  useEffect(() => {
+    setShowCouponError(false);
+  }, [coupon]);
+
   // อัพเดท showBookingError เมื่อมี bookingError
   useEffect(() => {
     setCheckResult(data?.total_price);
@@ -104,7 +109,7 @@ export default function SumPaymentDiscount({
   useEffect(() => {
     const checkCouponValidity = async () => {
       if (!coupon?.coupons?.coupon_id || !data?.booking_id) {
-        console.log("ไม่มีข้อมูลคูปองหรือ booking_id");
+        
         return;
       }
 
@@ -134,7 +139,6 @@ export default function SumPaymentDiscount({
     } else if (data && typeof data.total_price !== "undefined") {
       setFinalPrice(Number(data.total_price));
     } else {
-      console.log("ไม่สามารถตั้งค่าราคาสุดท้ายได้");
       setFinalPrice(null);
     }
   }, [checkResult, data]);

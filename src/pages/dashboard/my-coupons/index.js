@@ -26,13 +26,13 @@ const MyCoupon = () => {
 
   return (
     <>
-      <div className="w-full px-4 md:px-0 lg:w-[789px] sm:w-[380px]">
+      <div className="w-full md:w-max px-4 md:px-0 ">
         <h1 className="text-2xl md:text-2xl font-bold mb-4 md:mb-6">
           My coupons
         </h1>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-4">
           {couponsInWallet.map((coupon) => (
-            <div key={coupon.coupon_id} className="relative">
+            <div key={coupon.coupon_id} className="relative ">
               <CouponsCard
                 coupon_id={coupon.coupon_id}
                 image={coupon.coupons.image}

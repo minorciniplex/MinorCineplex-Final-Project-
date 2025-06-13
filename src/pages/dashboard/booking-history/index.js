@@ -8,7 +8,7 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
 import SharePage from "@/pages/share-page";
 import Image from "next/image";
-import toast from 'react-hot-toast';
+import toast from "react-hot-toast";
 import Button from "@/components/Button";
 
 const BookingHistory = () => {
@@ -33,11 +33,6 @@ const BookingHistory = () => {
 
   const [shareBooking, setShareBooking] = useState(null);
 
-  console.log("Booking History:", bookingHistory);
-  console.log("Displayed Bookings:", displayedBookings);
-  console.log("Current Index:", currentIndex);
-  console.log("Has More:", hasMore);
-
   // Function to format date as "4 JUN 2025"
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -52,12 +47,9 @@ const BookingHistory = () => {
   // Load more items
   const loadMore = useCallback(() => {
     if (loading || !hasMore) {
-      console.log("Cannot load more:", { loading, hasMore });
       return;
     }
 
-    console.log("Loading more items...", { currentIndex, hasMore, loading });
-    
     setLoading(true);
 
     // จำลองการ delay เหมือน API call
@@ -65,14 +57,9 @@ const BookingHistory = () => {
       const nextIndex = currentIndex + ITEMS_PER_PAGE;
       const newItems = allBookings.slice(currentIndex, nextIndex);
 
-      console.log("New items to add:", newItems.length);
-      console.log("Next index:", nextIndex);
-      console.log("Total bookings:", allBookings.length);
-
       if (newItems.length > 0) {
         setDisplayedBookings((prev) => {
           const updated = [...prev, ...newItems];
-          console.log("Updated displayed bookings:", updated.length);
           return updated;
         });
         setCurrentIndex(nextIndex);
@@ -81,7 +68,6 @@ const BookingHistory = () => {
       // เช็คว่ามีข้อมูลเหลือหรือไม่
       if (nextIndex >= allBookings.length) {
         setHasMore(false);
-        console.log("No more items to load");
       }
 
       setLoading(false);
@@ -92,36 +78,27 @@ const BookingHistory = () => {
   const lastBookingElementRef = useCallback(
     (node) => {
       if (loading) {
-        console.log("Loading in progress, skipping observer setup");
         return;
       }
-      
+
       if (observer.current) {
         observer.current.disconnect();
       }
 
       observer.current = new IntersectionObserver(
         (entries) => {
-          console.log("Observer triggered:", {
-            isIntersecting: entries[0].isIntersecting,
-            hasMore,
-            loading
-          });
-          
           if (entries[0].isIntersecting && hasMore && !loading) {
-            console.log("Last element is intersecting, loading more...");
             loadMore();
           }
         },
         {
           // เพิ่ม threshold เพื่อให้ trigger ง่ายขึ้น
           threshold: 0.9,
-          rootMargin: '0px 0px 100px 0px' // เพิ่ม rootMargin เพื่อให้ trigger ก่อนถึง bottom
+          rootMargin: "0px 0px 100px 0px", // เพิ่ม rootMargin เพื่อให้ trigger ก่อนถึง bottom
         }
       );
 
       if (node) {
-        console.log("Observing last element");
         observer.current.observe(node);
       }
     },
@@ -149,38 +126,32 @@ const BookingHistory = () => {
     setShowModal(true);
   };
 
-
-
   const handleCancelBooking = async () => {
     try {
-      console.log("Starting cancel booking process...");
-      console.log("Selected booking:", selectedBooking);
-      console.log("Cancellation reason:", cancellationReason);
-
       if (!selectedBooking || !selectedBooking.booking_id) {
         toast.error("Booking information not found", {
           duration: 4000,
           style: {
-            background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
-            color: '#fff',
-            padding: '16px',
-            borderRadius: '12px',
-            fontSize: '14px',
-            fontWeight: '500',
-            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.15)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
+            background: "linear-gradient(135deg, #F59E0B 0%, #D97706 100%)",
+            color: "#fff",
+            padding: "16px",
+            borderRadius: "12px",
+            fontSize: "14px",
+            fontWeight: "500",
+            boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.15)",
+            border: "1px solid rgba(255, 255, 255, 0.1)",
           },
         });
         return;
       }
 
       // ตรวจสอบสถานะการจองก่อนส่ง request
-      if (selectedBooking.status === 'cancelled') {
+      if (selectedBooking.status === "cancelled") {
         // ปิด modal
         setShowCancelModal(false);
         setCancellationReason("");
         setSelectedBooking(null);
-        
+
         // Redirect ไปหน้า cancellation successful ด้วย refund amount
         const refundAmount = selectedBooking.total_price || 0;
         router.push(`/cancellation-successful?refund=${refundAmount}`);
@@ -191,49 +162,40 @@ const BookingHistory = () => {
         toast.error("Please select a reason for cancellation", {
           duration: 4000,
           style: {
-            background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
-            color: '#fff',
-            padding: '16px',
-            borderRadius: '12px',
-            fontSize: '14px',
-            fontWeight: '500',
-            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.15)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
+            background: "linear-gradient(135deg, #F59E0B 0%, #D97706 100%)",
+            color: "#fff",
+            padding: "16px",
+            borderRadius: "12px",
+            fontSize: "14px",
+            fontWeight: "500",
+            boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.15)",
+            border: "1px solid rgba(255, 255, 255, 0.1)",
           },
         });
         return;
       }
 
-      console.log("Sending request to API...");
-      
       // Debug: ข้อมูลที่จะส่งไป
       const requestData = {
         bookingId: selectedBooking.booking_id,
         cancellationReason: cancellationReason,
       };
-      console.log("=== REQUEST DATA ===");
-      console.log("Request URL:", "/api/booking/cancel-booking-with-notifications");
-      console.log("Request Method:", "POST");
-      console.log("Request Data:", requestData);
-      console.log("Selected Booking Full:", selectedBooking);
-      console.log("Cancellation Reason:", cancellationReason);
-      console.log("==================");
-      
-      const response = await axios.post("/api/booking/cancel-booking-with-notifications", requestData, {
-        withCredentials: true,
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
 
-      console.log("API Response:", response.data);
+      const response = await axios.post(
+        "/api/booking/cancel-booking-with-notifications",
+        requestData,
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (response.data && response.data.success) {
         const responseData = response.data.data || {};
         const refundAmount = responseData.refundAmount || 0;
         const refundPercentage = responseData.refundPercentage || 0;
-
-      
 
         // รีเฟรชข้อมูลทั้งหมด
         const historyResponse = await axios.get("/api/booking/booking-history");
@@ -248,43 +210,36 @@ const BookingHistory = () => {
         setShowCancelModal(false);
         setCancellationReason("");
         setSelectedBooking(null);
-        
+
         // Redirect ไปหน้า cancellation successful
         router.push(`/cancellation-successful?refund=${refundAmount}`);
       } else {
         toast.error("Cancellation failed", {
           duration: 5000,
           style: {
-            background: 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)',
-            color: '#fff',
-            padding: '20px',
-            borderRadius: '16px',
-            fontSize: '16px',
-            fontWeight: '600',
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.05)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            maxWidth: '420px',
+            background: "linear-gradient(135deg, #EF4444 0%, #DC2626 100%)",
+            color: "#fff",
+            padding: "20px",
+            borderRadius: "16px",
+            fontSize: "16px",
+            fontWeight: "600",
+            boxShadow:
+              "0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.05)",
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            maxWidth: "420px",
           },
           iconTheme: {
-            primary: '#fff',
-            secondary: '#EF4444',
+            primary: "#fff",
+            secondary: "#EF4444",
           },
         });
       }
     } catch (error) {
       console.error("Error cancelling booking:", error);
       console.error("Error details:", error.response?.data);
-      
+
       // Debug: ข้อมูล error ที่ละเอียด
-      console.log("=== ERROR DEBUG ===");
-      console.log("Error Status:", error.response?.status);
-      console.log("Error Status Text:", error.response?.statusText);
-      console.log("Error Data:", error.response?.data);
-      console.log("Error Headers:", error.response?.headers);
-      console.log("Error Config:", error.config);
-      console.log("Full Error Object:", error);
-      console.log("==================");
-      
+
       // จัดการ error แต่ละประเภทแยกกัน
       const handleError = (error) => {
         const status = error.response?.status;
@@ -294,42 +249,43 @@ const BookingHistory = () => {
         switch (status) {
           case 400:
             // Bad Request - รวมถึง booking already cancelled
-            if (errorMessage?.toLowerCase().includes('already cancelled')) {
+            if (errorMessage?.toLowerCase().includes("already cancelled")) {
               // ปิด modal
               setShowCancelModal(false);
               setCancellationReason("");
               setSelectedBooking(null);
-              
+
               // Redirect ไปหน้า cancellation successful ด้วย refund amount
               const refundAmount = selectedBooking.total_price || 0;
               router.push(`/cancellation-successful?refund=${refundAmount}`);
-              
-            } else if (errorMessage?.toLowerCase().includes('missing')) {
+            } else if (errorMessage?.toLowerCase().includes("missing")) {
               toast.error("Incomplete information, please try again", {
                 duration: 4000,
                 style: {
-                  background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
-                  color: '#fff',
-                  padding: '16px',
-                  borderRadius: '12px',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.15)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  background:
+                    "linear-gradient(135deg, #F59E0B 0%, #D97706 100%)",
+                  color: "#fff",
+                  padding: "16px",
+                  borderRadius: "12px",
+                  fontSize: "14px",
+                  fontWeight: "500",
+                  boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.15)",
+                  border: "1px solid rgba(255, 255, 255, 0.1)",
                 },
               });
             } else {
               toast.error(`Invalid data: ${errorMessage}`, {
                 duration: 5000,
                 style: {
-                  background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
-                  color: '#fff',
-                  padding: '16px',
-                  borderRadius: '12px',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.15)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  background:
+                    "linear-gradient(135deg, #F59E0B 0%, #D97706 100%)",
+                  color: "#fff",
+                  padding: "16px",
+                  borderRadius: "12px",
+                  fontSize: "14px",
+                  fontWeight: "500",
+                  boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.15)",
+                  border: "1px solid rgba(255, 255, 255, 0.1)",
                 },
               });
             }
@@ -340,25 +296,25 @@ const BookingHistory = () => {
             toast.error("Please log in again", {
               duration: 6000,
               style: {
-                background: 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)',
-                color: '#fff',
-                padding: '20px',
-                borderRadius: '16px',
-                fontSize: '16px',
-                fontWeight: '600',
-                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                maxWidth: '420px',
+                background: "linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)",
+                color: "#fff",
+                padding: "20px",
+                borderRadius: "16px",
+                fontSize: "16px",
+                fontWeight: "600",
+                boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+                maxWidth: "420px",
               },
               iconTheme: {
-                primary: '#fff',
-                secondary: '#8B5CF6',
+                primary: "#fff",
+                secondary: "#8B5CF6",
               },
             });
-            
+
             // Redirect to login after delay
             setTimeout(() => {
-              window.location.href = '/auth/login';
+              window.location.href = "/auth/login";
             }, 2000);
             break;
 
@@ -367,14 +323,14 @@ const BookingHistory = () => {
             toast.error("You do not have permission to cancel this booking", {
               duration: 5000,
               style: {
-                background: 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)',
-                color: '#fff',
-                padding: '16px',
-                borderRadius: '12px',
-                fontSize: '14px',
-                fontWeight: '500',
-                boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.15)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
+                background: "linear-gradient(135deg, #EF4444 0%, #DC2626 100%)",
+                color: "#fff",
+                padding: "16px",
+                borderRadius: "12px",
+                fontSize: "14px",
+                fontWeight: "500",
+                boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.15)",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
               },
             });
             break;
@@ -384,29 +340,35 @@ const BookingHistory = () => {
             toast.error("Booking to cancel not found", {
               duration: 5000,
               style: {
-                background: 'linear-gradient(135deg, #6B7280 0%, #4B5563 100%)',
-                color: '#fff',
-                padding: '16px',
-                borderRadius: '12px',
-                fontSize: '14px',
-                fontWeight: '500',
-                boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.15)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
+                background: "linear-gradient(135deg, #6B7280 0%, #4B5563 100%)",
+                color: "#fff",
+                padding: "16px",
+                borderRadius: "12px",
+                fontSize: "14px",
+                fontWeight: "500",
+                boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.15)",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
               },
             });
-            
+
             // รีเฟรชข้อมูลเพราะการจองอาจถูกลบไปแล้ว
             setTimeout(async () => {
               try {
-                const historyResponse = await axios.get("/api/booking/booking-history", {
-                  withCredentials: true
-                });
+                const historyResponse = await axios.get(
+                  "/api/booking/booking-history",
+                  {
+                    withCredentials: true,
+                  }
+                );
                 setBookingHistory(historyResponse.data.data);
                 setShowCancelModal(false);
                 setCancellationReason("");
                 setSelectedBooking(null);
               } catch (refreshError) {
-                console.error("Error refreshing booking history:", refreshError);
+                console.error(
+                  "Error refreshing booking history:",
+                  refreshError
+                );
               }
             }, 1000);
             break;
@@ -416,64 +378,72 @@ const BookingHistory = () => {
             toast.error("System error occurred, please try again later", {
               duration: 6000,
               style: {
-                background: 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)',
-                color: '#fff',
-                padding: '20px',
-                borderRadius: '16px',
-                fontSize: '16px',
-                fontWeight: '600',
-                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                maxWidth: '420px',
+                background: "linear-gradient(135deg, #EF4444 0%, #DC2626 100%)",
+                color: "#fff",
+                padding: "20px",
+                borderRadius: "16px",
+                fontSize: "16px",
+                fontWeight: "600",
+                boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+                maxWidth: "420px",
               },
               iconTheme: {
-                primary: '#fff',
-                secondary: '#EF4444',
+                primary: "#fff",
+                secondary: "#EF4444",
               },
             });
             break;
 
           default:
             // Network error หรือ error อื่นๆ
-            if (error.code === 'NETWORK_ERROR' || !error.response) {
-              toast.error("Unable to connect to server, please check your internet connection", {
-                duration: 8000,
-                style: {
-                  background: 'linear-gradient(135deg, #DC2626 0%, #B91C1C 100%)',
-                  color: '#fff',
-                  padding: '20px',
-                  borderRadius: '16px',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  maxWidth: '420px',
-                },
-                iconTheme: {
-                  primary: '#fff',
-                  secondary: '#DC2626',
-                },
-              });
+            if (error.code === "NETWORK_ERROR" || !error.response) {
+              toast.error(
+                "Unable to connect to server, please check your internet connection",
+                {
+                  duration: 8000,
+                  style: {
+                    background:
+                      "linear-gradient(135deg, #DC2626 0%, #B91C1C 100%)",
+                    color: "#fff",
+                    padding: "20px",
+                    borderRadius: "16px",
+                    fontSize: "14px",
+                    fontWeight: "500",
+                    boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+                    border: "1px solid rgba(255, 255, 255, 0.1)",
+                    maxWidth: "420px",
+                  },
+                  iconTheme: {
+                    primary: "#fff",
+                    secondary: "#DC2626",
+                  },
+                }
+              );
             } else {
               // Generic error
-              toast.error(`An error occurred: ${errorMessage || 'Unknown cause'}`, {
-                duration: 6000,
-                style: {
-                  background: 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)',
-                  color: '#fff',
-                  padding: '20px',
-                  borderRadius: '16px',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  maxWidth: '420px',
-                },
-                iconTheme: {
-                  primary: '#fff',
-                  secondary: '#EF4444',
-                },
-              });
+              toast.error(
+                `An error occurred: ${errorMessage || "Unknown cause"}`,
+                {
+                  duration: 6000,
+                  style: {
+                    background:
+                      "linear-gradient(135deg, #EF4444 0%, #DC2626 100%)",
+                    color: "#fff",
+                    padding: "20px",
+                    borderRadius: "16px",
+                    fontSize: "14px",
+                    fontWeight: "500",
+                    boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+                    border: "1px solid rgba(255, 255, 255, 0.1)",
+                    maxWidth: "420px",
+                  },
+                  iconTheme: {
+                    primary: "#fff",
+                    secondary: "#EF4444",
+                  },
+                }
+              );
             }
             break;
         }
@@ -489,11 +459,9 @@ const BookingHistory = () => {
       setInitialLoading(true);
       try {
         const response = await axios.get("/api/booking/booking-history", {
-          withCredentials: true
+          withCredentials: true,
         });
         const bookings = response.data.data || [];
-
-        console.log("Fetched bookings:", bookings.length);
 
         // เก็บข้อมูลทั้งหมด
         setAllBookings(bookings);
@@ -506,14 +474,6 @@ const BookingHistory = () => {
 
         // เช็คว่ามีข้อมูลเหลือหรือไม่
         setHasMore(bookings.length > ITEMS_PER_PAGE);
-
-        console.log("Initial setup complete:", {
-          totalBookings: bookings.length,
-          initialItems: initialItems.length,
-          currentIndex: ITEMS_PER_PAGE,
-          hasMore: bookings.length > ITEMS_PER_PAGE
-        });
-
       } catch (error) {
         console.error("Error fetching booking history:", error);
         setHasMore(false);
@@ -526,18 +486,21 @@ const BookingHistory = () => {
   }, []);
 
   return (
-    <div className="w-full md:max-w md:w-2/3 text-white px-4 md:px-0">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
+    <div className="w-full md:max-w md:w-2/3 text-white md:px-0">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4 px-4 md:px-0">
         <h1 className="text-white text-2xl md:text-4xl font-bold">
-        Booking History
-      </h1>
-        <Button
-        variant="secondary"
-          onClick={() => router.push("/dashboard/cancellation-history")}
-          className=" !text-white !px-4 !py-2 !rounded-lg !font-medium !transition-colors !text-sm md:!text-base !w-full md:!w-auto"
-        >
-          View Cancellation History
-        </Button>
+          Booking History
+        </h1>
+        
+        <div className="flex justify-center md:justify-end w-full md:w-auto">
+          <Button
+            variant="secondary"
+            onClick={() => router.push("/dashboard/cancellation-history")}
+            className="!text-white !py-2 !rounded-lg !font-medium !transition-colors !text-sm md:!text-base !w-auto !my-4"
+          >
+            View Cancellation History
+          </Button>
+        </div>
       </div>
 
       {/* Initial Loading */}
@@ -563,7 +526,7 @@ const BookingHistory = () => {
                 <div className="flex flex-col md:flex-row md:mb-6 gap-4 md:gap-6">
                   {/* Movie Poster */}
                   <div className="flex">
-                    <div className="w-20 md:w-30 h-28 md:h-40 rounded-lg overflow-hidden flex-shrink-0">
+                    <div className="w-20 md:w-auto h-28 md:h-auto rounded-lg overflow-hidden flex-shrink-0">
                       {booking.movie.poster_url ? (
                         <Image
                           src={booking.movie.poster_url}
@@ -579,11 +542,11 @@ const BookingHistory = () => {
                       )}
                     </div>
 
-                  {/* Movie Details */}
-                  <div className="flex flex-col justify-center ml-4 md:ml-6">
-                    <h2 className="text-white text-lg md:text-xl mb-2 md:mb-3 font-semibold">
-                      {booking.movie.title}
-                    </h2>
+                    {/* Movie Details */}
+                    <div className="flex flex-col justify-center ml-4 md:ml-6">
+                      <h2 className="text-white text-lg md:text-xl mb-2 md:mb-3 font-semibold">
+                        {booking.movie.title}
+                      </h2>
 
                       <div className="flex flex-col text-sm gap-1">
                         <div className="flex items-center gap-2">
@@ -629,17 +592,17 @@ const BookingHistory = () => {
                     </div>
                   </div>
 
-                {/* Booking Info */}
-                <div className="mt-4 md:mt-0 text-[--base-gray-300] text-sm md:ml-auto">
-                  <div className="flex gap-2 mb-1">
-                    <div className="">Booking No.</div>
-                    <div className="font-medium">
-                      {booking.booking_id
-                        .toString()
-                        .substring(0, 8)
-                        .toUpperCase()}
+                  {/* Booking Info */}
+                  <div className="mt-4 md:mt-0 text-[--base-gray-300] text-sm md:ml-auto">
+                    <div className="flex gap-2 mb-1">
+                      <div className="">Booking No.</div>
+                      <div className="font-medium">
+                        {booking.booking_id
+                          .toString()
+                          .substring(0, 8)
+                          .toUpperCase()}
+                      </div>
                     </div>
-                  </div>
 
                     <div className="flex gap-2">
                       <div className="">Booked date</div>
@@ -650,52 +613,52 @@ const BookingHistory = () => {
                   </div>
                 </div>
 
-              {/* Booking Details Section */}
-              <div className="flex flex-col md:flex-row justify-center border-t border-[--base-gray-100] mt-4 pt-4 md:pt-6 md:pb-0 md:m-0 gap-4">
-                <div className="flex flex-col md:flex-row md:flex-none gap-4 md:gap-0">
-                  <div className="bg-[--base-gray-100] py-3 px-4 rounded-sm text-center text-nowrap">
-                    <div className="text-[--base-gray-400] font-bold">
-                      {booking.seats.length} Tickets
+                {/* Booking Details Section */}
+                <div className="flex flex-col md:flex-row justify-center border-t border-[--base-gray-100] mt-4 pt-4 md:pt-6 md:pb-0 md:m-0 gap-4">
+                  <div className="flex flex-col md:flex-row md:flex-none gap-4 md:gap-0">
+                    <div className="bg-[--base-gray-100] py-3 px-4 rounded-sm text-center text-nowrap">
+                      <div className="text-[--base-gray-400] font-bold">
+                        {booking.seats.length} Tickets
+                      </div>
+                    </div>
+                    <div className="w-full flex flex-col md:ml-6 text-sm gap-2 md:gap-1">
+                      <div className="flex justify-between md:gap-4">
+                        <span className="text-[--base-gray-300] inline-block">
+                          Selected Seat
+                        </span>
+                        <span className="text-[--base-gray-400] font-medium">
+                          {booking.seats.join(", ")}
+                        </span>
+                      </div>
+                      <div className="flex justify-between md:gap-4">
+                        <span className="text-[--base-gray-300] inline-block">
+                          Payment method
+                        </span>
+                        <span className="text-[--base-gray-400] font-medium">
+                          {booking.payment.payment_method}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                  <div className="w-full flex flex-col md:ml-6 text-sm gap-2 md:gap-1">
-                    <div className="flex justify-between md:gap-4">
-                      <span className="text-[--base-gray-300] inline-block">
-                        Selected Seat
-                      </span>
-                      <span className="text-[--base-gray-400] font-medium">
-                        {booking.seats.join(", ")}
-                      </span>
-                    </div>
-                    <div className="flex justify-between md:gap-4">
-                      <span className="text-[--base-gray-300] inline-block">
-                        Payment method
-                      </span>
-                      <span className="text-[--base-gray-400] font-medium">
-                        {booking.payment.payment_method}
-                      </span>
-                    </div>
+                  <div className="flex justify-end md:justify-end items-center md:ml-auto mt-4 md:mt-0">
+                    {booking.status === "booked" ? (
+                      <div className="bg-[--brand-green] text-white py-[6px] px-4 rounded-full font-bold text-center">
+                        Paid
+                      </div>
+                    ) : booking.status === "cancelled" ? (
+                      <div className="bg-[#565F7E] text-white py-[6px] px-4 rounded-full font-bold text-center">
+                        Cancelled
+                      </div>
+                    ) : booking.status === "completed" ? (
+                      <div className="bg-[--brand-blue] text-white py-[6px] px-4 rounded-full font-bold text-center">
+                        Complete
+                      </div>
+                    ) : null}
                   </div>
-                </div>
-                <div className="flex justify-center md:justify-end items-center md:ml-auto mt-4 md:mt-0">
-                  {booking.status === "booked" ? (
-                    <div className="bg-[--brand-green] text-white py-[6px] px-4 rounded-full font-bold text-center">
-                      Paid
-                    </div>
-                  ) : booking.status === "cancelled" ? (
-                    <div className="bg-[#565F7E] text-white py-[6px] px-4 rounded-full font-bold text-center">
-                      Cancelled
-                    </div>
-                  ) : booking.status === "completed" ? (
-                    <div className="bg-[--brand-blue] text-white py-[6px] px-4 rounded-full font-bold text-center">
-                      Complete
-                    </div>
-                  ) : null}
                 </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
         </div>
       ) : (
         <p className="text-gray-400 text-center mt-12">
@@ -757,13 +720,13 @@ const BookingHistory = () => {
                         d="M18 6L6 18"
                         stroke="#C8CEDD"
                         stroke-linecap="round"
-                        stroke-linejoin="round"
+                        strokeLinejoin="round"
                       />
                       <path
                         d="M6 6L18 18"
                         stroke="#C8CEDD"
                         stroke-linecap="round"
-                        stroke-linejoin="round"
+                        strokeLinejoin="round"
                       />
                     </svg>
                   </button>
@@ -947,17 +910,17 @@ const BookingHistory = () => {
               </div>
               {/* Cancel Button */}
               <div className="flex items-end">
-                {selectedBooking.status === 'cancelled' ? (
+                {selectedBooking.status === "cancelled" ? (
                   <div className="w-max md:h-min bg-gray-600 border border-gray-500 text-gray-400 py-6 px-10 rounded-sm font-bold mt-6 md:mt-0 cursor-not-allowed">
                     Already Cancelled
                   </div>
                 ) : (
-                <button 
-                  onClick={openCancelModal}
+                  <button
+                    onClick={openCancelModal}
                     className="w-max md:h-min bg-transparent border border-[--base-gray-300] text-white py-3 px-10 rounded-sm font-bold mt-6 md:mt-0 hover:bg-[--base-gray-700] transition-colors"
-                >
-                  Cancel booking
-                </button>
+                  >
+                    Cancel booking
+                  </button>
                 )}
               </div>
             </div>
@@ -1004,7 +967,9 @@ const BookingHistory = () => {
               <div className="flex flex-col lg:flex-row gap-6">
                 {/* Left Side - Reason Selection */}
                 <div className="flex-1 mt-[-20px] md:mt-[0px] ">
-                  <h4 className="text-white font-semibold mb-4">Reason for cancellation</h4>
+                  <h4 className="text-white font-semibold mb-4">
+                    Reason for cancellation
+                  </h4>
                   <div className="space-y-3">
                     {[
                       "I had changed my mind",
@@ -1012,27 +977,36 @@ const BookingHistory = () => {
                       "The booking was created by accident",
                       "Other reasons",
                     ].map((reason) => (
-                      <label key={reason} className="flex items-center gap-3 cursor-pointer">
+                      <label
+                        key={reason}
+                        className="flex items-center gap-3 cursor-pointer"
+                      >
                         <div className="relative">
                           <input
                             type="radio"
                             name="cancellation-reason"
                             value={reason}
                             checked={cancellationReason === reason}
-                            onChange={(e) => setCancellationReason(e.target.value)}
+                            onChange={(e) =>
+                              setCancellationReason(e.target.value)
+                            }
                             className="sr-only"
                           />
-                          <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                            cancellationReason === reason 
-                              ? 'border-white bg-white' 
-                              : 'border-gray-400 bg-transparent'
-                          }`}>
+                          <div
+                            className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                              cancellationReason === reason
+                                ? "border-white bg-white"
+                                : "border-gray-400 bg-transparent"
+                            }`}
+                          >
                             {cancellationReason === reason && (
                               <div className="w-[16px] h-[16px] rounded-full bg-[#ffffff]"></div>
                             )}
                           </div>
                         </div>
-                        <span className="text-[--base-gray-300] text-sm">{reason}</span>
+                        <span className="text-[--base-gray-300] text-sm">
+                          {reason}
+                        </span>
                       </label>
                     ))}
                   </div>
@@ -1055,9 +1029,9 @@ const BookingHistory = () => {
                         Coupon
                       </span>
                       <span className="text-[--brand-red] font-bold">
-                      {selectedBooking?.couple_discount?.discount_amount
-                        ? `-THB${selectedBooking.couple_discount.discount_amount}`
-                        : "-"}
+                        {selectedBooking?.couple_discount?.discount_amount
+                          ? `-THB${selectedBooking.couple_discount.discount_amount}`
+                          : "-"}
                       </span>
                     </div>
 
@@ -1099,10 +1073,12 @@ const BookingHistory = () => {
               {/* Warning Text */}
               <div className="mt-6 text-[--base-gray-400] text-sm">
                 <p>
-                  Cancel booking before {selectedBooking.showtime.start_time} {formatDate(selectedBooking.showtime.date)}, Refunds will be done according to{" "}
-                  <a 
-                    href="/cancellation-policy" 
-                    target="_blank" 
+                  Cancel booking before {selectedBooking.showtime.start_time}{" "}
+                  {formatDate(selectedBooking.showtime.date)}, Refunds will be
+                  done according to{" "}
+                  <a
+                    href="/cancellation-policy"
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="text-white underline cursor-pointer hover:text-[--brand-blue] transition-colors"
                   >

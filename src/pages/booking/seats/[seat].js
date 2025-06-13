@@ -41,7 +41,6 @@ export default function Seats() {
 
   const handleExistingBookingIdChange = useCallback((bookingId) => {
     setExistingBookingId(bookingId);
-    console.log("existingBookingId:", bookingId);
   }, []);
 
   useEffect(() => {

@@ -51,7 +51,6 @@ export default function Register() {
         return;
       }
       if (error.response) {
-        console.log(error.response.data.error);
         setResError(error.response.data.error);
         setLoading(false);
         setForm({ ...form, password: "" });

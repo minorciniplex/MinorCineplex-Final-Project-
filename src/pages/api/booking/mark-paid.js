@@ -9,15 +9,24 @@ const supabaseService = createClient(
 );
 
 const handler = async (req, res) => {
+  console.log('[mark-paid] Request method:', req.method);
+  console.log('[mark-paid] Request headers:', JSON.stringify(req.headers, null, 2));
+  
   const supabase = req.supabase;
   const user = req.user;
 
   if (req.method !== "POST") {
+    console.log('[mark-paid] Method not allowed:', req.method);
     return res.status(405).json({ error: "Method Not Allowed" });
   }
 
+  console.log('[mark-paid] User authenticated:', !!user, user?.id);
+  
   const { bookingId, paymentIntentId, paymentMethod, paymentData, couponId } = req.body;
+  console.log('[mark-paid] Request body:', { bookingId, paymentIntentId, paymentMethod, couponId });
+  
   if (!bookingId) {
+    console.log('[mark-paid] Missing bookingId');
     return res.status(400).json({ error: "Missing bookingId" });
   }
 

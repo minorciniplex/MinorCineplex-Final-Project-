@@ -188,7 +188,7 @@ export default function PaymentSuccess() {
   return (
     <>
       <Navbar />
-      <div className="flex flex-col items-center justify-center bg-[#101525] text-white mt-[56px] md:mt-[186px]">
+      <div className="flex flex-col items-center justify-center bg-[#101525] text-white mt-[56px] md:mt-[100px]">
         <div className="flex flex-col items-center w-full p-4 md:w-[386px]">
           <div className="bg-brand-green rounded-full w-20 h-20 flex items-center justify-center mb-6">
             <Image
@@ -274,7 +274,7 @@ export default function PaymentSuccess() {
             </Button>
           </div>
           <div
-            className="text-white flex items-center justify-center cursor-pointer mt-12 mb-10 md:mb-0 relative underline gap-[6px]"
+            className="text-white flex items-center justify-center cursor-pointer mt-12 md:mt-10 mb-10 md:mb-0 relative underline gap-[6px]"
             onClick={() => setShowShare(!showShare)}
           >
             <svg
@@ -306,7 +306,7 @@ export default function PaymentSuccess() {
                 }
               }}
             >
-              <div className="relative">
+              <div className="relative md:-mt-20 lg:-mt-[200px]">
                 <SharePage bookingData={booking} isSuccessPage={true} />
               </div>
             </div>

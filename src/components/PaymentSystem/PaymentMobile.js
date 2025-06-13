@@ -48,11 +48,13 @@ const ELEMENT_OPTIONS = {
       iconColor: "#fa755a",
     },
   },
+  disableAutofill: true,
 };
 
 const CARD_NUMBER_OPTIONS = {
   ...ELEMENT_OPTIONS,
   placeholder: "Card number",
+  showIcon: true,
 };
 const CARD_EXPIRY_OPTIONS = {
   ...ELEMENT_OPTIONS,
@@ -240,16 +242,53 @@ const StripeCardForm = forwardRef(function StripeCardForm(
           
         // เรียก mark-paid API หลังจ่ายเงินสำเร็จ
         console.log("[DEBUG] Calling mark-paid API...");
-        const markPaidRes = await fetch("/api/booking/mark-paid", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ bookingId: bookingIdReal }),
-        });
-        const markPaidData = await markPaidRes.json();
-        console.log("[DEBUG] mark-paid API result:", markPaidData);
         
-        if (!markPaidData.success) {
-          return { error: "Failed to update booking: " + (markPaidData.error || "") };
+        try {
+          const markPaidRes = await fetch("/api/booking/mark-paid", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ bookingId: bookingIdReal }),
+          });
+          
+          console.log("[DEBUG] mark-paid response status:", markPaidRes.status);
+          
+          // ตรวจสอบว่า response เป็น JSON หรือไม่
+          const contentType = markPaidRes.headers.get("content-type");
+          if (!contentType || !contentType.includes("application/json")) {
+            console.error("[DEBUG] Response is not JSON:", contentType);
+            // ถ้าไม่ใช่ JSON ให้อ่านเป็น text
+            const textResponse = await markPaidRes.text();
+            console.error("[DEBUG] Response text:", textResponse);
+            
+            if (markPaidRes.status === 401) {
+              return { error: "กรุณาเข้าสู่ระบบใหม่" };
+            } else if (markPaidRes.status === 405) {
+              return { error: "เกิดข้อผิดพลาดจากเซิร์ฟเวอร์" };
+            } else {
+              return { error: "เกิดข้อผิดพลาดในการอัพเดทการจอง" };
+            }
+          }
+          
+          const markPaidData = await markPaidRes.json();
+          console.log("[DEBUG] mark-paid API result:", markPaidData);
+          
+          if (!markPaidRes.ok || !markPaidData.success) {
+            const errorMsg = markPaidData.error || `HTTP ${markPaidRes.status}`;
+            console.error("[DEBUG] mark-paid API failed:", errorMsg);
+            return { error: "Failed to update booking: " + errorMsg };
+          }
+        } catch (markPaidError) {
+          console.error("[DEBUG] mark-paid API error:", markPaidError);
+          // ถ้า mark-paid ล้มเหลว แต่ payment สำเร็จแล้ว ให้เก็บ log และดำเนินการต่อ
+          // อย่า return error เพราะเงินถูกหักแล้ว
+          console.log("[DEBUG] Payment successful but mark-paid failed, continuing...");
+          
+          // บันทึก error ลง local storage เพื่อให้หน้า success แสดงข้อความแจ้ง
+          localStorage.setItem("payment_success_with_booking_update_error", JSON.stringify({
+            bookingId: bookingIdReal,
+            error: markPaidError.message,
+            timestamp: new Date().toISOString()
+          }));
         }
         
         console.log("[DEBUG] Payment completed successfully");
@@ -272,7 +311,7 @@ const StripeCardForm = forwardRef(function StripeCardForm(
             Card number
           </label>
           <CardNumberElement
-            options={ELEMENT_OPTIONS}
+            options={CARD_NUMBER_OPTIONS}
             className="w-full h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-[4px] pl-4 py-3 pr-3 text-base placeholder-base-gray-300 outline-none"
             onChange={(e) => {
               setIsCardNumberComplete(e.complete);
@@ -307,7 +346,7 @@ const StripeCardForm = forwardRef(function StripeCardForm(
             Expiry date
           </label>
           <CardExpiryElement
-            options={ELEMENT_OPTIONS}
+            options={CARD_EXPIRY_OPTIONS}
             className="w-full h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-[4px] pl-4 py-3 pr-3 text-base placeholder-base-gray-300 outline-none"
             onChange={(e) => {
               setIsExpiryComplete(e.complete);
@@ -323,7 +362,7 @@ const StripeCardForm = forwardRef(function StripeCardForm(
             CVC
           </label>
           <CardCvcElement
-            options={ELEMENT_OPTIONS}
+            options={CARD_CVC_OPTIONS}
             className="w-full h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-[4px] pl-4 py-3 pr-3 text-base placeholder-base-gray-300 outline-none"
             onChange={(e) => {
               setIsCvcComplete(e.complete);
@@ -693,7 +732,17 @@ export default function PaymentMobile({ setPaymentMethod, isCardComplete, setIsC
 
           {/* Credit Card Form */}
           {tab === "credit" && (
-            <Elements stripe={stripePromise}>
+            <Elements 
+              stripe={stripePromise}
+              options={{
+                // ปิด autocomplete และ autofill เพื่อลด popup เตือน
+                appearance: {
+                  theme: 'none',
+                },
+                // ตั้งค่าเพิ่มเติมเพื่อลด warning
+                loader: 'auto',
+              }}
+            >
               <StripeCardForm
                 ref={cardFormRef}
                 setIsCardComplete={setIsCardComplete}

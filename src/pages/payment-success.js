@@ -296,7 +296,7 @@ export default function PaymentSuccess() {
           {showShare && (
             <div>
             <div
-              className="fixed inset-0 z-50"
+              className="fixed inset-0 z-50 bg-black/50"
               onClick={(e) => {
                 if (e.target === e.currentTarget) {
                   setShowShare(false);

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
-import CouponCardStyle2 from "@/components/Coupons-components/CouponCardStyle2";
+
 const MyCoupon = () => {
   const router = useRouter();
   const [couponsInWallet, setCouponsInWallet] = useState([]);

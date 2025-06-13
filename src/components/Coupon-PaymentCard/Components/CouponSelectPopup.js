@@ -36,9 +36,9 @@ export default function CouponSelectPopup({ open, coupons, onClose, onApply }) {
           {validCoupons.length === 0 && (
             <div className="text-base-gray-300 text-center py-8">No valid coupons available</div>
           )}
-          <div className="lg:grid lg:grid-cols-2 gap-4">
+          <div className="lg:grid lg:grid-cols-2 gap-4 cols-auto">
           {validCoupons.map(coupon => (
-            <div key={coupon.coupons.coupon_id} className="flex flex-col gap-4">
+            <div key={coupon.coupons.coupon_id} className="flex flex-col gap-4 ">
             <div
               className={` lg:w-[464px] lg:h-[174px] lg:grid lg:grid-cols-2 sm:mb-[5px]
                  rounded flex items-center gap-3 p-3 cursor-pointer transition-all hover:bg-[#2A3349] ${activeCouponId === coupon.coupons.coupon_id ? 'border-2 border-white bg-[#353B4A]' : 'border border-transparent bg-[#232B47] hover:bg-[#2A3349]'}`}

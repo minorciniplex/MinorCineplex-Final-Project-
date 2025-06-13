@@ -254,7 +254,7 @@ export default function PaymentSuccess() {
 
               <div className="flex justify-between items-center">
                 <span className="text-base-gray-300">Total</span>
-                <span className="text-white font-bold">THB{booking.total}</span>
+                <span className="text-white font-bold">THB{booking.total-booking.discount_amount}</span>
               </div>
             </div>
           </div>

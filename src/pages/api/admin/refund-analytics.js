@@ -159,7 +159,7 @@ export default async function handler(req, res) {
       })) || [];
 
     } catch (dbError) {
-      console.log('Database error (using mock data):', dbError.message);
+      // Using mock data as fallback
     }
     */
 

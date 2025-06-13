@@ -71,16 +71,10 @@ const CancellationHistory = () => {
     const fetchCancellationHistory = async () => {
       try {
         setLoading(true);
-        console.log("Fetching cancellation history...");
-        
         const response = await axios.get("/api/booking/cancellation-history-simple");
-        console.log("API Response:", response.data);
-        
         setCancellationHistory(response.data.data || []);
-        console.log("Cancellation history set:", response.data.data?.length || 0, "items");
       } catch (error) {
         console.error("Error fetching cancellation history:", error);
-        console.error("Error details:", error.response?.data);
         setCancellationHistory([]);
       } finally {
         setLoading(false);
@@ -89,8 +83,6 @@ const CancellationHistory = () => {
 
     if (isLoggedIn) {
       fetchCancellationHistory();
-    } else {
-      console.log("User not logged in, skipping fetch");
     }
   }, [isLoggedIn]);
 

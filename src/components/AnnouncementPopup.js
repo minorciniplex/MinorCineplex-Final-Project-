@@ -21,8 +21,6 @@ const AnnouncementPopup = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          // สามารถนำตำแหน่งไปใช้งานต่อได้ที่นี่
-          // ตัวอย่าง: console.log(position.coords.latitude, position.coords.longitude);
         },
         (error) => {
           // handle error ได้ที่นี่ (ถ้าต้องการ)
@@ -51,7 +49,7 @@ const AnnouncementPopup = () => {
           <div className="flex items-start justify-between w-full pt-1">
             <div className="flex flex-col gap-0.5">
               <div className="text-white text-lg font-medium font-['Inter']">
-                www.minorcineplex.comb
+                www.minorcineplex.com
               </div>
               <div className="text-white text-lg font-medium font-['Inter']">
                 wants to 

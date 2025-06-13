@@ -2,7 +2,7 @@ import { useState } from 'react';
 import axios from 'axios';
 
 export default function DebugPage() {
-  const [bookingId, setBookingId] = useState('d0c7783c-0b77-45a9-856a-5cfe58eb18f5');
+  const [bookingId, setBookingId] = useState('');
   const [debugData, setDebugData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);

@@ -37,7 +37,7 @@ const handler = async (req, res) => {
     });
   } catch (error) {
     console.error('Error in coupon expire API:', error);
-    return res.status(500).json({ message: error.message });
+    return res.status(500).json({ message: "Internal Server Error" });
   }
 };
 

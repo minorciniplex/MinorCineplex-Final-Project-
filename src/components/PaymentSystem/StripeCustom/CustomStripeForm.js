@@ -60,20 +60,7 @@ function MyCustomCardForm({ amount, userId, bookingId, movieId, onSuccess }) {
       return;
     }
 
-    // 3. Log ข้อมูลก่อน insert
-    console.log("Insert to Supabase", {
-      payment_intent_id: paymentIntent.id,
-      amount: paymentIntent.amount / 100,
-      currency: paymentIntent.currency,
-      status: paymentIntent.status,
-      payment_method: "card",
-      payment_details: paymentIntent,
-      user_id: userId || null,
-      booking_id: bookingId || null,
-      movie_id: movieId || null,
-    });
-
-    // 4. บันทึกข้อมูลธุรกรรมลง Supabase ให้ตรงกับตาราง movie_payments
+    // บันทึกข้อมูลธุรกรรมลง Supabase ให้ตรงกับตาราง movie_payments
     const { data, error: supaError } = await supabase
       .from('movie_payments')
       .insert([{
@@ -88,8 +75,7 @@ function MyCustomCardForm({ amount, userId, bookingId, movieId, onSuccess }) {
         movie_id: movieId || null,
       }]);
 
-    // 5. Log ผลลัพธ์หลัง insert
-    console.log("Supabase insert result", { data, supaError });
+    // ตรวจสอบผลลัพธ์การบันทึก
 
     if (supaError) {
       setError("บันทึกข้อมูลลงฐานข้อมูลไม่สำเร็จ: " + supaError.message);

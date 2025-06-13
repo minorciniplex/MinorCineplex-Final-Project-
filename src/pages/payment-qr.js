@@ -80,7 +80,6 @@ export default function PaymentQR() {
       setStatus(data.status);
       if (data.status === 'successful' || data.status === 'paid') {
         clearInterval(interval);
-        console.log('Payment successful! Calling mark-paid API...');
         
         // เรียก mark-paid API เพื่ออัพเดทสถานะ booking
         try {
@@ -96,7 +95,6 @@ export default function PaymentQR() {
           });
           
           const markPaidResult = await markPaidResponse.json();
-          console.log('Mark-paid API result:', markPaidResult);
           
           if (!markPaidResponse.ok) {
             console.error('Mark-paid API error:', markPaidResult);

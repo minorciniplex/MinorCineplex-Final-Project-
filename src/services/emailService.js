@@ -9,9 +9,7 @@ let emailConfigured = false;
 if (EMAIL_USER && EMAIL_PASSWORD && 
     EMAIL_USER.includes('@') && EMAIL_PASSWORD.length > 5) {
   emailConfigured = true;
-  console.log('Email service configured successfully');
 } else {
-  console.warn('Email not configured - Email functionality will be disabled');
   emailConfigured = false;
 }
 
@@ -146,7 +144,6 @@ export const sendCancellationEmail = async (userEmail, bookingData) => {
   try {
     // Check if email service is configured
     if (!emailConfigured) {
-      console.warn('Email service not configured - skipping email send');
       return {
         success: false,
         error: 'Email service not configured',
@@ -169,7 +166,6 @@ export const sendCancellationEmail = async (userEmail, bookingData) => {
     };
 
     const result = await transporter.sendMail(mailOptions);
-    console.log('Cancellation email sent successfully:', result.messageId);
     
     return {
       success: true,
@@ -177,10 +173,10 @@ export const sendCancellationEmail = async (userEmail, bookingData) => {
       message: 'Email sent successfully'
     };
   } catch (error) {
-    console.error('Error sending cancellation email:', error);
+    console.error('Error sending cancellation email');
     return {
       success: false,
-      error: error.message,
+      error: 'Failed to send email',
       message: 'Failed to send email'
     };
   }
@@ -190,14 +186,16 @@ export const sendCancellationEmail = async (userEmail, bookingData) => {
 export const sendBookingConfirmationEmail = async (userEmail, bookingData) => {
   // Implementation for booking confirmation
   // This can be used when creating new bookings
-  console.log('Booking confirmation email will be implemented here');
+  return {
+    success: false,
+    message: 'Not implemented yet'
+  };
 };
 
 // Function to send refund confirmation email
 export const sendRefundConfirmationEmail = async (userEmail, refundData) => {
   try {
     if (!emailConfigured) {
-      console.warn('Email service not configured - skipping refund confirmation email');
       return {
         success: false,
         error: 'Email service not configured',
@@ -315,7 +313,6 @@ export const sendRefundConfirmationEmail = async (userEmail, refundData) => {
     };
 
     const result = await transporter.sendMail(mailOptions);
-    console.log('Refund confirmation email sent successfully:', result.messageId);
     
     return {
       success: true,
@@ -323,10 +320,10 @@ export const sendRefundConfirmationEmail = async (userEmail, refundData) => {
       message: 'Refund confirmation email sent successfully'
     };
   } catch (error) {
-    console.error('Error sending refund confirmation email:', error);
+    console.error('Error sending refund confirmation email');
     return {
       success: false,
-      error: error.message,
+      error: 'Failed to send email',
       message: 'Failed to send refund confirmation email'
     };
   }

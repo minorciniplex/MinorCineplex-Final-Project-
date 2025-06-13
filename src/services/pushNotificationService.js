@@ -15,14 +15,12 @@ const initializeWebPush = () => {
         vapidPublicKey,
         vapidPrivateKey
       );
-      console.log('WebPush VAPID configured successfully');
       return true;
     } else {
-      console.log('WebPush VAPID keys not configured, push notifications disabled');
       return false;
     }
   } catch (error) {
-    console.error('Error initializing WebPush:', error);
+    console.error('Error initializing WebPush');
     return false;
   }
 };
@@ -31,7 +29,7 @@ const initializeWebPush = () => {
 const webPushConfigured = initializeWebPush();
 
 // Firebase Cloud Messaging configuration
-const FCM_SERVER_KEY = process.env.FCM_SERVER_KEY || 'your-fcm-server-key';
+const FCM_SERVER_KEY = process.env.FCM_SERVER_KEY;
 
 // Push notification payload templates
 const getCancellationPushPayload = (bookingData) => {
@@ -118,7 +116,6 @@ const getBookingConfirmationPushPayload = (bookingData) => {
 export const sendWebPushNotification = async (subscription, payload) => {
   try {
     if (!webPushConfigured) {
-      console.log('WebPush not configured, skipping push notification');
       return {
         success: false,
         error: 'WebPush not configured',
@@ -128,17 +125,16 @@ export const sendWebPushNotification = async (subscription, payload) => {
 
     const result = await webpush.sendNotification(subscription, JSON.stringify(payload));
     
-    console.log('Web push notification sent successfully');
     return {
       success: true,
       statusCode: result.statusCode,
       message: 'Web push notification sent successfully'
     };
   } catch (error) {
-    console.error('Error sending web push notification:', error);
+    console.error('Error sending web push notification');
     return {
       success: false,
-      error: error.message,
+      error: 'Failed to send notification',
       message: 'Failed to send web push notification'
     };
   }
@@ -162,22 +158,21 @@ export const sendCancellationPushNotification = async (userSubscriptions, bookin
         results.push({
           subscriptionId: subscription.id,
           success: false,
-          error: error.message
+          error: 'Failed to send notification'
         });
       }
     }
 
-    console.log('Cancellation push notifications sent:', results.length);
     return {
       success: true,
       results: results,
       message: `Push notifications sent to ${results.length} devices`
     };
   } catch (error) {
-    console.error('Error sending cancellation push notifications:', error);
+    console.error('Error sending cancellation push notifications');
     return {
       success: false,
-      error: error.message,
+      error: 'Failed to send notifications',
       message: 'Failed to send push notifications'
     };
   }
@@ -200,22 +195,21 @@ export const sendBookingConfirmationPushNotification = async (userSubscriptions,
         results.push({
           subscriptionId: subscription.id,
           success: false,
-          error: error.message
+          error: 'Failed to send notification'
         });
       }
     }
 
-    console.log('Booking confirmation push notifications sent:', results.length);
     return {
       success: true,
       results: results,
       message: `Push notifications sent to ${results.length} devices`
     };
   } catch (error) {
-    console.error('Error sending booking confirmation push notifications:', error);
+    console.error('Error sending booking confirmation push notifications');
     return {
       success: false,
-      error: error.message,
+      error: 'Failed to send notifications',
       message: 'Failed to send push notifications'
     };
   }
@@ -224,6 +218,14 @@ export const sendBookingConfirmationPushNotification = async (userSubscriptions,
 // FCM (Firebase Cloud Messaging) functions
 export const sendFCMNotification = async (fcmTokens, payload) => {
   try {
+    if (!FCM_SERVER_KEY) {
+      return {
+        success: false,
+        error: 'FCM not configured',
+        message: 'FCM server key not configured'
+      };
+    }
+
     const message = {
       notification: {
         title: payload.title,
@@ -245,7 +247,6 @@ export const sendFCMNotification = async (fcmTokens, payload) => {
 
     if (response.ok) {
       const result = await response.json();
-      console.log('FCM notification sent successfully:', result);
       return {
         success: true,
         result: result,
@@ -255,10 +256,10 @@ export const sendFCMNotification = async (fcmTokens, payload) => {
       throw new Error(`FCM request failed with status ${response.status}`);
     }
   } catch (error) {
-    console.error('Error sending FCM notification:', error);
+    console.error('Error sending FCM notification');
     return {
       success: false,
-      error: error.message,
+      error: 'Failed to send FCM notification',
       message: 'Failed to send FCM notification'
     };
   }
@@ -281,18 +282,17 @@ export const validatePushSubscription = (subscription) => {
 export const sendInAppNotification = async (userId, notificationData) => {
   try {
     // This would typically use WebSockets or Server-Sent Events
-    // For now, we'll log and return success
-    console.log(`Sending in-app notification to user ${userId}:`, notificationData);
+    // For now, we'll return success without logging sensitive data
     
     return {
       success: true,
       message: 'In-app notification sent successfully'
     };
   } catch (error) {
-    console.error('Error sending in-app notification:', error);
+    console.error('Error sending in-app notification');
     return {
       success: false,
-      error: error.message,
+      error: 'Failed to send notification',
       message: 'Failed to send in-app notification'
     };
   }

@@ -283,13 +283,6 @@ export const FrameByCinema = ({ filters, coupon_id, onError }) => {
               }
             );
 
-            // Debug พิกัดและระยะทาง
-            console.log(`🎬 ${cinema.name}:`);
-            console.log(`   User: ${userLocation.latitude}, ${userLocation.longitude}`);
-            console.log(`   Cinema: ${cinemaLat}, ${cinemaLng}`);
-            console.log(`   Distance: ${distance}m (${(distance/1000).toFixed(2)}km)`);
-            console.log(`   Google Maps: https://www.google.com/maps/dir/${userLocation.latitude},${userLocation.longitude}/${cinemaLat},${cinemaLng}`);
-
             // ตรวจสอบผลลัพธ์ระยะทาง ถ้าเกิน 1000 กม. (1,000,000 เมตร) ให้ถือว่าผิดปกติ
             if (distance > 1000000) {
               console.warn(`Suspicious distance ${distance}m (${(distance/1000).toFixed(2)}km) for ${cinema.name}`);

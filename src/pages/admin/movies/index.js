@@ -42,8 +42,6 @@ const MoviesContent = () => {
         ...filters
       });
 
-      console.log('Fetching movies with params:', queryParams.toString()); // Debug log
-
       const response = await fetch(`/api/admin/movies?${queryParams}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
@@ -51,7 +49,6 @@ const MoviesContent = () => {
       });
 
       const data = await response.json();
-      console.log('Movies response:', data); // Debug log
 
       if (response.ok) {
         setMovies(data.movies || []);
@@ -125,8 +122,6 @@ const MoviesContent = () => {
 
   const handleStatusChange = async (movieId, newStatus) => {
     try {
-      console.log(`Updating movie ${movieId} status to:`, newStatus);
-      
       const response = await fetch(`/api/admin/movies`, {
         method: 'PATCH',
         headers: {
@@ -142,7 +137,6 @@ const MoviesContent = () => {
       const data = await response.json();
 
       if (response.ok) {
-        console.log('Status updated successfully');
         // อัปเดตข้อมูลในตาราง
         setMovies(prevMovies => 
           prevMovies.map(movie => 

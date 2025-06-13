@@ -17,8 +17,6 @@ const handler = async (req, res) => {
       .update({ coupon_status: "active", used_date: null })
       .eq("user_id", user.id)
       .eq("coupon_id", couponId);
-    console.log("updatedCoupon:", updatedCoupon);
-    console.log("updateError:", updateError);
 
     if (updateError) {
       console.error("Error updating user coupon:", updateError);
@@ -32,7 +30,7 @@ const handler = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in cancel-coupon-status API:", error);
-    return res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 };
 

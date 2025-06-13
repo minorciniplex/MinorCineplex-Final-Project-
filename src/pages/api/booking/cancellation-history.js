@@ -7,8 +7,6 @@ const handler = async (req, res) => {
 
   if (req.method === "GET") {
     try {
-      console.log("Fetching cancellation history for user:", user.id);
-      
       // Fetch cancellation history with related booking and movie details
       const { data: cancellations, error: cancellationError } = await supabase
         .from("booking_cancellations")
@@ -37,9 +35,6 @@ const handler = async (req, res) => {
         `)
         .eq("user_id", user.id)
         .order("cancellation_date", { ascending: false });
-
-      console.log("Cancellations fetched:", cancellations?.length || 0);
-      console.log("Cancellation error:", cancellationError);
 
       if (cancellationError) {
         console.error("Error fetching cancellation history:", cancellationError);

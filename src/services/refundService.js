@@ -32,19 +32,11 @@ export class RefundService {
     this.stripeConfigured = !!STRIPE_SECRET_KEY && STRIPE_SECRET_KEY !== 'your-stripe-secret-key';
     this.omiseConfigured = !!OMISE_SECRET_KEY && OMISE_SECRET_KEY !== 'your-omise-secret-key'; 
     this.paypalConfigured = !!PAYPAL_CLIENT_ID && !!PAYPAL_CLIENT_SECRET;
-    
-    console.log('RefundService initialized:', {
-      stripe: this.stripeConfigured,
-      omise: this.omiseConfigured,
-      paypal: this.paypalConfigured
-    });
   }
 
   // Main function to process refund based on payment method
   async processRefund(refundData) {
     try {
-      console.log('Processing refund:', refundData);
-      
       const {
         bookingId,
         paymentMethod,
@@ -99,14 +91,14 @@ export class RefundService {
       };
 
     } catch (error) {
-      console.error('Error processing refund:', error);
+      console.error('Error processing refund');
       
       // Update database with failure
       await this.updateRefundRecord({
         bookingId: refundData.bookingId,
         refundResult: {
           status: REFUND_STATUS.FAILED,
-          error: error.message
+          error: 'Refund processing failed'
         },
         paymentMethod: refundData.paymentMethod,
         userId: refundData.userId
@@ -114,7 +106,7 @@ export class RefundService {
 
       return {
         success: false,
-        error: error.message,
+        error: 'Failed to process refund',
         message: 'Failed to process refund'
       };
     }
@@ -140,8 +132,6 @@ export class RefundService {
         }
       });
 
-      console.log('Stripe refund created:', refund.id);
-
       return {
         refundId: refund.id,
         status: this.mapStripeStatus(refund.status),
@@ -150,8 +140,8 @@ export class RefundService {
       };
 
     } catch (error) {
-      console.error('Stripe refund error:', error);
-      throw new Error(`Stripe refund failed: ${error.message}`);
+      console.error('Stripe refund error');
+      throw new Error('Stripe refund failed');
     }
   }
 
@@ -176,8 +166,6 @@ export class RefundService {
         }
       });
 
-      console.log('Omise refund created:', refund.id);
-
       return {
         refundId: refund.id,
         status: this.mapOmiseStatus(refund.status),
@@ -186,8 +174,8 @@ export class RefundService {
       };
 
     } catch (error) {
-      console.error('Omise refund error:', error);
-      throw new Error(`Omise refund failed: ${error.message}`);
+      console.error('Omise refund error');
+      throw new Error('Omise refund failed');
     }
   }
 
@@ -225,8 +213,6 @@ export class RefundService {
         throw new Error(`PayPal API error: ${refund.message}`);
       }
 
-      console.log('PayPal refund created:', refund.id);
-
       return {
         refundId: refund.id,
         status: this.mapPayPalStatus(refund.status),
@@ -235,8 +221,8 @@ export class RefundService {
       };
 
     } catch (error) {
-      console.error('PayPal refund error:', error);
-      throw new Error(`PayPal refund failed: ${error.message}`);
+      console.error('PayPal refund error');
+      throw new Error('PayPal refund failed');
     }
   }
 
@@ -266,12 +252,6 @@ export class RefundService {
   async updateRefundRecord({ bookingId, refundResult, paymentMethod, userId }) {
     try {
       // This would be called with Supabase client from the API
-      console.log('Updating refund record in database:', {
-        bookingId,
-        status: refundResult.status,
-        refundId: refundResult.refundId
-      });
-
       // Return structure for API to use
       return {
         shouldUpdate: true,
@@ -287,7 +267,7 @@ export class RefundService {
       };
 
     } catch (error) {
-      console.error('Error updating refund record:', error);
+      console.error('Error updating refund record');
       throw error;
     }
   }

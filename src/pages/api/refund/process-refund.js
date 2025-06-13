@@ -6,9 +6,6 @@ const handler = async (req, res) => {
   const supabase = req.supabase;
   const user = req.user;
 
-  console.log("Process refund API called");
-  console.log("User:", user ? user.id : "No user");
-
   if (req.method === "POST") {
     const { bookingId, cancellationId } = req.body;
 
@@ -19,8 +16,6 @@ const handler = async (req, res) => {
     }
 
     try {
-      console.log("Processing refund for booking:", bookingId);
-
       // 1. Get cancellation record with booking and payment details
       const { data: cancellationData, error: cancellationError } = await supabase
         .from("booking_cancellations")
@@ -87,8 +82,6 @@ const handler = async (req, res) => {
         userId: user.id
       };
 
-      console.log("Refund data prepared:", refundData);
-
       // 6. Update refund status to processing
       await supabase
         .from("booking_cancellations")
@@ -101,8 +94,6 @@ const handler = async (req, res) => {
 
       // 7. Process refund through payment gateway
       const refundResult = await processBookingRefund(refundData);
-
-      console.log("Refund processing result:", refundResult);
 
       if (refundResult.success) {
         // 8. Update cancellation record with refund success
@@ -188,8 +179,7 @@ const handler = async (req, res) => {
         .eq("cancellation_id", cancellationId);
 
       return res.status(500).json({ 
-        error: "Internal Server Error",
-        details: error.message 
+        error: "Internal Server Error"
       });
     }
   } else {

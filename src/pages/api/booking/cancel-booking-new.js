@@ -14,8 +14,6 @@ const handler = async (req, res) => {
     }
 
     try {
-      console.log("Starting cancellation process for booking:", bookingId);
-
       // 1. Get booking details with showtime info
       const { data: bookingData, error: bookingError } = await supabase
         .from("bookings")
@@ -57,14 +55,6 @@ const handler = async (req, res) => {
 
       const originalAmount = parseFloat(bookingData.total_price);
       const refundAmount = (originalAmount * refundPercentage) / 100;
-
-      console.log("Cancellation details:", {
-        bookingId,
-        originalAmount,
-        hoursBeforeShowtime,
-        refundPercentage,
-        refundAmount
-      });
 
       // 3. Create cancellation record
       const { data: cancellationData, error: cancellationError } = await supabase
@@ -127,8 +117,6 @@ const handler = async (req, res) => {
         .select("payment_method, payment_id")
         .eq("booking_id", bookingId)
         .single();
-
-      console.log("Cancellation completed successfully");
 
       return res.status(200).json({
         success: true,

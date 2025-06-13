@@ -15,21 +15,18 @@ const handler = async (req, res) => {
     }
 
     try {
-      console.log("Deleting booking_seats with booking_id:", bookingId);
       // 1. ลบข้อมูลใน booking_seats
       const { data: bsData, error: bookingSeatsError } = await supabase
         .from("booking_seats")
         .delete()
         .eq("booking_id", bookingId)
         .select();
-      console.log("booking_seats deleted:", bsData);
 
       if (bookingSeatsError) {
         console.error("Error deleting booking_seats:", bookingSeatsError);
         return res.status(500).json({ error: bookingSeatsError });
       }
 
-      console.log("Deleting seats with seat_id:", seatNumber, "showtime_id:", showtimeId, "reserved_by:", user.id);
       // 2. ลบข้อมูลที่นั่งใน seats
       const { data: seatsData, error: seatsError } = await supabase
         .from("seats")
@@ -38,14 +35,12 @@ const handler = async (req, res) => {
         .eq("showtime_id", showtimeId)
         .eq("reserved_by", user.id)
         .select();
-      console.log("seats deleted:", seatsData);
 
       if (seatsError) {
         console.error("Error deleting seats:", seatsError);
         return res.status(500).json({ error: seatsError });
       }
 
-      console.log("Deleting bookings with booking_id:", bookingId, "user_id:", user.id);
       // 3. ลบ booking หลัก
       const { data: bookingData, error: bookingError } = await supabase
         .from("bookings")
@@ -53,9 +48,6 @@ const handler = async (req, res) => {
         .eq("booking_id", bookingId)
         .eq("user_id", user.id)
         .select();
-      console.log("bookings deleted:", bookingData);
-
-
 
       if (bookingError) {
         console.error("Error deleting booking:", bookingError);

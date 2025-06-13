@@ -6,9 +6,6 @@ const handler = async (req, res) => {
   const supabase = req.supabase;
   const user = req.user;
 
-  console.log("Cancel booking with notifications API called");
-  console.log("User:", user ? user.id : "No user");
-
   if (req.method === "POST") {
     const { bookingId, cancellationReason } = req.body;
 
@@ -19,8 +16,6 @@ const handler = async (req, res) => {
     }
 
     try {
-      console.log("Starting cancellation with notifications for booking:", bookingId);
-
       // 1. Get booking details with related data
       const { data: bookingDetails, error: bookingError } = await supabase
         .from("bookings")
@@ -123,8 +118,6 @@ const handler = async (req, res) => {
           sendEmail: true,
           sendSMS: true,
           sendPush: true
-        }).then(results => {
-          console.log("Notifications sent:", results.summary);
         }).catch(error => {
           console.error("Notification error:", error);
         });
@@ -150,8 +143,7 @@ const handler = async (req, res) => {
     } catch (error) {
       console.error("Cancellation error:", error);
       return res.status(500).json({ 
-        error: "Internal Server Error",
-        details: error.message 
+        error: "Internal Server Error"
       });
     }
   } else {

@@ -20,7 +20,6 @@ export default async function handler(req, res) {
   form.parse(req, async (err, fields, files) => {
     if (err) return res.status(500).json({ error: 'Error parsing form' });
 
-    console.log('files:', files); // log เพื่อ debug
     const file = Array.isArray(files.file) ? files.file[0] : files.file;
     if (!file) {
       return res.status(400).json({ error: 'Missing required parameter - file' });
@@ -31,7 +30,8 @@ export default async function handler(req, res) {
       });
       return res.status(200).json({ secure_url: result.secure_url });
     } catch (error) {
-      return res.status(500).json({ error: error.message });
+      console.error('Error uploading image:', error);
+      return res.status(500).json({ error: 'Internal Server Error' });
     }
   });
 } 

@@ -7,8 +7,6 @@ const handler = async (req, res) => {
 
   if (req.method === "GET") {
     try {
-      console.log("Fetching simple cancellation history for user:", user.id);
-      
       // First, get cancellation records
       const { data: cancellations, error: cancellationError } = await supabase
         .from("booking_cancellations")
@@ -16,7 +14,6 @@ const handler = async (req, res) => {
         .eq("user_id", user.id)
         .order("cancellation_date", { ascending: false });
 
-      console.log("Raw cancellations:", cancellations?.length || 0);
       if (cancellationError) {
         console.error("Error fetching cancellations:", cancellationError);
         return res.status(500).json({ error: "Failed to fetch cancellation history" });
@@ -31,7 +28,6 @@ const handler = async (req, res) => {
 
       // Get booking IDs to fetch related data
       const bookingIds = cancellations.map(c => c.booking_id);
-      console.log("Booking IDs:", bookingIds);
 
       // Fetch bookings data
       const { data: bookings, error: bookingsError } = await supabase
@@ -46,7 +42,6 @@ const handler = async (req, res) => {
 
       // Get showtime IDs
       const showtimeIds = bookings.map(b => b.showtime_id);
-      console.log("Showtime IDs:", showtimeIds);
 
       // Fetch showtimes data
       const { data: showtimes, error: showtimesError } = await supabase
@@ -139,8 +134,6 @@ const handler = async (req, res) => {
         };
       }).filter(Boolean);
 
-      console.log("Formatted cancellations:", formattedCancellations.length);
-
       return res.status(200).json({
         success: true,
         data: formattedCancellations
@@ -149,8 +142,7 @@ const handler = async (req, res) => {
     } catch (error) {
       console.error("Error in cancellation history API:", error);
       return res.status(500).json({ 
-        error: "Internal Server Error",
-        details: error.message 
+        error: "Internal Server Error"
       });
     }
   } else {

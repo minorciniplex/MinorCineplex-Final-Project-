@@ -14,13 +14,11 @@ if (TWILIO_ACCOUNT_SID && TWILIO_AUTH_TOKEN && TWILIO_PHONE_NUMBER &&
   try {
     twilioClient = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
     twilioConfigured = true;
-    console.log('Twilio client configured successfully');
   } catch (error) {
-    console.error('Failed to configure Twilio client:', error);
+    console.error('Failed to configure Twilio client');
     twilioConfigured = false;
   }
 } else {
-  console.warn('Twilio not configured - SMS functionality will be disabled');
   twilioConfigured = false;
 }
 
@@ -84,7 +82,6 @@ export const sendCancellationSMS = async (phoneNumber, bookingData) => {
   try {
     // Check if Twilio is configured
     if (!twilioConfigured || !twilioClient) {
-      console.warn('Twilio not configured - skipping SMS send');
       return {
         success: false,
         error: 'Twilio not configured',
@@ -101,8 +98,6 @@ export const sendCancellationSMS = async (phoneNumber, bookingData) => {
       from: TWILIO_PHONE_NUMBER,
       to: formattedPhone
     });
-
-    console.log('Cancellation SMS sent successfully:', result.sid);
     
     return {
       success: true,
@@ -110,10 +105,10 @@ export const sendCancellationSMS = async (phoneNumber, bookingData) => {
       message: 'SMS sent successfully'
     };
   } catch (error) {
-    console.error('Error sending cancellation SMS:', error);
+    console.error('Error sending cancellation SMS');
     return {
       success: false,
-      error: error.message,
+      error: 'Failed to send SMS',
       message: 'Failed to send SMS'
     };
   }
@@ -124,7 +119,6 @@ export const sendBookingConfirmationSMS = async (phoneNumber, bookingData) => {
   try {
     // Check if Twilio is configured
     if (!twilioConfigured || !twilioClient) {
-      console.warn('Twilio not configured - skipping SMS send');
       return {
         success: false,
         error: 'Twilio not configured',
@@ -140,8 +134,6 @@ export const sendBookingConfirmationSMS = async (phoneNumber, bookingData) => {
       from: TWILIO_PHONE_NUMBER,
       to: formattedPhone
     });
-
-    console.log('Booking confirmation SMS sent successfully:', result.sid);
     
     return {
       success: true,
@@ -149,10 +141,10 @@ export const sendBookingConfirmationSMS = async (phoneNumber, bookingData) => {
       message: 'SMS sent successfully'
     };
   } catch (error) {
-    console.error('Error sending booking confirmation SMS:', error);
+    console.error('Error sending booking confirmation SMS');
     return {
       success: false,
-      error: error.message,
+      error: 'Failed to send SMS',
       message: 'Failed to send SMS'
     };
   }
@@ -201,7 +193,6 @@ export const sendLineNotify = async (lineToken, message) => {
     });
 
     if (response.ok) {
-      console.log('LINE notification sent successfully');
       return {
         success: true,
         message: 'LINE notification sent successfully'
@@ -210,10 +201,10 @@ export const sendLineNotify = async (lineToken, message) => {
       throw new Error('Failed to send LINE notification');
     }
   } catch (error) {
-    console.error('Error sending LINE notification:', error);
+    console.error('Error sending LINE notification');
     return {
       success: false,
-      error: error.message,
+      error: 'Failed to send LINE notification',
       message: 'Failed to send LINE notification'
     };
   }

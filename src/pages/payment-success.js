@@ -16,11 +16,9 @@ export default function PaymentSuccess() {
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showShare, setShowShare] = useState(false);
-  console.log(booking);
 
   useEffect(() => {
     if (!bookingId) {
-      console.log("No bookingId in query");
       return;
     }
     const fetchBooking = async () => {
@@ -134,9 +132,6 @@ export default function PaymentSuccess() {
         // ล้าง sessionStorage หลังจากใช้เสร็จ
         if (typeof window !== "undefined" && lastPaymentMethod) {
           sessionStorage.removeItem("lastPaymentMethod");
-          if (process.env.NODE_ENV === "development") {
-            console.log("Cleared lastPaymentMethod from sessionStorage");
-          }
         }
 
         // ฟอร์แมตวันที่และเวลา
@@ -170,9 +165,6 @@ export default function PaymentSuccess() {
               : 0,
         };
 
-        if (process.env.NODE_ENV === "development") {
-          console.log("Formatted booking:", formattedBooking);
-        }
         setBooking(formattedBooking);
       } catch (error) {
         console.error("Error in fetchBooking:", error);

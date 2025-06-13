@@ -119,20 +119,7 @@ const StripeCardForm = forwardRef(function StripeCardForm(
       setCvcError("");
     }
     
-    console.log('[StripeCardForm] Card validation:', JSON.stringify({ 
-      isCardNumberComplete, 
-      isExpiryComplete, 
-      isCvcComplete, 
-      owner: owner?.length > 0,
-      ownerValue: owner,
-      cardComplete,
-      allFieldsStatus: {
-        cardNumber: isCardNumberComplete ? '✅' : '❌',
-        expiry: isExpiryComplete ? '✅' : '❌', 
-        cvc: isCvcComplete ? '✅' : '❌',
-        owner: (owner?.length > 0) ? '✅' : '❌'
-      }
-    }, null, 2));
+    // Card validation complete
     
     setIsCardComplete(cardComplete);
   }, [
@@ -149,10 +136,7 @@ const StripeCardForm = forwardRef(function StripeCardForm(
 
   // expose ฟังก์ชันจ่ายเงินผ่าน ref
   useImperativeHandle(ref, () => ({
-    async pay() {
-      console.log("[DEBUG] pay() called in PaymentMobile");
-      console.log("[DEBUG] booking in PaymentMobile:", JSON.stringify(booking, null, 2));
-      
+    async pay() { 
       // แปลงและตรวจสอบ amount
       let amount = booking?.total_price || booking?.total;
       if (typeof amount === "string") {
@@ -160,7 +144,6 @@ const StripeCardForm = forwardRef(function StripeCardForm(
       }
       amount = Number(amount);
       if (!amount || isNaN(amount)) {
-        console.log("[DEBUG] amount after parse:", amount);
         return { error: "Invalid amount" };
       }
       
@@ -181,7 +164,6 @@ const StripeCardForm = forwardRef(function StripeCardForm(
           }),
         });
         const { clientSecret } = await res.json();
-        console.log("[DEBUG] clientSecret:", clientSecret);
         
         const cardNumberElement = elements.getElement(CardNumberElement);
         if (!cardNumberElement)
@@ -195,27 +177,18 @@ const StripeCardForm = forwardRef(function StripeCardForm(
             },
           });
           
-        console.log("[DEBUG] confirmError:", confirmError);
-        console.log("[DEBUG] paymentIntent:", paymentIntent);
-        
         if (confirmError) {
-          console.log("[DEBUG] return error:", confirmError.message);
-          console.log("[DEBUG] confirmError details:", JSON.stringify(confirmError, null, 2));
           return { error: confirmError.message };
         }
         
         // ตรวจสอบสถานะการชำระเงิน
         if (!paymentIntent) {
-          console.log("[DEBUG] return error: paymentIntent is null");
           return { error: "Unable to create paymentIntent" };
         }
         
         if (paymentIntent.status !== "succeeded") {
-          console.log("[DEBUG] return error: paymentIntent.status =", paymentIntent.status);
           return { error: "Payment failed. Please try again" };
         }
-        
-        console.log("[DEBUG] Payment succeeded, saving to database...");
         
         // บันทึกข้อมูลการชำระเงิน
         const paymentData = {
@@ -231,17 +204,14 @@ const StripeCardForm = forwardRef(function StripeCardForm(
         const { data, error: supaError } = await supabase
           .from("movie_payments")
           .insert([paymentData]);
-        console.log("[DEBUG] supabase insert result:", data, supaError);
         
         if (supaError) {
-          console.log("[DEBUG] return error: supaError", supaError.message);
           return {
             error: "Failed to save data to database: " + supaError.message,
           };
         }
           
         // เรียก mark-paid API หลังจ่ายเงินสำเร็จ
-        console.log("[DEBUG] Calling mark-paid API...");
         
         try {
           const markPaidRes = await fetch("/api/booking/mark-paid", {
@@ -250,15 +220,11 @@ const StripeCardForm = forwardRef(function StripeCardForm(
             body: JSON.stringify({ bookingId: bookingIdReal }),
           });
           
-          console.log("[DEBUG] mark-paid response status:", markPaidRes.status);
-          
           // ตรวจสอบว่า response เป็น JSON หรือไม่
           const contentType = markPaidRes.headers.get("content-type");
           if (!contentType || !contentType.includes("application/json")) {
-            console.error("[DEBUG] Response is not JSON:", contentType);
             // ถ้าไม่ใช่ JSON ให้อ่านเป็น text
             const textResponse = await markPaidRes.text();
-            console.error("[DEBUG] Response text:", textResponse);
             
             if (markPaidRes.status === 401) {
               return { error: "กรุณาเข้าสู่ระบบใหม่" };
@@ -270,18 +236,14 @@ const StripeCardForm = forwardRef(function StripeCardForm(
           }
           
           const markPaidData = await markPaidRes.json();
-          console.log("[DEBUG] mark-paid API result:", markPaidData);
           
           if (!markPaidRes.ok || !markPaidData.success) {
             const errorMsg = markPaidData.error || `HTTP ${markPaidRes.status}`;
-            console.error("[DEBUG] mark-paid API failed:", errorMsg);
             return { error: "Failed to update booking: " + errorMsg };
           }
         } catch (markPaidError) {
-          console.error("[DEBUG] mark-paid API error:", markPaidError);
           // ถ้า mark-paid ล้มเหลว แต่ payment สำเร็จแล้ว ให้เก็บ log และดำเนินการต่อ
           // อย่า return error เพราะเงินถูกหักแล้ว
-          console.log("[DEBUG] Payment successful but mark-paid failed, continuing...");
           
           // บันทึก error ลง local storage เพื่อให้หน้า success แสดงข้อความแจ้ง
           localStorage.setItem("payment_success_with_booking_update_error", JSON.stringify({
@@ -291,10 +253,8 @@ const StripeCardForm = forwardRef(function StripeCardForm(
           }));
         }
         
-        console.log("[DEBUG] Payment completed successfully");
         return { success: true };
       } catch (err) {
-        console.log("[DEBUG] catch error:", err);
         return { error: "Payment error occurred. Please try again" };
       }
     },
@@ -428,10 +388,11 @@ function PromptPayQR() {
   useEffect(() => {
     if (qrStatus === "successful" && chargeId && !saved) {
       const saveToSupabase = async () => {
-        const mockUserId = "00000000-0000-0000-0000-000000000001";
-        const mockBookingId = "11111111-1111-1111-1111-111111111111";
-        const mockMovieId = "22222222-2222-2222-2222-222222222222";
-        const mockAmount = 299;
+        // ใช้ข้อมูลจริงจาก context หรือ fallback
+        const mockUserId = userId || null;
+        const mockBookingId = bookingId || null;
+        const mockMovieId = null;
+        const mockAmount = 0;
         // ดึงข้อมูล charge จาก Omise API (ผ่าน API server)
         const res = await fetch("/api/check-promptpay-status", {
           method: "POST",
@@ -517,7 +478,6 @@ export default function PaymentMobile({ setPaymentMethod, isCardComplete, setIsC
   // ส่ง cardFormRef ให้ Context
   useEffect(() => {
     if (setCardFormRef && cardFormRef?.current) {
-      console.log('[PaymentMobile] Setting cardFormRef to context:', cardFormRef.current);
       setCardFormRef(cardFormRef);
     }
   }, [setCardFormRef, cardFormRef?.current]);
@@ -536,16 +496,6 @@ export default function PaymentMobile({ setPaymentMethod, isCardComplete, setIsC
   
   const { booking, loading } = useBookingDetail(bookingId);
   const { coupons, loading: loadingCoupons } = useMyCoupons(userId);
-  
-  console.log('[PaymentMobile] bookingId sources:', JSON.stringify({ 
-    propBookingId, 
-    contextBookingId, 
-    finalBookingId: bookingId,
-    type: typeof bookingId,
-    isReady: !!bookingId 
-  }, null, 2));
-  console.log('[PaymentMobile] booking data:', JSON.stringify(booking, null, 2));
-  console.log('[PaymentMobile] booking loading:', loading);
 
   // ฟังก์ชันเมื่อกด Next
   const handleNext = (e) => {
@@ -559,21 +509,14 @@ export default function PaymentMobile({ setPaymentMethod, isCardComplete, setIsC
     setConfirmLoading(true);
     setConfirmError(null);
     
-    console.log('[PaymentMobile] handleConfirmPayment called');
-    console.log('[PaymentMobile] cardFormRef:', cardFormRef.current);
-    console.log('[PaymentMobile] isCardComplete:', isCardComplete);
-    console.log('[PaymentMobile] booking data for payment:', JSON.stringify(booking, null, 2));
-    
     if (cardFormRef.current && cardFormRef.current.pay) {
       try {
         const result = await cardFormRef.current.pay();
-        console.log('[PaymentMobile] Payment result:', result);
         
         if (result.success) {
           // บันทึกว่าจ่ายด้วย credit card
           if (typeof window !== 'undefined') {
             sessionStorage.setItem('lastPaymentMethod', 'Credit card');
-            console.log('[PaymentMobile] Set sessionStorage lastPaymentMethod to Credit card');
           }
           
           setConfirmLoading(false);
@@ -586,7 +529,6 @@ export default function PaymentMobile({ setPaymentMethod, isCardComplete, setIsC
           setConfirmLoading(false);
         }
       } catch (error) {
-        console.error('[PaymentMobile] Payment error:', error);
         setConfirmError(error.message || "Payment error occurred");
         setConfirmLoading(false);
       }
@@ -653,24 +595,21 @@ export default function PaymentMobile({ setPaymentMethod, isCardComplete, setIsC
   };
 
   if (loading) return <div>Loading...</div>;
-  // ไม่ต้อง return ถ้า booking เป็น null ให้แสดงฟอร์มด้วย mock data
-
-  // mock data สำหรับ fallback
+  // fallback data สำหรับเมื่อไม่มีข้อมูล booking
   const mockBooking = {
-    movie_title: "The Dark Knight",
-    genres: ["Action", "Crime", "TH"],
-    movie_poster:
-      "https://res.cloudinary.com/dr2ijid6r/image/upload/v1746026694/How_to_Train_Your_Dragon_ei5n5w.jpg",
-    cinema_name: "Minor Cineplex Arkham",
-    show_date: "24 Jun 2024",
-    show_time: "16:30",
-    hall: "Hall 1",
-    languages: ["TH", "EN"],
-    coupon_name: "Merry March Magic – Get 50 THB Off! (Only in March)",
-    coupon_discount: 50,
-    seat: ["C9", "C10"],
-    payment_method: "Credit card",
-    total: 330,
+    movie_title: "",
+    genres: [],
+    movie_poster: "",
+    cinema_name: "",
+    show_date: "",
+    show_time: "",
+    hall: "",
+    languages: [],
+    coupon_name: "",
+    coupon_discount: 0,
+    seat: [],
+    payment_method: "",
+    total: 0,
   };
 
   // ถ้า booking มีข้อมูลจริง ให้ map field ให้ตรงกับ props และแปลง string เป็น array ถ้าจำเป็น

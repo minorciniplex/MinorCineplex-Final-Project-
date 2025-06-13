@@ -101,11 +101,13 @@ const LoginForm = () => {
             </button>
           </div>
           
-          <div className="text-center">
-            <p className="text-sm text-gray-400">
-              Default: admin@minorcineplex.com / admin123
-            </p>
-          </div>
+          {process.env.NODE_ENV === 'development' && (
+            <div className="text-center">
+              <p className="text-sm text-gray-400">
+                Default: admin@minorcineplex.com / admin123
+              </p>
+            </div>
+          )}
         </form>
       </div>
     </div>

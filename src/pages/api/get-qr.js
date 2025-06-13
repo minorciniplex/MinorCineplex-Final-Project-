@@ -13,6 +13,7 @@ export default async function handler(req, res) {
     const qr = charge.source?.scannable_code?.image?.download_uri || null;
     res.status(200).json({ qr });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Error getting QR code:', err);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 } 

@@ -1,8 +1,4 @@
 export default function handler(req, res) {
-  console.log("Test API called");
-  console.log("Method:", req.method);
-  console.log("Body:", req.body);
-  
   if (req.method === "POST") {
     const { bookingId, cancellationReason } = req.body;
     
@@ -11,8 +7,8 @@ export default function handler(req, res) {
       message: "Test API working - Booking cancelled successfully",
       data: {
         bookingId: bookingId,
-        refundAmount: 250,
-        refundPercentage: 100,
+        refundAmount: 0,
+        refundPercentage: 0,
         cancellationReason: cancellationReason
       }
     });

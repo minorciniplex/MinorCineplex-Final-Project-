@@ -4,10 +4,6 @@
 import { createSupabaseServerClient } from "@/utils/supabaseCookie";
 
 const handler = async (req, res) => {
-  console.log("Refund webhook received");
-  console.log("Method:", req.method);
-  console.log("Headers:", req.headers);
-
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method Not Allowed" });
   }
@@ -15,9 +11,6 @@ const handler = async (req, res) => {
   try {
     const { provider } = req.query; // stripe, omise, or paypal
     const rawBody = req.body;
-
-    console.log("Webhook provider:", provider);
-    console.log("Webhook payload:", rawBody);
 
     // Route to appropriate webhook handler
     switch (provider) {
@@ -34,8 +27,7 @@ const handler = async (req, res) => {
   } catch (error) {
     console.error("Webhook processing error:", error);
     return res.status(500).json({ 
-      error: "Webhook processing failed",
-      details: error.message 
+      error: "Webhook processing failed"
     });
   }
 };
@@ -54,8 +46,6 @@ const handleStripeWebhook = async (req, res, rawBody) => {
       console.error('Stripe webhook signature verification failed:', err.message);
       return res.status(400).json({ error: 'Invalid signature' });
     }
-
-    console.log('Stripe webhook event:', event.type);
 
     // Handle refund events
     if (event.type === 'refund.updated') {
@@ -80,8 +70,6 @@ const handleOmiseWebhook = async (req, res, rawBody) => {
   try {
     const payload = rawBody;
     
-    console.log('Omise webhook event:', payload.key);
-
     // Handle refund events
     if (payload.key === 'refund.update') {
       const refund = payload.data;
@@ -105,8 +93,6 @@ const handlePayPalWebhook = async (req, res, rawBody) => {
   try {
     const payload = rawBody;
     
-    console.log('PayPal webhook event:', payload.event_type);
-
     // Handle refund events
     if (payload.event_type === 'PAYMENT.CAPTURE.REFUNDED') {
       const refund = payload.resource;
@@ -129,8 +115,6 @@ const handlePayPalWebhook = async (req, res, rawBody) => {
 const updateRefundStatus = async ({ refundId, status, gatewayData }) => {
   try {
     const supabase = createSupabaseServerClient();
-
-    console.log('Updating refund status:', { refundId, status });
 
     // Find cancellation record by refund_id
     const { data: cancellation, error: findError } = await supabase
@@ -166,8 +150,6 @@ const updateRefundStatus = async ({ refundId, status, gatewayData }) => {
       return;
     }
 
-    console.log('Refund status updated successfully:', refundId);
-
     // Send notification if refund completed
     if (status === 'completed') {
       await sendRefundCompletedNotification(cancellation);
@@ -181,8 +163,6 @@ const updateRefundStatus = async ({ refundId, status, gatewayData }) => {
 // Send notification when refund is completed
 const sendRefundCompletedNotification = async (cancellation) => {
   try {
-    console.log('Sending refund completed notification');
-
     // Get user details
     const supabase = createSupabaseServerClient();
     const { data: userData } = await supabase

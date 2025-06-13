@@ -5,9 +5,7 @@ const handler = async (req, res) => {
   const supabase = req.supabase;
   const user = req.user;
 
-  console.log("Cancel booking with notifications API called");
-  console.log("User:", user ? user.id : "No user");
-  console.log("Request body:", req.body);
+
 
   if (req.method === "POST") {
     const { bookingId, cancellationReason } = req.body;
@@ -20,8 +18,6 @@ const handler = async (req, res) => {
     }
 
     try {
-      console.log("Starting cancellation process with notifications for booking:", bookingId);
-
       // 1. Get comprehensive booking details with related data
       const { data: bookingDetails, error: bookingError } = await supabase
         .from("bookings")
@@ -49,8 +45,6 @@ const handler = async (req, res) => {
 
       if (bookingError || !bookingDetails) {
         console.error("Error fetching booking details:", bookingError);
-        console.log("Booking ID:", bookingId);
-        console.log("User ID:", user.id);
         return res.status(404).json({ 
           error: "Booking not found or unauthorized" 
         });
@@ -58,7 +52,6 @@ const handler = async (req, res) => {
 
       // Check if already cancelled
       if (bookingDetails.status === "cancelled") {
-        console.log("Booking already cancelled, status:", bookingDetails.status);
         return res.status(400).json({ 
           error: "Booking is already cancelled" 
         });
@@ -81,13 +74,6 @@ const handler = async (req, res) => {
       const originalAmount = parseFloat(bookingDetails.total_price);
       const refundAmount = Math.round(originalAmount * (refundPercentage / 100));
 
-      console.log("Refund calculation:", { 
-        hoursUntilShow, 
-        refundPercentage, 
-        originalAmount, 
-        refundAmount 
-      });
-
       // 3. Update booking status to cancelled
       const { data: updateResult, error: updateError } = await supabase
         .from("bookings")
@@ -102,7 +88,6 @@ const handler = async (req, res) => {
 
       if (updateError || !updateResult || updateResult.length === 0) {
         console.error("Error updating booking status:", updateError);
-        console.log("Update result:", updateResult);
         return res.status(500).json({ 
           error: "Failed to update booking status" 
         });
@@ -176,8 +161,6 @@ const handler = async (req, res) => {
 
       // 8. Send notifications (run in background, don't wait)
       if (userData) {
-        console.log("Preparing to send cancellation notifications...");
-        
         try {
           // Try to import and use notification service
           const { sendCancellationNotifications } = await import("@/services/notificationService");
@@ -189,26 +172,17 @@ const handler = async (req, res) => {
             sendPush: false, // Disable Push for now
             sendInApp: false
           }).then(notificationResults => {
-            console.log("Notification results:", notificationResults);
-            
             // Log notification success/failure
-            if (notificationResults.summary.totalSent > 0) {
-              console.log(`Successfully sent ${notificationResults.summary.totalSent} notifications`);
-            }
             if (notificationResults.summary.totalFailed > 0) {
-              console.error(`Failed to send ${notificationResults.summary.totalFailed} notifications:`, 
-                notificationResults.summary.errors);
+              console.error("Failed to send notifications:", notificationResults.summary.errors);
             }
           }).catch(error => {
             console.error("Error sending notifications:", error);
           });
         } catch (importError) {
           console.error("Error importing notification service:", importError);
-          console.log("Continuing without notifications...");
         }
       }
-
-      console.log("Cancellation completed successfully");
 
       // 9. Return success response immediately
       return res.status(200).json({
@@ -237,8 +211,7 @@ const handler = async (req, res) => {
     } catch (error) {
       console.error("Error in cancellation process:", error);
       return res.status(500).json({ 
-        error: "Internal Server Error",
-        details: error.message 
+        error: "Internal Server Error"
       });
     }
   } else {

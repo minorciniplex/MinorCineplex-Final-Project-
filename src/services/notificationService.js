@@ -24,8 +24,6 @@ export class NotificationService {
     };
 
     try {
-      console.log('Sending cancellation notifications for booking:', bookingData.bookingId);
-
       // Prepare notification data
       const notificationPayload = {
         userName: userData.name || userData.email?.split('@')[0] || 'ผู้ใช้',
@@ -47,7 +45,6 @@ export class NotificationService {
       if (this.emailEnabled && userData.email && options.sendEmail !== false) {
         results.email.enabled = true;
         try {
-          console.log('Sending cancellation email to:', userData.email);
           const emailResult = await sendCancellationEmail(userData.email, notificationPayload);
           results.email = { ...results.email, ...emailResult };
           
@@ -61,10 +58,10 @@ export class NotificationService {
           results.email = {
             enabled: true,
             success: false,
-            error: error.message
+            error: 'Failed to send email'
           };
           results.summary.totalFailed++;
-          results.summary.errors.push(`Email: ${error.message}`);
+          results.summary.errors.push('Email: Failed to send email');
         }
       }
 
@@ -73,7 +70,6 @@ export class NotificationService {
         results.sms.enabled = true;
         try {
           if (validatePhoneNumber(userData.phone)) {
-            console.log('Sending cancellation SMS to:', userData.phone);
             const smsResult = await sendCancellationSMS(userData.phone, notificationPayload);
             results.sms = { ...results.sms, ...smsResult };
             
@@ -96,10 +92,10 @@ export class NotificationService {
           results.sms = {
             enabled: true,
             success: false,
-            error: error.message
+            error: 'Failed to send SMS'
           };
           results.summary.totalFailed++;
-          results.summary.errors.push(`SMS: ${error.message}`);
+          results.summary.errors.push('SMS: Failed to send SMS');
         }
       }
 
@@ -107,7 +103,6 @@ export class NotificationService {
       if (this.pushEnabled && userData.pushSubscriptions && options.sendPush !== false) {
         results.push.enabled = true;
         try {
-          console.log('Sending cancellation push notifications to', userData.pushSubscriptions.length, 'devices');
           const pushResult = await sendCancellationPushNotification(userData.pushSubscriptions, notificationPayload);
           results.push = { ...results.push, ...pushResult };
           
@@ -121,10 +116,10 @@ export class NotificationService {
           results.push = {
             enabled: true,
             success: false,
-            error: error.message
+            error: 'Failed to send push notification'
           };
           results.summary.totalFailed++;
-          results.summary.errors.push(`Push: ${error.message}`);
+          results.summary.errors.push('Push: Failed to send push notification');
         }
       }
 
@@ -142,16 +137,15 @@ export class NotificationService {
             results.summary.totalSent++;
           }
         } catch (error) {
-          console.error('Error sending in-app notification:', error);
+          console.error('Error sending in-app notification');
         }
       }
 
-      console.log('Notification results:', results.summary);
       return results;
 
     } catch (error) {
-      console.error('Error in sendCancellationNotifications:', error);
-      results.summary.errors.push(`General: ${error.message}`);
+      console.error('Error in sendCancellationNotifications');
+      results.summary.errors.push('General: Failed to send notifications');
       return results;
     }
   }
@@ -170,16 +164,14 @@ export class NotificationService {
     };
 
     try {
-      console.log('Sending booking confirmation notifications for booking:', bookingData.bookingId);
-
       // Implementation for booking confirmation
       // Similar structure to cancellation notifications
       // This would be used when a new booking is created
 
       return results;
     } catch (error) {
-      console.error('Error in sendBookingConfirmationNotifications:', error);
-      results.summary.errors.push(`General: ${error.message}`);
+      console.error('Error in sendBookingConfirmationNotifications');
+      results.summary.errors.push('General: Failed to send booking confirmation notifications');
       return results;
     }
   }
@@ -207,7 +199,7 @@ export class NotificationService {
         cancellation_notifications: true
       };
     } catch (error) {
-      console.error('Error getting user notification preferences:', error);
+      console.error('Error getting user notification preferences');
       // Return default preferences on error
       return {
         email_notifications: true,
@@ -233,16 +225,15 @@ export class NotificationService {
 
       if (error) throw error;
 
-      console.log('User notification preferences updated successfully');
       return {
         success: true,
         data: data
       };
     } catch (error) {
-      console.error('Error updating user notification preferences:', error);
+      console.error('Error updating user notification preferences');
       return {
         success: false,
-        error: error.message
+        error: 'Failed to update preferences'
       };
     }
   }

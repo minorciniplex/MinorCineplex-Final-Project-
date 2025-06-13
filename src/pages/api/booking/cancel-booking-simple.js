@@ -5,24 +5,15 @@ const handler = async (req, res) => {
   const supabase = req.supabase;
   const user = req.user;
 
-  console.log("API called with method:", req.method);
-  console.log("User:", user ? user.id : "No user");
-  console.log("Request body:", req.body);
-
   if (req.method === "POST") {
     const { bookingId, cancellationReason } = req.body;
 
-    console.log("Extracted data:", { bookingId, cancellationReason });
-
     // Validate input
     if (!bookingId || !cancellationReason) {
-      console.log("Validation failed - missing data");
       return res.status(400).json({ error: "Missing booking ID or cancellation reason" });
     }
 
     try {
-      console.log("Starting simple cancellation process for booking:", bookingId);
-
       // 1. Get booking details
       const { data: bookingData, error: bookingError } = await supabase
         .from("bookings")
@@ -42,7 +33,6 @@ const handler = async (req, res) => {
       }
 
       // 2. Update booking status to cancelled
-      console.log("Updating booking status to cancelled...");
       const { data: updateResult, error: updateBookingError } = await supabase
         .from("bookings")
         .update({
@@ -53,9 +43,6 @@ const handler = async (req, res) => {
         .eq("booking_id", bookingId)
         .eq("user_id", user.id)
         .select();
-
-      console.log("Update result:", updateResult);
-      console.log("Update error:", updateBookingError);
 
       if (updateBookingError) {
         console.error("Error updating booking status:", updateBookingError);
@@ -68,8 +55,7 @@ const handler = async (req, res) => {
       }
 
       // 3. Release seats
-      console.log("Releasing seats for showtime:", bookingData.showtime_id);
-      const { data: seatsResult, error: seatsError } = await supabase
+      const { error: seatsError } = await supabase
         .from("seats")
         .update({
           seat_status: "available",
@@ -77,16 +63,12 @@ const handler = async (req, res) => {
           reserved_until: null
         })
         .eq("showtime_id", bookingData.showtime_id)
-        .eq("reserved_by", user.id)
-        .select();
+        .eq("reserved_by", user.id);
 
-      console.log("Seats update result:", seatsResult);
       if (seatsError) {
         console.error("Error releasing seats:", seatsError);
         // Continue even if seat release fails
       }
-
-      console.log("Simple cancellation completed successfully");
 
       return res.status(200).json({
         success: true,
@@ -102,8 +84,7 @@ const handler = async (req, res) => {
     } catch (error) {
       console.error("Error in simple cancellation process:", error);
       return res.status(500).json({ 
-        error: "Internal Server Error",
-        details: error.message 
+        error: "Internal Server Error"
       });
     }
   } else {

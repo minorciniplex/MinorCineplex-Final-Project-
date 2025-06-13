@@ -24,14 +24,14 @@ function formatTime(timeStr) {
 }
 
 export default function MovieInfoCard({
-  title = "The Dark Knight",
-  genres = ["Action", "Crime", "TH"],
-  image = "https://m.media-amazon.com/images/I/51k0qa6qH-L._AC_SY679_.jpg",
-  cinema = "Minor Cineplex Arkham",
-  date = "24 Jun 2024",
-  time = "16:30",
-  hall = "Hall 1",
-  languages = ["TH/EN"]
+  title = "",
+  genres = [],
+  image = "",
+  cinema = "",
+  date = "",
+  time = "",
+  hall = "",
+  languages = []
 }) {
   return (
     <div className="bg-[#070C1B] w-screen max-w-none flex flex-col gap-4 shadow-md px-[16px] pt-[16px] pb-[24px] -mx-4">

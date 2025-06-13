@@ -41,18 +41,18 @@ export async function handler(req, res) {
     const now = new Date();
     const endDate = new Date(coupon.end_date);
     if (now > endDate) {
-        return res.status(201).json({ success: false, error: "คูปองนี้หมดอายุแล้ว" });
+        return res.status(401).json({ success: false, error: "This coupon has expired" });
     }
 
     // เช็ค 2: ยอดขั้นต่ำ
     if (booking.total_price < coupon.min_purchase) {
         const diff = coupon.min_purchase - booking.total_price;
-        return res.status(201).json({ success: false, error: `ยอดซื้อขั้นต่ำไม่ถึง ขาดอีก ${diff} บาท` });
+        return res.status(401).json({ success: false, error: `Minimum purchase amount not met. Need ${diff} more baht` });
     }
 
     // เช็ค 3: สถานะคูปอง
     if (coupon.status !== "active") {
-        return res.status(201).json({ success: false, error: "คูปองนี้ไม่สามารถใช้งานได้" });
+        return res.status(403).json({ success: false, error: "This coupon cannot be used" });
     }
 
     // เช็ค 4: ตรวจสอบว่าผู้ใช้มีคูปองนี้หรือไม่
@@ -64,11 +64,11 @@ export async function handler(req, res) {
       .eq("coupon_status", "active" );
 
     if (userCouponError) {
-        return res.status(201).json({ success: false, error: "เกิดข้อผิดพลาดในการตรวจสอบคูปอง" });
+        return res.status(401).json({ success: false, error: "Error occurred while checking coupon" });
     }
 
     if (!userCoupons || userCoupons.length === 0) {
-        return res.status(201).json({ success: false, error: "คุณไม่มีคูปองนี้หรือคูปองนี้ถูกใช้งานไปแล้ว" });
+        return res.status(200).json({ success: false, error: "You don't have this coupon or it has already been used" });
     }
 
     // คำนวณส่วนลด

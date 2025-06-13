@@ -36,7 +36,7 @@ function CheckoutForm({ amount, onSuccess }) {
         onSuccess();
       }
     } catch (err) {
-      setError('เกิดข้อผิดพลาดในการชำระเงิน กรุณาลองใหม่อีกครั้ง');
+      setError('Payment error occurred. Please try again.');
     }
 
     setProcessing(false);
@@ -45,8 +45,8 @@ function CheckoutForm({ amount, onSuccess }) {
   return (
     <form onSubmit={handleSubmit} className="w-full max-w-md mx-auto p-6">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-white mb-2">ชำระเงิน</h2>
-        <p className="text-gray-300">จำนวนเงิน: {amount} บาท</p>
+        <h2 className="text-2xl font-bold text-white mb-2">Payment</h2>
+        <p className="text-gray-300">Amount: {amount} THB</p>
       </div>
 
       <PaymentElement className="mb-6" />
@@ -60,7 +60,7 @@ function CheckoutForm({ amount, onSuccess }) {
         disabled={!stripe || processing}
         className="w-full bg-brand-blue text-white py-3 px-4 rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {processing ? 'กำลังประมวลผล...' : 'ชำระเงิน'}
+        {processing ? 'Processing...' : 'Pay Now'}
       </button>
     </form>
   );
@@ -81,7 +81,7 @@ export default function PaymentForm({ amount, onSuccess }) {
         });
 
         if (!response.ok) {
-          throw new Error('ไม่สามารถสร้างการชำระเงินได้');
+          throw new Error('Unable to create payment intent');
         }
 
         const data = await response.json();
@@ -99,7 +99,7 @@ export default function PaymentForm({ amount, onSuccess }) {
       <div className="flex items-center justify-center p-6">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-blue mx-auto"></div>
-          <p className="mt-2 text-gray-300">กำลังโหลด...</p>
+          <p className="mt-2 text-gray-300">Loading...</p>
         </div>
       </div>
     );

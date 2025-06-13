@@ -55,7 +55,7 @@ export default function Viewcoupon() {
       <div className="w-full min-h-screen flex flex-col items-center bg-[#101525]">
         <Navbar />
         <div className="flex items-center justify-center w-full min-h-[calc(100vh-120px)]">
-          <div className="text-white">ไม่พบข้อมูลคูปอง</div>
+          <div className="text-white">Coupon data not found</div>
         </div>
         <FooterSection />
       </div>

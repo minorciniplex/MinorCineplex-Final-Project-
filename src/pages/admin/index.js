@@ -55,10 +55,10 @@ const DashboardContent = () => {
         {/* Welcome Section */}
         <div className="bg-white rounded-lg shadow p-6">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            ยินดีต้อนรับ, {admin?.first_name || 'Admin'}!
+            Welcome, {admin?.first_name || 'Admin'}!
           </h1>
           <p className="text-gray-600">
-            ระบบจัดการ Minor Cineplex - ภาพรวมของวันนี้
+            Minor Cineplex Management System - Today&apos;s Overview
           </p>
         </div>
 
@@ -72,7 +72,7 @@ const DashboardContent = () => {
                 </svg>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">หนังทั้งหมด</p>
+                <p className="text-sm font-medium text-gray-600">Total Movies</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {loadingStats ? '-' : stats.totalMovies}
                 </p>
@@ -88,7 +88,7 @@ const DashboardContent = () => {
                 </svg>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">การจองทั้งหมด</p>
+                <p className="text-sm font-medium text-gray-600">Total Bookings</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {loadingStats ? '-' : stats.totalBookings}
                 </p>
@@ -104,7 +104,7 @@ const DashboardContent = () => {
                 </svg>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">การจองวันนี้</p>
+                <p className="text-sm font-medium text-gray-600">Today Bookings</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {loadingStats ? '-' : stats.todayBookings}
                 </p>
@@ -120,7 +120,7 @@ const DashboardContent = () => {
                 </svg>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">รายได้รวม</p>
+                <p className="text-sm font-medium text-gray-600">Total Revenue</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {loadingStats ? '-' : `฿${stats.totalRevenue?.toLocaleString()}`}
                 </p>
@@ -136,7 +136,7 @@ const DashboardContent = () => {
                 </svg>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">การคืนเงิน</p>
+                <p className="text-sm font-medium text-gray-600">Total Refunds</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {loadingStats ? '-' : stats.totalRefunds}
                 </p>
@@ -152,7 +152,7 @@ const DashboardContent = () => {
                 </svg>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">เงินคืนรวม</p>
+                <p className="text-sm font-medium text-gray-600">Total Refund Amount</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {loadingStats ? '-' : `฿${stats.totalRefundAmount?.toLocaleString()}`}
                 </p>
@@ -164,13 +164,13 @@ const DashboardContent = () => {
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">จัดการหนัง</h3>
-            <p className="text-gray-600 mb-4">เพิ่ม แก้ไข หรือลบข้อมูลหนัง</p>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Movie Management</h3>
+            <p className="text-gray-600 mb-4">Add, edit or delete movie data</p>
             <Link
               href="/admin/movies"
               className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
             >
-              เข้าสู่หน้าจัดการ
+              Go to Management
               <svg className="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
@@ -178,13 +178,13 @@ const DashboardContent = () => {
           </div>
 
           <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">จัดการรอบฉาย</h3>
-            <p className="text-gray-600 mb-4">กำหนดเวลาฉายและราคาตั้ง</p>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Showtime Management</h3>
+            <p className="text-gray-600 mb-4">Set screening times and pricing</p>
             <Link
               href="/admin/showtimes"
               className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
             >
-              เข้าสู่หน้าจัดการ
+              Go to Management
               <svg className="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
@@ -192,14 +192,14 @@ const DashboardContent = () => {
           </div>
 
           <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">ระบบคืนเงิน</h3>
-            <p className="text-gray-600 mb-4">จัดการการคืนเงินอัตโนมัติผ่าน Payment Gateway</p>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Refund System</h3>
+            <p className="text-gray-600 mb-4">Manage automatic refunds through Payment Gateway</p>
             <div className="flex space-x-2">
               <Link
                 href="/admin/refund-management"
                 className="inline-flex items-center px-3 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors text-sm"
               >
-                จัดการระบบ
+                Manage System
                 <svg className="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
@@ -208,7 +208,7 @@ const DashboardContent = () => {
                 href="/admin/refund-analytics"
                 className="inline-flex items-center px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm"
               >
-                ดูสถิติ
+                View Statistics
                 <svg className="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
@@ -217,13 +217,13 @@ const DashboardContent = () => {
           </div>
 
           <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">ดูสถิติ</h3>
-            <p className="text-gray-600 mb-4">ติดตามยอดขายและสถิติการใช้งาน</p>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">View Statistics</h3>
+            <p className="text-gray-600 mb-4">Track sales and usage statistics</p>
             <Link
               href="/admin/analytics"
               className="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
             >
-              ดูสถิติ
+              View Statistics
               <svg className="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>

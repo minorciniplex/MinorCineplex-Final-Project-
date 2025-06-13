@@ -283,15 +283,19 @@ export default function SumPaymentDiscount({
               );
               return;
             } else {
-              setConfirmError(result.error || "เกิดข้อผิดพลาดในการชำระเงิน");
+              setConfirmError(result.error || "Payment processing error occurred");
               setConfirmLoading(false);
               return;
             }
           } catch (error) {
-            setConfirmError("เกิดข้อผิดพลาดในการชำระเงิน");
+            setConfirmError("Payment processing error occurred");
             setConfirmLoading(false);
             return;
           }
+        } else {
+          setConfirmError("Payment system is not ready. Please try again.");
+          setConfirmLoading(false);
+          return;
         }
       } else if (paymentMethod === "QR code" || paymentMethod === "QR Code") {
         // สำหรับ QR Code Payment
@@ -315,18 +319,41 @@ export default function SumPaymentDiscount({
           );
           return;
         } catch (error) {
-          console.error("เกิดข้อผิดพลาดในการสร้าง QR Code:", error);
           setConfirmError(error.message || "เกิดข้อผิดพลาดในการสร้าง QR Code");
           setConfirmLoading(false);
           return;
         }
       }
-
-      // ถ้าทำงานถึงตรงนี้ แสดงว่าบันทึก payment สำเร็จ
+      
+      // สำหรับ payment method อื่นๆ
+      if (checkResult && checkResult.discount_amount > 0) {
+        await applyCoupon(
+          data.booking_id,
+          coupon.coupons.coupon_id,
+          checkResult.discount_amount
+        );
+        await cancelCouponStatus(couponId);
+        await cancelCoupon(couponId, data.booking_id);
+      }
+      if (!data || !data.booking_id) {
+        setConfirmError("กรุณาตรวจสอบข้อมูล booking_id ให้ถูกต้อง");
+        setConfirmLoading(false);
+        return;
+      }
+      if (!finalPrice || finalPrice <= 0) {
+        setConfirmError("ราคาสุทธิไม่ถูกต้อง");
+        setConfirmLoading(false);
+        return;
+      }
+      await applyPayment({
+        bookingId: data.booking_id,
+        finalPrice: finalPrice,
+        paymentMethod: paymentMethod,
+        payment_status: paymentStatus,
+      });
       setOpenConfirmPopup(false);
       router.push(`/payment-success?bookingId=${data.booking_id}`);
     } catch (error) {
-      console.error("เกิดข้อผิดพลาดในการชำระเงิน:", error);
       setConfirmError(error?.message || "เกิดข้อผิดพลาด");
     } finally {
       setConfirmLoading(false);
@@ -334,7 +361,7 @@ export default function SumPaymentDiscount({
   };
 
   if (bookingLoading || couponLoading) {
-    return <div>กำลังโหลด...</div>;
+    return <div>Loading...</div>;
   }
 
   const finalTotal = data?.total_price - (discountAmount || 0);
@@ -396,14 +423,14 @@ export default function SumPaymentDiscount({
         open={showBookingError}
         onClose={() => setShowBookingError(false)}
         text={bookingError?.message}
-        text_sub="กรุณาลองใหม่อีกครั้ง"
+        text_sub="Please try again"
         type="error"
       />
       <CouponAlert
         open={showCouponError}
         onClose={() => setShowCouponError(false)}
         text={couponError}
-        text_sub="กรุณาเลือกคูปองใหม่อีกครั้ง"
+        text_sub="Please select a new coupon"
         type="error"
       />
       <Button
@@ -422,9 +449,9 @@ export default function SumPaymentDiscount({
           error={confirmError}
         >
           <div>
-            <p>ยืนยันการจ่ายเงิน</p>
+            <p>Confirm Payment</p>
             {paymentMethod === "Credit card" && (
-              <p>การชำระเงินด้วยบัตรเครดิต</p>
+                              <p>Credit Card Payment</p>
             )}
           </div>
         </ConfirmBookingPopup>

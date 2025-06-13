@@ -5,6 +5,8 @@ import { useState, useEffect } from "react";
 import { Loading } from "@/components/ui/loading";
 import { StatusProvider } from '@/context/StatusContext';
 import { FetchCouponProvider } from '@/context/fecthCouponContext';
+import { Toaster } from 'react-hot-toast';
+
 export default function App({ Component, pageProps }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -42,6 +44,37 @@ export default function App({ Component, pageProps }) {
         <StatusProvider>
           <FetchCouponProvider> 
             <Component {...pageProps} />
+            <Toaster
+              position="bottom-right"
+              reverseOrder={false}
+              gutter={8}
+              containerClassName=""
+              containerStyle={{}}
+              toastOptions={{
+                // Define default options
+                className: '',
+                duration: 4000,
+                style: {
+                  background: '#363636',
+                  color: '#fff',
+                },
+                // Default options for specific types
+                success: {
+                  duration: 4000,
+                  style: {
+                    background: '#10B981',
+                    color: '#fff',
+                  },
+                },
+                error: {
+                  duration: 5000,
+                  style: {
+                    background: '#EF4444',
+                    color: '#fff',
+                  },
+                },
+              }}
+            />
           </FetchCouponProvider>
         </StatusProvider>
       )}

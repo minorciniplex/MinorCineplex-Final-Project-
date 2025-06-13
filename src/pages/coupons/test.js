@@ -38,7 +38,7 @@ const MyCoupon = () => {
   if (error) {
     return (
       <div className="text-center text-red-500 p-4">
-        <p>เกิดข้อผิดพลาด: {error}</p>
+        <p>Error occurred: {error}</p>
       </div>
     );
   }
@@ -46,7 +46,7 @@ const MyCoupon = () => {
   return (
     <>
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold mb-6">My coupons</h1>
+        <h1 className="text-2xl font-bold mb-6">My Coupons</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
         >
           {couponsInWallet.map((coupon) => (
@@ -62,7 +62,7 @@ const MyCoupon = () => {
         </div>
         {couponsInWallet.length === 0 && (
           <div className="text-center text-gray-500 mt-8">
-            <p>คุณยังไม่มีคูปองในกระเป๋า</p>
+            <p>You don&apos;t have any coupons in your wallet yet</p>
           </div>
         )}
       </div>

@@ -8,6 +8,8 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
 import SharePage from "@/pages/share-page";
 import Image from "next/image";
+import toast from 'react-hot-toast';
+import Button from "@/components/Button";
 
 const BookingHistory = () => {
   const router = useRouter();
@@ -28,6 +30,8 @@ const BookingHistory = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const ITEMS_PER_PAGE = 2; // จำนวนรายการต่อการโหลด
   const observer = useRef();
+
+  const [shareBooking, setShareBooking] = useState(null);
 
   console.log("Booking History:", bookingHistory);
   console.log("Displayed Bookings:", displayedBookings);
@@ -145,6 +149,8 @@ const BookingHistory = () => {
     setShowModal(true);
   };
 
+
+
   const handleCancelBooking = async () => {
     try {
       console.log("Starting cancel booking process...");
@@ -152,23 +158,73 @@ const BookingHistory = () => {
       console.log("Cancellation reason:", cancellationReason);
 
       if (!selectedBooking || !selectedBooking.booking_id) {
-        alert("ไม่พบข้อมูลการจอง");
+        toast.error("Booking information not found", {
+          duration: 4000,
+          style: {
+            background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
+            color: '#fff',
+            padding: '16px',
+            borderRadius: '12px',
+            fontSize: '14px',
+            fontWeight: '500',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.15)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+          },
+        });
+        return;
+      }
+
+      // ตรวจสอบสถานะการจองก่อนส่ง request
+      if (selectedBooking.status === 'cancelled') {
+        // ปิด modal
+        setShowCancelModal(false);
+        setCancellationReason("");
+        setSelectedBooking(null);
+        
+        // Redirect ไปหน้า cancellation successful ด้วย refund amount
+        const refundAmount = selectedBooking.total_price || 0;
+        router.push(`/cancellation-successful?refund=${refundAmount}`);
         return;
       }
 
       if (!cancellationReason.trim()) {
-        alert("กรุณาเลือกเหตุผลในการยกเลิก");
+        toast.error("Please select a reason for cancellation", {
+          duration: 4000,
+          style: {
+            background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
+            color: '#fff',
+            padding: '16px',
+            borderRadius: '12px',
+            fontSize: '14px',
+            fontWeight: '500',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.15)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+          },
+        });
         return;
       }
 
       console.log("Sending request to API...");
-      const response = await axios.post(
-        "/api/booking/cancel-booking-with-notifications",
-        {
-          bookingId: selectedBooking.booking_id,
-          cancellationReason: cancellationReason,
+      
+      // Debug: ข้อมูลที่จะส่งไป
+      const requestData = {
+        bookingId: selectedBooking.booking_id,
+        cancellationReason: cancellationReason,
+      };
+      console.log("=== REQUEST DATA ===");
+      console.log("Request URL:", "/api/booking/cancel-booking-with-notifications");
+      console.log("Request Method:", "POST");
+      console.log("Request Data:", requestData);
+      console.log("Selected Booking Full:", selectedBooking);
+      console.log("Cancellation Reason:", cancellationReason);
+      console.log("==================");
+      
+      const response = await axios.post("/api/booking/cancel-booking-with-notifications", requestData, {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json',
         }
-      );
+      });
 
       console.log("API Response:", response.data);
 
@@ -194,16 +250,239 @@ const BookingHistory = () => {
         setShowCancelModal(false);
         setCancellationReason("");
         setSelectedBooking(null);
+        
+        // Redirect ไปหน้า cancellation successful
+        router.push(`/cancellation-successful?refund=${refundAmount}`);
       } else {
-        alert("การยกเลิกไม่สำเร็จ");
+        toast.error("Cancellation failed", {
+          duration: 5000,
+          style: {
+            background: 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)',
+            color: '#fff',
+            padding: '20px',
+            borderRadius: '16px',
+            fontSize: '16px',
+            fontWeight: '600',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.05)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            maxWidth: '420px',
+          },
+          iconTheme: {
+            primary: '#fff',
+            secondary: '#EF4444',
+          },
+        });
       }
     } catch (error) {
       console.error("Error cancelling booking:", error);
-      const errorMessage =
-        error.response?.data?.error ||
-        error.message ||
-        "เกิดข้อผิดพลาดในการยกเลิกการจอง";
-      alert(`ไม่สามารถยกเลิกการจองได้: ${errorMessage}`);
+      console.error("Error details:", error.response?.data);
+      
+      // Debug: ข้อมูล error ที่ละเอียด
+      console.log("=== ERROR DEBUG ===");
+      console.log("Error Status:", error.response?.status);
+      console.log("Error Status Text:", error.response?.statusText);
+      console.log("Error Data:", error.response?.data);
+      console.log("Error Headers:", error.response?.headers);
+      console.log("Error Config:", error.config);
+      console.log("Full Error Object:", error);
+      console.log("==================");
+      
+      // จัดการ error แต่ละประเภทแยกกัน
+      const handleError = (error) => {
+        const status = error.response?.status;
+        const errorData = error.response?.data;
+        const errorMessage = errorData?.error || error.message;
+
+        switch (status) {
+          case 400:
+            // Bad Request - รวมถึง booking already cancelled
+            if (errorMessage?.toLowerCase().includes('already cancelled')) {
+              // ปิด modal
+              setShowCancelModal(false);
+              setCancellationReason("");
+              setSelectedBooking(null);
+              
+              // Redirect ไปหน้า cancellation successful ด้วย refund amount
+              const refundAmount = selectedBooking.total_price || 0;
+              router.push(`/cancellation-successful?refund=${refundAmount}`);
+              
+            } else if (errorMessage?.toLowerCase().includes('missing')) {
+              toast.error("Incomplete information, please try again", {
+                duration: 4000,
+                style: {
+                  background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
+                  color: '#fff',
+                  padding: '16px',
+                  borderRadius: '12px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.15)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                },
+              });
+            } else {
+              toast.error(`Invalid data: ${errorMessage}`, {
+                duration: 5000,
+                style: {
+                  background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
+                  color: '#fff',
+                  padding: '16px',
+                  borderRadius: '12px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.15)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                },
+              });
+            }
+            break;
+
+          case 401:
+            // Unauthorized
+            toast.error("Please log in again", {
+              duration: 6000,
+              style: {
+                background: 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)',
+                color: '#fff',
+                padding: '20px',
+                borderRadius: '16px',
+                fontSize: '16px',
+                fontWeight: '600',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                maxWidth: '420px',
+              },
+              iconTheme: {
+                primary: '#fff',
+                secondary: '#8B5CF6',
+              },
+            });
+            
+            // Redirect to login after delay
+            setTimeout(() => {
+              window.location.href = '/auth/login';
+            }, 2000);
+            break;
+
+          case 403:
+            // Forbidden
+            toast.error("You do not have permission to cancel this booking", {
+              duration: 5000,
+              style: {
+                background: 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)',
+                color: '#fff',
+                padding: '16px',
+                borderRadius: '12px',
+                fontSize: '14px',
+                fontWeight: '500',
+                boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.15)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+              },
+            });
+            break;
+
+          case 404:
+            // Not Found
+            toast.error("Booking to cancel not found", {
+              duration: 5000,
+              style: {
+                background: 'linear-gradient(135deg, #6B7280 0%, #4B5563 100%)',
+                color: '#fff',
+                padding: '16px',
+                borderRadius: '12px',
+                fontSize: '14px',
+                fontWeight: '500',
+                boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.15)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+              },
+            });
+            
+            // รีเฟรชข้อมูลเพราะการจองอาจถูกลบไปแล้ว
+            setTimeout(async () => {
+              try {
+                const historyResponse = await axios.get("/api/booking/booking-history", {
+                  withCredentials: true
+                });
+                setBookingHistory(historyResponse.data.data);
+                setShowCancelModal(false);
+                setCancellationReason("");
+                setSelectedBooking(null);
+              } catch (refreshError) {
+                console.error("Error refreshing booking history:", refreshError);
+              }
+            }, 1000);
+            break;
+
+          case 500:
+            // Server Error
+            toast.error("System error occurred, please try again later", {
+              duration: 6000,
+              style: {
+                background: 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)',
+                color: '#fff',
+                padding: '20px',
+                borderRadius: '16px',
+                fontSize: '16px',
+                fontWeight: '600',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                maxWidth: '420px',
+              },
+              iconTheme: {
+                primary: '#fff',
+                secondary: '#EF4444',
+              },
+            });
+            break;
+
+          default:
+            // Network error หรือ error อื่นๆ
+            if (error.code === 'NETWORK_ERROR' || !error.response) {
+              toast.error("Unable to connect to server, please check your internet connection", {
+                duration: 8000,
+                style: {
+                  background: 'linear-gradient(135deg, #DC2626 0%, #B91C1C 100%)',
+                  color: '#fff',
+                  padding: '20px',
+                  borderRadius: '16px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  maxWidth: '420px',
+                },
+                iconTheme: {
+                  primary: '#fff',
+                  secondary: '#DC2626',
+                },
+              });
+            } else {
+              // Generic error
+              toast.error(`An error occurred: ${errorMessage || 'Unknown cause'}`, {
+                duration: 6000,
+                style: {
+                  background: 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)',
+                  color: '#fff',
+                  padding: '20px',
+                  borderRadius: '16px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  maxWidth: '420px',
+                },
+                iconTheme: {
+                  primary: '#fff',
+                  secondary: '#EF4444',
+                },
+              });
+            }
+            break;
+        }
+      };
+
+      // เรียกใช้ฟังก์ชันจัดการ error
+      handleError(error);
     }
   };
 
@@ -211,7 +490,9 @@ const BookingHistory = () => {
     const fetchBookingHistory = async () => {
       setInitialLoading(true);
       try {
-        const response = await axios.get("/api/booking/booking-history");
+        const response = await axios.get("/api/booking/booking-history", {
+          withCredentials: true
+        });
         const bookings = response.data.data || [];
 
         console.log("Fetched bookings:", bookings.length);
@@ -247,15 +528,18 @@ const BookingHistory = () => {
   }, []);
 
   return (
-    <div className="max-w md:w-2/3 text-white md:ml-12">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 pl-4 md:pl-0 gap-4">
-        <h1 className="text-white text-4xl font-bold">Booking History</h1>
-        <button
+    <div className="w-full md:max-w md:w-2/3 text-white px-4 md:px-0">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
+        <h1 className="text-white text-2xl md:text-4xl font-bold">
+        Booking History
+      </h1>
+        <Button
+        variant="secondary"
           onClick={() => router.push("/dashboard/cancellation-history")}
-          className="bg-[--brand-red] hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm md:text-base"
+          className=" !text-white !px-4 !py-2 !rounded-lg !font-medium !transition-colors !text-sm md:!text-base !w-full md:!w-auto"
         >
           View Cancellation History
-        </button>
+        </Button>
       </div>
 
       {/* Initial Loading */}
@@ -274,34 +558,34 @@ const BookingHistory = () => {
               <div
                 key={`${booking.booking_id}-${index}`}
                 ref={isLast && hasMore ? lastBookingElementRef : null}
-                className="bg-[#070C1B] max-w rounded-lg md:p-6 mb-4 cursor-pointer"
+                className="bg-[#070C1B] rounded-lg p-4 md:p-6 mb-4 cursor-pointer"
                 onClick={() => handleBookingClick(booking)}
               >
                 {/* Movie Information Section */}
-                <div className="flex flex-col md:flex-row p-4 md:p-0 md:mb-6 gap-6 md:gap-0">
+                <div className="flex flex-col md:flex-row md:mb-6 gap-4 md:gap-6">
                   {/* Movie Poster */}
                   <div className="flex">
-                    <div className="w-30 h-40 rounded-lg overflow-hidden flex-shrink-0">
+                    <div className="w-20 md:w-30 h-28 md:h-40 rounded-lg overflow-hidden flex-shrink-0">
                       {booking.movie.poster_url ? (
                         <Image
                           src={booking.movie.poster_url}
                           alt={booking.movie.title}
-                          width={120}
-                          height={160}
-                          className="w-full h-full object-cover"
+                          width={80}
+                          height={112}
+                          className="w-full h-full object-cover md:w-[120px] md:h-[160px]"
                         />
                       ) : (
-                        <div className="w-full h-full bg-slate-600 rounded-lg flex items-center text-xs text-gray-400">
+                        <div className="w-full h-full bg-slate-600 rounded-lg flex items-center justify-center text-xs text-gray-400">
                           Movie Poster
                         </div>
                       )}
                     </div>
 
-                    {/* Movie Details */}
-                    <div className="flex flex-col justify-center ml-6">
-                      <h2 className="text-white text-xl mb-3 font-semibold">
-                        {booking.movie.title}
-                      </h2>
+                  {/* Movie Details */}
+                  <div className="flex flex-col justify-center ml-4 md:ml-6">
+                    <h2 className="text-white text-lg md:text-xl mb-2 md:mb-3 font-semibold">
+                      {booking.movie.title}
+                    </h2>
 
                       <div className="flex flex-col text-sm gap-1">
                         <div className="flex items-center gap-2">
@@ -347,17 +631,17 @@ const BookingHistory = () => {
                     </div>
                   </div>
 
-                  {/* Booking Info */}
-                  <div className="items-stretch text-[--base-gray-300] text-sm md:ml-auto">
-                    <div className="flex gap-2 mb-1">
-                      <div className="">Booking No.</div>
-                      <div className="font-medium">
-                        {booking.booking_id
-                          .toString()
-                          .substring(0, 8)
-                          .toUpperCase()}
-                      </div>
+                {/* Booking Info */}
+                <div className="mt-4 md:mt-0 text-[--base-gray-300] text-sm md:ml-auto">
+                  <div className="flex gap-2 mb-1">
+                    <div className="">Booking No.</div>
+                    <div className="font-medium">
+                      {booking.booking_id
+                        .toString()
+                        .substring(0, 8)
+                        .toUpperCase()}
                     </div>
+                  </div>
 
                     <div className="flex gap-2">
                       <div className="">Booked date</div>
@@ -368,74 +652,51 @@ const BookingHistory = () => {
                   </div>
                 </div>
 
-                {/* Booking Details Section */}
-                <div className="flex flex-col md:flex-row justify-center border-t border-[--base-gray-100] m-4 mt-0 py-4 md:pt-6 md:pb-0 md:m-0 gap-4">
-                  <div className="flex flex-row md:flex-none">
-                    <div className="bg-[--base-gray-100] py-3 px-4 rounded-sm text-center text-nowrap">
-                      <div className="text-[--base-gray-400] font-bold">
-                        {booking.seats.length} Tickets
-                      </div>
-                    </div>
-                    <div className="w-full flex flex-col ml-6 text-sm md:gap-1">
-                      <div className="flex justify-between md:gap-4">
-                        <span className="text-[--base-gray-300] inline-block">
-                          Selected Seat
-                        </span>
-                        <span className="text-[--base-gray-400] font-medium">
-                          {booking.seats.join(", ")}
-                        </span>
-                      </div>
-                      <div className="flex justify-between md:gap-4">
-                        <span className="text-[--base-gray-300] inline-block">
-                          Payment method
-                        </span>
-                        <span className="text-[--base-gray-400] font-medium">
-                          {booking.payment.payment_method}
-                        </span>
-                      </div>
+              {/* Booking Details Section */}
+              <div className="flex flex-col md:flex-row justify-center border-t border-[--base-gray-100] mt-4 pt-4 md:pt-6 md:pb-0 md:m-0 gap-4">
+                <div className="flex flex-col md:flex-row md:flex-none gap-4 md:gap-0">
+                  <div className="bg-[--base-gray-100] py-3 px-4 rounded-sm text-center text-nowrap">
+                    <div className="text-[--base-gray-400] font-bold">
+                      {booking.seats.length} Tickets
                     </div>
                   </div>
-                  <div className="flex justify-end items-center md:ml-auto">
-                    {booking.status === "booked" ? (
-                      <div className="bg-[--brand-green] text-white py-[6px] px-4 rounded-full font-bold text-center">
-                        Paid
-                      </div>
-                    ) : booking.status === "cancelled" ? (
-                      <div className="bg-[#565F7E] text-white py-[6px] px-4 rounded-full font-bold text-center">
-                        Cancelled
-                      </div>
-                    ) : booking.status === "completed" ? (
-                      <div className="bg-[--brand-blue] text-white py-[6px] px-4 rounded-full font-bold text-center">
-                        Complete
-                      </div>
-                    ) : null}
+                  <div className="w-full flex flex-col md:ml-6 text-sm gap-2 md:gap-1">
+                    <div className="flex justify-between md:gap-4">
+                      <span className="text-[--base-gray-300] inline-block">
+                        Selected Seat
+                      </span>
+                      <span className="text-[--base-gray-400] font-medium">
+                        {booking.seats.join(", ")}
+                      </span>
+                    </div>
+                    <div className="flex justify-between md:gap-4">
+                      <span className="text-[--base-gray-300] inline-block">
+                        Payment method
+                      </span>
+                      <span className="text-[--base-gray-400] font-medium">
+                        {booking.payment.payment_method}
+                      </span>
+                    </div>
                   </div>
                 </div>
+                <div className="flex justify-center md:justify-end items-center md:ml-auto mt-4 md:mt-0">
+                  {booking.status === "booked" ? (
+                    <div className="bg-[--brand-green] text-white py-[6px] px-4 rounded-full font-bold text-center">
+                      Paid
+                    </div>
+                  ) : booking.status === "cancelled" ? (
+                    <div className="bg-[#565F7E] text-white py-[6px] px-4 rounded-full font-bold text-center">
+                      Cancelled
+                    </div>
+                  ) : booking.status === "completed" ? (
+                    <div className="bg-[--brand-blue] text-white py-[6px] px-4 rounded-full font-bold text-center">
+                      Complete
+                    </div>
+                  ) : null}
+                </div>
               </div>
-            );
-          })}
-
-          {/* Loading indicator สำหรับ infinite scroll */}
-          {loading && (
-            <div className="text-center py-8">
-              <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
-              <p className="text-gray-400 text-sm mt-2">Loading more bookings...</p>
             </div>
-          )}
-
-          {/* ข้อความเมื่อไม่มีข้อมูลเพิ่มเติม */}
-          {!hasMore && displayedBookings.length < allBookings.length && (
-            <div className="text-center py-4">
-              <p className="text-gray-400 text-sm">All bookings loaded</p>
-            </div>
-          )}
-          
-          {/* ข้อความเมื่อโหลดครบทั้งหมดแล้ว */}
-          {!hasMore && displayedBookings.length === allBookings.length && allBookings.length > ITEMS_PER_PAGE && (
-            <div className="text-center py-4">
-              <p className="text-gray-400 text-sm">No more bookings to load</p>
-            </div>
-          )}
+          ))}
         </div>
       ) : (
         <p className="text-gray-400 text-center mt-12">
@@ -445,8 +706,8 @@ const BookingHistory = () => {
 
       {/* Modal */}
       {showModal && selectedBooking && (
-        <div className="fixed inset-0 bg-[#070C1B] bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-[--base-gray-100] rounded-lg w-[93%] md:w-2/5 relative border-[--base-gray-200] border">
+        <div className="fixed inset-0 bg-[#070C1B] bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-[--base-gray-100] rounded-lg w-full max-w-md md:w-2/5 md:max-w-none relative border-[--base-gray-200] border max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
             <div className="flex relative items-center">
               <h3 className="flex-1 text-xl font-bold py-3 px-4 text-center">
@@ -687,12 +948,18 @@ const BookingHistory = () => {
               </div>
               {/* Cancel Button */}
               <div className="flex items-end">
-                <button
+                {selectedBooking.status === 'cancelled' ? (
+                  <div className="w-max md:h-min bg-gray-600 border border-gray-500 text-gray-400 py-6 px-10 rounded-sm font-bold mt-6 md:mt-0 cursor-not-allowed">
+                    Already Cancelled
+                  </div>
+                ) : (
+                <button 
                   onClick={openCancelModal}
-                  className="w-max md:h-min bg-transparent border border-[--base-gray-300] text-white py-3 px-10 rounded-sm font-bold mt-6 md:mt-0"
+                    className="w-max md:h-min bg-transparent border border-[--base-gray-300] text-white py-3 px-10 rounded-sm font-bold mt-6 md:mt-0 hover:bg-[--base-gray-700] transition-colors"
                 >
                   Cancel booking
                 </button>
+                )}
               </div>
             </div>
           </div>
@@ -701,11 +968,12 @@ const BookingHistory = () => {
 
       {/* Cancel Booking Modal */}
       {showCancelModal && selectedBooking && (
-        <div className="fixed inset-0 bg-[#070C1B] bg-opacity-80 flex items-center justify-center z-50">
-          <div className="bg-[#21263F] rounded-lg w-[93%] md:w-[654px] relative border border-[--base-gray-200]">
+        <div className="fixed inset-0 bg-[#070C1B] bg-opacity-80 flex items-center justify-center z-50 p-4">
+          <div className="bg-[#21263F] rounded-lg w-full max-w-lg md:w-[654px] md:max-w-none relative border border-[--base-gray-200] max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-6 border-b border-[--base-gray-200]">
-              <h3 className="text-xl font-bold text-white">Cancel booking</h3>
+            <div className="flex items-center justify-between p-6">
+              <div className="w-6 h-6"></div>
+              <h3 className="headline-4 text-white">Cancel booking</h3>
               <button
                 onClick={closeCancelModal}
                 className="text-gray-400 hover:text-white w-6 h-6 flex items-center justify-center"
@@ -733,13 +1001,11 @@ const BookingHistory = () => {
               </button>
             </div>
 
-            <div className="p-6">
+            <div className="py-6 px-4">
               <div className="flex flex-col lg:flex-row gap-6">
                 {/* Left Side - Reason Selection */}
-                <div className="flex-1">
-                  <h4 className="text-white font-semibold mb-4">
-                    Reason for cancellation
-                  </h4>
+                <div className="flex-1 mt-[-20px] md:mt-[0px] ">
+                  <h4 className="text-white font-semibold mb-4">Reason for cancellation</h4>
                   <div className="space-y-3">
                     {[
                       "I had changed my mind",
@@ -747,23 +1013,27 @@ const BookingHistory = () => {
                       "The booking was created by accident",
                       "Other reasons",
                     ].map((reason) => (
-                      <label
-                        key={reason}
-                        className="flex items-center gap-3 cursor-pointer"
-                      >
-                        <input
-                          type="radio"
-                          name="cancellation-reason"
-                          value={reason}
-                          checked={cancellationReason === reason}
-                          onChange={(e) =>
-                            setCancellationReason(e.target.value)
-                          }
-                          className="w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500"
-                        />
-                        <span className="text-[--base-gray-300] text-sm">
-                          {reason}
-                        </span>
+                      <label key={reason} className="flex items-center gap-3 cursor-pointer">
+                        <div className="relative">
+                          <input
+                            type="radio"
+                            name="cancellation-reason"
+                            value={reason}
+                            checked={cancellationReason === reason}
+                            onChange={(e) => setCancellationReason(e.target.value)}
+                            className="sr-only"
+                          />
+                          <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                            cancellationReason === reason 
+                              ? 'border-white bg-white' 
+                              : 'border-gray-400 bg-transparent'
+                          }`}>
+                            {cancellationReason === reason && (
+                              <div className="w-[16px] h-[16px] rounded-full bg-[#ffffff]"></div>
+                            )}
+                          </div>
+                        </div>
+                        <span className="text-[--base-gray-300] text-sm">{reason}</span>
                       </label>
                     ))}
                   </div>
@@ -830,11 +1100,10 @@ const BookingHistory = () => {
               {/* Warning Text */}
               <div className="mt-6 text-[--base-gray-400] text-sm">
                 <p>
-                  Cancel booking before 15:30 24 Jun 2024, Refunds will be done
-                  according to{" "}
-                  <a
-                    href="/cancellation-policy"
-                    target="_blank"
+                  Cancel booking before {selectedBooking.showtime.start_time} {formatDate(selectedBooking.showtime.date)}, Refunds will be done according to{" "}
+                  <a 
+                    href="/cancellation-policy" 
+                    target="_blank" 
                     rel="noopener noreferrer"
                     className="text-white underline cursor-pointer hover:text-[--brand-blue] transition-colors"
                   >
@@ -845,19 +1114,21 @@ const BookingHistory = () => {
 
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 mt-8">
-                <button
+                <Button
                   onClick={closeCancelModal}
-                  className="flex-1 bg-transparent border border-[--base-gray-300] text-white py-3 px-6 rounded-md font-bold hover:bg-[--base-gray-100] transition-colors"
+                  variant="secondary"
+                  className="!w-[112px] !h-[48px] !bg-transparent !border !border-[--base-gray-300] !text-white !rounded-md !font-bold hover:!bg-[--base-gray-100] !transition-colors"
                 >
                   Back
-                </button>
-                <button
+                </Button>
+                <Button
+                  variant="primary"
                   onClick={handleCancelBooking}
                   disabled={!cancellationReason}
-                  className="flex-1 bg-[#565F7E] text-white py-3 px-6 rounded-md font-bold hover:bg-[#6B7280] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="!w-[179px] !h-[48px]  disabled:!opacity-50 disabled:!cursor-not-allowed"
                 >
                   Cancel booking
-                </button>
+                </Button>
               </div>
             </div>
           </div>

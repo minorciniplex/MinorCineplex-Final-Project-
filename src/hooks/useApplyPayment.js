@@ -63,12 +63,12 @@ export default function useApplyPayment() {
   }) => {
     // Validation
     if (!bookingId) {
-      setError("bookingId ไม่มีค่า");
-      throw new Error("bookingId ไม่มีค่า");
+      setError("bookingId is missing");
+      throw new Error("bookingId is missing");
     }
     if (finalPrice === undefined || finalPrice === null) {
-      setError("finalPrice ไม่มีค่า");
-      throw new Error("finalPrice ไม่มีค่า");
+      setError("finalPrice is missing");
+      throw new Error("finalPrice is missing");
     }
 
     setLoading(true);
@@ -105,7 +105,7 @@ export default function useApplyPayment() {
       } else if (err.message) {
         setError(err.message);
       } else {
-        setError("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
+        setError("Server connection error occurred");
       }
       throw err;
     } finally {

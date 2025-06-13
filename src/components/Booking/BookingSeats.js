@@ -704,6 +704,12 @@ export default function BookingSeats({
                           isClickable ? "cursor-pointer" : "cursor-not-allowed"
                         }`}
                         onClick={() => handleSeatClick(seat.id)}
+                        title={
+                          displayStatus === "booked" ? "Seat is already booked" :
+                          displayStatus === "reserved" ? "Seat is temporarily reserved" :
+                          displayStatus === "available" ? "Available seat - click to select" :
+                          "Selected seat - click to cancel"
+                        }
                       >
                         <div>
                           {displayStatus === "available" && (
@@ -747,6 +753,12 @@ export default function BookingSeats({
                           isClickable ? "cursor-pointer" : "cursor-not-allowed"
                         }`}
                         onClick={() => handleSeatClick(seat.id)}
+                        title={
+                          displayStatus === "booked" ? "ที่นั่งถูกจองแล้ว" :
+                          displayStatus === "reserved" ? "ที่นั่งถูกจองชั่วคราว" :
+                          displayStatus === "available" ? "ที่นั่งว่าง - คลิกเพื่อเลือก" :
+                          "ที่นั่งที่เลือก - คลิกเพื่อยกเลิก"
+                        }
                       >
                         <div>
                           {displayStatus === "available" && (

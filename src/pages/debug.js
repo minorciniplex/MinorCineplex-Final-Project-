@@ -9,7 +9,7 @@ export default function DebugPage() {
 
   const handleDebug = async () => {
     if (!bookingId.trim()) {
-      setError('กรุณาใส่ Booking ID');
+      setError('Please enter Booking ID');
       return;
     }
 
@@ -21,7 +21,7 @@ export default function DebugPage() {
       const response = await axios.get(`/api/debug/booking-detail-debug?bookingId=${bookingId}`);
       setDebugData(response.data);
     } catch (err) {
-      setError(err.response?.data?.error || 'เกิดข้อผิดพลาด');
+      setError(err.response?.data?.error || 'An error occurred');
       console.error('Debug error:', err);
     } finally {
       setLoading(false);
@@ -44,7 +44,7 @@ export default function DebugPage() {
                 value={bookingId}
                 onChange={(e) => setBookingId(e.target.value)}
                 className="w-full px-3 py-2 bg-[#1F2937] border border-gray-600 rounded-md text-white"
-                placeholder="ใส่ Booking ID ที่ต้องการตรวจสอบ"
+                placeholder="Enter Booking ID to check"
               />
             </div>
             <button
@@ -52,7 +52,7 @@ export default function DebugPage() {
               disabled={loading}
               className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-500 rounded-md transition-colors"
             >
-              {loading ? 'กำลังตรวจสอบ...' : 'Debug'}
+              {loading ? 'Checking...' : 'Debug'}
             </button>
           </div>
 

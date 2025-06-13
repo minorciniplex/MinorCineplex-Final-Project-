@@ -159,10 +159,10 @@ const StripeCardForm = forwardRef(function StripeCardForm(
       amount = Number(amount);
       if (!amount || isNaN(amount)) {
         console.log("[DEBUG] amount after parse:", amount);
-        return { error: "จำนวนเงินไม่ถูกต้อง" };
+        return { error: "Invalid amount" };
       }
       
-              if (!stripe || !elements) return { error: "Stripe ยังไม่พร้อม" };
+              if (!stripe || !elements) return { error: "Stripe not ready" };
         
         const bookingIdReal = booking?.booking_id || booking?.id;
         const movieId = booking?.movie_id;
@@ -183,7 +183,7 @@ const StripeCardForm = forwardRef(function StripeCardForm(
         
         const cardNumberElement = elements.getElement(CardNumberElement);
         if (!cardNumberElement)
-          return { error: "กรุณากรอกข้อมูลบัตรให้ครบถ้วน" };
+          return { error: "Please fill in all card information" };
           
         const { error: confirmError, paymentIntent } =
           await stripe.confirmCardPayment(clientSecret, {
@@ -205,12 +205,12 @@ const StripeCardForm = forwardRef(function StripeCardForm(
         // ตรวจสอบสถานะการชำระเงิน
         if (!paymentIntent) {
           console.log("[DEBUG] return error: paymentIntent is null");
-          return { error: "ไม่สามารถสร้าง paymentIntent ได้" };
+          return { error: "Unable to create paymentIntent" };
         }
         
         if (paymentIntent.status !== "succeeded") {
           console.log("[DEBUG] return error: paymentIntent.status =", paymentIntent.status);
-          return { error: "การชำระเงินไม่สำเร็จ กรุณาลองใหม่" };
+          return { error: "Payment failed. Please try again" };
         }
         
         console.log("[DEBUG] Payment succeeded, saving to database...");
@@ -234,7 +234,7 @@ const StripeCardForm = forwardRef(function StripeCardForm(
         if (supaError) {
           console.log("[DEBUG] return error: supaError", supaError.message);
           return {
-            error: "บันทึกข้อมูลลงฐานข้อมูลไม่สำเร็จ: " + supaError.message,
+            error: "Failed to save data to database: " + supaError.message,
           };
         }
           
@@ -249,14 +249,14 @@ const StripeCardForm = forwardRef(function StripeCardForm(
         console.log("[DEBUG] mark-paid API result:", markPaidData);
         
         if (!markPaidData.success) {
-          return { error: "อัปเดต booking ไม่สำเร็จ: " + (markPaidData.error || "") };
+          return { error: "Failed to update booking: " + (markPaidData.error || "") };
         }
         
         console.log("[DEBUG] Payment completed successfully");
         return { success: true };
       } catch (err) {
         console.log("[DEBUG] catch error:", err);
-        return { error: "เกิดข้อผิดพลาดในการชำระเงิน กรุณาลองใหม่อีกครั้ง" };
+        return { error: "Payment error occurred. Please try again" };
       }
     },
   }));
@@ -417,9 +417,9 @@ function PromptPayQR() {
             },
           ]);
         if (supaError) {
-          alert("บันทึกข้อมูลไม่สำเร็จ: " + supaError.message);
+          alert("Failed to save data: " + supaError.message);
         } else {
-          alert("บันทึกข้อมูลสำเร็จ!");
+          alert("Data saved successfully!");
           setSaved(true);
         }
       };
@@ -436,7 +436,7 @@ function PromptPayQR() {
           onClick={handleGetQR}
           disabled={qrLoading}
         >
-          {qrLoading ? "กำลังสร้าง QR..." : "สร้าง QR PromptPay"}
+          {qrLoading ? "Creating QR..." : "Create PromptPay QR"}
         </button>
         {qrError && <div className="text-red-500 mt-2">{qrError}</div>}
       </>
@@ -446,10 +446,10 @@ function PromptPayQR() {
     <>
       <Image src={qrUrl} alt="PromptPay QR" width={180} height={180} />
       <div className="mt-2 text-xs text-center w-full text-white">
-        สแกน QR ด้วยแอปธนาคารเพื่อชำระเงิน
+        Scan QR with banking app to pay
       </div>
       <div className="mt-2 text-xs text-center w-full text-white">
-        สถานะ: {qrStatus}
+        Status: {qrStatus}
       </div>
     </>
   );
@@ -542,17 +542,17 @@ export default function PaymentMobile({ setPaymentMethod, isCardComplete, setIsC
           router.push(`/payment-success?bookingId=${booking?.booking_id || booking?.id}&fromCard=true`);
         } else {
           setConfirmError(
-            result.error || "เกิดข้อผิดพลาดในการชำระเงิน กรุณาลองใหม่อีกครั้ง"
+            result.error || "Payment error occurred. Please try again"
           );
           setConfirmLoading(false);
         }
       } catch (error) {
         console.error('[PaymentMobile] Payment error:', error);
-        setConfirmError(error.message || "เกิดข้อผิดพลาดในการชำระเงิน");
+        setConfirmError(error.message || "Payment error occurred");
         setConfirmLoading(false);
       }
     } else {
-      setConfirmError("ไม่สามารถดำเนินการชำระเงินได้");
+      setConfirmError("Unable to process payment");
       setConfirmLoading(false);
     }
   };
@@ -660,7 +660,7 @@ export default function PaymentMobile({ setPaymentMethod, isCardComplete, setIsC
         {/* ฝั่งซ้าย: ฟอร์ม */}
         <div className="w-full">
           {/* Tab */}
-          <div className="flex gap-4 items-baseline pt-6 pb-6 px-4 lg:pt-0 lg:px-0 lg:pb-6">
+          <div className="flex gap-4 items-baseline pt-6 pb-6 px-4 lg:pt-0 lg:px-0 lg:pb-6 lg:ml-4">
             <button
               className="flex justify-center lg:mb-[50px]"
               onClick={() => handleTabChange("credit")}
@@ -705,7 +705,7 @@ export default function PaymentMobile({ setPaymentMethod, isCardComplete, setIsC
 
           {/* QR Code Tab */}
           {tab === "qr" && (
-            <div className="px-4 mt-4 flex flex-col items-center text-gray-400 w-full">
+            <div className="px-4 mt-4 mb-8 flex flex-col items-center text-gray-400 w-full ">
               {/* ถ้ายังไม่มี qrUrl ให้แสดงปุ่ม Next -> Confirm -> สร้าง QR */}
               {!qrUrl ? (
                 <>
@@ -735,7 +735,7 @@ export default function PaymentMobile({ setPaymentMethod, isCardComplete, setIsC
                     THB{(booking?.total_price || booking?.total || 0).toLocaleString()}
                   </div>
                   <div className="mt-2 text-xs text-center w-full text-white">
-                    {qrStatus && `สถานะ: ${qrStatus}`}
+                    {qrStatus && `Status: ${qrStatus}`}
                   </div>
                 </div>
               )}

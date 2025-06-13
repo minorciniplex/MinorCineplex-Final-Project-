@@ -19,34 +19,32 @@ const MyCoupon = () => {
   if (error) {
     return (
       <div className="text-center text-red-500 p-4">
-        <p>เกิดข้อผิดพลาด: {error}</p>
+        <p>An error occurred: {error}</p>
       </div>
     );
   }
 
   return (
     <>
-      <div className="flex flex-col">
-        <div className="p-4 pt-10 md:pt-0 md:ml-8">
-          <h1 className="text-4xl font-bold mb-6">My coupons</h1>
-          <div className="w-fit grid grid-cols-2 md:grid-cols-2 gap-6">
-            {couponsInWallet.map((coupon) => (
-              <div key={coupon.coupon_id}>
-                <CouponsCard
-                  coupon_id={coupon.coupon_id}
-                  image={coupon.coupons.image}
-                  title={coupon.coupons.title}
-                  end_date={coupon.coupons.end_date}
-                />
-              </div>
-            ))}
-          </div>
-          {couponsInWallet.length === 0 && (
-            <div className="text-center text-gray-500 mt-8">
-              <p>คุณยังไม่มีคูปองในกระเป๋า</p>
+      <div className="w-full px-4 md:px-0 lg:w-[789px] sm:w-[380px]">
+        <h1 className="text-2xl md:text-2xl font-bold mb-4 md:mb-6">My coupons</h1>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-4">
+          {couponsInWallet.map((coupon) => (
+            <div key={coupon.coupon_id} className="relative">
+              <CouponsCard
+                coupon_id={coupon.coupon_id}
+                image={coupon.coupons.image}
+                title={coupon.coupons.title}
+                end_date={coupon.coupons.end_date}
+              />
             </div>
-          )}
+          ))}
         </div>
+        {couponsInWallet.length === 0 && (
+          <div className="text-center text-gray-500 mt-6 md:mt-8">
+            <p>You don&apos;t have any coupons in your wallet yet</p>
+          </div>
+        )}
       </div>
     </>
   );

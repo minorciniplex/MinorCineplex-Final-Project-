@@ -65,7 +65,7 @@ export const AdminAuthProvider = ({ children }) => {
       }
     } catch (error) {
       console.error('Auth check failed:', error);
-      setError('เกิดข้อผิดพลาดในการตรวจสอบสิทธิ์');
+      setError('Authentication verification error occurred');
       if (typeof window !== 'undefined') {
         localStorage.removeItem('adminToken');
       }
@@ -119,13 +119,13 @@ export const AdminAuthProvider = ({ children }) => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <h2 className="text-xl font-semibold text-red-600 mb-4">เกิดข้อผิดพลาด</h2>
+          <h2 className="text-xl font-semibold text-red-600 mb-4">Error Occurred</h2>
           <p className="text-gray-600 mb-4">{error}</p>
           <button 
             onClick={() => window.location.reload()} 
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
           >
-            โหลดใหม่
+            Reload
           </button>
         </div>
       </div>

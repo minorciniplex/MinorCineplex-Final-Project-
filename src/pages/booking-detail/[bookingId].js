@@ -30,10 +30,10 @@ export default function BookingDetailPage() {
         if (response.data.data) {
           setBooking(response.data.data);
         } else {
-          setError("ไม่พบข้อมูลการจอง");
+          setError("Booking data not found");
         }
       } catch (error) {
-        setError("เกิดข้อผิดพลาดในการโหลดข้อมูล");
+        setError("Error loading data");
       } finally {
         setLoading(false);
       }
@@ -88,13 +88,13 @@ export default function BookingDetailPage() {
           <title>{booking.movie.title} | Booking Detail</title>
           <meta
             property="og:title"
-            content={`จองตั๋วหนังที่ ${booking.cinema.name}`}
+            content={`Book movie tickets at ${booking.cinema.name}`}
           />
           <meta
             property="og:description"
-            content={`ดูหนังที่ ${booking.cinema.name} วันที่ ${
+            content={`Watch movie at ${booking.cinema.name} on ${
               booking.showtime.date
-            } เวลา ${booking.showtime.start_time} ที่นั่ง ${
+            } at ${booking.showtime.start_time} seats ${
               Array.isArray(booking.seats)
                 ? booking.seats.join(", ")
                 : booking.seats
@@ -185,7 +185,7 @@ export default function BookingDetailPage() {
             )}
           </div>
           {loading && (
-            <div className="text-xl text-center mt-12">กำลังโหลด...</div>
+            <div className="text-xl text-center mt-12">Loading...</div>
           )}
           {error && (
             <div className="text-xl text-red-500 text-center mt-12">

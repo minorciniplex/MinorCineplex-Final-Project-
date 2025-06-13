@@ -55,9 +55,9 @@ const StripeCardForm = forwardRef(function StripeCardForm(
       }
       amount = Number(amount);
       if (!amount || isNaN(amount)) {
-        return { error: "จำนวนเงินไม่ถูกต้อง" };
+        return { error: "Invalid amount" };
       }
-      if (!stripe || !elements) return { error: "Stripe ยังไม่พร้อม" };
+      if (!stripe || !elements) return { error: "Stripe not ready" };
       const bookingIdReal = booking?.id;
       const movieId = booking?.movie_id;
       try {
@@ -74,7 +74,7 @@ const StripeCardForm = forwardRef(function StripeCardForm(
         const { clientSecret } = await res.json();
         const cardNumberElement = elements.getElement(CardNumberElement);
         if (!cardNumberElement)
-          return { error: "กรุณากรอกข้อมูลบัตรให้ครบถ้วน" };
+          return { error: "Please fill in all card information" };
         const { error: confirmError, paymentIntent } =
           await stripe.confirmCardPayment(clientSecret, {
             payment_method: {
@@ -86,10 +86,10 @@ const StripeCardForm = forwardRef(function StripeCardForm(
           return { error: confirmError.message };
         }
         if (!paymentIntent) {
-          return { error: "ไม่สามารถสร้าง paymentIntent ได้" };
+          return { error: "Unable to create paymentIntent" };
         }
         if (paymentIntent.status !== "succeeded") {
-          return { error: "การชำระเงินไม่สำเร็จ กรุณาลองใหม่" };
+          return { error: "Payment failed. Please try again" };
         }
         const paymentData = {
           payment_intent_id: paymentIntent.id,
@@ -106,7 +106,7 @@ const StripeCardForm = forwardRef(function StripeCardForm(
           .insert([paymentData]);
         if (supaError) {
           return {
-            error: "บันทึกข้อมูลลงฐานข้อมูลไม่สำเร็จ: " + supaError.message,
+            error: "Failed to save data to database: " + supaError.message,
           };
         }
         // เรียก mark-paid หลังจ่ายเงินสำเร็จ
@@ -117,11 +117,11 @@ const StripeCardForm = forwardRef(function StripeCardForm(
         });
         const markPaidData = await markPaidRes.json();
         if (!markPaidData.success) {
-          return { error: "อัปเดต booking ไม่สำเร็จ: " + (markPaidData.error || "") };
+          return { error: "Failed to update booking: " + (markPaidData.error || "") };
         }
         return { success: true };
       } catch (err) {
-        return { error: "เกิดข้อผิดพลาดในการชำระเงิน กรุณาลองใหม่อีกครั้ง" };
+        return { error: "Payment error occurred. Please try again" };
       }
     },
   }));

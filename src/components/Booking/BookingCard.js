@@ -127,7 +127,7 @@ export default function BookingCard({
         });
         
         if (unavailableSeats.length > 0) {
-          throw new Error(`ที่นั่ง ${unavailableSeats.join(', ')} ถูกจองไปแล้ว`);
+          throw new Error(`Seats ${unavailableSeats.join(', ')} are already booked`);
         }
         
         // CREATE new booking
@@ -148,29 +148,29 @@ export default function BookingCard({
       setIsSubmitting(false);
       
       if (error.response?.status === 409) {
-        setSubmitError("ที่นั่งที่เลือกถูกจองไปแล้ว กรุณาเลือกที่นั่งใหม่");
+        setSubmitError("Selected seats are already booked. Please select new seats.");
         // รีโหลดหน้าเพื่ออัปเดตสถานะที่นั่ง
         setTimeout(() => {
           window.location.reload();
         }, 2000);
       } else if (error.response?.status === 410) {
-        setSubmitError("การจองหมดอายุแล้ว กรุณาลองจองใหม่อีกครั้ง");
+        setSubmitError("Booking has expired. Please try booking again.");
         // รีโหลดหน้าเพื่อรีเซ็ตสถานะ
         setTimeout(() => {
           window.location.reload();
         }, 2000);
       } else if (error.response?.status === 500) {
-        const errorMessage = error.response?.data?.message || error.response?.data?.error || "เกิดข้อผิดพลาดภายในระบบ";
+        const errorMessage = error.response?.data?.message || error.response?.data?.error || "Internal system error occurred";
         console.error("500 Error details:", error.response?.data);
-        setSubmitError(`ข้อผิดพลาดเซิร์ฟเวอร์: ${errorMessage}`);
-      } else if (error.message && error.message.includes("ถูกจองไปแล้ว")) {
+        setSubmitError(`Server error: ${errorMessage}`);
+              } else if (error.message && error.message.includes("are already booked")) {
         setSubmitError(error.message);
         // รีโหลดหน้าเพื่ออัปเดตสถานะที่นั่ง
         setTimeout(() => {
           window.location.reload();
         }, 2000);
       } else {
-        setSubmitError("เกิดข้อผิดพลาดในการจอง กรุณาลองใหม่อีกครั้ง");
+        setSubmitError("An error occurred while booking. Please try again.");
       }
       return;
     }
@@ -284,7 +284,7 @@ export default function BookingCard({
                 } text-white`}
               >
                 {isSubmitting 
-                  ? "กำลังจอง..." 
+                  ? "Booking..." 
                   : existingBookingId 
                     ? "Continue to Payment" 
                     : "Next"

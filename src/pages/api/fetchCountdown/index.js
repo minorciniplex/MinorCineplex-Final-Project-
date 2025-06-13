@@ -30,7 +30,7 @@ const handler = async (req, res) => {
       return res.status(200).json({ data: data[0] });
     } catch (error) {
       console.error("Error in GET request:", error);
-      return res.status(500).json({ error: "เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์" });
+      return res.status(500).json({ error: "Internal server error" });
     }
   } else {
     return res.status(405).json({ error: "Method Not Allowed" });

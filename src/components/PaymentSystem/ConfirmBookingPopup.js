@@ -10,7 +10,7 @@ export default function ConfirmBookingPopup({ open, onClose, onConfirm, loading,
           <button onClick={onClose} className="text-white text-2xl leading-none">×</button>
         </div>
         <div className="body-1-regular text-base-gray-200 mb-6 text-center">
-          ยืนยันการจองและชำระเงินใช่หรือไม่?
+          Do you want to confirm booking and payment?
         </div>
         {error && <div className="text-red-500 text-center mb-4">{error}</div>}
         <div className="flex justify-between gap-4 mt-2">
@@ -26,7 +26,7 @@ export default function ConfirmBookingPopup({ open, onClose, onConfirm, loading,
             onClick={onConfirm}
             disabled={loading}
           >
-            {loading ? 'กำลังดำเนินการ...' : 'Confirm'}
+            {loading ? 'Processing...' : 'Confirm'}
           </button>
         </div>
       </div>

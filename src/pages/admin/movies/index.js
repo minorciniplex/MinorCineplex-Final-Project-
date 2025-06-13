@@ -62,12 +62,12 @@ const MoviesContent = () => {
         }));
       } else {
         console.error('API Error:', data);
-        alert(data.error || data.message || 'เกิดข้อผิดพลาดในการโหลดข้อมูลหนัง');
+        alert(data.error || data.message || 'Error loading movie data');
         setMovies([]);
       }
     } catch (error) {
       console.error('Error fetching movies:', error);
-      alert('เกิดข้อผิดพลาดในการเชื่อมต่อ: ' + error.message);
+      alert('Connection error: ' + error.message);
       setMovies([]);
     } finally {
       setLoading(false);
@@ -91,7 +91,7 @@ const MoviesContent = () => {
   };
 
   const handleDelete = async (movieId) => {
-    if (!confirm('คุณแน่ใจที่จะลบหนังเรื่องนี้? การกระทำนี้ไม่สามารถย้อนกลับได้')) {
+    if (!confirm('Are you sure you want to delete this movie? This action cannot be undone.')) {
       return;
     }
     
@@ -106,14 +106,14 @@ const MoviesContent = () => {
       const data = await response.json();
       
       if (response.ok) {
-        alert('ลบหนังเรียบร้อยแล้ว');
+        alert('Movie deleted successfully');
         fetchMovies();
       } else {
-        alert(data.error || 'เกิดข้อผิดพลาดในการลบ');
+        alert(data.error || 'Error deleting movie');
       }
     } catch (error) {
       console.error('Error deleting movie:', error);
-      alert('เกิดข้อผิดพลาดในการลบ');
+      alert('Error deleting movie');
     }
   };
 
@@ -152,20 +152,20 @@ const MoviesContent = () => {
         
         // แสดงข้อความสำเร็จ
         const statusText = {
-          'active': 'เปิดใช้งาน',
-          'inactive': 'ปิดใช้งาน', 
-          'coming_soon': 'เร็วๆ นี้'
+          'active': 'Active',
+          'inactive': 'Inactive', 
+          'coming_soon': 'Coming Soon'
         };
         
-        alert(`เปลี่ยนสถานะเป็น "${statusText[newStatus]}" เรียบร้อยแล้ว`);
+        alert(`Status changed to "${statusText[newStatus]}" successfully`);
       } else {
         console.error('API Error:', data);
-        alert(data.error || 'เกิดข้อผิดพลาดในการอัปเดตสถานะ');
+        alert(data.error || 'Error updating status');
         throw new Error(data.error || 'Failed to update status');
       }
     } catch (error) {
       console.error('Error updating movie status:', error);
-      alert('เกิดข้อผิดพลาดในการเชื่อมต่อ: ' + error.message);
+      alert('Connection error: ' + error.message);
       throw error;
     }
   };
@@ -186,7 +186,7 @@ const MoviesContent = () => {
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600">กำลังโหลด...</p>
+            <p className="mt-4 text-gray-600">Loading...</p>
           </div>
         </div>
       </AdminLayout>
@@ -198,8 +198,8 @@ const MoviesContent = () => {
     return (
       <AdminLayout>
         <div className="text-center py-12">
-          <h2 className="text-xl font-semibold text-gray-900">ไม่มีสิทธิ์เข้าถึง</h2>
-          <p className="text-gray-600 mt-2">คุณไม่มีสิทธิ์ในการดูข้อมูลหนัง</p>
+          <h2 className="text-xl font-semibold text-gray-900">Access Denied</h2>
+          <p className="text-gray-600 mt-2">You dont have permission to view movie data</p>
         </div>
       </AdminLayout>
     );
@@ -213,12 +213,12 @@ const MoviesContent = () => {
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-2xl font-bold text-gray-900 flex items-center">
-                🎬 จัดการหนัง
+                🎬 Movie Management
                 <span className="ml-3 text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                  {pagination.total} เรื่อง
+                  {pagination.total} movies
                 </span>
               </h1>
-              <p className="text-gray-600 mt-1">เพิ่ม แก้ไข และจัดการข้อมูลหนัง</p>
+              <p className="text-gray-600 mt-1">Add, edit and manage movie data</p>
             </div>
             
             <div className="flex items-center space-x-3">
@@ -231,7 +231,7 @@ const MoviesContent = () => {
                 <svg className={`w-4 h-4 mr-1 ${loading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
-                รีเฟรช
+                Refresh
               </button>
 
               {hasPermission('movies.write') && (
@@ -243,7 +243,7 @@ const MoviesContent = () => {
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                   </svg>
-                  เพิ่มหนังใหม่
+                  Add New Movie
                 </Button>
               )}
             </div>
@@ -260,7 +260,7 @@ const MoviesContent = () => {
                 </svg>
               </div>
               <div className="ml-3">
-                <p className="text-sm font-medium text-gray-600">หนังทั้งหมด</p>
+                <p className="text-sm font-medium text-gray-600">Total Movies</p>
                 <p className="text-xl font-bold text-gray-900">{pagination.total}</p>
               </div>
             </div>
@@ -274,7 +274,7 @@ const MoviesContent = () => {
                 </svg>
               </div>
               <div className="ml-3">
-                <p className="text-sm font-medium text-gray-600">กำลังฉาย</p>
+                <p className="text-sm font-medium text-gray-600">Now Showing</p>
                 <p className="text-xl font-bold text-green-600">
                   {movies.filter(m => m.status === 'active').length}
                 </p>
@@ -290,7 +290,7 @@ const MoviesContent = () => {
                 </svg>
               </div>
               <div className="ml-3">
-                <p className="text-sm font-medium text-gray-600">เร็วๆ นี้</p>
+                <p className="text-sm font-medium text-gray-600">Coming Soon</p>
                 <p className="text-xl font-bold text-yellow-600">
                   {movies.filter(m => m.status === 'coming_soon').length}
                 </p>
@@ -306,7 +306,7 @@ const MoviesContent = () => {
                 </svg>
               </div>
               <div className="ml-3">
-                <p className="text-sm font-medium text-gray-600">ปิดใช้งาน</p>
+                <p className="text-sm font-medium text-gray-600">Inactive</p>
                 <p className="text-xl font-bold text-red-600">
                   {movies.filter(m => m.status === 'inactive').length}
                 </p>
@@ -318,7 +318,7 @@ const MoviesContent = () => {
         {/* Filters */}
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-medium text-gray-900">🔍 ตัวกรองและค้นหา</h3>
+            <h3 className="text-lg font-medium text-gray-900">🔍 Filters and Search</h3>
             <div className="flex items-center space-x-2">
               <button
                 onClick={() => setFilters({
@@ -330,7 +330,7 @@ const MoviesContent = () => {
                 })}
                 className="text-sm text-gray-500 hover:text-gray-700"
               >
-                ล้างตัวกรอง
+                Clear Filters
               </button>
               <span className="text-gray-300">|</span>
               <button
@@ -345,7 +345,7 @@ const MoviesContent = () => {
                   }));
                   
                   const csvContent = [
-                    ['ชื่อหนัง', 'ประเภท', 'ระยะเวลา', 'เรทติ้ง', 'สถานะ', 'วันที่เข้าฉาย'],
+                    ['Movie Title', 'Genre', 'Duration', 'Rating', 'Status', 'Release Date'],
                     ...csv.map(row => Object.values(row))
                   ].map(row => row.join(',')).join('\n');
                   
@@ -365,10 +365,10 @@ const MoviesContent = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">🔍 ค้นหา</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">🔍 Search</label>
               <input
                 type="text"
-                placeholder="ชื่อหนัง หรือ คำอธิบาย"
+                placeholder="Movie title or description"
                 value={filters.search}
                 onChange={(e) => handleFilterChange({ search: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -376,41 +376,41 @@ const MoviesContent = () => {
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">📊 สถานะ</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">📊 Status</label>
               <select
                 value={filters.status}
                 onChange={(e) => handleFilterChange({ status: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="">ทั้งหมด</option>
-                <option value="active">🟢 เปิดใช้งาน</option>
-                <option value="inactive">🔴 ปิดใช้งาน</option>
-                <option value="coming_soon">🔜 เร็วๆ นี้</option>
+                <option value="">All</option>
+                <option value="active">🟢 Active</option>
+                <option value="inactive">🔴 Inactive</option>
+                <option value="coming_soon">🔜 Coming Soon</option>
               </select>
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">🎭 ประเภท</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">🎭 Genre</label>
               <select
                 value={filters.genre}
                 onChange={(e) => handleFilterChange({ genre: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="">ทั้งหมด</option>
-                <option value="Action">⚔️ แอ็คชั่น</option>
-                <option value="Comedy">😂 ตลก</option>
-                <option value="Drama">🎭 ดราม่า</option>
-                <option value="Horror">👻 สยองขวัญ</option>
-                <option value="Romance">💕 โรแมนติก</option>
-                <option value="Sci-Fi">🚀 ไซไฟ</option>
-                <option value="Thriller">😰 ระทึกขวัญ</option>
-                <option value="Animation">🎨 การ์ตูน</option>
-                <option value="Documentary">📋 สารคดี</option>
+                <option value="">All</option>
+                <option value="Action">⚔️ Action</option>
+                <option value="Comedy">😂 Comedy</option>
+                <option value="Drama">🎭 Drama</option>
+                <option value="Horror">👻 Horror</option>
+                <option value="Romance">💕 Romance</option>
+                <option value="Sci-Fi">🚀 Sci-Fi</option>
+                <option value="Thriller">😰 Thriller</option>
+                <option value="Animation">🎨 Animation</option>
+                <option value="Documentary">📋 Documentary</option>
               </select>
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">🔀 เรียงลำดับ</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">🔀 Sort By</label>
               <select
                 value={`${filters.sort}-${filters.order}`}
                 onChange={(e) => {
@@ -419,14 +419,14 @@ const MoviesContent = () => {
                 }}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="created_at-desc">🕐 วันที่สร้าง (ใหม่-เก่า)</option>
-                <option value="created_at-asc">🕐 วันที่สร้าง (เก่า-ใหม่)</option>
-                <option value="title-asc">🔤 ชื่อ (A-Z)</option>
-                <option value="title-desc">🔤 ชื่อ (Z-A)</option>
-                <option value="release_date-desc">📅 วันที่เข้าฉาย (ใหม่-เก่า)</option>
-                <option value="release_date-asc">📅 วันที่เข้าฉาย (เก่า-ใหม่)</option>
-                <option value="duration-desc">⏱️ ระยะเวลา (ยาว-สั้น)</option>
-                <option value="duration-asc">⏱️ ระยะเวลา (สั้น-ยาว)</option>
+                <option value="created_at-desc">🕐 Created Date (New-Old)</option>
+                <option value="created_at-asc">🕐 Created Date (Old-New)</option>
+                <option value="title-asc">🔤 Title (A-Z)</option>
+                <option value="title-desc">🔤 Title (Z-A)</option>
+                <option value="release_date-desc">📅 Release Date (New-Old)</option>
+                <option value="release_date-asc">📅 Release Date (Old-New)</option>
+                <option value="duration-desc">⏱️ Duration (Long-Short)</option>
+                <option value="duration-asc">⏱️ Duration (Short-Long)</option>
               </select>
             </div>
           </div>
@@ -442,14 +442,14 @@ const MoviesContent = () => {
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">
               {filters.search || filters.status || filters.genre ? 
-                '🔍 ไม่พบหนังที่ตรงตามเงื่อนไข' : 
-                '🎬 ยังไม่มีหนังในระบบ'
+                '🔍 No movies found matching criteria' : 
+                '🎬 No movies in system yet'
               }
             </h3>
             <p className="text-gray-500 mb-6">
               {filters.search || filters.status || filters.genre ? 
-                'ลองปรับเปลี่ยนตัวกรองหรือค้นหาด้วยคำอื่น' : 
-                'เริ่มต้นด้วยการเพิ่มหนังเรื่องแรกของคุณ'
+                'Try adjusting filters or search with different terms' : 
+                'Start by adding your first movie'
               }
             </p>
             <div className="flex justify-center space-x-3">
@@ -466,7 +466,7 @@ const MoviesContent = () => {
                   }}
                   className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50"
                 >
-                  ล้างตัวกรอง
+                  Clear Filters
                 </button>
               )}
               {hasPermission('movies.write') && (
@@ -478,7 +478,7 @@ const MoviesContent = () => {
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                   </svg>
-                  เพิ่มหนังเรื่องแรก
+                  Add First Movie
                 </Button>
               )}
             </div>
@@ -515,7 +515,7 @@ const MoviesPage = () => {
   return (
     <>
       <Head>
-        <title>จัดการหนัง - Minor Cineplex Admin</title>
+        <title>Movie Management - Minor Cineplex Admin</title>
       </Head>
       <AdminAuthProvider>
         <MoviesContent />

@@ -299,14 +299,14 @@ export default function PaymentSuccess() {
           {/* popup box */}
           {showShare && (
             <div
-              className="inset-0 z-50"
+              className="fixed inset-0 z-50"
               onClick={(e) => {
                 if (e.target === e.currentTarget) {
                   setShowShare(false);
                 }
               }}
             >
-              <div className="relative md:-mt-20 lg:-mt-[200px]">
+              <div className="absolute md:-mt-20 lg:-mt-[200px] top-[482px] left-1/2 -translate-x-1/2 md:top-[762px]">
                 <SharePage bookingData={booking} isSuccessPage={true} />
               </div>
             </div>

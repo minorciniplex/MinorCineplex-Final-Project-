@@ -792,7 +792,11 @@ const BookingHistory = () => {
                           <AccessTimeIcon style={{ fontSize: 16 }} />
                         </span>
                         <span className="text-[--base-gray-400] text-sm font-normal">
-                          {selectedBooking.showtime.start_time}
+                            {selectedBooking.showtime.start_time
+                              ? selectedBooking.showtime.start_time
+                                  .slice(0, 5)
+                                  .replace(":", ":")
+                              : ""}
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
@@ -1089,7 +1093,11 @@ const BookingHistory = () => {
               {/* Warning Text */}
               <div className="mt-6 text-[--base-gray-400] text-sm">
                 <p>
-                  Cancel booking before {selectedBooking.showtime.start_time}{" "}
+                  Cancel booking before   {selectedBooking.showtime.start_time
+                              ? selectedBooking.showtime.start_time
+                                  .slice(0, 5)
+                                  .replace(":", ":")
+                              : ""}{" "}
                   {formatDate(selectedBooking.showtime.date)}, Refunds will be
                   done according to{" "}
                   <a

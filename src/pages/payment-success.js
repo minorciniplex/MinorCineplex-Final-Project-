@@ -175,9 +175,9 @@ export default function PaymentSuccess() {
     fetchBooking();
   }, [bookingId]);
 
-  if (loading) return <div className="text-white">Loading...</div>;
+ 
   if (!booking)
-    return <div className="text-white">Booking information not found</div>;
+    return <div className="text-white"></div>;
 
   return (
     <>

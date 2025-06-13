@@ -696,7 +696,8 @@ const BookingHistory = () => {
                 </div>
               </div>
             </div>
-          ))}
+          );
+        })}
         </div>
       ) : (
         <p className="text-gray-400 text-center mt-12">

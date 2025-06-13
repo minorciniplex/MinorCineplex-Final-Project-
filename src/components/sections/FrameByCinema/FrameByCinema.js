@@ -165,7 +165,7 @@ export const FrameByCinema = ({ filters, coupon_id, onError }) => {
       }
     }
     fetchMovies();
-  }, [filters]);
+  }, [filters, onError]);
 
   useEffect(() => {
     async function fetchCinemas() {
@@ -190,7 +190,7 @@ export const FrameByCinema = ({ filters, coupon_id, onError }) => {
       }
     }
     fetchCinemas();
-  }, []);
+  }, [onError]);
 
   useEffect(() => {
     async function fetchCoupons() {
@@ -207,7 +207,7 @@ export const FrameByCinema = ({ filters, coupon_id, onError }) => {
       }
     }
     fetchCoupons();
-  }, [setCoupons]);
+  }, [setCoupons, onError]);
 
   useEffect(() => {
     if (viewMode === "nearest-locations") {
@@ -347,7 +347,7 @@ export const FrameByCinema = ({ filters, coupon_id, onError }) => {
       }
     }
     // eslint-disable-next-line
-  }, [nowShowingMovies, comingSoonMovies]);
+  }, [filters, nowShowingMovies, comingSoonMovies]);
 
   const totalMovies =
     activeTab === "now-showing"

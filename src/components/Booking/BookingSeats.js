@@ -68,12 +68,10 @@ export default function BookingSeats({
       const shouldRefresh = urlParams.get("refresh");
 
       if (shouldRefresh === "true" && showtimeId && isClient) {
-        // รีเฟรชข้อมูลที่นั่ง
         setTimeout(() => {
           initializeSeats();
         }, 1000);
 
-        // ลบ refresh parameter ออกจาก URL
         const newUrl =
           window.location.pathname +
           window.location.search.replace(/[?&]refresh=true/, "");

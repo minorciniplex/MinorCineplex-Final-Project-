@@ -114,11 +114,16 @@ const useInfiniteScroll = (
     return () => observer.disconnect();
   }, [hasMore, isLoading, loadMoreItems, threshold]);
 
-  // Reset on dependency change
+  // Reset on dependency change - FIXED: Keep dependencies array consistent
   useEffect(() => {
-    resetItems();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [...dependencies, resetItems]);
+    // Check if we have all required dependencies before resetting
+    const hasRequiredDeps = dependencies.length > 0 && 
+      dependencies.every(dep => dep !== null && dep !== undefined && dep !== '');
+    
+    if (hasRequiredDeps) {
+      resetItems();
+    }
+  }, dependencies); // Use dependencies directly without spreading
 
   return {
     items, // Current items as an object

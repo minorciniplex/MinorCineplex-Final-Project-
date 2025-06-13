@@ -20,7 +20,7 @@ import ShowSearchCinema from "@/components/MovieDetail/ShowSearchCinema";
 export default function MovieDetail() {
   const router = useRouter();
   const { movieId } = router.query;
-  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(undefined);
   const [cinemaName, setCinemaName] = useState("");
   const [cityName, setCityName] = useState("");
   const [loadingShowtimes, setLoadingShowtimes] = useState(false);
@@ -39,7 +39,6 @@ export default function MovieDetail() {
     return () => clearTimeout(debounceTimeout.current);
   }, [cinemaName]);
 
-  // Debounce cityName
   useEffect(() => {
     clearTimeout(debounceTimeout.current);
     debounceTimeout.current = setTimeout(() => {
@@ -52,7 +51,6 @@ export default function MovieDetail() {
   const fetchShowtimes = useCallback(
     async (page, pageSize) => {
       if (!movieId || !selectedDate?.fullDate) {
-        console.log("Missing movieId or selectedDate, returning empty data");
         return { data: [], hasMore: false };
       }
 
@@ -100,7 +98,6 @@ export default function MovieDetail() {
       debouncedCityName,
     ],
   });
-
   useEffect(() => {
     if (selectedDate?.fullDate && movieId) {
       resetItems();
@@ -130,12 +127,10 @@ export default function MovieDetail() {
     fetchCities();
   }, []);
 
-  // Handle cinema search
   const handleCinemaSearch = (name) => {
     setCinemaName(name);
   };
 
-  // Handle city selection
   const handleCityChange = (city) => {
     setCityName(city);
   };

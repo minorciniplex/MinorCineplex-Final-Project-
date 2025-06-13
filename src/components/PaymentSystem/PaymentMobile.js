@@ -48,11 +48,13 @@ const ELEMENT_OPTIONS = {
       iconColor: "#fa755a",
     },
   },
+  disableAutofill: true,
 };
 
 const CARD_NUMBER_OPTIONS = {
   ...ELEMENT_OPTIONS,
   placeholder: "Card number",
+  showIcon: true,
 };
 const CARD_EXPIRY_OPTIONS = {
   ...ELEMENT_OPTIONS,
@@ -309,7 +311,7 @@ const StripeCardForm = forwardRef(function StripeCardForm(
             Card number
           </label>
           <CardNumberElement
-            options={ELEMENT_OPTIONS}
+            options={CARD_NUMBER_OPTIONS}
             className="w-full h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-[4px] pl-4 py-3 pr-3 text-base placeholder-base-gray-300 outline-none"
             onChange={(e) => {
               setIsCardNumberComplete(e.complete);
@@ -344,7 +346,7 @@ const StripeCardForm = forwardRef(function StripeCardForm(
             Expiry date
           </label>
           <CardExpiryElement
-            options={ELEMENT_OPTIONS}
+            options={CARD_EXPIRY_OPTIONS}
             className="w-full h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-[4px] pl-4 py-3 pr-3 text-base placeholder-base-gray-300 outline-none"
             onChange={(e) => {
               setIsExpiryComplete(e.complete);
@@ -360,7 +362,7 @@ const StripeCardForm = forwardRef(function StripeCardForm(
             CVC
           </label>
           <CardCvcElement
-            options={ELEMENT_OPTIONS}
+            options={CARD_CVC_OPTIONS}
             className="w-full h-[48px] bg-base-gray-100 border border-base-gray-200 rounded-[4px] pl-4 py-3 pr-3 text-base placeholder-base-gray-300 outline-none"
             onChange={(e) => {
               setIsCvcComplete(e.complete);
@@ -730,7 +732,17 @@ export default function PaymentMobile({ setPaymentMethod, isCardComplete, setIsC
 
           {/* Credit Card Form */}
           {tab === "credit" && (
-            <Elements stripe={stripePromise}>
+            <Elements 
+              stripe={stripePromise}
+              options={{
+                // ปิด autocomplete และ autofill เพื่อลด popup เตือน
+                appearance: {
+                  theme: 'none',
+                },
+                // ตั้งค่าเพิ่มเติมเพื่อลด warning
+                loader: 'auto',
+              }}
+            >
               <StripeCardForm
                 ref={cardFormRef}
                 setIsCardComplete={setIsCardComplete}

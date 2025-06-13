@@ -3,8 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "dev": "next dev",
+    "dev:https": "next dev --experimental-https",
     "build": "next build",
-    "dev": "next dev --turbopack",
     "format": "sort-package-json",
     "lint": "next lint",
     "start": "next start"

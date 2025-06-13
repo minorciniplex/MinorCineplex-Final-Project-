@@ -304,14 +304,14 @@ export default function PaymentSuccess() {
           {showShare && (
             <div>
             <div
-              className="fixed w-screen h-screen z-[100] bottom-0 border-2 border-red-500 " 
+              className="fixed inset-0 z-50"
               onClick={(e) => {
                 if (e.target === e.currentTarget) {
                   setShowShare(false);
                 }
               }}
             >
-              <div className=" md:-mt-20 lg:-mt-[200px]">
+              <div className="absolute md:-mt-20 lg:-mt-[200px] top-[482px] left-1/2 -translate-x-1/2 md:top-[762px]">
                 <SharePage bookingData={booking} isSuccessPage={true} />
               </div>
             </div>

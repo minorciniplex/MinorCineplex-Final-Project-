@@ -233,9 +233,7 @@ const BookingHistory = () => {
         const refundAmount = responseData.refundAmount || 0;
         const refundPercentage = responseData.refundPercentage || 0;
 
-        alert(
-          `การยกเลิกสำเร็จ!\nจำนวนเงินคืน: THB${refundAmount}\nเปอร์เซ็นต์คืน: ${refundPercentage}%`
-        );
+      
 
         // รีเฟรชข้อมูลทั้งหมด
         const historyResponse = await axios.get("/api/booking/booking-history");

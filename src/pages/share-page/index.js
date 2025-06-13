@@ -10,18 +10,18 @@ export default function SharePage({ bookingData, isSuccessPage }) {
   console.log(bookingData);
 
     const getShareUrl = () => {
-        const baseUrl = `https://ffe9-171-97-99-145.ngrok-free.app/booking-detail/${bookingData.booking_id}`;
+        const baseUrl = `https://minor-cineplex-final-project.vercel.app/booking-detail/${bookingData.booking_id}`;
         const ogParams = new URLSearchParams({
             title: `Booking for ${bookingData?.movie_title}`,
             description: `I'm going to watch ${bookingData?.movie_title} at ${bookingData?.cinema_name} on ${bookingData?.showtime_date}!`,
-            image: bookingData.movie.poster_url
+            
         });
         return `${baseUrl}?${ogParams.toString()}`;
     };
 
     const shareToFacebook = () => {
         const text = `I'm going to watch ${bookingData?.movie_title} at ${bookingData?.cinema_name} on ${bookingData?.showtime_date}!`;
-        const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(getShareUrl())}&quote=${encodeURIComponent(text)}&picture=${encodeURIComponent(bookingData.movie.poster_url)}`;
+        const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(getShareUrl())}&quote=${encodeURIComponent(text)}`;
         window.open(url, '_blank', 'width=600,height=400');
     };
 
@@ -38,7 +38,6 @@ export default function SharePage({ bookingData, isSuccessPage }) {
         const url = `https://www.facebook.com/dialog/send?` +
                     `app_id=${appId}&` +
                     `link=${encodeURIComponent(getShareUrl())}&` +
-                    `picture=${encodeURIComponent(bookingData.movie.poster_url)}&` +
                     `redirect_uri=${encodeURIComponent(getShareUrl())}`;
         window.open(url, '_blank', 'width=600,height=400');
     };

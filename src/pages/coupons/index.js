@@ -51,7 +51,7 @@ export default function Coupons() {
                         sm:grid-cols-2
                         md:grid-cols-2
                         lg:grid-cols-4
-                        lg:gap-x-20 lg:gap-y-8
+                        lg:gap-x-5 lg:gap-y-10
                         sm:gap-x-3 sm:gap-y-6
                     ">
                         {getCurrentPageCoupons().map((coupon) => (

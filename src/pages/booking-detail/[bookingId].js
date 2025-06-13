@@ -105,7 +105,7 @@ export default function BookingDetailPage() {
             property="og:url"
             content={`https://6881-171-97-99-145.ngrok-free.app/booking-detail/${booking.booking_id}`}
           />
-          <meta property="og:image" content={booking.movie.poster_url} />
+          
         </Head>
       )}
       <div className="flex flex-col">

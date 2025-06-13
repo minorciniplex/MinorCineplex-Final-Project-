@@ -40,7 +40,7 @@ export default function CouponSelectPopup({ open, coupons, onClose, onApply }) {
           {validCoupons.map(coupon => (
             <div key={coupon.coupons.coupon_id} className="flex flex-col gap-4 ">
             <div
-              className={` lg:w-[464px] lg:h-[174px] lg:grid lg:grid-cols-2 sm:mb-[5px]
+              className={` lg:w-full lg:grid lg:grid-cols-2 sm:mb-[5px]
                  rounded flex items-center gap-3 p-3 cursor-pointer transition-all hover:bg-[#2A3349] ${activeCouponId === coupon.coupons.coupon_id ? 'border-2 border-white bg-[#353B4A]' : 'border border-transparent bg-[#232B47] hover:bg-[#2A3349]'}`}
               onClick={() => {
                 setActiveCouponId(coupon.coupons.coupon_id);

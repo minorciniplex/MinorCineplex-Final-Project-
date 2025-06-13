@@ -8,8 +8,6 @@ const MyCoupon = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  console.log(couponsInWallet);
-
   const fetchCoupons = async () => {
     try {
       const response = await axios.get(

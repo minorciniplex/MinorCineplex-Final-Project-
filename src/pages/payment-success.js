@@ -16,7 +16,7 @@ export default function PaymentSuccess() {
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showShare, setShowShare] = useState(false);
-  console.log(booking);
+  console.log(showShare);
 
   useEffect(() => {
     if (!bookingId) {
@@ -80,8 +80,8 @@ export default function PaymentSuccess() {
           .maybeSingle();
 
         // แปลง payment method ให้แสดงผลถูกต้อง
-        let displayPaymentMethod = 'Not specified'; // เปลี่ยน default เป็น 'ไม่ระบุ'
-        
+        let displayPaymentMethod = "Not specified"; // เปลี่ยน default เป็น 'ไม่ระบุ'
+
         // ใช้ sessionStorage เป็นอันดับแรก
         const lastPaymentMethod =
           typeof window !== "undefined"
@@ -92,7 +92,7 @@ export default function PaymentSuccess() {
           displayPaymentMethod = lastPaymentMethod;
         } else if (paymentData?.payment_method) {
           const paymentMethod = paymentData.payment_method.toLowerCase();
-          
+
           switch (paymentMethod) {
             case "omise_promptpay":
             case "promptpay":
@@ -127,7 +127,7 @@ export default function PaymentSuccess() {
             // ใช้ QR Code เป็น default เพราะระบบใช้ QR Code เป็นหลัก
             displayPaymentMethod = "QR Code";
           } else {
-            displayPaymentMethod = 'ไม่ระบุ';
+            displayPaymentMethod = "ไม่ระบุ";
           }
         }
 
@@ -150,18 +150,19 @@ export default function PaymentSuccess() {
         };
 
         const formatTime = (timeString) => {
-          return timeString ? timeString.substring(0, 5) : 'ไม่ระบุ';
+          return timeString ? timeString.substring(0, 5) : "ไม่ระบุ";
         };
 
         // สร้าง formatted booking object ด้วยข้อมูลจริงจากฐานข้อมูล
         const formattedBooking = {
           ...bookingData,
-          cinema_name: bookingData.showtimes.screens.cinemas.name || 'ไม่ระบุโรงภาพยนตร์',
+          cinema_name:
+            bookingData.showtimes.screens.cinemas.name || "ไม่ระบุโรงภาพยนตร์",
           show_date: formatDate(bookingData.showtimes.date),
           show_time: formatTime(bookingData.showtimes.start_time),
           hall: `Hall ${bookingData.showtimes.screens.screen_number}`,
-          movie_title: bookingData.showtimes.movies.title || 'ไม่ระบุชื่อหนัง',
-          seat: seatData?.map(s => s.seat_id).join(', ') || 'ไม่ระบุ',
+          movie_title: bookingData.showtimes.movies.title || "ไม่ระบุชื่อหนัง",
+          seat: seatData?.map((s) => s.seat_id).join(", ") || "ไม่ระบุ",
           payment_method: displayPaymentMethod,
           total: bookingData.total_price || 0,
           discount_amount:
@@ -183,7 +184,8 @@ export default function PaymentSuccess() {
   }, [bookingId]);
 
   if (loading) return <div className="text-white">Loading...</div>;
-  if (!booking) return <div className="text-white">Booking information not found</div>;
+  if (!booking)
+    return <div className="text-white">Booking information not found</div>;
 
   return (
     <>
@@ -253,7 +255,9 @@ export default function PaymentSuccess() {
 
               <div className="flex justify-between items-center">
                 <span className="text-base-gray-300">Total</span>
-                <span className="text-white font-bold">THB{booking.total-booking.discount_amount}</span>
+                <span className="text-white font-bold">
+                  THB{booking.total - booking.discount_amount}
+                </span>
               </div>
             </div>
           </div>
@@ -298,17 +302,19 @@ export default function PaymentSuccess() {
           </div>
           {/* popup box */}
           {showShare && (
+            <div>
             <div
-              className="inset-0 z-50"
+              className="fixed w-screen h-screen z-[100] bottom-0 border-2 border-red-500 " 
               onClick={(e) => {
                 if (e.target === e.currentTarget) {
                   setShowShare(false);
                 }
               }}
             >
-              <div className="relative md:-mt-20 lg:-mt-[200px]">
+              <div className=" md:-mt-20 lg:-mt-[200px]">
                 <SharePage bookingData={booking} isSuccessPage={true} />
               </div>
+            </div>
             </div>
           )}
         </div>

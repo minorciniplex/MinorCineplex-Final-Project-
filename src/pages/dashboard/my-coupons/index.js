@@ -6,7 +6,7 @@ import useCouponWallet from "@/hooks/useCouponWallet";
 const MyCoupon = () => {
   const router = useRouter();
   const { couponsInWallet, loading, error } = useCouponWallet();
-  console.log(couponsInWallet);
+
 
   if (loading) {
     return (

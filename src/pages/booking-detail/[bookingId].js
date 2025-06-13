@@ -17,7 +17,7 @@ export default function BookingDetailPage() {
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  console.log(booking);
+
 
   useEffect(() => {
     const fetchBookingHistory = async () => {

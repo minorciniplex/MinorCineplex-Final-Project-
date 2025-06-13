@@ -33,10 +33,6 @@ export default async function handler(req, res) {
       });
     }
 
-    console.log(`=== USER RESERVATIONS REQUEST ===`);
-    console.log(`User ID: ${userId}`);
-    console.log(`Showtime ID: ${showtimeId}`);
-
     // Execute the Supabase query - ONLY get reserved bookings (not paid ones)
     const { data, error } = await supabase
       .from('booking_seats')
@@ -61,8 +57,6 @@ export default async function handler(req, res) {
       .eq('showtime_id', showtimeId)
       .eq('bookings.user_id', userId)
       .eq('bookings.status', 'reserved'); // Only get reservations that haven't been paid
-
-    console.log('User reservations query result:', { data, error });
 
     if (error) {
       console.error('Supabase query error:', error);
@@ -93,9 +87,6 @@ export default async function handler(req, res) {
       if (!reservation.reserved_until) return true;
       return new Date(reservation.reserved_until) > now;
     });
-
-    console.log(`Found ${activeReservations.length} active reservations for user ${userId}`);
-    console.log('Active reservations:', activeReservations);
 
     return res.status(200).json(activeReservations);
 

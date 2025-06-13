@@ -30,7 +30,7 @@ const MyCoupon = () => {
         <h1 className="text-2xl md:text-2xl font-bold mb-4 md:mb-6">
           My coupons
         </h1>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-4 md:gap-6">
           {couponsInWallet.map((coupon) => (
             <div key={coupon.coupon_id} className="relative ">
               <CouponsCard

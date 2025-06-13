@@ -17,7 +17,6 @@ export default function BookingDetailPage() {
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  console.log(booking);
 
   useEffect(() => {
     const fetchBookingHistory = async () => {
@@ -105,12 +104,13 @@ export default function BookingDetailPage() {
             property="og:url"
             content={`https://6881-171-97-99-145.ngrok-free.app/booking-detail/${booking.booking_id}`}
           />
-          
         </Head>
       )}
       <div className="flex flex-col">
         <div className="mt-12 md:mt-[144px] md:px-[120px] md:pb-[88px]">
-          <h1 className="mt-10 ml-4 mb-6 md:ml-[120px] md:mt-0 md:mb-8 text-4xl font-bold">Booking Detail</h1>
+          <h1 className="mt-10 ml-4 mb-6 md:ml-[120px] md:mt-0 md:mb-8 text-4xl font-bold">
+            Booking Detail
+          </h1>
           <div className="flex flex-col md:flex-row justify-center items-start gap-6">
             {/* Poster */}
             {booking && (
@@ -143,18 +143,19 @@ export default function BookingDetailPage() {
                 </div>
                 <div className="mb-12 space-y-2 text-base-gray-300">
                   <div className="flex items-center gap-2">
-                    <FmdGoodIcon fontSize="small" className="gap-22"/> {booking.cinema.name}
+                    <FmdGoodIcon fontSize="small" className="gap-22" />{" "}
+                    {booking.cinema.name}
                   </div>
                   <div className="flex items-center gap-2">
-                    <CalendarMonthIcon fontSize="small" className="gap-22"/>{" "}
+                    <CalendarMonthIcon fontSize="small" className="gap-22" />{" "}
                     {formatDate(booking.showtime.date)}
                   </div>
                   <div className="flex items-center gap-2">
-                    <AccessTimeIcon fontSize="small" className="gap-22"/>{" "}
+                    <AccessTimeIcon fontSize="small" className="gap-22" />{" "}
                     {formatTimes(booking.showtime.start_time)}
                   </div>
                   <div className="flex items-center gap-2">
-                    <MeetingRoomIcon fontSize="small" className="gap-22"/> Hall{" "}
+                    <MeetingRoomIcon fontSize="small" className="gap-22" /> Hall{" "}
                     {booking.hall || 1}
                   </div>
                 </div>
@@ -194,7 +195,7 @@ export default function BookingDetailPage() {
           )}
         </div>
       </div>
-      <FooterSection className="block md:hidden"/>
+      <FooterSection className="block md:hidden" />
     </>
   );
 }

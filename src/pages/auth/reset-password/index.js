@@ -119,7 +119,6 @@ const ResetPassword = () => {
                             err.response.data?.message || 
                             "An error occurred while resetting your password";
         
-        // console.log("Setting error message:", errorMessage);
         setError(errorMessage);
       } else if (err.request) {
         setError("Connection error. Please check your internet connection and try again");

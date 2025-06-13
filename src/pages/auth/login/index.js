@@ -48,13 +48,11 @@ export default function Login() {
         setError({ email: "", password: "" });
         setResError("");
         setLoading(false);
-        console.log("login success");
         await checkAuthStatus();
         const redirectUrl = router.query.redirect || "/home-landing";
         router.push(decodeURIComponent(redirectUrl));
       }
     } catch (error) {
-      console.log(error.response?.data?.error);
       if (error.response?.data?.error === "Invalid login credentials") {
         setResError(true);
         setLoginAlert(true);

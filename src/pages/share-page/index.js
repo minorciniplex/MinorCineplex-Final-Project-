@@ -7,7 +7,7 @@ export default function SharePage({ bookingData, isSuccessPage }) {
   const [booking, setBooking] = useState(bookingData);
   const [copyStatus, setCopyStatus] = useState(false);
 
-  console.log(bookingData);
+
 
     const getShareUrl = () => {
         const baseUrl = `https://minor-cineplex-final-project.vercel.app/booking-detail/${bookingData.booking_id}`;
@@ -44,9 +44,7 @@ export default function SharePage({ bookingData, isSuccessPage }) {
 
   const shareToLine = () => {
     const text = `I'm going to watch ${bookingData?.movie_title} at ${bookingData?.cinema_name}!`;
-    const lineUrl = `https://line.me/R/msg/text/?${encodeURIComponent(
-      text + " " + getShareUrl()
-    )}`;
+    const lineUrl = `https://line.me/R/msg/text/?${encodeURIComponent(text + " " + getShareUrl())}`;
     window.open(lineUrl, "_blank");
   };
 
@@ -73,10 +71,10 @@ export default function SharePage({ bookingData, isSuccessPage }) {
   return (
     //popup box
     <div
-      className={`text-white p-4 bg-base-gray-100 shadow-[4px_4px_30px_0px_rgba(0,0,0,0.5)] rounded-[10px] z-[100] ${
+      className={`text-white p-4 bg-base-gray-100 shadow-[4px_4px_30px_0px_rgba(0,0,0,0.5)] rounded-[10px]  ${
         isSuccessPage
           ? "w-[274px] h-[208px] md:w-[400px] md:h-[140px] lg:w-[432px] lg:h-[160px] flex items-center justify-center mb-4 md:mb-0 md:mt-0 lg:mt-0"
-          : "absolute top-8 w-[274px] h-[208px] right-0 md:top-[30px] md:right-[66px] md:w-[432px] md:h-[128px] md:flex md:flex-row"
+          :"w-[274px] h-[208px] md:w-[400px] md:h-[140px] lg:w-[432px] lg:h-[160px] flex items-center justify-center mb-4 md:mb-0 md:mt-0 lg:mt-0"
       }`}
     >
       <div className="w-full flex flex-col justify-center">

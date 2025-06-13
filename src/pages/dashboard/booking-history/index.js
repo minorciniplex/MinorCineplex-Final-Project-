@@ -700,7 +700,23 @@ const BookingHistory = () => {
                       />
                     </svg>
                   </button>
-                  {showShare && <SharePage bookingData={selectedBooking} />}
+                  {showShare &&  (
+                    <div>
+                    <div
+                      className="fixed inset-0 z-100" 
+                      onClick={(e) => {
+                        if (e.target === e.currentTarget) {
+                          setShowShare(false);
+                        }
+                      }}
+                    >
+                  <div className="absolute top-[245px] left-[213px] md:top-[335px] md:left-[900px]">
+                  <SharePage bookingData={selectedBooking} 
+                  />
+                  </div>
+                  </div>
+                  </div>
+                  )}
                 </div>
                 {/* Close Button */}
                 <div>

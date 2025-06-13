@@ -9,17 +9,13 @@ export const useCoupon = () => {
   const checkCoupon = async (bookingId, couponId, totalPrice) => {
     setLoading(true);
     setError(null);
-    console.log("Sending request to /api/use-coupon with:", {
-      booking_id: bookingId,
-      coupon_id: couponId,
-    });
 
     try {
       const response = await axios.post("/api/use-coupon", {
         booking_id: bookingId,
         coupon_id: couponId,
       });
-      console.log("Response from /api/use-coupon:", response.data);
+
       if (response.data.success) {
         setDiscountAmount(response.data.discount_amount);
         const final_price =
@@ -58,11 +54,6 @@ export const useCoupon = () => {
   const applyCoupon = async (bookingId, couponId, discountAmount) => {
     setLoading(true);
     setError(null);
-    console.log("Sending request to /api/use-coupon/apply with:", {
-      booking_id: bookingId,
-      coupon_id: couponId,
-      discount_amount: discountAmount,
-    });
 
     try {
       const response = await axios.post("/api/use-coupon/apply", {

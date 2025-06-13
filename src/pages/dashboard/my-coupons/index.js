@@ -7,6 +7,7 @@ const MyCoupon = () => {
   const router = useRouter();
   const { couponsInWallet, loading, error } = useCouponWallet();
 
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">

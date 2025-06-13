@@ -240,16 +240,53 @@ const StripeCardForm = forwardRef(function StripeCardForm(
           
         // เรียก mark-paid API หลังจ่ายเงินสำเร็จ
         console.log("[DEBUG] Calling mark-paid API...");
-        const markPaidRes = await fetch("/api/booking/mark-paid", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ bookingId: bookingIdReal }),
-        });
-        const markPaidData = await markPaidRes.json();
-        console.log("[DEBUG] mark-paid API result:", markPaidData);
         
-        if (!markPaidData.success) {
-          return { error: "Failed to update booking: " + (markPaidData.error || "") };
+        try {
+          const markPaidRes = await fetch("/api/booking/mark-paid", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ bookingId: bookingIdReal }),
+          });
+          
+          console.log("[DEBUG] mark-paid response status:", markPaidRes.status);
+          
+          // ตรวจสอบว่า response เป็น JSON หรือไม่
+          const contentType = markPaidRes.headers.get("content-type");
+          if (!contentType || !contentType.includes("application/json")) {
+            console.error("[DEBUG] Response is not JSON:", contentType);
+            // ถ้าไม่ใช่ JSON ให้อ่านเป็น text
+            const textResponse = await markPaidRes.text();
+            console.error("[DEBUG] Response text:", textResponse);
+            
+            if (markPaidRes.status === 401) {
+              return { error: "กรุณาเข้าสู่ระบบใหม่" };
+            } else if (markPaidRes.status === 405) {
+              return { error: "เกิดข้อผิดพลาดจากเซิร์ฟเวอร์" };
+            } else {
+              return { error: "เกิดข้อผิดพลาดในการอัพเดทการจอง" };
+            }
+          }
+          
+          const markPaidData = await markPaidRes.json();
+          console.log("[DEBUG] mark-paid API result:", markPaidData);
+          
+          if (!markPaidRes.ok || !markPaidData.success) {
+            const errorMsg = markPaidData.error || `HTTP ${markPaidRes.status}`;
+            console.error("[DEBUG] mark-paid API failed:", errorMsg);
+            return { error: "Failed to update booking: " + errorMsg };
+          }
+        } catch (markPaidError) {
+          console.error("[DEBUG] mark-paid API error:", markPaidError);
+          // ถ้า mark-paid ล้มเหลว แต่ payment สำเร็จแล้ว ให้เก็บ log และดำเนินการต่อ
+          // อย่า return error เพราะเงินถูกหักแล้ว
+          console.log("[DEBUG] Payment successful but mark-paid failed, continuing...");
+          
+          // บันทึก error ลง local storage เพื่อให้หน้า success แสดงข้อความแจ้ง
+          localStorage.setItem("payment_success_with_booking_update_error", JSON.stringify({
+            bookingId: bookingIdReal,
+            error: markPaidError.message,
+            timestamp: new Date().toISOString()
+          }));
         }
         
         console.log("[DEBUG] Payment completed successfully");

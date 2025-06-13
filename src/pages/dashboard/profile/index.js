@@ -7,6 +7,18 @@ import CouponAlert from "@/components/Coupons-components/CouponAlert";
 import Image from "next/image";
 import ProfileAlert from "@/components/ProfileAlert";
 
+// ฟังก์ชันเช็ค src ให้ปลอดภัย
+const getProfileSrc = (src) => {
+  if (
+    typeof src === "string" &&
+    src.trim() &&
+    (src.startsWith("/") || src.startsWith("http"))
+  ) {
+    return src;
+  }
+  return "/default-profile.png"; // fallback ที่ควรมีใน public/
+};
+
 const ProfileUpload = () => {
   const router = useRouter();
   const { user } = useStatus();
@@ -150,7 +162,7 @@ const ProfileUpload = () => {
       const response = await axios.put("/api/auth/change-profile", form);
       if (response.status === 200) {
         setError({ name: "", email: "", both: "" });
-        setAlertOpen("อัพเดทโปรไฟล์สำเร็จ");
+        setAlertOpen("Profile updated successfully");
         // รีเฟรชข้อมูลผู้ใช้
         checkAuthStatus();
         fetchUserData();
@@ -167,30 +179,30 @@ const ProfileUpload = () => {
   };
 
   return (
-    <div className="w-[400px] h-[596px] gap-10 px-4">
-      <h1 className="text-[36px] font-bold mb-4">Profile</h1>
-      <h2 className="text-[#8B93B0] text-lg w-full lg:w-[550px]">
+    <div className="w-full px-4 md:px-0 md:w-[400px] md:h-[596px] gap-10">
+      <h1 className="text-2xl md:text-[36px] font-bold mb-4">Profile</h1>
+      <h2 className="text-[#8B93B0] text-base md:text-lg w-full lg:w-[550px]">
         Keep your personal details private.
       </h2>
-      <h2 className="text-[#8B93B0] text-lg mb-4 w-full lg:w-[550px]">
+      <h2 className="text-[#8B93B0] text-base md:text-lg mb-4 w-full lg:w-[550px]">
         Information you add here is visible to anyone who can view your profile
       </h2>
       <div>
         {/* Content */}
         <div className="flex-1 w-full max-w-[400px] mx-auto md:pt-14 md:ml-[20px] md:mt-[-38px]">
           <div className="flex flex-col items-start mb-6">
-            <div className="w-[120px] h-[120px] rounded-full bg-[#23263A] flex items-center justify-center overflow-hidden mb-2 relative">
+            <div className="w-[100px] h-[100px] md:w-[120px] md:h-[120px] rounded-full bg-[#23263A] flex items-center justify-center overflow-hidden mb-2 relative">
               <Image
-                src={form.user_profile}
+                src={getProfileSrc(form.user_profile)}
                 alt="Profile"
-                width={120}
-                height={120}
-                className="object-cover w-[120px] h-[120px] rounded-full"
+                width={100}
+                height={100}
+                className="object-cover w-[100px] h-[100px] md:w-[120px] md:h-[120px] rounded-full"
               />
               {uploadingImage && (
                 <div className="absolute inset-0 bg-black/60 flex items-center justify-center rounded-full z-10">
                   <svg
-                    className="animate-spin h-8 w-8 text-white"
+                    className="animate-spin h-6 w-6 md:h-8 md:w-8 text-white"
                     viewBox="0 0 24 24"
                   >
                     <circle
@@ -211,7 +223,7 @@ const ProfileUpload = () => {
                 </div>
               )}
             </div>
-            <label className="body-1-regular text-white cursor-pointer text-sm underline ml-[140px] mt-[-26px] ">
+            <label className="body-1-regular text-white cursor-pointer text-sm underline ml-[110px] md:ml-[140px] mt-[-26px]">
               Upload
               <input
                 type="file"
@@ -270,7 +282,7 @@ const ProfileUpload = () => {
 
         <button
           type="submit"
-          className="w-[111px] h-[48px] pt-3 pr-10 pb-3 pl-10 gap-1.5 rounded border bg-[#070C1B] text-white border-[#565F7E] hover:bg-[#1c223a] focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full md:w-[111px] h-[48px] pt-3 pr-10 pb-3 pl-10 gap-1.5 rounded border bg-[#070C1B] text-white border-[#565F7E] hover:bg-[#1c223a] focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           Save
         </button>

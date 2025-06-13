@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import Link from "next/link";
-import { use } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
 import { Loading } from "@/components/ui/loading";
 import { useStatus } from "@/context/StatusContext";
 import { useEffect } from "react";
 import NavbarLoading from "@/components/Navbar/NavbarLoading";
+import CouponAlert from "@/components/Coupons-components/CouponAlert";
 export default function Login() {
   const { isLoggedIn, checkAuthStatus } = useStatus();
   const [form, setForm] = useState({
@@ -14,10 +14,12 @@ export default function Login() {
     password: "",
     remember: false,
   });
+  const [loginAlert, setLoginAlert] = useState();
 
   useEffect(() => {
     if (isLoggedIn) {
-      router.push("/home-landing");
+      const redirectUrl = router.query.redirect || "/home-landing";
+      router.push(decodeURIComponent(redirectUrl));
     }
   }, [isLoggedIn]);
 
@@ -46,16 +48,14 @@ export default function Login() {
         setError({ email: "", password: "" });
         setResError("");
         setLoading(false);
-        console.log("login success");
         await checkAuthStatus();
-        router.push("/home-landing");
+        const redirectUrl = router.query.redirect || "/home-landing";
+        router.push(decodeURIComponent(redirectUrl));
       }
     } catch (error) {
-      console.log(error.response?.data?.error);
-      if (
-        error.response?.data?.error === "Invalid login credentials"
-      ) {
-        setResError("Email or password is incorrect");
+      if (error.response?.data?.error === "Invalid login credentials") {
+        setResError(true);
+        setLoginAlert(true);
         setLoading(false);
         setForm({ ...form, password: "" });
       } else if (error.response?.data?.error) {
@@ -133,7 +133,7 @@ export default function Login() {
                 onChange={handleChange}
                 placeholder="Password"
                 className={
-                  error.password
+                  error.password || resError
                     ? "w-full px-4 py-2 bg-[#1c223a] border border-red-600 rounded focus:outline-none"
                     : "w-full px-4 py-2 bg-[#1c223a] border border-gray-600 rounded focus:outline-none"
                 }
@@ -154,7 +154,7 @@ export default function Login() {
                 />
                 <span>Remember me</span>
               </label>
-              <Link href="/forgot-password" className="underline">
+              <Link href="/auth/forgot-password" className="underline">
                 Forgot password?
               </Link>
             </div>
@@ -179,6 +179,14 @@ export default function Login() {
           </form>
         )}
       </div>
+
+      <CouponAlert
+        open={loginAlert}
+        onClose={() => { setLoginAlert(false); setResError(""); }}
+        text="Your password is incorrect or this email doesn’t exist"
+        text_sub="Please try another password or email"
+        type="error"
+      />
     </>
   );
 }

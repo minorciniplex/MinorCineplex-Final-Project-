@@ -172,6 +172,28 @@ body {
 <!-- แสดงเฉพาะบน desktop -->
 <div class="sm:hide md:hide lg:show">แสดงเฉพาะ Desktop</div> */
 
+/* ซ่อน Stripe popup เตือน */
+.__PrivateStripeElement iframe {
+  /* ซ่อน popup autofill warning */
+}
+
+/* ซ่อน Stripe Elements autofill warning popup */
+.StripeElement--webkit-autofill {
+  background: transparent !important;
+}
+
+/* ซ่อน autofill warning message */
+div[data-testid="autofill-warning"] {
+  display: none !important;
+}
+
+/* ซ่อน popup เตือน "this form does not use a secure connection" */
+[data-testid="form-insecure-warning"],
+[aria-label*="secure connection"],
+[role="alert"]:has-text("secure connection") {
+  display: none !important;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

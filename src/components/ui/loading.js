@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 
 // Loading component สำหรับแสดงสถานะกำลังโหลด
 export const Loading = () => {
@@ -14,9 +15,11 @@ export const Loading = () => {
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#181B29] bg-opacity-90">
       <div className="flex flex-col items-center gap-4">
-        <img
+        <Image
           src="/assets/popcorn-svgrepo-com.svg"
           alt="Loading"
+          width={96}
+          height={96}
           className="w-24 h-24 animate-spin"
           style={{ animationDuration: '2s' }} // หมุนช้าลง
         />

@@ -1,5 +1,10 @@
-import PaymentMobile from '../../components/PaymentMobile';
+import PaymentMobile from '../../components/Coupon-PaymentCard/CouponApply';
+import { PaymentProvider } from '@/context/PaymentContext';
 
 export default function PaymentPage() {
-  return <PaymentMobile />;
-} 
+  return (
+    <PaymentProvider>
+      <PaymentMobile />
+    </PaymentProvider>
+  );
+}

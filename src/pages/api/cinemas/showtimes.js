@@ -39,10 +39,13 @@ export default async function handler(req, res) {
         .select(
           `
       start_time,
+      showtime_id,
       screens!inner (
         screen_number,
+        price,
         cinemas!inner (
-          name
+          name,
+          cinema_id
         )
       ),
       movies!inner (
@@ -80,7 +83,7 @@ export default async function handler(req, res) {
         cinema_name: item.screens.cinemas.name,
         show_date: item.date,
         poster_url: item.movies.poster_url,
-        movie_title: item.movies.title,
+        movie_title: item.movies.title.trim(),
         genre: item.movies.movie_genre_mapping
           .map((g) => g.movie_genres.name)
           .join(", "),
@@ -89,34 +92,56 @@ export default async function handler(req, res) {
           .join("/ "),
         movie_id: item.movies.movie_id,
         screen_number: item.screens.screen_number,
+        price: item.screens.price,
         start_time: item.start_time,
+        showtime_id: item.showtime_id,
       }));
 
       const showtimesGrouped = formattedData.reduce((acc, showtime) => {
-        const { movie_id, movie_title, poster_url, genre, language_code } =
-          showtime;
+        const {
+          movie_id,
+          cinema_name,
+          movie_title,
+          poster_url,
+          genre,
+          language_code,
+          screen_number,
+          price,
+          start_time,
+          showtime_id,
+        } = showtime;
 
+        // Create movie entry if it doesn't exist
         if (!acc[movie_id]) {
           acc[movie_id] = {
-            id: movie_id,
+            movie_id: movie_id,
+            cinemaName: cinema_name,
             title: movie_title,
             posterUrl: poster_url,
             genre,
             languageCode: language_code,
             halls: {},
+            prices: {},
           };
         }
 
-        // Group by hall/screen
-        const hallNumber = `Hall ${showtime.screen_number}`;
+        const hallNumber = `Hall ${screen_number}`;
+
+        // Add price once for each hall (screen_number)
+        if (!acc[movie_id].prices[hallNumber]) {
+          acc[movie_id].prices[hallNumber] = price;
+        }
+
+        // Group showtimes by hall
         if (!acc[movie_id].halls[hallNumber]) {
           acc[movie_id].halls[hallNumber] = [];
         }
 
-        // Add showtime to this hall
-        acc[movie_id].halls[hallNumber].push(
-          showtime.start_time.substring(0, 5)
-        ); // Extract HH:MM from time
+        // Add structured showtime object
+        acc[movie_id].halls[hallNumber].push({
+          time: start_time.substring(0, 5),
+          showtime_id: showtime_id,
+        });
 
         return acc;
       }, {});
@@ -153,6 +178,7 @@ export default async function handler(req, res) {
           },
         },
       });
+      // res.status(200).json({data})
     } catch (error) {
       console.error("Server error:", error);
       return res.status(500).json({ error: "Internal Server Error" });

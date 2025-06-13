@@ -1,14 +1,71 @@
 import Image from "next/image";
 import Link from "next/link";
 import ShowtimeButtons from "@/components/MovieDetail/ShowTimeButtons";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 export default function ShowtimeCard({ showtimes, date }) {
+  const router = useRouter();
+  const [movies, setMovie] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchMovieDetails = async () => {
+      try {
+        const controller = new AbortController();
+        const response = await axios.get(
+          `/api/movies-detail/getMoviesDetail?id=${showtimes[0].movie_id}`,
+          {
+            signal: controller.signal,
+            timeout: 10000,
+          }
+        );
+
+        if (response.status !== 200 || !response.data.data) {
+          throw new Error("Failed to fetch movie details");
+        }
+        setMovie(response.data.data);
+        return () => controller.abort();
+      } catch (err) {
+        if (axios.isCancel(err)) {
+          console.log("Request cancelled");
+        } else {
+          setError(err);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMovieDetails();
+  }, []);
+
+  const handleSelect = ({ time, movie, date, hall, showtime_id }) => {
+    const query = new URLSearchParams({
+      poster: movie.posterUrl,
+      title: movie.title,
+      time: time,
+      date: date.fullDate,
+      screenNumber: hall.split(" ")[1],
+      genres: JSON.stringify(movies.movie_genre_mapping), // แปลง object เป็น string
+      language: JSON.stringify(movies.original_language),
+      cinemaName: movie.cinemaName,
+      showtimeId: showtime_id,
+      movieId: movie.movie_id,
+      price: movie.prices[hall],
+    }).toString();
+
+    router.push(`/booking/seats/seat?${query}`);
+  };
+
   return (
     <div className="py-10 md:px-24 md:py-20">
       <div className="space-y-6">
         {showtimes.map((movie) => (
           <div
-            key={movie?.id}
+            key={movie?.movie_id}
             className="bg-[var(--base-gray-0)] rounded-lg overflow-hidden"
           >
             <div className="flex flex-col md:flex-row gap-0">
@@ -35,7 +92,7 @@ export default function ShowtimeCard({ showtimes, date }) {
                       {/* Genre pills */}
                       {movie?.genre.split(", ").map((genre, index) => (
                         <span
-                          key={`${movie.id}-genre-${index}`}
+                          key={`${movie.movie_id}-genre-${index}`}
                           className="text-xs sm:text-sm bg-gray-800 text-gray-300 px-3 py-1.5 rounded-lg"
                         >
                           {genre}
@@ -51,7 +108,7 @@ export default function ShowtimeCard({ showtimes, date }) {
 
                     {/* Mobile only (inside the info block) */}
                     <Link
-                      href={`/movies/${movie?.id}`}
+                      href={`/movies/${movie?.movie_id}`}
                       className="inline-block text-base mt-6 md:hidden text-white underline hover:text-blue-500"
                     >
                       Movie detail
@@ -60,7 +117,7 @@ export default function ShowtimeCard({ showtimes, date }) {
 
                   {/* Desktop only (outside the info block) */}
                   <Link
-                    href={`/movies/${movie?.id}`}
+                    href={`/movies/${movie?.movie_id}`}
                     className="hidden md:inline-block text-base text-white underline hover:text-blue-500 mt-2"
                   >
                     Movie detail
@@ -69,26 +126,40 @@ export default function ShowtimeCard({ showtimes, date }) {
               </div>
 
               {/* Right Column: Only Halls & Showtimes */}
-              <div className="px-4 py-6 md:p-10 w-full">
-                {/* Halls & Showtimes */}
-                <div className="space-y-10 sm:space-y-14">
-                  {Object.entries(movie?.halls).map(([hall, times]) => (
-                    <div key={`${movie?.id}-${hall}`}>
+              <div className="w-full space-y-10 px-4 py-6 sm:space-y-14 md:p-10">
+                {Object.entries(movie?.halls).map(([hall, timesArray]) => {
+                  const formattedTimes = timesArray.map((t) => t.time);
+
+                  return (
+                    <div key={`${movie?.movie_id}-${hall}`}>
                       <h3 className="text-[var(--base-gray-400)] mb-4 text-xl sm:text-2xl">
                         {hall}
                       </h3>
                       <ShowtimeButtons
-                        times={times}
+                        times={formattedTimes}
                         date={date}
                         movie={movie}
                         hall={hall}
-                        onSelect={(time) => {
-                          console.log("Selected time:", time);
+                        onSelect={({ time, movie, hall, date }) => {
+                          const showtimeObj = timesArray.find(
+                            (t) => t.time === time
+                          );
+                          const showtime_id = showtimeObj
+                            ? showtimeObj.showtime_id
+                            : null;
+
+                          handleSelect({
+                            time,
+                            movie,
+                            hall,
+                            date,
+                            showtime_id,
+                          });
                         }}
                       />
                     </div>
-                  ))}
-                </div>
+                  );
+                })}
               </div>
             </div>
           </div>

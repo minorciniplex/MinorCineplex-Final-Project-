@@ -8,12 +8,57 @@ import { useCouponClaim } from "@/hooks/useCouponClaim";
 import { useFetchCoupon } from "@/context/fecthCouponContext";
 import { movieApi, cinemaApi, couponApi } from "@/services/api";
 
+// Error Popup Component
+function ErrorPopup({ isOpen, onClose, title, message }) {
+  useEffect(() => {
+    if (isOpen) {
+      const timer = setTimeout(() => {
+        onClose();
+      }, 5000); // Auto close after 5 seconds
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed bottom-4 right-4 z-50 max-w-sm bg-red-600 text-white rounded-lg shadow-lg border border-red-700">
+      <div className="p-4">
+        <div className="flex items-start justify-between">
+          <div className="flex-1">
+            <h3 className="font-bold text-sm mb-1">{title}</h3>
+            <p className="text-sm text-red-100">{message}</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="ml-3 text-red-200 hover:text-white focus:outline-none"
+          >
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ErrorBoundary({ children }) {
   const [error, setError] = useState(null);
   if (error) {
     return (
       <div style={{ color: "red", padding: 32 }}>
-        เกิดข้อผิดพลาด: {error.message}
+        Error occurred: {error.message}
       </div>
     );
   }
@@ -56,6 +101,29 @@ export const FrameByCinema = ({ filters, coupon_id, onError }) => {
   const { isClaimed, isLoading, handleClaimCoupon, alertOpen, setAlertOpen } =
     useCouponClaim(coupon_id);
 
+  // Error popup states
+  const [errorPopup, setErrorPopup] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+  });
+
+  const showErrorPopup = (title, message) => {
+    setErrorPopup({
+      isOpen: true,
+      title,
+      message,
+    });
+  };
+
+  const closeErrorPopup = () => {
+    setErrorPopup({
+      isOpen: false,
+      title: "",
+      message: "",
+    });
+  };
+
   useEffect(() => {
     async function fetchMovies() {
       setLoading(true);
@@ -87,13 +155,17 @@ export const FrameByCinema = ({ filters, coupon_id, onError }) => {
         // --- จบส่วนนี้ ---
       } catch (error) {
         console.error("Error fetching movies:", error);
+        showErrorPopup(
+          "Unable to Load Movies",
+          "Something went wrong while retrieving movies. Please refresh or try again later."
+        );
         if (onError) onError(error);
       } finally {
         setLoading(false);
       }
     }
     fetchMovies();
-  }, [filters]);
+  }, [filters, onError]);
 
   useEffect(() => {
     async function fetchCinemas() {
@@ -108,13 +180,17 @@ export const FrameByCinema = ({ filters, coupon_id, onError }) => {
         setAllCinemasByProvince(grouped);
       } catch (error) {
         console.error("Error fetching cinemas:", error);
+        showErrorPopup(
+          "Unable to Load Cinemas",
+          "Something went wrong while retrieving cinemas. Please refresh or try again later."
+        );
         if (onError) onError(error);
       } finally {
         setCinemaLoading(false);
       }
     }
     fetchCinemas();
-  }, []);
+  }, [onError]);
 
   useEffect(() => {
     async function fetchCoupons() {
@@ -123,11 +199,15 @@ export const FrameByCinema = ({ filters, coupon_id, onError }) => {
         setCoupons(data || []);
       } catch (error) {
         console.error("Error fetching coupons:", error);
+        showErrorPopup(
+          "Unable to Load Coupons",
+          "Something went wrong while retrieving coupons. Please refresh or try again later."
+        );
         if (onError) onError(error);
       }
     }
     fetchCoupons();
-  }, [setCoupons]);
+  }, [setCoupons, onError]);
 
   useEffect(() => {
     if (viewMode === "nearest-locations") {
@@ -142,11 +222,19 @@ export const FrameByCinema = ({ filters, coupon_id, onError }) => {
               setLocationError(null);
             },
             (error) => {
-              setLocationError("ไม่สามารถเข้าถึงตำแหน่งของคุณได้");
+              setLocationError("Unable to access your location");
+              showErrorPopup(
+                "Location Access Denied",
+                "Unable to access your location. Please enable location services or manually browse cinemas by city."
+              );
             }
           );
         } else {
-          setLocationError("เบราว์เซอร์ของคุณไม่รองรับการขอตำแหน่ง");
+          setLocationError("Your browser does not support location requests");
+          showErrorPopup(
+            "Location Not Supported",
+            "Your browser does not support location requests. Please manually browse cinemas by city."
+          );
         }
       }
     }
@@ -157,23 +245,84 @@ export const FrameByCinema = ({ filters, coupon_id, onError }) => {
       try {
         const { data: cinemas } = await cinemaApi.getAll();
         if (userLocation && cinemas) {
-          const cinemasWithDistance = cinemas.map((cinema) => ({
-            ...cinema,
-            distance: getDistance(
+          const cinemasWithDistance = cinemas.map((cinema) => {
+            // ตรวจสอบพิกัดให้ถูกต้อง
+            const cinemaLat = parseFloat(cinema.latitude);
+            const cinemaLng = parseFloat(cinema.longitude);
+            
+            // ตรวจสอบว่าพิกัดเป็นค่า valid หรือไม่
+            if (isNaN(cinemaLat) || isNaN(cinemaLng) || 
+                cinemaLat < -90 || cinemaLat > 90 || 
+                cinemaLng < -180 || cinemaLng > 180) {
+              console.warn(`Invalid coordinates for cinema ${cinema.name}:`, cinema.latitude, cinema.longitude);
+              return {
+                ...cinema,
+                distance: 999999, // ให้ค่าสูงมากเพื่อแสดงท้ายสุด
+              };
+            }
+
+            // ตรวจสอบว่าพิกัดอยู่ในประเทศไทยหรือไม่ (ช่วงที่กว้างขึ้น)
+            // ประเทศไทย: Latitude 5.5-20.5°N, Longitude 97.3-105.6°E
+            if (cinemaLat < 5.5 || cinemaLat > 20.5 || cinemaLng < 97.3 || cinemaLng > 105.6) {
+              console.warn(`Coordinates outside Thailand for ${cinema.name}:`, cinemaLat, cinemaLng);
+              // ถ้าพิกัดอยู่นอกประเทศไทย ให้ใส่ระยะทางเป็นค่าสูงมาก
+              return {
+                ...cinema,
+                distance: 999999,
+              };
+            }
+
+            const distance = getDistance(
               {
                 latitude: userLocation.latitude,
                 longitude: userLocation.longitude,
               },
-              { latitude: cinema.latitude, longitude: cinema.longitude }
-            ),
-          }));
+              { 
+                latitude: cinemaLat, 
+                longitude: cinemaLng 
+              }
+            );
+
+            // ตรวจสอบผลลัพธ์ระยะทาง ถ้าเกิน 1000 กม. (1,000,000 เมตร) ให้ถือว่าผิดปกติ
+            if (distance > 1000000) {
+              console.warn(`Suspicious distance ${distance}m (${(distance/1000).toFixed(2)}km) for ${cinema.name}`);
+              console.warn(`User coords: ${userLocation.latitude}, ${userLocation.longitude}`);
+              console.warn(`Cinema coords: ${cinemaLat}, ${cinemaLng}`);
+              
+              // ใส่ค่าผิดปกติ
+              return {
+                ...cinema,
+                distance: 999999,
+              };
+            }
+
+            return {
+              ...cinema,
+              distance,
+            };
+          });
+          
           const sorted = cinemasWithDistance.sort(
             (a, b) => a.distance - b.distance
           );
+          
+          // เช็คว่าโรงหนังที่ใกล้ที่สุดอยู่ห่างเกิน 10 km. หรือไม่
+          const nearestValidCinema = sorted.find(cinema => cinema.distance !== 999999);
+          if (!nearestValidCinema || nearestValidCinema.distance > 10000) {
+            showErrorPopup(
+              "No Nearby Cinemas Found",
+              "We couldn't find any cinemas near your location. Try searching in another area."
+            );
+          }
+          
           setNearestCinemas(sorted);
         }
       } catch (error) {
         console.error("Error fetching nearest cinemas:", error);
+        showErrorPopup(
+          "Unable to Load Nearby Cinemas",
+          "Something went wrong while retrieving nearby cinemas. Please refresh or try again later."
+        );
       }
     }
     if (userLocation && viewMode === "nearest-locations") {
@@ -191,7 +340,7 @@ export const FrameByCinema = ({ filters, coupon_id, onError }) => {
       }
     }
     // eslint-disable-next-line
-  }, [nowShowingMovies, comingSoonMovies]);
+  }, [filters, nowShowingMovies, comingSoonMovies]);
 
   const totalMovies =
     activeTab === "now-showing"
@@ -353,14 +502,14 @@ export const FrameByCinema = ({ filters, coupon_id, onError }) => {
     <>
       <section
         ref={sectionRef}
-        className="flex flex-col w-full mt-[170px] md:mt-20"
+        className="flex flex-col w-full mt-[180px] md:mt-20"
       >
         {/* Now Showing Section */}
         <div className="flex flex-col items-center gap-2 md:gap-10 px-4 md:px-[120px] py-4 md:py-20 w-full max-w-full md:max-w-[1440px] mx-auto">
-          <div className="flex flex-row items-center gap-6 w-full mb-8 ">
+          <div className="flex flex-row items-center gap-6 w-full">
             <button
               onClick={() => setActiveTab("now-showing")}
-              className={`pb-1 transition-all duration-500 ease-in-out font-bold text-2xl md:text-3xl ${
+              className={`pb-1 transition-all duration-500 ease-in-out font-bold text-lg md:text-2xl ${
                 activeTab === "now-showing"
                   ? "text-white border-b-2 border-base-gray-200"
                   : "text-base-gray-400"
@@ -370,7 +519,7 @@ export const FrameByCinema = ({ filters, coupon_id, onError }) => {
             </button>
             <button
               onClick={() => setActiveTab("coming-soon")}
-              className={`pb-1 transition-all duration-500 ease-in-out font-bold text-2xl md:text-3xl ${
+              className={`pb-1 transition-all duration-500 ease-in-out font-bold text-lg md:text-2xl ${
                 activeTab === "coming-soon"
                   ? "text-white border-b-2 border-base-gray-200"
                   : "text-base-gray-400"
@@ -394,18 +543,15 @@ export const FrameByCinema = ({ filters, coupon_id, onError }) => {
                 No movies found.
               </div>
             ) : (
-              (activeTab === "now-showing"
-                ? nowShowingMovies
-                : comingSoonMovies
-              )
+              (activeTab === "now-showing" ? nowShowingMovies : comingSoonMovies)
                 ?.slice(startIndex, endIndex)
                 .map((movie) => (
                   <div
                     key={movie.movie_id || movie.id}
-                    className="flex flex-col items-start gap-3 md:gap-4 group cursor-pointer w-[161px] min-h-[385px] md:w-[285px] md:min-h-[416px]"
+                    className="flex flex-col items-start gap-3 md:gap-4 group cursor-pointer w-full min-h-[385px] md:w-[285px] md:min-h-[416px]"
                   >
                     <div
-                      className="w-[161px] h-[235px] md:w-[285px] md:h-[416px] rounded-[4px] bg-cover bg-center shadow-md mx-auto transition-transform duration-300 group-hover:scale-105"
+                      className="w-full h-[235px] md:w-[285px] md:h-[416px] rounded-[4px] bg-cover bg-center shadow-md mx-auto transition-transform duration-300 group-hover:scale-105"
                       style={{
                         backgroundImage: `url(${
                           movie.poster_url || movie.poster
@@ -413,7 +559,7 @@ export const FrameByCinema = ({ filters, coupon_id, onError }) => {
                       }}
                       onClick={() =>
                         router.push(
-                          `/movies-detail/${movie.movie_id || movie.id}`
+                          `/booking/movies-detail/${movie.movie_id || movie.id}`
                         )
                       }
                     />
@@ -425,9 +571,7 @@ export const FrameByCinema = ({ filters, coupon_id, onError }) => {
                         <div className="flex items-center">
                           <StarFillIcon className="w-4 h-4 fill-[#4E7BEE] text-[#4E7BEE]" />
                           <span className="text-base-gray-300 body-2-regular ml-1 flex items-center">
-                            {movie.rating !== undefined && movie.rating !== null
-                              ? Number(movie.rating).toFixed(1)
-                              : ""}
+                            {movie.rating !== undefined && movie.rating !== null ? Number(movie.rating).toFixed(1) : ''}
                           </span>
                         </div>
                       </div>
@@ -435,7 +579,9 @@ export const FrameByCinema = ({ filters, coupon_id, onError }) => {
                         className="text-basewhite font-bold truncate max-w-full text-lg md:text-[22.5px] group-hover:text-brandblue-100 transition-colors duration-200"
                         onClick={() =>
                           router.push(
-                            `/movies-detail/${movie.movie_id || movie.id}`
+                            `/booking/movies-detail/${
+                              movie.movie_id || movie.id
+                            }`
                           )
                         }
                       >
@@ -455,9 +601,7 @@ export const FrameByCinema = ({ filters, coupon_id, onError }) => {
                       {/* Languages */}
                       {(() => {
                         const langs = movieLangMap[movie.movie_id] || [];
-                        const original = langs.find(
-                          (l) => l.type === "original"
-                        );
+                        const original = langs.find((l) => l.type === "original");
                         const dubbed = langs.find((l) => l.type === "dubbed");
                         if (dubbed && original) {
                           return (
@@ -474,10 +618,7 @@ export const FrameByCinema = ({ filters, coupon_id, onError }) => {
                           return (
                             <span
                               key={
-                                movie.movie_id +
-                                "-" +
-                                original.code +
-                                "-original"
+                                movie.movie_id + "-" + original.code + "-original"
                               }
                               className="px-3 py-1.5 bg-base-gray-100 text-base-gray-400 body-2-regular rounded"
                             >
@@ -488,10 +629,7 @@ export const FrameByCinema = ({ filters, coupon_id, onError }) => {
                           return (
                             <span
                               key={
-                                movie.movie_id +
-                                "-" +
-                                dubbed.code +
-                                "-dubbedonly"
+                                movie.movie_id + "-" + dubbed.code + "-dubbedonly"
                               }
                               className="px-3 py-1.5 bg-base-gray-100 text-base-gray-300 body-2-regular rounded"
                             >
@@ -545,7 +683,7 @@ export const FrameByCinema = ({ filters, coupon_id, onError }) => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-5 w-full  md:px-0">
             {coupons.length === 0 ? (
               <div className="col-span-full text-center text-base-gray-400 py-10">
-                ไม่พบคูปอง
+                No coupons found
               </div>
             ) : (
               coupons.slice(0, 4).map((coupon) => (
@@ -649,7 +787,7 @@ export const FrameByCinema = ({ filters, coupon_id, onError }) => {
                           key={cinema.cinema_id}
                           className="w-full min-h-[120px] max-w-[344px] mx-auto p-4 border border-base-gray-100 rounded-[4px] flex items-center gap-4 mb-2 md:mb-0 md:p-4 md:rounded-[4px] md:bg-transparent md:max-w-[590px] md:border md:border-base-gray-100 cursor-pointer hover:border-brandblue-100 transition-colors duration-200 group md:mx-0"
                           onClick={() =>
-                            router.push(`/cinemas/${cinema.cinema_id}`)
+                            router.push(`/booking/cinemas/${cinema?.cinema_id}`)
                           }
                         >
                           <div className="w-[40px] h-[40px] md:w-[52px] md:h-[52px] flex items-center justify-center rounded-full bg-[#21263F]">
@@ -690,7 +828,7 @@ export const FrameByCinema = ({ filters, coupon_id, onError }) => {
                       key={cinema.cinema_id}
                       className="w-full min-h-[120px] max-w-[590px] mx-auto p-4 border border-base-gray-100 rounded-[4px] flex items-center gap-4 mb-2 md:mb-0 md:p-4 md:rounded-[4px] md:bg-transparent md:border md:border-base-gray-100 cursor-pointer hover:border-brandblue-100 transition-colors duration-200 group"
                       onClick={() =>
-                        router.push(`/cinemas/${cinema.cinema_id}`)
+                        router.push(`/booking/cinemas/${cinema?.cinema_id}`)
                       }
                     >
                       <div className="w-[40px] h-[40px] md:w-[52px] md:h-[52px] flex items-center justify-center rounded-full bg-[#21263F]">
@@ -706,7 +844,12 @@ export const FrameByCinema = ({ filters, coupon_id, onError }) => {
                           {cinema.address}
                         </p>
                         <span className="text-brandblue-100 text-xs mt-1">
-                          {(cinema.distance / 1000).toFixed(2)} KM.
+                          {cinema.distance === 999999 ? 
+                            'Unable to calculate distance.' : 
+                            cinema.distance < 1000 ? 
+                              `${cinema.distance.toFixed(0)} m.` : 
+                              `${(cinema.distance / 1000).toFixed(2)} KM.`
+                          }
                         </span>
                       </div>
                     </div>
@@ -717,6 +860,14 @@ export const FrameByCinema = ({ filters, coupon_id, onError }) => {
           </div>
         </div>
       </section>
+
+      {/* Error Popup */}
+      <ErrorPopup
+        isOpen={errorPopup.isOpen}
+        onClose={closeErrorPopup}
+        title={errorPopup.title}
+        message={errorPopup.message}
+      />
     </>
   );
 };

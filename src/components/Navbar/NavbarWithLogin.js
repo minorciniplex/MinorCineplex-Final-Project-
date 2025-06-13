@@ -2,11 +2,10 @@ import React from "react";
 import Button from "@/components/Button";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 import axios from "axios";
-import { useEffect } from "react";
 import { useStatus } from "@/context/StatusContext";
 import Link from "next/link";
 
@@ -14,7 +13,13 @@ const NavbarWithLogin = () => {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [dataUser, setDataUser] = useState(null);
+  const [isClient, setIsClient] = useState(false);
   const { isLoggedIn, checkAuthStatus } = useStatus();
+
+  // ป้องกัน hydration error
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const handleLogoClick = () => {
     router.push("/home-landing"); // กลับไปหน้าแรก
@@ -89,17 +94,19 @@ const NavbarWithLogin = () => {
         <nav className="hidden md:inline-flex items-center gap-6 relative self-stretch">
           <div className="px-5 flex flex-row items-center gap-4">
             {dataUser?.user_profile && (
-              <img
+              <Image
                 src={dataUser?.user_profile}
                 alt="user profile"
+                width={40}
+                height={40}
                 className="w-[40px] h-[40px] rounded-full"
-              ></img>
+              />
             )}
             <p className="body-2-regular text-base-gray-400 font-bold">
               {dataUser?.name}
             </p>
           </div>
-          <button onClick={() => setMenuOpen((open) => !open)}>
+          <button onClick={() => isClient && setMenuOpen((open) => !open)}>
             <svg
               width="24"
               height="24"
@@ -110,7 +117,7 @@ const NavbarWithLogin = () => {
               <path d="M18 9L12 15L6 9" stroke="#8B93B0" />
             </svg>
           </button>
-          {menuOpen && (
+          {isClient && menuOpen && (
             <div className="absolute top-20">
               <div className="w-[182px] h-[300px] max-w-full mx-auto rounded-none rounded-b-[16px] border-b border-[#21263F] bg-black/40 backdrop-blur-[15px] pt-6 pr-4 pb-6 flex flex-col justify-center ">
                 {/* Booking history */}
@@ -311,22 +318,24 @@ const NavbarWithLogin = () => {
         {/* Hamburger for mobile */}
         <button
           className="block md:hidden text-white focus:outline-none"
-          onClick={() => setMenuOpen((open) => !open)}
+          onClick={() => isClient && setMenuOpen((open) => !open)}
           aria-label="Toggle menu"
         >
           <MenuIcon className="w-6 h-6 md:w-8 md:h-8 " />
         </button>
         {/* Mobile Menu Overlay */}
-        {menuOpen && (
+        {isClient && menuOpen && (
           <div className="md:hidden fixed left-0 right-0 top-12 z-[9999] w-full min-h-[176px] flex items-center justify-center">
             <div className="w-full h-[400px] max-w-full mx-auto rounded-none rounded-b-[16px] border-b border-[#21263F] bg-black/40 backdrop-blur-[15px] pt-6 pr-4 pb-6 flex flex-col justify-center ">
               <div className="px-5 py-4 flex flex-row items-center gap-4">
                 {dataUser?.user_profile && (
-                  <img
+                  <Image
                     src={dataUser?.user_profile}
                     alt="user profile"
+                    width={40}
+                    height={40}
                     className="w-[40px] h-[40px] rounded-full "
-                  ></img>
+                  />
                 )}
                 <p className="body-2-regular text-base-gray-400 font-bold">
                   {dataUser?.name}

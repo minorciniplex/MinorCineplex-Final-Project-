@@ -40,7 +40,7 @@ const ShowtimeButtons = ({ times = [], date, movie, hall, onSelect }) => {
               className={buttonClass}
               onClick={() => {
                 if (onSelect) {
-                  onSelect({ time, movie, hall, date });
+                  onSelect({ time, movie, hall, date});
                 }
               }}
             >

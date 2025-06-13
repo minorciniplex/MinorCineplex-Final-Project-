@@ -1,34 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useRouter } from "next/router";
-import axios from "axios";
-import Navbar from "@/components/Navbar/Navbar";
-import { Button } from "@/components/ui/button";
 import CouponsCard from "@/components/Coupons-components/CouponsCard";
+import useCouponWallet from "@/hooks/useCouponWallet";
 
 const MyCoupon = () => {
   const router = useRouter();
-  const [couponsInWallet, setCouponsInWallet] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { couponsInWallet, loading, error } = useCouponWallet();
 
-  console.log(couponsInWallet);
-
-  const fetchCoupons = async () => {
-    try {
-      const response = await axios.get(
-        "/api/dashboard/get-all-from-user-coupon"
-      );
-      setCouponsInWallet(response.data.data);
-      setLoading(false);
-    } catch (error) {
-      setError(error.response?.data?.error || error.message);
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchCoupons();
-  }, []);
 
   if (loading) {
     return (
@@ -41,18 +19,20 @@ const MyCoupon = () => {
   if (error) {
     return (
       <div className="text-center text-red-500 p-4">
-        <p>เกิดข้อผิดพลาด: {error}</p>
+        <p>An error occurred: {error}</p>
       </div>
     );
   }
 
   return (
     <>
-      <div className="lg:w-[789px] sm:w-[380px] " >
-        <h1 className="text-2xl font-bold mb-6">My coupons</h1>
-        <div className="grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-22 gap-4">
+      <div className="w-full md:w-max px-4 md:px-0 ">
+        <h1 className="text-2xl md:text-2xl font-bold mb-4 md:mb-6">
+          My coupons
+        </h1>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-4 md:gap-6">
           {couponsInWallet.map((coupon) => (
-            <div key={coupon.coupon_id} className="relative">
+            <div key={coupon.coupon_id} className="relative ">
               <CouponsCard
                 coupon_id={coupon.coupon_id}
                 image={coupon.coupons.image}
@@ -63,8 +43,8 @@ const MyCoupon = () => {
           ))}
         </div>
         {couponsInWallet.length === 0 && (
-          <div className="text-center text-gray-500 mt-8">
-            <p>คุณยังไม่มีคูปองในกระเป๋า</p>
+          <div className="text-center text-gray-500 mt-6 md:mt-8">
+            <p>You don&apos;t have any coupons in your wallet yet</p>
           </div>
         )}
       </div>

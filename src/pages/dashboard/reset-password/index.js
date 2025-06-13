@@ -77,16 +77,16 @@ function ResetPassword() {
 
   return (
     <>
-      <div className="flex flex-col items-start justify-start min-h-screen w-[400px] px-4 ">
+      <div className="flex flex-col items-start justify-start min-h-screen w-full px-4 md:w-[400px]">
         <form
-          className="flex flex-col justify-center item-center w-full max-w-sm text-white space-y-2 "
+          className="flex flex-col justify-center item-center w-full max-w-sm text-white space-y-2"
           onSubmit={(e) => {
             e.preventDefault();
             validateForm();
           }}
         >
-          <div className="flex flex-col justify-start items-start w-full ">
-            <h1 className="text-[36px] lg:text-[36px] font-bold mb-4 ">
+          <div className="flex flex-col justify-start items-start w-full">
+            <h1 className="text-2xl md:text-[36px] font-bold mb-4">
               Reset Password
             </h1>
           </div>
@@ -122,18 +122,18 @@ function ResetPassword() {
           {error.confirmPassword === "Confirm password is required" && (
             <p className="text-red-500 ">{error.confirmPassword}</p>
           )}
-          <div className="py-4 ">
+          <div className="py-4">
           <button
             type="submit"
             disabled={loading}
-            className="w-1/2 h-[48px] px-4 py-2  text-white rounded-lg border border-[#565F7E] focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full md:w-1/2 h-[48px] px-4 py-2 text-white rounded-lg border border-[#565F7E] focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             Reset Password
           </button>
           </div>
         </form>
         {error.confirmPassword === "Passwords do not match" && (
-          <p className=" text-red-500">{error.confirmPassword}</p>
+          <p className="text-red-500">{error.confirmPassword}</p>
         )}
         {resError && <p className="mt-4 text-red-500">{resError}</p>}
       </div>

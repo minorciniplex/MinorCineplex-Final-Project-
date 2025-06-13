@@ -10,7 +10,7 @@ export const useCouponClaim = (couponId) => {
 
   const handleClaimCoupon = async () => {
     if (!user) {
-      alert('กรุณาเข้าสู่ระบบก่อนรับคูปอง');
+      alert('Please login before claiming coupon');
       return;
     }
 
@@ -26,17 +26,17 @@ export const useCouponClaim = (couponId) => {
         setAlertOpen(true);
         await checkUserCoupon();
       } else {
-        alert(res.data.error || 'ไม่สามารถรับคูปองได้');
-        if (res.data.error === 'คุณมีคูปองนี้อยู่แล้ว') {
+        alert(res.data.error || 'Unable to claim coupon');
+        if (res.data.error === 'You already have this coupon') {
           setIsClaimed(true);
         }
       }
     } catch (err) {
       console.error('Error claiming coupon:', err);
-      if (err.response?.data?.error === 'คุณมีคูปองนี้อยู่แล้ว') {
+      if (err.response?.data?.error === 'You already have this coupon') {
         setIsClaimed(true);
       } else {
-        alert('เกิดข้อผิดพลาดขณะรับคูปอง');
+        alert('Error occurred while claiming coupon');
       }
     } finally {
       setIsLoading(false);

@@ -7,19 +7,81 @@ import {
 } from "../ui/accordion";
 import FmdGoodIcon from "@mui/icons-material/FmdGood";
 import ShowtimeButtons from "@/components/MovieDetail/ShowTimeButtons";
+import { useRouter } from "next/router";
+import axios from "axios";
 
 export default function ShowTimes({ showtimes, date }) {
   const [openItems, setOpenItems] = useState([]);
+  const router = useRouter();
+  const [movie, setMovie] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const { movieId } = router.query;
 
-useEffect(() => {
-  setOpenItems((prev) => {
-    const newKeys = showtimes.map((_, index) => `item-${index}`);
-    const added = newKeys.filter(key => !prev.includes(key));
-    return [...prev, ...added];
-  });
-}, [showtimes]);
+  useEffect(() => {
+    const fetchMovieDetails = async () => {
+      try {
+        const controller = new AbortController();
+        const response = await axios.get(
+          `/api/movies-detail/getMoviesDetail?id=${movieId}`,
+          {
+            signal: controller.signal,
+            timeout: 10000,
+          }
+        );
 
+        if (response.status !== 200 || !response.data.data) {
+          throw new Error("Failed to fetch movie details");
+        }
+        setMovie(response.data.data);
+        return () => controller.abort();
+      } catch (err) {
+        if (axios.isCancel(err)) {
+          console.log("Request cancelled");
+        } else {
+          setError(err);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
 
+    fetchMovieDetails();
+  }, [movieId]);
+
+  useEffect(() => {
+    setOpenItems((prev) => {
+      const newKeys = showtimes.map((_, index) => `item-${index}`);
+      const added = newKeys.filter((key) => !prev.includes(key));
+      return [...prev, ...added];
+    });
+  }, [showtimes]);
+
+  const handleSelect = ({
+    time,
+    screenNumber,
+    cinemaName,
+    date,
+    showtimeId,
+    price,
+  }) => {
+    // ตัวอย่างการ push ไปหน้าจองตั๋ว
+    const query = new URLSearchParams({
+      poster: movie.poster_url,
+      title: movie.title,
+      genres: JSON.stringify(movie.movie_genre_mapping), // แปลง object เป็น string
+      language: JSON.stringify(movie.original_language),
+      time: time.time,
+      screenNumber,
+      cinemaName,
+      date,
+      movieId: movieId,
+      showtimeId: showtimeId,
+      price: price,
+    }).toString();
+
+    router.push(`/booking/seats/seat?${query}`);
+  };
   return (
     <div>
       <div className="md:mt-10">
@@ -60,26 +122,33 @@ useEffect(() => {
               </AccordionTrigger>
               <AccordionContent className="space-y-8 md:space-y-[60px] py-6 px-4 md:py-0 md:px-0">
                 {Object.entries(cinema.screens).map(
-                  ([screenNumber, times], hallIndex) => (
-                    <div key={hallIndex}>
-                      <h3 className="text-[--base-gray-400] text-2xl font-bold mb-4 gap-4 md:mb-4">
-                        Hall {screenNumber}
-                      </h3>
-                      <ShowtimeButtons
-                        times={times}
-                        date={date}
-                        screenNumber={screenNumber}
-                        cinemaName={cinema.name}
-                        onSelect={(time) => {
-                          handleSelect({
-                            time,
-                            screenNumber,
-                            cinemaName: cinema.name,
-                          });
-                        }}
-                      />
-                    </div>
-                  )
+                  ([screenNumber, times], hallIndex) => {
+                    const formattedTimes = times.map((t) => t.time);
+                    return (
+                      <div key={hallIndex}>
+                        <h3 className="text-[--base-gray-400] text-2xl font-bold mb-4 gap-4 md:mb-4">
+                          Hall {screenNumber}
+                        </h3>
+                        <ShowtimeButtons
+                          times={formattedTimes}
+                          date={date}
+                          onSelect={(time) => {
+                            const selectedShowtime = times.find(
+                              (t) => t.time === time.time
+                            );
+                            handleSelect({
+                              time,
+                              screenNumber,
+                              cinemaName: cinema.name,
+                              date: cinema.date,
+                              showtimeId: selectedShowtime?.showtime_id,
+                              price: cinema.screenPrices[screenNumber],
+                            });
+                          }}
+                        />
+                      </div>
+                    );
+                  }
                 )}
               </AccordionContent>
             </AccordionItem>

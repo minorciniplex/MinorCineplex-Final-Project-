@@ -31,7 +31,7 @@ export default function CategoryBar() {
           `/api/coupons/get-coupon/name?owner_name=${category}`
         );
         setCoupons(response.data.coupons);
-        setIsLoading(false)
+        setIsLoading(false);
       } catch (error) {
         console.error("Error fetching category coupons:", error);
       } finally {

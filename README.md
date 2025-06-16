@@ -242,11 +242,10 @@ MinorCineplex-Final-Project/
 ## 👨‍💻 Contributors
 
 - [Pawarit Sripayom](https://github.com/Wizardsmile1412) – Showtimes & Seat Selection Features
-- [Passawit Rungpichayanukul](https://github.com/Jin111-1) – Coupons & Times remaining
-  [Wuttichai Jeenkaew](https://github.com/wuttichai-jeenkaew) Authentication & Dashboard
-  [Sanya Bochoun](https://github.com/sanya-bochoun/) -Distance Cenima - Admin Dashboard
-  [Fes]
-- [Full Name] – [Role]
+- [Passawit Rungpichayanukul](https://github.com/Jin111-1) – Coupons & Time Remaining Handler
+- [Wuttichai Jeenkaew](https://github.com/wuttichai-jeenkaew) - Authentication & User Dashboard
+- [Sanya Bochoun](https://github.com/sanya-bochoun/) - Distance Cenima & Admin Dashboard
+- [Chalunton Vipusanapas](https://github.com/ChaLconner) - Showtimes & UI Lead
 
 ---
 
@@ -254,7 +253,6 @@ MinorCineplex-Final-Project/
 
 - [Techup Thailand](https://www.techupth.com/)
 - Movie data provided by [Internet Movie Database (IMDb)](https://www.imdb.com/)
-- Icons by [Lucide Icons](https://lucide.dev/)
 - Inspiration from modern cinema booking platforms
 
 ---
@@ -262,6 +260,6 @@ MinorCineplex-Final-Project/
 <div align="center">
   <p>Made with ❤️ by the Minor Cineplex Team</p>
   <p>
-    <a href="#-minor-cineplex">Back to Top ⬆️</a>
+    <a href="#-table-of-contents">Back to Top ⬆️</a>
   </p>
 </div>

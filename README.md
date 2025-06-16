@@ -150,12 +150,35 @@ Open your browser at: http://localhost:3000
 ## 🎯 Usage Guide
 
 ### For Users
+1. **🔐 Account Setup**: 
+-Registration: Create account with email, first name, last name, and password
+-Login/Logout: Sign in and out using registered credentials
+-Profile Management: Edit personal information in Profile page
+-Session Management: Automatic session handling by the system
 
-1. **🔐 Account Setup**: Register with email or social login
-2. **🎬 Browse Movies**: Explore current and upcoming films
-3. **📍 Find Cinemas**: Use location services to find nearby venues
-4. **🎫 Book Tickets**: Select showtimes, choose seats, and checkout
-5. **📱 Manage Bookings**: View history and share tickets
+2. **🎬 Browse Movies**: 
+-Movie Catalog: View all available movies in the Movies page
+-Movie Details: See movie information including poster, synopsis, and duration
+-Genre Information: Browse movies by different categories
+-Movie Search: Search for movies by title or genre
+
+3. **📍 Find Cinemas**: 
+-Cinema Locations: View list of all cinema locations
+-Cinema Details: See cinema information including address and contact details
+-Theater Information: Check number and types of screening rooms
+
+4. **🎫 Book Tickets**: 
+-Showtime Selection: Choose screening times from the schedule
+-Seat Selection: Pick seats from the cinema seating map
+-Booking Process: Fill in booking details and confirm reservation
+-Payment: Complete payment process and receive tickets
+
+
+5. **📱 Manage Bookings**: 
+-Booking History: View all booking records in My Bookings page
+-Booking Details: Check detailed information for each booking
+-Ticket Status: Monitor ticket status (Active, Used, Cancelled)
+-Booking Cancellation: Cancel bookings (subject to terms and conditions)
 
 ---
 
@@ -220,6 +243,9 @@ MinorCineplex-Final-Project/
 
 - [Pawarit Sripayom](https://github.com/Wizardsmile1412) – Showtimes & Seat Selection Features
 - [Passawit Rungpichayanukul](https://github.com/Jin111-1) – Coupons & Times remaining
+  [Wuttichai Jeenkaew](https://github.com/wuttichai-jeenkaew) Authentication & Dashboard
+  [Sanya Bochoun](https://github.com/sanya-bochoun/) -Distance Cenima - Admin Dashboard
+  [Fes]
 - [Full Name] – [Role]
 
 ---

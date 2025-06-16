@@ -21,19 +21,24 @@ Authentication, password management, and personal dashboards ensure a secure and
 ## 🧰 Technologies Used
 
 **Frontend:**
+
 - ⚛️ Next.js, React
 - 🎨 Tailwind CSS
 
 **Backend:**
+
 - 🛠️ Supabase (PostgreSQL)
 
 **Authentication:**
+
 - 🔐 Supabase Auth
 
 **Payment:**
+
 - 💳 Stripe, Omise
 
 **Deployment:**
+
 - 🚀 Vercel
 
 ---
@@ -91,6 +96,7 @@ npm install
 ```
 
 ### 3. Set environment variables
+
 Create a .env.local file in the root directory and fill in the following values:
 
 <details> <summary>Click to expand environment variables</summary>
@@ -128,6 +134,7 @@ EMAIL_PASSWORD=your-email-password
 EMAIL_NOTIFICATIONS_ENABLED=true
 
 ```
+
 </details>
 
 ### 4. Run the development server
@@ -135,6 +142,7 @@ EMAIL_NOTIFICATIONS_ENABLED=true
 ```bash
 npm run dev
 ```
+
 Open your browser at: http://localhost:3000
 
 ---
@@ -142,6 +150,7 @@ Open your browser at: http://localhost:3000
 ## 🎯 Usage Guide
 
 ### For Users
+
 1. **🔐 Account Setup**: Register with email or social login
 2. **🎬 Browse Movies**: Explore current and upcoming films
 3. **📍 Find Cinemas**: Use location services to find nearby venues
@@ -151,24 +160,40 @@ Open your browser at: http://localhost:3000
 ---
 
 ## 📂 Project Architecture
-```text
-minor-cineplex/
-├── 📁 src/
-│   ├── 🧩 components/          # Reusable React components
-│   │   ├── ui/                 # Base UI components (buttons, inputs, etc.)
-│   │   ├── sections/           # Page-specific sections
-│   │   └── layout/             # Layout wrappers and navigation
-│   ├── 📄 pages/               # Next.js pages and API routes
-│   │   ├── api/                # Backend API endpoints
-│   │   ├── auth/               # Authentication pages
-│   │   └── booking/            # Booking flow pages
-│   ├── 🎨 styles/              # Global CSS and Tailwind configs
-│   ├── 🔧 utils/               # Helper functions and utilities
-│   ├── 🪝 hooks/               # Custom React hooks
-│   └── 📊 lib/                 # Database and external service configs
-├── 📁 public/                  # Static assets (images, icons, etc.)
-└── 📁 docs/                    # Documentation and guides
+
 ```
+MinorCineplex-Final-Project/
+├── ⚙️.github/  workflows           # GitHub Actions and workflows configuration
+├── 📦.next/ build                  # Next.js production build directory
+├── 🌐public/ static                # Static files directory
+│ ├── 🎨assets/                     # Various assets
+│ └── 🖼️images/                     # Project images
+│
+├── 💻src/ code                     # Main application code
+│ ├── 🧩components/                 # Reusable React components
+│ ├── 🔗context/                    # React Context for state management
+│ ├── 🎣hooks/                      # Custom React hooks
+│ ├── 📚lib/                        # Base libraries and utilities
+│ ├── 🚦middleware/                 # Middleware functions
+│ │ 
+│ ├── 📄pages/                      # Next.js pages
+│ │     ├──🔌api                      # Api Endpoint
+│ │     ├──🔐auth                     # Authentication page
+│ │     ├──🎟️booking                  # Booking page
+│ │     ├──🎫coupons                  # Coupons page
+│ │     └──💳payment                  # Payment page
+│ │ 
+│ ├── 📞services/                   # Services (API calls, etc.)
+│ ├── 💅styles/                     # CSS and styling files
+│ └── 🛠️utils/                      # Utility functions
+│
+├── 🚀supabase/ database  Supabase  # Supabase configuration and related files
+├── 🚫.gitignore                    # Git ignore rules
+├── ⚙️next.config.js Next.js        # Next.js configuration
+├── 📝package.json npm              # Project metadata and dependencies
+└── 📜README.md docs                # Project documentation
+```
+
 ---
 
 ## 🗄️ Database Schema
@@ -176,16 +201,16 @@ minor-cineplex/
 <details>
 <summary><strong>Core Tables Overview</strong></summary>
 
-| Table | Purpose | Key Features |
-|-------|---------|-------------|
-| `users` | User management | Profiles, preferences, auth data |
-| `movies` | Film catalog | Metadata, ratings, media assets |
-| `cinemas` | Venue information | Locations, facilities, pricing |
-| `showtimes` | Schedule management | Real-time availability |
-| `seats` | Seating arrangements | Layout, availability |
-| `bookings` | Reservation tracking | Status, timestamps, user relations |
-| `payments` | Transaction records | Payment methods, status, receipts |
-| `coupons` | Promotion system | Discounts, validity, usage tracking |
+| Table       | Purpose              | Key Features                        |
+| ----------- | -------------------- | ----------------------------------- |
+| `users`     | User management      | Profiles, preferences, auth data    |
+| `movies`    | Film catalog         | Metadata, ratings, media assets     |
+| `cinemas`   | Venue information    | Locations, facilities, pricing      |
+| `showtimes` | Schedule management  | Real-time availability              |
+| `seats`     | Seating arrangements | Layout, availability                |
+| `bookings`  | Reservation tracking | Status, timestamps, user relations  |
+| `payments`  | Transaction records  | Payment methods, status, receipts   |
+| `coupons`   | Promotion system     | Discounts, validity, usage tracking |
 
 </details>
 
@@ -194,7 +219,7 @@ minor-cineplex/
 ## 👨‍💻 Contributors
 
 - [Pawarit Sripayom](https://github.com/Wizardsmile1412) – Showtimes & Seat Selection Features
-- [Full Name] – [Role]
+- [Passawit Rungpichayanukul](https://github.com/Jin111-1) – Coupons & Times remaining
 - [Full Name] – [Role]
 
 ---
@@ -207,9 +232,10 @@ minor-cineplex/
 - Inspiration from modern cinema booking platforms
 
 ---
+
 <div align="center">
   <p>Made with ❤️ by the Minor Cineplex Team</p>
   <p>
-    <a href="#minor-cineplex">Back to Top ⬆️</a>
+    <a href="#-minor-cineplex">Back to Top ⬆️</a>
   </p>
 </div>

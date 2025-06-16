@@ -27,10 +27,10 @@ export default function SharePage({ bookingData, isSuccessPage }) {
 
   const shareToX = () => {
     const text = `I'm going to watch ${bookingData?.movie_title} at ${bookingData?.cinema_name} on ${bookingData?.showtime_date} !`;
-    const lineUrl = `https://line.me/R/msg/text/?${encodeURIComponent(
+    const xUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
       text + " " + getShareUrl()
     )}`;
-    window.open(lineUrl, "_blank");
+    window.open(xUrl, "_blank");
   };
 
     const shareToMessenger = () => {

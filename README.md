@@ -241,11 +241,11 @@ MinorCineplex-Final-Project/
 
 ## 👨‍💻 Contributors
 
-- [Pawarit Sripayom](https://github.com/Wizardsmile1412) – Showtimes & Seat Selection Features
-- [Passawit Rungpichayanukul](https://github.com/Jin111-1) – Coupons & Time Remaining Handler
+- [Pawarit Sripayom](https://github.com/Wizardsmile1412) – Showtimes & Seat booking Features and Showtimes and Movie database
+- [Passawit Rungpichayanukul](https://github.com/Jin111-1) – Coupons & Time Remaining Handler & Booking sharing
 - [Wuttichai Jeenkaew](https://github.com/wuttichai-jeenkaew) - Authentication & User Dashboard
-- [Sanya Bochoun](https://github.com/sanya-bochoun/) - Distance Cinema & Admin Dashboard
-- [Chalunton Vipusanapas](https://github.com/ChaLconner) - Showtimes & UI Lead
+- [Sanya Bochoun](https://github.com/sanya-bochoun/) - Distance Cinema & Payment system & Admin Dashboard
+- [Chalunton Vipusanapas](https://github.com/ChaLconner) - Showtimes & UI Integrator
 
 ---
 

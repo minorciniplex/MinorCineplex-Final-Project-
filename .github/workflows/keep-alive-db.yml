@@ -1,0 +1,43 @@
+name: Keep Database Alive
+
+on:
+  schedule:
+    - cron: "0 0 */2 * *" # ทำงานทุกๆ 2 วันตอนเที่ยงคืน
+  workflow_dispatch: # เอาไว้ให้กด Run แบบ Manual ได้
+
+jobs:
+  ping-database:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase Database (Multiple Tables)
+        run: |
+          BASE_URL="https://mvlmpdjlmvhqbajcmqwv.supabase.co/rest/v1"
+          API_KEY="${{ secrets.SUPABASE_ANON_KEY }}"
+          TABLES=("movies" "bookings" "cinemas" "users" "coupons" "showtimes")
+          FAILED=0
+
+          echo "🔄 Pinging Supabase Database to keep it alive..."
+          echo "================================="
+
+          for TABLE in "${TABLES[@]}"; do
+            response=$(curl -s -w "\n%{http_code}" -X GET "${BASE_URL}/${TABLE}?select=id&limit=1" \
+              -H "apikey: ${API_KEY}" \
+              -H "Authorization: Bearer ${API_KEY}")
+
+            http_code=$(echo "$response" | tail -n1)
+
+            if [ "$http_code" -ne 200 ]; then
+              echo "❌ ${TABLE}: failed (HTTP ${http_code})"
+              FAILED=1
+            else
+              echo "✅ ${TABLE}: OK"
+            fi
+          done
+
+          echo "================================="
+          if [ "$FAILED" -ne 0 ]; then
+            echo "⚠️ Some tables failed to respond!"
+            exit 1
+          else
+            echo "🎉 All tables pinged successfully!"
+          fi

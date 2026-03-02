@@ -7,8 +7,8 @@ on:
       - "supabase/functions/test_edge_function/**"
       - ".github/workflows/deploy-test_edge_function.yml"
   schedule:
-    - cron: '*/15 * * * *'  # Every 15 minutes
-  workflow_dispatch:  # Manual trigger
+    - cron: "0 0 */7 * *" # Every 7 days
+  workflow_dispatch: # Manual trigger
 
 jobs:
   deploy:
@@ -20,7 +20,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: "18"
 
       - name: Supabase login
         run: npx supabase login --token ${{ secrets.SUPABASE_ACCESS_TOKEN }}
@@ -46,7 +46,7 @@ jobs:
           echo "Workflow: '${{ github.workflow }}'"
           echo "Current time: $(date)"
           echo "========================="
-          
+
       - name: Call Edge Function
         run: |
           echo "Calling Supabase function from ${{ github.event_name }}..."
@@ -55,13 +55,13 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
             -H "Content-Type: application/json" \
             -d '{"source": "${{ github.event_name }}", "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'", "branch": "${{ github.ref_name }}"}')
-          
+
           http_code=$(echo "$response" | tail -n1)
           body=$(echo "$response" | head -n -1)
-          
+
           echo "HTTP Status: $http_code"
           echo "Response: $body"
-          
+
           if [ "$http_code" -ne 200 ]; then
             echo "❌ Function call failed with status $http_code"
           else
